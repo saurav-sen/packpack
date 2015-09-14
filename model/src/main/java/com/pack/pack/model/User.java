@@ -1,13 +1,10 @@
 package com.pack.pack.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Property;
 
 /**
  * 
@@ -15,30 +12,27 @@ import javax.persistence.TableGenerator;
  *
  */
 @Entity
-@Table(name="USER")
-public class User {
+public class User extends IdentifiableObject {
 	
-	@TableGenerator(name="ID_GEN", table="ID_GEN_TABLE", 
-			pkColumnName="ID_GEN_KEY", pkColumnValue="ID_GEN_VALUE",
-			allocationSize=1)
-	@Id
-	@GeneratedValue(generator="ID_GEN", strategy=GenerationType.TABLE)
-	private long id;
-
-	@Column(name="NAME", nullable=false)
+	@Property("name")
 	private String name;
 	
-	@Column(name="PACK_IMG")
+	@Property("packImg")
 	private String packImage;
 	
-	@Column(name="PROFILE_PICTURE")
+	@Property("profilePciture")
 	private String profilePicture;
 	
-	@Column(name="USERNAME", nullable=false, unique=true)
+	@Property("username")
 	private String username;
-	
-	@Column(name="PWD")
+
+	@Property("pwd")
 	private String password;
+	
+	private List<Group> groups;
+	
+	@Property(value="origin", concreteClass=UserOrigin.class)
+	private UserOrigin origin;
 
 	public String getName() {
 		return name;
@@ -80,11 +74,22 @@ public class User {
 		this.password = password;
 	}
 
-	public long getId() {
-		return id;
+	public List<Group> getGroups() {
+		if(groups == null) {
+			groups = new ArrayList<Group>(1);
+		}
+		return groups;
 	}
 
-	public void setId(long id) {
-		this.id = id;
+	public void setGroups(List<Group> groups) {
+		this.groups = groups;
+	}
+
+	public UserOrigin getOrigin() {
+		return origin;
+	}
+
+	public void setOrigin(UserOrigin origin) {
+		this.origin = origin;
 	}
 }

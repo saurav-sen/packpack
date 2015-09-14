@@ -16,7 +16,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 		<javaVersion>1.8</javaVersion>
-		<java.version>1.8</java.version>
+		<morphia.version>1.0.1</morphia.version>
 		<encoding>UTF-8</encoding>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<artifacts.directory>${project.build.directory}/artifacts</artifacts.directory>
@@ -49,30 +49,13 @@
 		<org.apache.log4j>1.2.15.v201012070815</org.apache.log4j>
 		<com.oracle.jdbc.driver>11.2.0.1.0</com.oracle.jdbc.driver>
 		<javax.persistence>2.0.0.v201002051058</javax.persistence>
-		<org.hibernate.persistence>1.0.1.Final</org.hibernate.persistence>
-		<org.hibernate>4.0.1.GA</org.hibernate>
-		<org.hibernate.em>4.0.1.Final</org.hibernate.em>
-		<hibernate-validator.version>4.2.0.Final</hibernate-validator.version>
 		<javax.validation.validation-api>1.1.0.Final</javax.validation.validation-api>		
 		<junit.version>4.10</junit.version>		
 		<!--slf4j.version>1.5.10</slf4j.version-->	
-		<slf4j.version>1.6.4</slf4j.version>
-		<hsqldb.version>2.3.1</hsqldb.version>
-		<hsqldb.plugin.version>1.0.0</hsqldb.plugin.version>
-		<hsqldb.address>localhost</hsqldb.address>
-		<hsqldb.name>packDB</hsqldb.name>
-		<hsqldb.path>mem:packDB</hsqldb.path>
-		<hsqldb.username>SA</hsqldb.username>
-		<hsqldb.password></hsqldb.password>
-		<hsqldb.driver>org.hsqldb.jdbcDriver</hsqldb.driver>
-		<hsqldb.connectionURL>jdbc:hsqldb:hsql://${hsqldb.address}/${hsqldb.name}</hsqldb.connectionURL>
-		<hsqldb.validationQuery>SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS</hsqldb.validationQuery>		
+		<slf4j.version>1.6.4</slf4j.version>			
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>		
 		<spring.version>4.1.6.RELEASE</spring.version>
-		<joda-time.version>1.6.2</joda-time.version>
-		<pdfBox.version>1.8.9</pdfBox.version>
-		<im4java.version>1.4.0</im4java.version>
-		<imgscalr-lib.version>4.2</imgscalr-lib.version>
+		<joda-time.version>1.6.2</joda-time.version>		
 	</properties>
 
 	<modules>
