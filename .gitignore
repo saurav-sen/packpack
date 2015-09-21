@@ -1,0 +1,14 @@
+target
+target/classes
+lib
+.project
+.classpath
+.settings
+.class
+.jar
+.zip
+.rar
+.tar
+bin
+.DS_Store
+
