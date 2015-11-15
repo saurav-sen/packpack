@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.pack.pack</groupId>
 	<artifactId>com.pack.pack</artifactId>
-	<version>1.0.0-DEV</version>
+	<version>1.0-DEV</version>
 	<name>PackPack</name>
 	<description>PackPack</description>
 	<packaging>pom</packaging>
@@ -18,6 +18,7 @@
 		<javaVersion>1.8</javaVersion>
 		<java.version>1.8</java.version>
 		<encoding>UTF-8</encoding>
+		<ektorp.version>1.2.2</ektorp.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<artifacts.directory>${project.build.directory}/artifacts</artifacts.directory>
 		<finalName>${project.artifactId}-${project.version}</finalName>
@@ -57,7 +58,9 @@
 	</properties>
 
 	<modules>
-		<module>api</module>		
+		<!--module>model</module>
+		<module>couchdb</module>
+		<module>api</module-->		
 	</modules>
 	<profiles>
 		
