@@ -20,7 +20,7 @@ public class Pack extends CouchDbDocument {
 	 */
 	private static final long serialVersionUID = -3991470211498256682L;
 
-	private String imgUrl;
+	private String packImageId;
 	
 	private String story;
 	
@@ -37,14 +37,6 @@ public class Pack extends CouchDbDocument {
 	private Float avgRating;
 	
 	private Timestamp creationTime;
-
-	public String getImgUrl() {
-		return imgUrl;
-	}
-
-	public void setImgUrl(String imgUrl) {
-		this.imgUrl = imgUrl;
-	}
 
 	public String getStory() {
 		return story;
@@ -106,5 +98,13 @@ public class Pack extends CouchDbDocument {
 
 	public void setCreatorId(String creatorId) {
 		this.creatorId = creatorId;
+	}
+
+	public String getPackImageId() {
+		return packImageId;
+	}
+
+	public void setPackImageId(String packImageId) {
+		this.packImageId = packImageId;
 	}
 }
