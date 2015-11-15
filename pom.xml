@@ -2,13 +2,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.pack.pack</groupId>
 	<artifactId>com.pack.pack</artifactId>
-	<version>1.0-DEV</version>
-	<name>Pack Pack</name>
-	<description>Pack Pack Root</description>
+	<version>1.0.0-DEV</version>
+	<name>PackPack</name>
+	<description>PackPack</description>
 	<packaging>pom</packaging>
 	<scm>
-		<connection>https://github.com/saurav-sen/packpack.git</connection>
-		<developerConnection>https://github.com/saurav-sen/packpack.git</developerConnection>
+		<connection>https://github.com/saurav-sen/MMF.git</connection>
+		<developerConnection>https://github.com/saurav-sen/MMF.git</developerConnection>
 	</scm>
 
 	<properties>		
@@ -16,7 +16,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 		<javaVersion>1.8</javaVersion>
-		<morphia.version>1.0.1</morphia.version>
+		<java.version>1.8</java.version>
 		<encoding>UTF-8</encoding>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<artifacts.directory>${project.build.directory}/artifacts</artifacts.directory>
@@ -46,23 +46,18 @@
 		<mockito-all.version>1.9.0</mockito-all.version>
 		<tomcat.servlet.version>7.0.30</tomcat.servlet.version>
 		<com.google.guava>18.0</com.google.guava>
-		<org.apache.log4j>1.2.15.v201012070815</org.apache.log4j>
-		<com.oracle.jdbc.driver>11.2.0.1.0</com.oracle.jdbc.driver>
-		<javax.persistence>2.0.0.v201002051058</javax.persistence>
-		<javax.validation.validation-api>1.1.0.Final</javax.validation.validation-api>		
+		<org.apache.log4j>1.2.15.v201012070815</org.apache.log4j>			
 		<junit.version>4.10</junit.version>		
 		<!--slf4j.version>1.5.10</slf4j.version-->	
-		<slf4j.version>1.6.4</slf4j.version>			
+		<slf4j.version>1.6.4</slf4j.version>				
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>		
-		<spring.version>4.1.6.RELEASE</spring.version>
 		<joda-time.version>1.6.2</joda-time.version>
-		<mongo.java.driver>3.0.4</mongo.java.driver>
+		<im4java.version>1.4.0</im4java.version>
+		<imgscalr-lib.version>4.2</imgscalr-lib.version>
 	</properties>
 
 	<modules>
-		<module>model</module>
-		<module>dao.spec</module>
-		<module>dao.impl</module>
+		<module>api</module>		
 	</modules>
 	<profiles>
 		
