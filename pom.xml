@@ -19,6 +19,7 @@
 		<java.version>1.8</java.version>
 		<encoding>UTF-8</encoding>
 		<ektorp.version>1.2.2</ektorp.version>
+		<packpack.release>1.0-DEV</packpack.release>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<artifacts.directory>${project.build.directory}/artifacts</artifacts.directory>
 		<finalName>${project.artifactId}-${project.version}</finalName>
@@ -58,9 +59,9 @@
 	</properties>
 
 	<modules>
-		<!--module>model</module>
-		<module>couchdb</module>
-		<module>api</module-->		
+		<module>model</module>
+		<module>services</module>
+		<module>api</module>		
 	</modules>
 	<profiles>
 		

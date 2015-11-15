@@ -10,11 +10,17 @@
 		<artifactId>com.pack.pack</artifactId>
 		<version>1.0-DEV</version>
 	</parent>
-
-	<properties>		
-	</properties>
-
-	<dependencies>				
+	<dependencies>	
+		<dependency>
+        	<groupId>com.pack.pack</groupId>
+        	<artifactId>model</artifactId>
+         	<version>${packpack.release}</version>          	
+        </dependency>
+		<dependency>
+        	<groupId>com.pack.pack</groupId>
+        	<artifactId>services</artifactId>
+         	<version>${packpack.release}</version>          	
+        </dependency>
 		<dependency>
         	<groupId>org.apache.tomcat</groupId>
         	<artifactId>tomcat-servlet-api</artifactId>
