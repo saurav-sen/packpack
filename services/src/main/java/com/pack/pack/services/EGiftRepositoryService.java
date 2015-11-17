@@ -22,5 +22,4 @@ public class EGiftRepositoryService extends CouchDbRepositorySupport<EGift>{
 	public EGiftRepositoryService(@Qualifier("packpackDB") CouchDbConnector db) {
 		super(EGift.class, db);
 	}
-
 }

@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.pack.pack.model.Comment;
 import com.pack.pack.model.Pack;
-import com.pack.pack.model.PackComment;
 
 /**
  * 
@@ -30,10 +30,9 @@ public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
 		super(Pack.class, db);
 	}
 	
-	public void addComment(PackComment comment) {
-		if(comment.getPackId() != null) {
-			db.create(comment);
-		}
+	public void addComment(Comment comment, String packId) {
+		comment.setPackId(packId);
+		db.create(comment);
 	}
 	
 	@Override

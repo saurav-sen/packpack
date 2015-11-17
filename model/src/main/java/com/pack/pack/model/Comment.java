@@ -1,15 +1,14 @@
 package com.pack.pack.model;
 
-import java.sql.Timestamp;
-
 import org.ektorp.support.CouchDbDocument;
+import org.joda.time.DateTime;
 
 /**
  * 
  * @author Saurav
  *
  */
-public class PackComment extends CouchDbDocument {
+public class Comment extends CouchDbDocument {
 
 	/**
 	 * 
@@ -20,7 +19,7 @@ public class PackComment extends CouchDbDocument {
 	
 	private String comment;
 	
-	private Timestamp timestamp;
+	private DateTime dateTime;
 	
 	private String packId;
 
@@ -40,19 +39,19 @@ public class PackComment extends CouchDbDocument {
 		this.comment = comment;
 	}
 
-	public Timestamp getTimestamp() {
-		return timestamp;
-	}
-
-	public void setTimestamp(Timestamp timestamp) {
-		this.timestamp = timestamp;
-	}
-
 	public String getPackId() {
 		return packId;
 	}
 
 	public void setPackId(String packId) {
 		this.packId = packId;
+	}
+
+	public DateTime getDateTime() {
+		return dateTime;
+	}
+
+	public void setDateTime(DateTime dateTime) {
+		this.dateTime = dateTime;
 	}
 }

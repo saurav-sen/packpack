@@ -1,12 +1,10 @@
 package com.pack.pack.model;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.ektorp.docref.DocumentReferences;
-import org.ektorp.docref.FetchType;
 import org.ektorp.support.CouchDbDocument;
+import org.joda.time.DateTime;
 
 /**
  * 
@@ -26,17 +24,17 @@ public class Pack extends CouchDbDocument {
 	
 	private String creatorId;
 	
-	@DocumentReferences(fetch=FetchType.LAZY, descendingSortOrder=true, 
-			orderBy="timestamp", backReference="packId")
-	private List<PackComment> packComments;
-	
 	private List<String> tags;
 	
 	private String title;
 	
 	private Float avgRating;
 	
-	private Timestamp creationTime;
+	private DateTime creationTime;
+	
+	private int likes;
+	
+	private int views;
 
 	public String getStory() {
 		return story;
@@ -44,17 +42,6 @@ public class Pack extends CouchDbDocument {
 
 	public void setStory(String story) {
 		this.story = story;
-	}
-
-	public List<PackComment> getPackComments() {
-		if(packComments == null) {
-			packComments = new ArrayList<PackComment>(20);
-		}
-		return packComments;
-	}
-
-	public void setPackComments(List<PackComment> packComments) {
-		this.packComments = packComments;
 	}
 
 	public List<String> getTags() {
@@ -84,11 +71,11 @@ public class Pack extends CouchDbDocument {
 		this.avgRating = avgRating;
 	}
 
-	public Timestamp getCreationTime() {
+	public DateTime getCreationTime() {
 		return creationTime;
 	}
 
-	public void setCreationTime(Timestamp creationTime) {
+	public void setCreationTime(DateTime creationTime) {
 		this.creationTime = creationTime;
 	}
 	
@@ -106,5 +93,21 @@ public class Pack extends CouchDbDocument {
 
 	public void setPackImageId(String packImageId) {
 		this.packImageId = packImageId;
+	}
+
+	public int getLikes() {
+		return likes;
+	}
+
+	public void setLikes(int likes) {
+		this.likes = likes;
+	}
+
+	public int getViews() {
+		return views;
+	}
+
+	public void setViews(int views) {
+		this.views = views;
 	}
 }
