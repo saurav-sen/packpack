@@ -1,5 +1,8 @@
 package com.pack.pack.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.ektorp.support.CouchDbDocument;
 
 /**
@@ -23,6 +26,12 @@ public class User extends CouchDbDocument {
 	private String username;
 
 	private String password;
+	
+	private Address address;
+	
+	private String dob;
+	
+	private List<UserInfo> extraInfoMap;
 	
 	public String getName() {
 		return name;
@@ -62,5 +71,32 @@ public class User extends CouchDbDocument {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public Address getAddress() {
+		return address;
+	}
+
+	public void setAddress(Address address) {
+		this.address = address;
+	}
+
+	public String getDob() {
+		return dob;
+	}
+
+	public void setDob(String dob) {
+		this.dob = dob;
+	}
+
+	public List<UserInfo> getExtraInfoMap() {
+		if(extraInfoMap == null) {
+			extraInfoMap = new ArrayList<UserInfo>(1);
+		}
+		return extraInfoMap;
+	}
+
+	public void setExtraInfoMap(List<UserInfo> extraInfoMap) {
+		this.extraInfoMap = extraInfoMap;
 	}
 }

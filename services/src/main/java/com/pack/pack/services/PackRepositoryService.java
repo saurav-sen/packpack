@@ -8,6 +8,7 @@ import org.ektorp.PageRequest;
 import org.ektorp.ViewQuery;
 import org.ektorp.support.CouchDbRepositorySupport;
 import org.ektorp.support.GenerateView;
+import org.ektorp.support.View;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -23,6 +24,7 @@ import com.pack.pack.model.Pack;
  */
 @Component
 @Scope("singleton")
+@View(name="all", map="function(doc) { if(doc.packImageId) { emit(doc.creationTime, doc); }")
 public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
 
 	@Autowired
@@ -33,6 +35,20 @@ public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
 	public void addComment(Comment comment, String packId) {
 		comment.setPackId(packId);
 		db.create(comment);
+		Pack pack = findById(packId);
+		if(pack != null) {
+			List<Comment> comments = pack.getRecentComments();
+			if(comments.size() >= 5) {
+				Comment c = comments.get(4);
+				c.setComment(comment.getComment());
+				c.setDateTime(comment.getDateTime());
+				c.setFromUser(comment.getFromUser());
+			}
+			else {
+				comments.add(comment);
+			}
+		}
+		db.update(pack);
 	}
 	
 	@Override
@@ -45,5 +61,9 @@ public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
 	public Page<Pack> getAll(PageRequest page) {
 		ViewQuery query = createQuery("all").descending(true).includeDocs(true);
 		return db.queryForPage(query, page, Pack.class);
+	}
+	
+	public Pack findById(String packId) {
+		return null;
 	}
 }

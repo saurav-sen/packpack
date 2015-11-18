@@ -35,6 +35,8 @@ public class Pack extends CouchDbDocument {
 	private int likes;
 	
 	private int views;
+	
+	private List<Comment> recentComments;
 
 	public String getStory() {
 		return story;
@@ -109,5 +111,16 @@ public class Pack extends CouchDbDocument {
 
 	public void setViews(int views) {
 		this.views = views;
+	}
+
+	public List<Comment> getRecentComments() {
+		if(recentComments == null) {
+			recentComments = new ArrayList<Comment>(1);
+		}
+		return recentComments;
+	}
+
+	public void setRecentComments(List<Comment> recentComments) {
+		this.recentComments = recentComments;
 	}
 }
