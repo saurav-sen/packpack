@@ -1,4 +1,4 @@
-package com.pack.pack.services;
+package com.pack.pack.services.couchdb;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ import com.pack.pack.model.Pack;
  */
 @Component
 @Scope("singleton")
-@View(name="all", map="function(doc) { if(doc.packImageId) { emit(doc.creationTime, doc); }")
+@View(name="all", map="function(doc) { if(doc.packImageId) { emit(doc.creationTime, doc); } }")
 public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
 
 	@Autowired

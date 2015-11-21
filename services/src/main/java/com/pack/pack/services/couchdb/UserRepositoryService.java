@@ -1,4 +1,4 @@
-package com.pack.pack.services;
+package com.pack.pack.services.couchdb;
 
 import org.ektorp.CouchDbConnector;
 import org.ektorp.Page;
@@ -22,9 +22,9 @@ import com.pack.pack.model.User;
 @Component
 @Scope("singleton")
 @Views({
-	@View(name="basedOnCity", map="function(doc) { if(doc.address && doc.address.city) { emit(doc.address.city, [user.name, user.username]) } )}"),
-	@View(name="basedOnState", map="function(doc) { if(doc.address && doc.address.state) { emit(doc.address.state, [user.name, user.username]) } )}"),
-	@View(name="basedOnCountry", map="function(doc) { if(doc.address && doc.address.country) { emit(doc.address.country, [user.name, user.username]) } )}")
+	@View(name="basedOnCity", map="function(doc) { if(doc.address && doc.address.city) { emit(doc.address.city, [user.name, user.username]); } }"),
+	@View(name="basedOnState", map="function(doc) { if(doc.address && doc.address.state) { emit(doc.address.state, [user.name, user.username]); } }"),
+	@View(name="basedOnCountry", map="function(doc) { if(doc.address && doc.address.country) { emit(doc.address.country, [user.name, user.username]); } }")
 })
 
 public class UserRepositoryService extends CouchDbRepositorySupport<User> {

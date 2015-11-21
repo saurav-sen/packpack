@@ -34,7 +34,13 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>${joda-time.version}</version>
-        </dependency>		
+        </dependency>
+        <dependency>
+			<groupId>com.rabbitmq</groupId>
+			<artifactId>amqp-client</artifactId>
+			<version>${rabbitmq.version}</version>
+		</dependency>
+		        		
 	</dependencies>
 	<build>
 	<finalName>${project.artifactId}-${project.version}</finalName>
