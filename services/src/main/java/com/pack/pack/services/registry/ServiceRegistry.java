@@ -6,6 +6,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.pack.pack.IPackService;
+import com.pack.pack.IServiceComposite;
+import com.pack.pack.services.ServiceCompositeImpl;
+
 /**
  * 
  * @author Saurav
@@ -48,5 +52,9 @@ public class ServiceRegistry {
 					+ "context for repository services");
 		}
 		return appContext.getBean(serviceClass);
+	}
+	
+	public IServiceComposite findCompositeService() {
+		return findService(ServiceCompositeImpl.class);
 	}
 }
