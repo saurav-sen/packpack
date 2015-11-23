@@ -3,8 +3,8 @@ package com.pack.pack;
 import java.io.InputStream;
 import java.util.List;
 
+import com.pack.pack.model.web.JeGift;
 import com.pack.pack.services.exception.PackPackException;
-import com.pack.pack.web.response.model.JeGiftWeb;
 
 /**
  * 
@@ -19,6 +19,6 @@ public interface IeGiftService {
 	public void sendEGift(String eGiftId, String fromUserId, String... userIds)
 			throws PackPackException;
 
-	public List<JeGiftWeb> loadeGifts(String category, int pageNo)
+	public List<JeGift> loadeGifts(String category, int pageNo)
 			throws PackPackException;
 }

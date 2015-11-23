@@ -7,9 +7,9 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.pack.pack.IServiceComposite;
+import com.pack.pack.model.web.JPack;
+import com.pack.pack.model.web.JeGift;
 import com.pack.pack.services.exception.PackPackException;
-import com.pack.pack.web.response.model.JPackWeb;
-import com.pack.pack.web.response.model.JeGiftWeb;
 
 /**
  * 
@@ -33,7 +33,7 @@ public class ServiceCompositeImpl implements IServiceComposite {
 	}
 
 	@Override
-	public List<JPackWeb> loadLatestPack(String userId, int pageNo)
+	public List<JPack> loadLatestPack(String userId, int pageNo)
 			throws PackPackException {
 		return null;
 	}
@@ -53,7 +53,7 @@ public class ServiceCompositeImpl implements IServiceComposite {
 	}
 
 	@Override
-	public List<JeGiftWeb> loadeGifts(String category, int pageNo)
+	public List<JeGift> loadeGifts(String category, int pageNo)
 			throws PackPackException {
 		// TODO Auto-generated method stub
 		return null;

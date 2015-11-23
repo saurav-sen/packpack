@@ -3,8 +3,8 @@ package com.pack.pack;
 import java.io.InputStream;
 import java.util.List;
 
+import com.pack.pack.model.web.JPack;
 import com.pack.pack.services.exception.PackPackException;
-import com.pack.pack.web.response.model.JPackWeb;
 
 /**
  * 
@@ -40,6 +40,6 @@ public interface IPackService {
 	 * @return
 	 * @throws PackPackException
 	 */
-	public List<JPackWeb> loadLatestPack(String userId, int pageNo) 
+	public List<JPack> loadLatestPack(String userId, int pageNo) 
 			throws PackPackException;
 }
