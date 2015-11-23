@@ -5,7 +5,7 @@ package com.pack.pack.model.web.dto;
  * @author Saurav
  *
  */
-public class PackForwardDTO {
+public class ForwardDTO {
 
 	private String fromUserId;
 	
