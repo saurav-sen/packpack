@@ -12,7 +12,15 @@ import com.pack.pack.services.exception.PackPackException;
  *
  */
 public interface IPackService {
-
+	
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 * @throws PackPackException
+	 */
+	public JPack getPackById(String id) throws PackPackException;
+	
 	/**
 	 * 
 	 * @param jsonBody

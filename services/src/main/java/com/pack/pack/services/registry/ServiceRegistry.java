@@ -6,9 +6,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.pack.pack.IPackService;
-import com.pack.pack.IServiceComposite;
-import com.pack.pack.services.ServiceCompositeImpl;
+import com.pack.pack.services.exception.PackPackException;
 
 /**
  * 
@@ -54,7 +52,17 @@ public class ServiceRegistry {
 		return appContext.getBean(serviceClass);
 	}
 	
-	public IServiceComposite findCompositeService() {
-		return findService(ServiceCompositeImpl.class);
+	@SuppressWarnings("unchecked")
+	public <T> T findCompositeService(Class<T> serviceInterface) throws PackPackException {
+		try {
+			String name = serviceInterface.getName();
+			name = name.substring(1) + "Impl";
+			String pkgName = serviceInterface.getCanonicalName().substring(0, serviceInterface.getCanonicalName().lastIndexOf(".") + 1);
+			name = pkgName + name;
+			Class<T> class1 = (Class<T>)Class.forName(name);
+			return findService(class1);
+		} catch (ClassNotFoundException e) {
+			throw new PackPackException("", e.getMessage(), e);
+		}
 	}
 }
