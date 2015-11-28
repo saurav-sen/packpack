@@ -1,5 +1,7 @@
 package com.pack.pack.services.couchdb;
 
+import java.util.List;
+
 import org.ektorp.CouchDbConnector;
 import org.ektorp.Page;
 import org.ektorp.PageRequest;
@@ -24,9 +26,9 @@ import com.pack.pack.model.User;
 @Views({
 	@View(name="basedOnCity", map="function(doc) { if(doc.address && doc.address.city) { emit(doc.address.city, [user.name, user.username]); } }"),
 	@View(name="basedOnState", map="function(doc) { if(doc.address && doc.address.state) { emit(doc.address.state, [user.name, user.username]); } }"),
-	@View(name="basedOnCountry", map="function(doc) { if(doc.address && doc.address.country) { emit(doc.address.country, [user.name, user.username]); } }")
+	@View(name="basedOnCountry", map="function(doc) { if(doc.address && doc.address.country) { emit(doc.address.country, [user.name, user.username]); } }"),
+	@View(name="basedOnUsername", map="function(doc) { if(doc.username) { emit(doc.username, [user.name, user.username]); } }")
 })
-
 public class UserRepositoryService extends CouchDbRepositorySupport<User> {
 
 	@Autowired
@@ -47,5 +49,10 @@ public class UserRepositoryService extends CouchDbRepositorySupport<User> {
 	public Page<User> getBasedOnCountry(String country, PageRequest page) {
 		ViewQuery query = createQuery("basedOnCountry").key(country);
 		return db.queryForPage(query, page, User.class);
+	}
+	
+	public List<User> getBasedOnUsername(String username) {
+		ViewQuery query = createQuery("basedOnUsername").key(username);
+		return db.queryView(query, User.class);
 	}
 }

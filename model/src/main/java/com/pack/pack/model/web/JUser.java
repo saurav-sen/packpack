@@ -6,6 +6,8 @@ package com.pack.pack.model.web;
  *
  */
 public class JUser {
+	
+	private String id;
 
 	private String name;
 	
@@ -45,5 +47,13 @@ public class JUser {
 
 	public void setProfilePictureUrl(String profilePictureUrl) {
 		this.profilePictureUrl = profilePictureUrl;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 }

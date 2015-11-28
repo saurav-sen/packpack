@@ -23,12 +23,12 @@ public interface IPackService {
 	
 	/**
 	 * 
-	 * @param jsonBody
+	 * @param jPack
 	 * @param attachment
 	 * @param userId
 	 * @throws PackPackException
 	 */
-	public void uploadPack(String jsonBody, InputStream attachment, 
+	public void uploadPack(JPack jPack, InputStream attachment, 
 			String userId) throws PackPackException;
 	
 	/**

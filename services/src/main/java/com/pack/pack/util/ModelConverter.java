@@ -3,8 +3,10 @@ package com.pack.pack.util;
 import java.util.List;
 
 import com.pack.pack.model.Pack;
+import com.pack.pack.model.User;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPacks;
+import com.pack.pack.model.web.JUser;
 
 /**
  * 
@@ -28,5 +30,15 @@ public class ModelConverter {
 			}
 		}
 		return jPacks;
+	}
+	
+	public static JUser convert(User user, String profilePictureUrl) {
+		JUser jUser = new JUser();
+		jUser.setId(user.getId());
+		jUser.setDob(user.getDob());
+		jUser.setName(user.getName());
+		jUser.setUsername(user.getUsername());
+		jUser.setProfilePictureUrl(profilePictureUrl);
+		return jUser;
 	}
 }
