@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.pack.pack.IPackService;
+import com.pack.pack.message.FwdPack;
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.User;
 import com.pack.pack.model.web.JPack;
@@ -15,7 +16,6 @@ import com.pack.pack.services.couchdb.PackRepositoryService;
 import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.rabbitmq.MessagePublisher;
-import com.pack.pack.services.rabbitmq.objects.FwdPack;
 import com.pack.pack.services.registry.ServiceRegistry;
 
 /**

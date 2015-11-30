@@ -1,4 +1,4 @@
-package com.pack.pack.services.rabbitmq.objects;
+package com.pack.pack.message;
 
 /**
  * 

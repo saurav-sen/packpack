@@ -22,18 +22,15 @@ import com.rabbitmq.client.Channel;
 public class MessageSubscriber {
 	
 	@Autowired
-	private MessageHandler handler;
-	
-	@Autowired
 	private MsgConnectionManager connectionManager;
 
-	public void subscribe(User user) throws PackPackException {
+	public void subscribeToChannel(User user) throws PackPackException {
 		try {
 			MsgConnection connection = connectionManager.openConnection();
 			Channel channel = connection.getChannel();
 			String msg_queue = user.getId() + "_" + user.getUsername();
 			channel.queueDeclare(msg_queue, false, false, false, null);
-			channel.basicConsume(msg_queue, false, handler);
+			channel.basicConsume(msg_queue, false, new MessageHandler(channel, user));
 		} catch (IOException e) {
 			throw new PackPackException("", e.getMessage(), e);
 		} catch (TimeoutException e) {
@@ -41,7 +38,7 @@ public class MessageSubscriber {
 		}
 	}
 	
-	public void subscribe(Group group) throws PackPackException {
+	public void subscribeToGroup(Group group, User user) throws PackPackException {
 		try {
 			MsgConnection connection = connectionManager.openConnection();
 			Channel channel = connection.getChannel();
@@ -49,11 +46,13 @@ public class MessageSubscriber {
 			channel.exchangeDeclare(exchange_name, "fanout");
 			String msg_queue = channel.queueDeclare().getQueue();
 			channel.queueBind(msg_queue, exchange_name, "");
-			channel.basicConsume(msg_queue, false, handler);
+			channel.basicConsume(msg_queue, false, new MessageHandler(channel, user));
 		} catch (IOException e) {
 			throw new PackPackException("", e.getMessage(), e);
 		} catch (TimeoutException e) {
 			throw new PackPackException("", e.getMessage(), e);
 		}
 	}
+	
+	//public void sub
 }
