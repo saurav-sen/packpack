@@ -30,7 +30,7 @@ public class MessageSubscriber {
 			Channel channel = connection.getChannel();
 			String msg_queue = user.getId() + "_" + user.getUsername();
 			channel.queueDeclare(msg_queue, false, false, false, null);
-			channel.basicConsume(msg_queue, false, new MessageHandler(channel, user));
+			channel.basicConsume(msg_queue, false, new MessageHandler(channel, user.getId()));
 		} catch (IOException e) {
 			throw new PackPackException("", e.getMessage(), e);
 		} catch (TimeoutException e) {
@@ -46,7 +46,7 @@ public class MessageSubscriber {
 			channel.exchangeDeclare(exchange_name, "fanout");
 			String msg_queue = channel.queueDeclare().getQueue();
 			channel.queueBind(msg_queue, exchange_name, "");
-			channel.basicConsume(msg_queue, false, new MessageHandler(channel, user));
+			channel.basicConsume(msg_queue, false, new MessageHandler(channel, user.getId()));
 		} catch (IOException e) {
 			throw new PackPackException("", e.getMessage(), e);
 		} catch (TimeoutException e) {

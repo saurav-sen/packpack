@@ -37,7 +37,7 @@ public class MessagePublisher {
 			channel.queueDeclare(msg_queue, false, false, false, null);
 			String message = JSONUtil.serialize(fwdPack);
 			BasicProperties props = new BasicProperties(null, null, null, 0, 0,
-					null, "user:" + user.getId(), null, null, null, null,
+					null, Constants.REPLY_TO_USER_PREFIX + user.getId(), null, null, null, null,
 					user.getUsername(), null, null);
 			channel.basicPublish("", msg_queue, props, message.getBytes());
 		} catch (IOException e) {
@@ -55,7 +55,7 @@ public class MessagePublisher {
 			channel.exchangeDeclare(exchange_name, "fanout");
 			String message = JSONUtil.serialize(fwdPack);
 			BasicProperties props = new BasicProperties(null, null, null, 0, 0,
-					null, "group:" + group.getId(), null, null, null, null,
+					null, Constants.REPLY_TO_GROUP_PREFIX + group.getId(), null, null, null, null,
 					null, null, null);
 			channel.basicPublish(exchange_name, "", props, message.getBytes());
 		} catch (IOException e) {

@@ -5,7 +5,7 @@ package com.pack.pack.event;
  * @author Saurav
  *
  */
-public enum MsgEventTargetType {
+public enum MsgEventType {
 
 	USER,
 	GROUP,

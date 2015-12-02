@@ -14,13 +14,19 @@ public interface MsgEvent {
 	 * 
 	 * @return
 	 */
-	public User getTargetUser();
+	public String getTargetUserId();
 	
 	/**
 	 * 
 	 * @return
 	 */
-	public MsgEventTargetType getTargetType();
+	public String getOriginEntityId();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public MsgEventType getEventType();
 	
 	/**
 	 * 
