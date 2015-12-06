@@ -7,8 +7,8 @@
 	<description>PackPack</description>
 	<packaging>pom</packaging>
 	<scm>
-		<connection>https://github.com/saurav-sen/MMF.git</connection>
-		<developerConnection>https://github.com/saurav-sen/MMF.git</developerConnection>
+		<connection>https://github.com/saurav-sen/packpack.git</connection>
+		<developerConnection>https://github.com/saurav-sen/packpack.git</developerConnection>
 	</scm>
 
 	<properties>		
@@ -26,6 +26,8 @@
 		<parent.basedir>${project.basedir}</parent.basedir>
 		<!--jersey.version>2.15</jersey.version-->	
 		<jersey.version>1.12</jersey.version>
+		<jersey2.version>2.19</jersey2.version>
+		<jaxrs.version>2.0.1</jaxrs.version>
 		<com.ibm.icu>4.4.2.v20110208</com.ibm.icu>
 		<com.ibm.icu.base>4.2.1.v20100412</com.ibm.icu.base>
 		<com.lowagie.text>2.1.7.v201004222200</com.lowagie.text>
@@ -65,7 +67,12 @@
 		<module>api</module>		
 	</modules>
 	<profiles>
-		
+		<!--profile>
+			<id>jdk1.7+</id>
+			<activation>
+				<jdk>[1.7,</jdk>
+			</activation>
+		</profile-->
 	</profiles>
 
 	<repositories>
