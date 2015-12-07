@@ -18,6 +18,10 @@ public class BroadcastManager {
 	
 	private Map<BroadcastCriteria, SseBroadcaster> sseBroadcasters = new HashMap<BroadcastCriteria, SseBroadcaster>();
 	
+	private Map<String, SseBroadcaster> groupBroadcatsers = new HashMap<String, SseBroadcaster>();
+	
+	private Map<String, SseBroadcaster> userSseMap = new HashMap<String, SseBroadcaster>();
+	
 	private BroadcastManager() {
 		sseBroadcasters = new HashMap<BroadcastCriteria, SseBroadcaster>();
 	}
@@ -29,5 +33,21 @@ public class BroadcastManager {
 			sseBroadcasters.put(criteria, sseBroadcaster);
 		}
 		return sseBroadcaster;
+	}
+	
+	public SseBroadcaster getSseBroadcaster(String id) {
+		return groupBroadcatsers.get(id);
+	}
+	
+	public void registerGroupBroadcaster(String id, SseBroadcaster sseBroadcaster) {
+		groupBroadcatsers.put(id, sseBroadcaster);
+	}
+	
+	public SseBroadcaster getSseBroadCasterForUser(String id) {
+		return userSseMap.get(id);
+	}
+	
+	public void registerUserSseBroadcaster(String id, SseBroadcaster sseBroadcaster) {
+		userSseMap.put(id, sseBroadcaster);
 	}
 }
