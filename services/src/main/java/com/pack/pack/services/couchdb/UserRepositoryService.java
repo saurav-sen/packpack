@@ -55,4 +55,8 @@ public class UserRepositoryService extends CouchDbRepositorySupport<User> {
 		ViewQuery query = createQuery("basedOnUsername").key(username);
 		return db.queryView(query, User.class);
 	}
+	
+	public boolean validateCredential(String username, String password) {
+		return false;
+	}
 }
