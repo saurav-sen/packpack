@@ -159,11 +159,11 @@
 			<artifactId>java-property-utils</artifactId>
 			<version>1.6</version>
 		</dependency>       
-        <dependency>
+        <!--dependency>
 			<groupId>com.sun.jersey.contribs</groupId>
 			<artifactId>jersey-multipart</artifactId>
 			<version>${jersey.version}</version>
-		</dependency>
+		</dependency-->
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>

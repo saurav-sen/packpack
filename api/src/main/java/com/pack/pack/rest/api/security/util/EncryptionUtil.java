@@ -5,6 +5,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
+import java.util.UUID;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -24,12 +25,9 @@ import sun.misc.BASE64Encoder;
 public class EncryptionUtil {
 
 	private static final String ALGORITHM = "DES"; //$NON-NLS-1$
+	private static final String SYSTEM_KEY = "9c550196-74d4-4f75-bdd7-ff9aa9f15df3"; //$NON-NLS-1$
 	
-	private static final String SYSTEM_KEY = "48f6b6c4-f2a0-41d7-a61a-f7d54bf8e6be"; //$NON-NLS-1$
-
 	public static String encryptPassword(String plainTextPassword) {
-		/*return encryptDecryptPassword(plainTextPassword,
-				Cipher.ENCRYPT_MODE);*/
 		try {
 			String encryptedText = generateMD5HashKey(plainTextPassword, false, false);
 			return new BASE64Encoder().encode(encryptedText.getBytes());
@@ -129,7 +127,7 @@ public class EncryptionUtil {
 		System.out.println(password.equals(decryptedPassword));
 	}*/
 	
-	public static void main(String[] args) throws Exception {
+	public static void main1(String[] args) throws Exception {
 		String str = "healthOrganizationMasterService";
 		System.out.println(generateMD5HashKey(str, true, false));
 		str = "findNewCityName";
