@@ -36,6 +36,8 @@ public class Pack extends CouchDbDocument {
 	
 	private int views;
 	
+	private int comments;
+	
 	private List<Comment> recentComments;
 
 	public String getStory() {
@@ -122,5 +124,13 @@ public class Pack extends CouchDbDocument {
 
 	public void setRecentComments(List<Comment> recentComments) {
 		this.recentComments = recentComments;
+	}
+
+	public int getComments() {
+		return comments;
+	}
+
+	public void setComments(int comments) {
+		this.comments = comments;
 	}
 }

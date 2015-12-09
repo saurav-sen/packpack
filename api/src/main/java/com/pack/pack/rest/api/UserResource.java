@@ -70,12 +70,4 @@ public class UserResource {
 		}
 		return jUsers;
 	}
-	
-	@POST
-	@Path("login")
-	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	public JUser login(UserDTO loginDTO) throws PackPackException {
-		return null;
-	}
 }

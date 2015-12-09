@@ -3,6 +3,7 @@ package com.pack.pack;
 import java.io.InputStream;
 import java.util.List;
 
+import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.services.exception.PackPackException;
 
@@ -50,4 +51,20 @@ public interface IPackService {
 	 */
 	public List<JPack> loadLatestPack(String userId, int pageNo) 
 			throws PackPackException;
+	
+	/**
+	 * 
+	 * @param comment
+	 * @return
+	 * @throws PackPackException
+	 */
+	public JComment addComment(JComment comment) throws PackPackException;
+	
+	/**
+	 * 
+	 * @param userId
+	 * @param packId
+	 * @throws PackPackException
+	 */
+	public void addLike(String userId, String packId) throws PackPackException;
 }

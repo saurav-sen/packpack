@@ -13,11 +13,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
 import com.pack.pack.IPackService;
+import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPacks;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.StatusType;
 import com.pack.pack.model.web.dto.ForwardDTO;
+import com.pack.pack.model.web.dto.LikeDTO;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 
@@ -70,7 +72,7 @@ public class PackResource {
 	@Path("{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public JStatus forwardPack(ForwardDTO dto, @PathParam("packId") String id)
+	public JStatus forwardPack(ForwardDTO dto, @PathParam("id") String id)
 			throws PackPackException {
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
@@ -80,6 +82,32 @@ public class PackResource {
 		JStatus status = new JStatus();
 		status.setStatus(StatusType.OK);
 		status.setInfo("Successfully forwarded");
+		return status;
+	}
+	
+	@PUT
+	@Path("comment")
+	@Consumes(value = MediaType.APPLICATION_JSON)
+	@Produces(value = MediaType.APPLICATION_JSON)
+	public JComment addComment(JComment comment) throws PackPackException {
+		IPackService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IPackService.class);
+		return service.addComment(comment);
+	}
+	
+	@PUT
+	@Path("favourite")
+	@Consumes(value = MediaType.APPLICATION_JSON)
+	@Produces(value = MediaType.APPLICATION_JSON)
+	public JStatus addLike(LikeDTO likeDTO) throws PackPackException {
+		String userId = likeDTO.getUserId();
+		String packId = likeDTO.getPackId();
+		IPackService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IPackService.class);
+		service.addLike(userId, packId);
+		JStatus status = new JStatus();
+		status.setStatus(StatusType.OK);
+		status.setInfo("Successfully Executed");
 		return status;
 	}
 }

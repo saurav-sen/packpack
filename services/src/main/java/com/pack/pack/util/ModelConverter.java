@@ -2,8 +2,10 @@ package com.pack.pack.util;
 
 import java.util.List;
 
+import com.pack.pack.model.Comment;
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.User;
+import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPacks;
 import com.pack.pack.model.web.JUser;
@@ -40,5 +42,14 @@ public class ModelConverter {
 		jUser.setUsername(user.getUsername());
 		jUser.setProfilePictureUrl(profilePictureUrl);
 		return jUser;
+	}
+	
+	public static Comment convert(JComment jComment) {
+		Comment comment = new Comment();
+		comment.setComment(jComment.getComment());
+		comment.setDateTime(jComment.getDateTime());
+		comment.setFromUser(jComment.getFromUserName());
+		comment.setPackId(jComment.getPackId());
+		return comment;
 	}
 }

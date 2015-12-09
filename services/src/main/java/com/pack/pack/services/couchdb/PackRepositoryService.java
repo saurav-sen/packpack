@@ -47,8 +47,17 @@ public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
 			else {
 				comments.add(comment);
 			}
+			pack.setComments(pack.getComments() + 1);
+			db.update(pack);
 		}
-		db.update(pack);
+	}
+	
+	public void addLike(String userId, String packId) {
+		Pack pack = findById(packId);
+		if(pack != null) {
+			pack.setLikes(pack.getLikes() + 1);
+			db.update(pack);
+		}
 	}
 	
 	@Override

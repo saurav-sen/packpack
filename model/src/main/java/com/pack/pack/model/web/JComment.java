@@ -16,6 +16,8 @@ public class JComment {
 	private String comment;
 	
 	private DateTime dateTime;
+	
+	private String packId;
 
 	public String getFromUserId() {
 		return fromUserId;
@@ -47,5 +49,13 @@ public class JComment {
 
 	public void setDateTime(DateTime dateTime) {
 		this.dateTime = dateTime;
+	}
+
+	public String getPackId() {
+		return packId;
+	}
+
+	public void setPackId(String packId) {
+		this.packId = packId;
 	}
 }
