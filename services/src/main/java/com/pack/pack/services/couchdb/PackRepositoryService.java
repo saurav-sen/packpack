@@ -75,4 +75,8 @@ public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
 	public Pack findById(String packId) {
 		return null;
 	}
+	
+	public List<Pack> getAllPacks(List<String> ids) {
+		return null;
+	}
 }
