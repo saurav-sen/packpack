@@ -1,6 +1,7 @@
 package com.pack.pack.model.web;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -30,7 +31,7 @@ public class JPack {
 	
 	private List<JComment> recentComments;
 	
-	private String imageUrl;
+	private List<JPackAttachment> packAttachments;
 
 	public String getId() {
 		return id;
@@ -107,11 +108,14 @@ public class JPack {
 		this.recentComments = recentComments;
 	}
 
-	public String getImageUrl() {
-		return imageUrl;
+	public List<JPackAttachment> getAttachments() {
+		if(packAttachments == null) {
+			packAttachments = new LinkedList<JPackAttachment>();
+		}
+		return packAttachments;
 	}
 
-	public void setImageUrl(String imageUrl) {
-		this.imageUrl = imageUrl;
+	public void setAttachments(List<JPackAttachment> attachments) {
+		this.packAttachments = attachments;
 	}
 }
