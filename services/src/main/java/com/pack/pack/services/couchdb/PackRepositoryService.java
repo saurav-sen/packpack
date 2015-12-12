@@ -9,6 +9,7 @@ import org.ektorp.ViewQuery;
 import org.ektorp.support.CouchDbRepositorySupport;
 import org.ektorp.support.GenerateView;
 import org.ektorp.support.View;
+import org.ektorp.support.Views;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -24,7 +25,10 @@ import com.pack.pack.model.Pack;
  */
 @Component
 @Scope("singleton")
-@View(name="all", map="function(doc) { if(doc.packImageId) { emit(doc.creationTime, doc); } }")
+@Views({
+	@View(name="all", map="function(doc) { if(doc.packImageId) { emit(doc.creationTime, doc); } }"),
+	@View(name="findPackById", map="function(doc) { if(doc.id) { emit(doc.id, doc); }}")
+})
 public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
 
 	@Autowired
@@ -73,10 +77,16 @@ public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
 	}
 	
 	public Pack findById(String packId) {
-		return null;
+		ViewQuery query = createQuery("findPackById").key(packId);
+		List<Pack> list = db.queryView(query, Pack.class);
+		if(list == null || list.isEmpty()) {
+			return null;
+		}
+		return list.get(0);
 	}
 	
 	public List<Pack> getAllPacks(List<String> ids) {
-		return null;
+		ViewQuery query = createQuery("findPackById").keys(ids);
+		return db.queryView(query, Pack.class);
 	}
 }
