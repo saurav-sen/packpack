@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.pack.pack.model.Group;
 import com.pack.pack.model.User;
 import com.pack.pack.services.exception.PackPackException;
 import com.rabbitmq.client.Channel;
@@ -38,7 +37,7 @@ public class MessageSubscriber {
 		}
 	}
 	
-	public void subscribeToGroup(Group group, User user) throws PackPackException {
+	/*public void subscribeToGroup(Group group, User user) throws PackPackException {
 		try {
 			MsgConnection connection = connectionManager.openConnection();
 			Channel channel = connection.getChannel();
@@ -52,7 +51,7 @@ public class MessageSubscriber {
 		} catch (TimeoutException e) {
 			throw new PackPackException("", e.getMessage(), e);
 		}
-	}
+	}*/
 	
 	//public void sub
 }

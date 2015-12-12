@@ -1,6 +1,7 @@
 package com.pack.pack.model;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.ektorp.support.CouchDbDocument;
@@ -18,8 +19,6 @@ public class Pack extends CouchDbDocument {
 	 */
 	private static final long serialVersionUID = -3991470211498256682L;
 
-	private String packImageId;
-	
 	private String story;
 	
 	private String creatorId;
@@ -39,6 +38,8 @@ public class Pack extends CouchDbDocument {
 	private int comments;
 	
 	private List<Comment> recentComments;
+	
+	private List<PackAttachment> packAttachments;
 
 	public String getStory() {
 		return story;
@@ -91,14 +92,6 @@ public class Pack extends CouchDbDocument {
 		this.creatorId = creatorId;
 	}
 
-	public String getPackImageId() {
-		return packImageId;
-	}
-
-	public void setPackImageId(String packImageId) {
-		this.packImageId = packImageId;
-	}
-
 	public int getLikes() {
 		return likes;
 	}
@@ -132,5 +125,16 @@ public class Pack extends CouchDbDocument {
 
 	public void setComments(int comments) {
 		this.comments = comments;
+	}
+
+	public List<PackAttachment> getPackAttachments() {
+		if(packAttachments == null) {
+			packAttachments = new LinkedList<PackAttachment>();
+		}
+		return packAttachments;
+	}
+
+	public void setPackAttachments(List<PackAttachment> packAttachments) {
+		this.packAttachments = packAttachments;
 	}
 }

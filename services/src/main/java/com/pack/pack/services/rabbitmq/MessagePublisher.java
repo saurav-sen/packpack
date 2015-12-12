@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.pack.pack.message.FwdPack;
-import com.pack.pack.model.Group;
 import com.pack.pack.model.User;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.rabbitmq.objects.BroadcastCriteria;
@@ -47,7 +46,7 @@ public class MessagePublisher {
 		}
 	}
 	
-	public void forwardPack(FwdPack fwdPack, Group group) throws PackPackException {
+	/*public void forwardPack(FwdPack fwdPack, Group group) throws PackPackException {
 		try {
 			MsgConnection connection = connectionManager.openConnection();
 			Channel channel = connection.getChannel();
@@ -63,7 +62,7 @@ public class MessagePublisher {
 		} catch (TimeoutException e) {
 			throw new PackPackException("", e.getMessage(), e);
 		}
-	}
+	}*/
 	
 	public void broadcast(BroadcastPack broadcastPack) throws PackPackException {
 		FwdPack fwdPack = broadcastPack.getFwdPack();

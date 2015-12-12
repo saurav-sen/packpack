@@ -3,6 +3,7 @@ package com.pack.pack;
 import java.io.InputStream;
 import java.util.List;
 
+import com.pack.pack.model.PackAttachmentType;
 import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.services.exception.PackPackException;
@@ -27,10 +28,11 @@ public interface IPackService {
 	 * @param jPack
 	 * @param attachment
 	 * @param userId
+	 * @param type
 	 * @throws PackPackException
 	 */
 	public void uploadPack(JPack jPack, InputStream attachment, 
-			String userId) throws PackPackException;
+			String userId, PackAttachmentType type) throws PackPackException;
 	
 	/**
 	 * 

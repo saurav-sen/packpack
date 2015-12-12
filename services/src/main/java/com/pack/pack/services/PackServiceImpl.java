@@ -11,6 +11,7 @@ import com.pack.pack.IPackService;
 import com.pack.pack.message.FwdPack;
 import com.pack.pack.model.Comment;
 import com.pack.pack.model.Pack;
+import com.pack.pack.model.PackAttachmentType;
 import com.pack.pack.model.User;
 import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPack;
@@ -37,14 +38,14 @@ public class PackServiceImpl implements IPackService {
 	}
 
 	@Override
-	public void uploadPack(JPack jPack, InputStream attachment, String userId)
+	public void uploadPack(JPack jPack, InputStream attachment, String userId, PackAttachmentType type)
 			throws PackPackException {
 		PackRepositoryService repoService = ServiceRegistry.INSTANCE
 				.findService(PackRepositoryService.class);
 		Pack pack = new Pack();
 		pack.setCreationTime(new DateTime());
 		pack.setCreatorId(userId);
-		pack.setPackImageId(null); // TODO -- save input stream in couch DB
+		//pack.getPackImageUrls().add(null); // TODO -- save input stream in couch DB
 		pack.setStory(jPack.getStory());
 		pack.setTitle(jPack.getTitle());
 		repoService.add(pack);
