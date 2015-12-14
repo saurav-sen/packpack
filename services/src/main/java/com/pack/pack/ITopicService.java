@@ -52,9 +52,27 @@ public interface ITopicService {
 	/**
 	 * 
 	 * @param userId
+	 * @param pageLink
+	 * @return
+	 * @throws PackPackException
+	 */
+	public Pagination<JTopic> getAllTopicListing(String userId, String pageLink)
+			throws PackPackException;
+
+	/**
+	 * 
+	 * @param userId
 	 * @param topicId
 	 * @throws PackPackException
 	 */
 	public void neglectTopic(String userId, String topicId)
 			throws PackPackException;
+
+	/**
+	 * 
+	 * @param topic
+	 * @return
+	 * @throws PackPackException
+	 */
+	public JTopic createNewTopic(JTopic topic) throws PackPackException;
 }

@@ -87,4 +87,12 @@ public class ModelConverter {
 				.findService(UserRepositoryService.class);
 		return service.get(userId);
 	}
+	
+	public static Topic convert(JTopic jTopic) {
+		Topic topic = new Topic();
+		topic.setDescription(jTopic.getDescription());
+		topic.setName(jTopic.getName());
+		topic.setOwnerId(jTopic.getOwnerId());
+		return topic;
+	}
 }

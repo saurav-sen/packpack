@@ -41,11 +41,8 @@ public class UserTopicMapRepositoryService extends CouchDbRepositorySupport<User
 	}
 	
 	public Pagination<Topic> getAllTopicsFollowedByUser(String userId, String pageLink) {
-		PageRequest pr = pageLink != null ? PageRequest.fromLink(pageLink) : PageRequest.firstPage(5);
+		PageRequest pr = pageLink != null ? PageRequest.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
 		ViewQuery query = createQuery("allForUser").key(userId);
-		if(pr == null) {
-			pr = PageRequest.firstPage(STANDARD_PAGE_SIZE);
-		}
 		Page<UserTopicMap> page = db.queryForPage(query, pr, UserTopicMap.class);
 		if(page == null) {
 			return null;

@@ -76,6 +76,19 @@ public class TopicServiceImpl implements ITopicService {
 	}
 
 	@Override
+	public Pagination<JTopic> getAllTopicListing(String userId, String pageLink)
+			throws PackPackException {
+		TopicRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(TopicRepositoryService.class);
+		Pagination<Topic> page = service.getAllTopics(userId, pageLink);
+		String nextLink = page.getNextLink();
+		String previousLink = page.getPreviousLink();
+		List<Topic> topics = page.getResult();
+		List<JTopic> jTopics = ModelConverter.convertTopicList(topics);
+		return new Pagination<JTopic>(previousLink, nextLink, jTopics);
+	}
+
+	@Override
 	public void neglectTopic(String userId, String topicId)
 			throws PackPackException {
 		UserTopicMapRepositoryService service = ServiceRegistry.INSTANCE
@@ -85,5 +98,13 @@ public class TopicServiceImpl implements ITopicService {
 		if (userTopicMap == null)
 			return;
 		service.remove(userTopicMap);
+	}
+	
+	@Override
+	public JTopic createNewTopic(JTopic topic) throws PackPackException {
+		// TODO Auto-generated method stub
+		TopicRepositoryService service = ServiceRegistry.INSTANCE.findService(TopicRepositoryService.class);
+		//ModelConverter.co
+		return null;
 	}
 }
