@@ -1,7 +1,6 @@
 package com.pack.pack.event;
 
 import com.pack.pack.message.FwdPack;
-import com.pack.pack.model.User;
 
 /**
  * 

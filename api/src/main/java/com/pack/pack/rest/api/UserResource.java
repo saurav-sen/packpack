@@ -2,9 +2,7 @@ package com.pack.pack.rest.api;
 
 import java.util.List;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -14,7 +12,6 @@ import javax.ws.rs.ext.Provider;
 import com.pack.pack.model.User;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.JUsers;
-import com.pack.pack.model.web.dto.UserDTO;
 import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.es.SearchService;
 import com.pack.pack.services.exception.PackPackException;

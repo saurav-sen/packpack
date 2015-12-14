@@ -1,5 +1,7 @@
 package com.pack.pack.services.couchdb;
 
+import static com.pack.pack.services.rabbitmq.Constants.STANDARD_PAGE_SIZE;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -17,8 +19,6 @@ import org.springframework.stereotype.Component;
 
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.Topic;
-
-import static com.pack.pack.services.rabbitmq.Constants.STANDARD_PAGE_SIZE;
 
 /**
  * 
