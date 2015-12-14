@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.Topic;
+import static com.pack.pack.services.rabbitmq.Constants.STANDARD_PAGE_SIZE;
 
 /**
  * 
@@ -27,8 +28,6 @@ import com.pack.pack.model.Topic;
 	@View(name="findTopicByID", map="function(doc) {if(doc.id) { emit(doc.id, doc); }}")
 })
 public class TopicRepositoryService extends CouchDbRepositorySupport<Topic> {
-	
-	private static final int STANDARD_PAGE_SIZE = 20;
 	
 	@Autowired
 	private PackRepositoryService packRepoService;

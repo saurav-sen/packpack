@@ -1,10 +1,13 @@
 package com.pack.pack.services.couchdb;
 
+import static com.pack.pack.services.rabbitmq.Constants.STANDARD_PAGE_SIZE;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.ektorp.CouchDbConnector;
+import org.ektorp.Page;
+import org.ektorp.PageRequest;
 import org.ektorp.ViewQuery;
 import org.ektorp.support.CouchDbRepositorySupport;
 import org.ektorp.support.View;
@@ -37,18 +40,37 @@ public class UserTopicMapRepositoryService extends CouchDbRepositorySupport<User
 		super(UserTopicMap.class, db);
 	}
 	
-	public List<Topic> getAllTopicsFollowedByUser(String userId) {
+	public Pagination<Topic> getAllTopicsFollowedByUser(String userId, String pageLink) {
+		PageRequest pr = pageLink != null ? PageRequest.fromLink(pageLink) : PageRequest.firstPage(5);
 		ViewQuery query = createQuery("allForUser").key(userId);
-		List<UserTopicMap> list = db.queryView(query, UserTopicMap.class);
+		if(pr == null) {
+			pr = PageRequest.firstPage(STANDARD_PAGE_SIZE);
+		}
+		Page<UserTopicMap> page = db.queryForPage(query, pr, UserTopicMap.class);
+		if(page == null) {
+			return null;
+		}
+		List<UserTopicMap> list = page.getRows();
 		if(list == null || list.isEmpty()) {
-			return Collections.emptyList();
+			return null;
 		}
 		List<String> topicIds = new ArrayList<String>();
 		for(UserTopicMap l : list) {
 			topicIds.add(l.getId());
 		}
-		return topicRepoService.getAllTopicsById(topicIds);
+		List<Topic> result = topicRepoService.getAllTopicsById(topicIds);
+		String nextLink = page.getNextLink();
+		String previousLink = page.getPreviousLink();
+		return new Pagination<Topic>(previousLink, nextLink, result);
 	}
+	
+	/*public static void main(String[] args) {
+		PageRequest pr = PageRequest.firstPage(20);
+		System.out.println(pr.asLink());
+		pr = pr.fromLink(pr.asLink());
+		System.out.println(pr.asLink());
+		pr.
+	}*/
 	
 	public UserTopicMap findUserTopicMapById(String userId, String topicId) {
 		ViewQuery query = createQuery("allForUser").key(userId).key(topicId);

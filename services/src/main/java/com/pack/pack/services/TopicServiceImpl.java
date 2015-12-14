@@ -11,7 +11,7 @@ import com.pack.pack.model.Topic;
 import com.pack.pack.model.UserTopicMap;
 import com.pack.pack.model.web.JPacks;
 import com.pack.pack.model.web.JTopic;
-import com.pack.pack.model.web.JTopics;
+import com.pack.pack.services.couchdb.Pagination;
 import com.pack.pack.services.couchdb.TopicRepositoryService;
 import com.pack.pack.services.couchdb.UserTopicMapRepositoryService;
 import com.pack.pack.services.exception.PackPackException;
@@ -63,15 +63,16 @@ public class TopicServiceImpl implements ITopicService {
 	}
 
 	@Override
-	public JTopics getUserFollowedTopics(String userId)
-			throws PackPackException {
+	public Pagination<JTopic> getUserFollowedTopics(String userId,
+			String pageLink) throws PackPackException {
 		UserTopicMapRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(UserTopicMapRepositoryService.class);
-		List<Topic> topics = service.getAllTopicsFollowedByUser(userId);
-		List<JTopic> list = ModelConverter.convertTopicList(topics);
-		JTopics jTopics = new JTopics();
-		jTopics.setTopics(list);
-		return jTopics;
+		Pagination<Topic> page = service.getAllTopicsFollowedByUser(userId,
+				pageLink);
+		List<Topic> topics = page.getResult();
+		List<JTopic> jTopics = ModelConverter.convertTopicList(topics);
+		return new Pagination<JTopic>(page.getPreviousLink(),
+				page.getNextLink(), jTopics);
 	}
 
 	@Override
