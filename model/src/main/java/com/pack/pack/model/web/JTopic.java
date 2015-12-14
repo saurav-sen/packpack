@@ -18,6 +18,8 @@ public class JTopic {
 	
 	private long followers;
 	
+	private String id;
+	
 	public String getOwnerId() {
 		return ownerId;
 	}
@@ -56,5 +58,13 @@ public class JTopic {
 
 	public void setFollowers(long followers) {
 		this.followers = followers;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 }
