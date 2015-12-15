@@ -31,6 +31,10 @@ public class UserAuthenticator {
 			String password) {
 		return getAccessToken(requestToken, username, password, null);
 	}
+	
+	public AccessToken getNewAccessTokenIfRefreshTokenIsValid(String refreshToken) {
+		return null;
+	}
 
 	public AccessToken getAccessToken(String requestToken, String username,
 			String password, String deviceID) {
