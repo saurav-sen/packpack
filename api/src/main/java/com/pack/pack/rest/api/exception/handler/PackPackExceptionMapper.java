@@ -7,6 +7,8 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 import org.glassfish.json.JsonProviderImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.pack.pack.services.exception.ErrorCodes;
 import com.pack.pack.services.exception.PackPackException;
@@ -18,25 +20,24 @@ import com.pack.pack.services.exception.PackPackException;
  */
 @Provider
 public class PackPackExceptionMapper implements ExceptionMapper<Throwable> {
+	
+	private static Logger logger = LoggerFactory.getLogger(PackPackExceptionMapper.class);
 
 	@Override
 	public Response toResponse(Throwable exception) {
 		JsonObjectBuilder jsonObjectBuilder = new JsonProviderImpl().createBuilderFactory(null).createObjectBuilder();
-		//JSONObject json = new JSONObject();
 		if(exception != null) {
-			//LOG.info(exception.getMessage());
+			logger.info(exception.getMessage());
 			if(exception.getCause() != null) {
-				//LOG.info(exception.getCause().getMessage());
+				logger.info(exception.getCause().getMessage());
 			}
-			//exception.printStackTrace();
-			//LOG.trace(exception.getMessage(), exception);
+			logger.trace(exception.getMessage(), exception);
 		}
 		Throwable ex = diggThrowable(exception);
 		if(ex != null) {
 			exception = ex;
 		}
 		if(exception instanceof PackPackException) {
-			//MMFException mmfException = (MMFException)exception;
 			PackPackException packPackException = diggPackPackException((PackPackException)exception);
 			jsonObjectBuilder.add(PackPackException.ERR_CODE, packPackException.getErrorCode());
 			jsonObjectBuilder.add(PackPackException.ERR_MSG, packPackException.getMessage());
@@ -74,7 +75,6 @@ public class PackPackExceptionMapper implements ExceptionMapper<Throwable> {
 				ex = diggPackPackException((PackPackException)e1.getCause());
 				break;
 			}
-			//ex = e1;
 			e1 = e1.getCause();
 			count++;
 		}

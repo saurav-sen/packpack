@@ -9,6 +9,8 @@ import org.ektorp.ViewQuery;
 import org.ektorp.support.CouchDbRepositorySupport;
 import org.ektorp.support.View;
 import org.ektorp.support.Views;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -28,6 +30,8 @@ import com.pack.pack.model.EGift;
 	@View(name="basedOnTitle", map="function(doc) { if(doc.title && doc.brandId) { emit(doc.title, [doc.category, doc.imageId, doc.brandInfo, doc.brandId]); } }")
 })
 public class EGiftRepositoryService extends CouchDbRepositorySupport<EGift>{
+	
+	private static Logger logger = LoggerFactory.getLogger(EGiftRepositoryService.class);
 
 	@Autowired
 	public EGiftRepositoryService(@Qualifier("packpackDB") CouchDbConnector db) {
@@ -36,16 +40,19 @@ public class EGiftRepositoryService extends CouchDbRepositorySupport<EGift>{
 	
 	@Override
 	public List<EGift> getAll() {
+		logger.debug("getAll()");
 		ViewQuery viewQuery = createQuery("all").group(true);
 		return db.queryView(viewQuery, EGift.class);
 	}
 	
 	public Page<EGift> getAll(PageRequest pageRequest) {
+		logger.debug("getAll()");
 		ViewQuery viewQuery = createQuery("all").group(true);
 		return db.queryForPage(viewQuery, pageRequest, EGift.class);
 	}
 	
 	public Page<EGift> getBasedOnTitle(String title, PageRequest page) {
+		logger.debug("getBasedOnTitle(" + title + ", " + page.asLink() + ")");
 		ViewQuery viewQuery = createQuery("basedOnTitle").key(title).descending(false);
 		return db.queryForPage(viewQuery, page, EGift.class);
 	}
