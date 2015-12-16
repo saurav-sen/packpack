@@ -21,4 +21,7 @@ public interface OAuthConstants {
 	
 	public static final String DEFAULT_OAUTH_KEY = "default.oauth.key"; //$NON-NLS-1$
 	public static final String DEFAULT_OAUTH_SECRET = "default.oauth.secret"; //$NON-NLS-1$
+	
+	public static final String OAUTH_REQUEST_TOKEN_PATH = "oauth/request_token";
+	public static final String OAUTH_ACCESS_TOKEN_PATH = "oauth/access_token";
 }

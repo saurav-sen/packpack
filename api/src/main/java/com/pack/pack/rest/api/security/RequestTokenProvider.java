@@ -31,7 +31,7 @@ import com.pack.pack.rest.api.oauth.token.TokenRegistry;
  *
  */
 @Provider
-@Path("/oauth/request_token")
+@Path("/" + OAuthConstants.OAUTH_REQUEST_TOKEN_PATH)
 public class RequestTokenProvider {
 	
 	@Context
