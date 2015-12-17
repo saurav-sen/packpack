@@ -34,9 +34,6 @@ import com.pack.pack.rest.api.oauth.token.TokenRegistry;
 @Path("/" + OAuthConstants.OAUTH_REQUEST_TOKEN_PATH)
 public class RequestTokenProvider {
 	
-	@Context
-	private ContainerRequest request;
-	
 	@Inject
 	private OAuth1Signature oAuth1Signature;
 	
@@ -44,7 +41,7 @@ public class RequestTokenProvider {
 	
 	@POST
 	@Produces(value=MediaType.APPLICATION_JSON)
-	public RequestToken postAuthenticateClient() throws Exception {
+	public RequestToken postAuthenticateClient(@Context ContainerRequest request) throws Exception {
 		 return doAuthenticateClient(request);
 	}
 	

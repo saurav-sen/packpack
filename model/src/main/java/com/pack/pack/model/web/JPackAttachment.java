@@ -9,6 +9,8 @@ public class JPackAttachment {
 
 	private String attachmentUrl;
 	
+	private String attachmentThumbnailUrl;
+	
 	private String mimeType;
 	
 	private String attachmentType;
@@ -35,5 +37,13 @@ public class JPackAttachment {
 
 	public void setAttachmentType(String attachmentType) {
 		this.attachmentType = attachmentType;
+	}
+
+	public String getAttachmentThumbnailUrl() {
+		return attachmentThumbnailUrl;
+	}
+
+	public void setAttachmentThumbnailUrl(String attachmentThumbnailUrl) {
+		this.attachmentThumbnailUrl = attachmentThumbnailUrl;
 	}
 }

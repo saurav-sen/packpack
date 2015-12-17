@@ -20,15 +20,18 @@ public class AccessTokenVerifier implements ContainerRequestFilter {
 	public void filter(ContainerRequestContext requestContext)
 			throws IOException {
 		boolean allow = true;
-		String accessToken = requestContext
+		String token = requestContext
 				.getHeaderString(OAuthConstants.AUTHORIZATION_HEADER);
 		String path = requestContext.getUriInfo().getPath();
-		if (!path.endsWith(OAuthConstants.OAUTH_REQUEST_TOKEN_PATH)
-				&& !path.endsWith(OAuthConstants.OAUTH_ACCESS_TOKEN_PATH)) {
-			if (accessToken == null || accessToken.trim().isEmpty()) {
+		boolean isTokenEmpty = token == null || token.trim().isEmpty();
+		if (!path.endsWith(OAuthConstants.OAUTH_REQUEST_TOKEN_PATH)) {
+			if(path.endsWith(OAuthConstants.OAUTH_ACCESS_TOKEN_PATH)) {
+				allow = isTokenEmpty;
+			}
+			else if (isTokenEmpty) {
 				allow = false;
 			} else {
-				allow = TokenRegistry.INSTANCE.isValidAccessToken(accessToken);
+				allow = TokenRegistry.INSTANCE.isValidAccessToken(token);
 			}
 		}
 		if (!allow) {

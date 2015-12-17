@@ -10,6 +10,8 @@ public class PackAttachment {
 
 	private String attachmentUrl;
 	
+	private String attachmentThumbnailUrl;
+	
 	private String mimeType;
 	
 	private PackAttachmentType type;
@@ -36,5 +38,13 @@ public class PackAttachment {
 
 	public void setType(PackAttachmentType type) {
 		this.type = type;
+	}
+
+	public String getAttachmentThumbnailUrl() {
+		return attachmentThumbnailUrl;
+	}
+
+	public void setAttachmentThumbnailUrl(String attachmentThumbnailUrl) {
+		this.attachmentThumbnailUrl = attachmentThumbnailUrl;
 	}
 }
