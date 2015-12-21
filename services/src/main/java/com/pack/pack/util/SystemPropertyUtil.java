@@ -48,4 +48,8 @@ public class SystemPropertyUtil {
 	public static String getThumbnailHome() {
 		return properties.getProperty(THUMBNAIL_HOME);
 	}
+	
+	public static String getAttachmentBaseURL() {
+		return "http://www.packpack.in/";
+	}
 }
