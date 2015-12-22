@@ -18,17 +18,13 @@ import javax.ws.rs.ext.Provider;
 
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.pack.pack.model.Pack;
-import com.pack.pack.model.PackAttachment;
+import com.pack.pack.IPackService;
 import com.pack.pack.model.PackAttachmentType;
 import com.pack.pack.model.web.JPack;
-import com.pack.pack.rest.web.util.AttachmentUtil;
-import com.pack.pack.services.couchdb.PackRepositoryService;
+import com.pack.pack.rest.web.util.ImageUtil;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.SystemPropertyUtil;
@@ -45,7 +41,7 @@ public class AttachmentResource {
 	private static Logger logger = LoggerFactory.getLogger(AttachmentResource.class);
 
 	@GET
-	@Path("images")
+	@Path("image")
 	@Produces({"image/png", "image/jpg"})
 	public Response getImageAttachment(@Context UriInfo uriInfo) throws PackPackException {
 		try {
@@ -55,7 +51,7 @@ public class AttachmentResource {
 			path = path.substring(index);
 			path = imageHome + path;
 			File imageFile = new File(path);
-			return AttachmentUtil.buildResponse(imageFile);
+			return ImageUtil.buildResponse(imageFile);
 		} catch (FileNotFoundException e) {
 			logger.info(e.getMessage(), e);
 			throw new PackPackException("TODO", e.getMessage(), e);
@@ -63,9 +59,9 @@ public class AttachmentResource {
 	}
 	
 	@PUT
-	@Path("images/topic/{topicId}/usr/{userId}")
+	@Path("image/topic/{topicId}/usr/{userId}")
 	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
-	@Produces(value =MediaType.APPLICATION_JSON)
+	@Produces(value = MediaType.APPLICATION_JSON)
 	public JPack uploadImagePack(@FormDataParam("file") InputStream file,
 			@FormDataParam("file") FormDataContentDisposition aboutFile,
 			@FormDataParam("title") String title,
@@ -73,43 +69,28 @@ public class AttachmentResource {
 			@FormDataParam("story") String story,
 			@PathParam("topicId") String topicId,
 			@PathParam("userId") String userId) throws PackPackException {
-		String location = SystemPropertyUtil.getImageHome() + File.separator + topicId;
-		File f = new File(location);
-		if(!f.exists()) {
-			f.mkdir();
-		}
-		Pack pack = new Pack();
-		pack.setCreationTime(new DateTime(DateTimeZone.getDefault()));
-		pack.setStory(story);
-		pack.setTitle(title);
-		pack.setCreatorId(userId);
-		PackRepositoryService service = ServiceRegistry.INSTANCE.findService(PackRepositoryService.class);
-		service.add(pack);
-		location = location + File.separator + pack.getId();
-		f = new File(location);
-		if(!f.exists()) {
-			f.mkdir();
-		}
-		location = location + aboutFile.getFileName();
-		AttachmentUtil.storeUploadedAttachment(file, location);
-		PackAttachment attachment = new PackAttachment();
-		attachment.setAttachmentUrl(location);
-		attachment.setType(PackAttachmentType.IMAGE);
-		return null;
+		String fileName = aboutFile.getFileName();
+		IPackService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IPackService.class);
+		return service.uploadPack(file, fileName, title, description,
+				story, topicId, userId, null, PackAttachmentType.IMAGE);
 	}
 	
 	@PUT
 	@Path("images/pack/{packId}")
 	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
-	@Produces(value =MediaType.APPLICATION_JSON)
+	@Produces(value = MediaType.APPLICATION_JSON)
 	public JPack modifyPack_addImage(@FormDataParam("file") InputStream file,
 			@FormDataParam("file") FormDataContentDisposition aboutFile,
 			@PathParam("packId") String packId) throws PackPackException {
-		return null;
+		IPackService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IPackService.class);
+		return service.updatePack(file, aboutFile.getFileName(),
+				PackAttachmentType.IMAGE, packId);
 	}
 	
 	@PUT
-	@Path("video/topic/{topicId}")
+	@Path("video/topic/{topicId}usr/{userId}")
 	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
 	@Produces(value =MediaType.APPLICATION_JSON)
 	public JPack uploadVideoPack(@FormDataParam("file") InputStream file,
@@ -117,20 +98,25 @@ public class AttachmentResource {
 			@FormDataParam("title") String title,
 			@FormDataParam("description") String description,
 			@FormDataParam("story") String story,
-			@PathParam("topicId") String topicId) throws PackPackException {
-		return null;
+			@PathParam("topicId") String topicId,
+			@PathParam("userId") String userId) throws PackPackException {
+		String fileName = aboutFile.getFileName();
+		IPackService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IPackService.class);
+		return service.uploadPack(file, fileName, title, description,
+				story, topicId, userId, null, PackAttachmentType.IMAGE);
 	}
 	
 	@PUT
 	@Path("video/pack/{packId}")
 	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
-	@Produces(value =MediaType.APPLICATION_JSON)
+	@Produces(value = MediaType.APPLICATION_JSON)
 	public JPack modifyPack_addVideo(@FormDataParam("file") InputStream file,
 			@FormDataParam("file") FormDataContentDisposition aboutFile,
 			@PathParam("packId") String packId) throws PackPackException {
-		String imageHome = SystemPropertyUtil.getImageHome();
-		
-		//AttachmentUtil.storeUploadedAttachment(file, uploadedFileLocation);
-		return null;
+		IPackService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IPackService.class);
+		return service.updatePack(file, aboutFile.getFileName(),
+				PackAttachmentType.VIDEO, packId);
 	}
 }

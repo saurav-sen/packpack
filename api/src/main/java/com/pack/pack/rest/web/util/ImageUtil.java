@@ -22,9 +22,9 @@ import com.pack.pack.services.exception.PackPackException;
  * @author Saurav
  *
  */
-public class AttachmentUtil {
+public class ImageUtil {
 	
-	private static Logger logger = LoggerFactory.getLogger(AttachmentUtil.class);
+	private static Logger logger = LoggerFactory.getLogger(ImageUtil.class);
 
 	public static Response buildResponse(File file) throws FileNotFoundException {
 		final FileInputStream fStream = new FileInputStream(file);
@@ -51,32 +51,5 @@ public class AttachmentUtil {
 			}
 		};
 		return Response.ok(octetStream).build();
-	}
-	
-	public static void storeUploadedAttachment(InputStream inputStream,
-			String fileLoc) throws PackPackException {
-		OutputStream outStream = null;
-		try {
-			outStream = new FileOutputStream(new File(fileLoc));
-			int read = 0;
-			byte[] bytes = new byte[1024];
-			outStream = new FileOutputStream(new File(fileLoc));
-			while ((read = inputStream.read(bytes)) != -1) {
-				outStream.write(bytes, 0, read);
-			}
-			outStream.flush();
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
-			throw new PackPackException("TODO", e.getMessage(), e);
-		} finally {
-			try {
-				if(outStream != null) {
-					outStream.close();
-				}
-			} catch (IOException e) {
-				logger.error(e.getMessage(), e);
-				throw new PackPackException("TODO", e.getMessage(), e);
-			}
-		}
 	}
 }

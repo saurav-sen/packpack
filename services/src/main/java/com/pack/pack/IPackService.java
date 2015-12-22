@@ -14,7 +14,7 @@ import com.pack.pack.services.exception.PackPackException;
  *
  */
 public interface IPackService {
-	
+
 	/**
 	 * 
 	 * @param id
@@ -22,18 +22,7 @@ public interface IPackService {
 	 * @throws PackPackException
 	 */
 	public JPack getPackById(String id) throws PackPackException;
-	
-	/**
-	 * 
-	 * @param jPack
-	 * @param attachment
-	 * @param userId
-	 * @param type
-	 * @throws PackPackException
-	 */
-	public void uploadPack(JPack jPack, InputStream attachment, 
-			String userId, PackAttachmentType type) throws PackPackException;
-	
+
 	/**
 	 * 
 	 * @param packId
@@ -41,9 +30,9 @@ public interface IPackService {
 	 * @param userIds
 	 * @throws PackPackException
 	 */
-	public void forwardPack(String packId, String fromUserId, String ...userIds) 
+	public void forwardPack(String packId, String fromUserId, String... userIds)
 			throws PackPackException;
-	
+
 	/**
 	 * 
 	 * @param userId
@@ -51,9 +40,9 @@ public interface IPackService {
 	 * @return
 	 * @throws PackPackException
 	 */
-	public List<JPack> loadLatestPack(String userId, int pageNo) 
+	public List<JPack> loadLatestPack(String userId, int pageNo)
 			throws PackPackException;
-	
+
 	/**
 	 * 
 	 * @param comment
@@ -61,7 +50,7 @@ public interface IPackService {
 	 * @throws PackPackException
 	 */
 	public JComment addComment(JComment comment) throws PackPackException;
-	
+
 	/**
 	 * 
 	 * @param userId
@@ -69,4 +58,34 @@ public interface IPackService {
 	 * @throws PackPackException
 	 */
 	public void addLike(String userId, String packId) throws PackPackException;
+
+	/**
+	 * 
+	 * @param file
+	 * @param fileName
+	 * @param title
+	 * @param description
+	 * @param story
+	 * @param topicId
+	 * @param userId
+	 * @param mimeType
+	 * @param type
+	 * @return
+	 * @throws PackPackException
+	 */
+	public JPack uploadPack(InputStream file, String fileName, String title,
+			String description, String story, String topicId, String userId,
+			String mimeType, PackAttachmentType type) throws PackPackException;
+
+	/**
+	 * 
+	 * @param file
+	 * @param fileName
+	 * @param type
+	 * @param packId
+	 * @return
+	 * @throws PackPackException
+	 */
+	public JPack updatePack(InputStream file, String fileName,
+			PackAttachmentType type, String packId) throws PackPackException;
 }

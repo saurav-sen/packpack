@@ -40,7 +40,16 @@
 			<artifactId>amqp-client</artifactId>
 			<version>${rabbitmq.version}</version>
 		</dependency>
-		        		
+		<dependency>
+		    <groupId>org.imgscalr</groupId>
+		    <artifactId>imgscalr-lib</artifactId>
+		    <version>${imgscalr.version}</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.jcodec</groupId>
+		  <artifactId>jcodec-javase</artifactId>
+		  <version>${jcodec-javase.version}</version>
+		</dependency>	
 	</dependencies>
 	<build>
 	<finalName>${project.artifactId}-${project.version}</finalName>
