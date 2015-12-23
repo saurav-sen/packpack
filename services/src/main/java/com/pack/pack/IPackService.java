@@ -83,9 +83,10 @@ public interface IPackService {
 	 * @param fileName
 	 * @param type
 	 * @param packId
+	 * @param topicId
 	 * @return
 	 * @throws PackPackException
 	 */
 	public JPack updatePack(InputStream file, String fileName,
-			PackAttachmentType type, String packId) throws PackPackException;
+			PackAttachmentType type, String packId, String topicId) throws PackPackException;
 }

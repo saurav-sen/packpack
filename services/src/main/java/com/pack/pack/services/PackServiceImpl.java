@@ -40,25 +40,19 @@ public class PackServiceImpl implements IPackService {
 
 	@Override
 	public JPack getPackById(String id) throws PackPackException {
-		// TODO Auto-generated method stub
-		return null;
+		Pack pack = findPackById(id);
+		return ModelConverter.convert(pack);
 	}
 
-	/*
-	 * @Override public void uploadPack(JPack jPack, InputStream attachment,
-	 * String userId, PackAttachmentType type) throws PackPackException {
-	 * PackRepositoryService repoService = ServiceRegistry.INSTANCE
-	 * .findService(PackRepositoryService.class); Pack pack = new Pack();
-	 * pack.setCreationTime(new DateTime()); pack.setCreatorId(userId);
-	 * //pack.getPackImageUrls().add(null); // TODO -- save input stream in
-	 * couch DB pack.setStory(jPack.getStory());
-	 * pack.setTitle(jPack.getTitle()); repoService.add(pack); }
-	 */
+	private Pack findPackById(String id) throws PackPackException {
+		PackRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(PackRepositoryService.class);
+		return service.get(id);
+	}
 
 	@Override
 	public void forwardPack(String packId, String fromUserId, String... userIds)
 			throws PackPackException {
-		// TODO Auto-generated method stub
 		PackRepositoryService repoService = ServiceRegistry.INSTANCE
 				.findService(PackRepositoryService.class);
 		Pack pack = repoService.findById(packId);
@@ -105,13 +99,18 @@ public class PackServiceImpl implements IPackService {
 	public JPack uploadPack(InputStream file, String fileName, String title,
 			String description, String story, String topicId, String userId,
 			String mimeType, PackAttachmentType type) throws PackPackException {
-		String home = (type == PackAttachmentType.IMAGE ? SystemPropertyUtil
-				.getImageHome() : SystemPropertyUtil.getVideoHome());
-		String location = home + File.separator + topicId;
-		File f = new File(location);
-		if (!f.exists()) {
-			f.mkdir();
-		}
+		Pack pack = addNewPack(story, title, userId);
+		addPackAttachment(pack, topicId, type, fileName, file);
+		TopicRepositoryService service2 = ServiceRegistry.INSTANCE
+				.findService(TopicRepositoryService.class);
+		Topic topic = service2.get(topicId);
+		topic.getPackIds().add(pack.getId());
+		service2.update(topic);
+		JPack jPack = ModelConverter.convert(pack);
+		return jPack;
+	}
+
+	private Pack addNewPack(String story, String title, String userId) {
 		Pack pack = new Pack();
 		pack.setCreationTime(new DateTime(DateTimeZone.getDefault()));
 		pack.setStory(story);
@@ -120,6 +119,21 @@ public class PackServiceImpl implements IPackService {
 		PackRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(PackRepositoryService.class);
 		service.add(pack);
+		return pack;
+	}
+
+	private void addPackAttachment(Pack pack, String topicId,
+			PackAttachmentType type, String fileName, InputStream file)
+			throws PackPackException {
+		PackRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(PackRepositoryService.class);
+		String home = (type == PackAttachmentType.IMAGE ? SystemPropertyUtil
+				.getImageHome() : SystemPropertyUtil.getVideoHome());
+		String location = home + File.separator + topicId;
+		File f = new File(location);
+		if (!f.exists()) {
+			f.mkdir();
+		}
 		location = location + File.separator + pack.getId();
 		f = new File(location);
 		if (!f.exists()) {
@@ -139,19 +153,14 @@ public class PackServiceImpl implements IPackService {
 		packAttachment.setType(type);
 		pack.getPackAttachments().add(packAttachment);
 		service.update(pack);
-		TopicRepositoryService service2 = ServiceRegistry.INSTANCE
-				.findService(TopicRepositoryService.class);
-		Topic topic = service2.get(topicId);
-		topic.getPackIds().add(pack.getId());
-		service2.update(topic);
-		JPack jPack = ModelConverter.convert(pack);
-		return jPack;
 	}
 
 	@Override
 	public JPack updatePack(InputStream file, String fileName,
-			PackAttachmentType type, String packId) throws PackPackException {
-		// TODO Auto-generated method stub
-		return null;
+			PackAttachmentType type, String packId, String topicId)
+			throws PackPackException {
+		Pack pack = findPackById(packId);
+		addPackAttachment(pack, topicId, type, fileName, file);
+		return ModelConverter.convert(pack);
 	}
 }

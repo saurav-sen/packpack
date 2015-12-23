@@ -28,6 +28,11 @@ import com.pack.pack.rest.web.util.ImageUtil;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.SystemPropertyUtil;
+import static com.pack.pack.util.SystemPropertyUtil.ATTACHMENT;
+import static com.pack.pack.util.SystemPropertyUtil.IMAGE;
+import static com.pack.pack.util.SystemPropertyUtil.VIDEO;
+import static com.pack.pack.util.SystemPropertyUtil.IMAGE_ATTACHMENT_URL_SUFFIX;
+import static com.pack.pack.util.SystemPropertyUtil.VIDEO_ATTACHMENT_URL_SUFFIX;
 
 /**
  * 
@@ -35,23 +40,43 @@ import com.pack.pack.util.SystemPropertyUtil;
  *
  */
 @Provider
-@Path("/attachment")
+@Path("/" + ATTACHMENT)
 public class AttachmentResource {
 	
 	private static Logger logger = LoggerFactory.getLogger(AttachmentResource.class);
 
 	@GET
-	@Path("image")
+	@Path(IMAGE)
 	@Produces({"image/png", "image/jpg"})
 	public Response getImageAttachment(@Context UriInfo uriInfo) throws PackPackException {
 		try {
 			String imageHome = SystemPropertyUtil.getImageHome();
 			String path = uriInfo.getPath();
-			int index = path.indexOf("attachment/images") + "attachment/images".length();
+			int index = path.indexOf(IMAGE_ATTACHMENT_URL_SUFFIX) + IMAGE_ATTACHMENT_URL_SUFFIX.length();
 			path = path.substring(index);
 			path = imageHome + path;
+			path = path.replaceAll("\\/", File.separator);
 			File imageFile = new File(path);
 			return ImageUtil.buildResponse(imageFile);
+		} catch (FileNotFoundException e) {
+			logger.info(e.getMessage(), e);
+			throw new PackPackException("TODO", e.getMessage(), e);
+		}
+	}
+	
+	@GET
+	@Path(VIDEO)
+	//@Produces({"image/png", "image/jpg"})
+	public Response getVideoAttachment(@Context UriInfo uriInfo) throws PackPackException {
+		try {
+			String videoHome = SystemPropertyUtil.getVideoHome();
+			String path = uriInfo.getPath();
+			int index = path.indexOf(VIDEO_ATTACHMENT_URL_SUFFIX) + VIDEO_ATTACHMENT_URL_SUFFIX.length();
+			path = path.substring(index);
+			path = videoHome + path;
+			path = path.replaceAll("\\/", File.separator);
+			File videoFile = new File(path);
+			return ImageUtil.buildResponse(videoFile);
 		} catch (FileNotFoundException e) {
 			logger.info(e.getMessage(), e);
 			throw new PackPackException("TODO", e.getMessage(), e);
@@ -77,16 +102,17 @@ public class AttachmentResource {
 	}
 	
 	@PUT
-	@Path("images/pack/{packId}")
+	@Path("images/topic/{topicId}/pack/{packId}")
 	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
 	@Produces(value = MediaType.APPLICATION_JSON)
 	public JPack modifyPack_addImage(@FormDataParam("file") InputStream file,
 			@FormDataParam("file") FormDataContentDisposition aboutFile,
+			@PathParam("topicId") String topicId,
 			@PathParam("packId") String packId) throws PackPackException {
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
 		return service.updatePack(file, aboutFile.getFileName(),
-				PackAttachmentType.IMAGE, packId);
+				PackAttachmentType.IMAGE, packId, topicId);
 	}
 	
 	@PUT
@@ -108,15 +134,16 @@ public class AttachmentResource {
 	}
 	
 	@PUT
-	@Path("video/pack/{packId}")
+	@Path("video/topic/{topicId}/pack/{packId}")
 	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
 	@Produces(value = MediaType.APPLICATION_JSON)
 	public JPack modifyPack_addVideo(@FormDataParam("file") InputStream file,
 			@FormDataParam("file") FormDataContentDisposition aboutFile,
+			@PathParam("topicId") String topicId,
 			@PathParam("packId") String packId) throws PackPackException {
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
 		return service.updatePack(file, aboutFile.getFileName(),
-				PackAttachmentType.VIDEO, packId);
+				PackAttachmentType.VIDEO, packId, topicId);
 	}
 }
