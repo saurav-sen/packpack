@@ -1,4 +1,4 @@
-package com.pack.pack.rest.api.oauth.token;
+package com.pack.pack.oauth.token;
 
 /**
  * 

@@ -1,10 +1,10 @@
-package com.pack.pack.rest.api.oauth.token;
+package com.pack.pack.oauth.token;
 
 
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
-import com.pack.pack.rest.api.security.util.EncryptionUtil;
+import com.pack.pack.security.util.EncryptionUtil;
 
 /**
  * 

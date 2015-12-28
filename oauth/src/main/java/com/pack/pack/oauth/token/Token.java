@@ -1,6 +1,5 @@
-package com.pack.pack.rest.api.oauth.token;
+package com.pack.pack.oauth.token;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
 
 /**
  * 
@@ -9,15 +8,15 @@ import org.codehaus.jackson.annotate.JsonIgnore;
  */
 public class Token {
 
-	@JsonIgnore
+	//@JsonIgnore
 	private long timeOfIssue;
 	
-	@JsonIgnore
+	//@JsonIgnore
 	private boolean isValid = true;
 	
 	private TTL expiry;
 
-	@JsonIgnore
+	//@JsonIgnore
 	public long getTimeOfIssue() {
 		return timeOfIssue;
 	}
@@ -26,7 +25,7 @@ public class Token {
 		this.timeOfIssue = timeOfIssue;
 	}
 
-	@JsonIgnore
+	//@JsonIgnore
 	public TTL getExpiry() {
 		return expiry;
 	}

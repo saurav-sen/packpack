@@ -6,7 +6,7 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Response;
 
-import com.pack.pack.rest.api.oauth.token.TokenRegistry;
+import com.pack.pack.oauth.token.TokenRegistry;
 import com.pack.pack.rest.api.security.OAuthConstants;
 
 /**

@@ -1,4 +1,4 @@
-package com.pack.pack.rest.api.security.util;
+package com.pack.pack.security.util;
 
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;

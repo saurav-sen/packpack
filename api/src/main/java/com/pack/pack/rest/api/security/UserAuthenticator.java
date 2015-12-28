@@ -5,9 +5,9 @@ import javax.ws.rs.WebApplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.pack.pack.rest.api.oauth.token.AccessToken;
-import com.pack.pack.rest.api.oauth.token.TokenGenerator;
-import com.pack.pack.rest.api.oauth.token.TokenRegistry;
+import com.pack.pack.oauth.token.AccessToken;
+import com.pack.pack.oauth.token.TokenGenerator;
+import com.pack.pack.oauth.token.TokenRegistry;
 import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;

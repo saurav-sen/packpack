@@ -1,14 +1,19 @@
-package com.pack.pack.rest.api.oauth.token;
+package com.pack.pack.oauth.token;
 
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
+
+import com.hazelcast.config.Config;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
 
 /**
  * 
@@ -19,17 +24,8 @@ public class TokenRegistry {
 	
 	public static final TokenRegistry INSTANCE = new TokenRegistry();
 	
-	private ConcurrentMap<String, SoftReference<RequestToken>> requestTokenCache 
-						= new ConcurrentHashMap<String, SoftReference<RequestToken>>();
-	
-	private ConcurrentMap<String, SoftReference<AccessToken>> accessTokenCache 
-						= new ConcurrentHashMap<String, SoftReference<AccessToken>>();
-	
 	private ConcurrentMap<String, SoftReference<AccessToken>> refreshTokenCache 
 						= new ConcurrentHashMap<String, SoftReference<AccessToken>>();
-	
-	private ConcurrentMap<String, SoftReference<ResetToken>> resetTokenCache 
-	= new ConcurrentHashMap<String, SoftReference<ResetToken>>();
 	
 	private boolean flag = true;
 	
@@ -37,9 +33,19 @@ public class TokenRegistry {
 										new ArrayList<ITokenStateChangeListener>(3);
 	private BlockingQueue<TokenInfo> accessTokenInspectionQ = new ArrayBlockingQueue<TokenInfo>(100);
 	
+	private HazelcastInstance hazelcast;
+	
+	private static final String REQUEST_TOKEN_CACHE = "requestTokenCache";
+	private static final String ACCESS_TOKEN_CACHE = "accessTokenCache";
+	private static final String RESET_TOKEN_CACHE = "resetTokenCache";
+	
+	public static final String TOKEN_REGISTRY = "token-registry";
 
 	
 	private TokenRegistry() {
+		Config cfg = new Config(TOKEN_REGISTRY);
+		hazelcast = Hazelcast.newHazelcastInstance(cfg);
+		
 		Thread requestTokenInvalidator = new Thread(new RequestTokenInvalidator());
 		Thread accessTokenInvalidator = new Thread(new AccessTokenInvalidator());
 		Thread listenerExecutor = new Thread(new AccessTokenListenerExecutor());
@@ -53,13 +59,11 @@ public class TokenRegistry {
 	}
 	
 	public RequestToken serviceRequestToken(String token) {
-		SoftReference<RequestToken> ref = requestTokenCache.get(token);
-		if(ref == null)
-			return null;
-		RequestToken requestToken = ref.get();
+		Map<String, RequestToken> map = hazelcast.getMap(REQUEST_TOKEN_CACHE);
+		RequestToken requestToken = map.get(token);
 		if(requestToken == null)
 			return null;
-		ref.clear(); //It is for one time use
+		map.remove(token); //It is for one time use
 		if(!requestToken.isValid())
 			return null;
 		long timeOfIssue = requestToken.getTimeOfIssue();
@@ -75,14 +79,13 @@ public class TokenRegistry {
 	}
 	
 	public ResetToken isValidResetToken(String token, boolean invalidate) {
-		SoftReference<ResetToken> ref = resetTokenCache.get(token);
-		if(ref == null)
-			return null;
-		ResetToken resetToken = ref.get();
+		Map<String, ResetToken> map = hazelcast.getMap(RESET_TOKEN_CACHE);
+		ResetToken resetToken = map.get(token);
 		if(resetToken == null)
 			return null;
-		if (invalidate)
-		ref.clear(); //It is for one time use
+		if (invalidate) {
+			map.remove(token); //It is for one time use
+		}
 		if(!resetToken.isValid())
 			return null;
 		long timeOfIssue = resetToken.getTimeOfIssue();
@@ -98,19 +101,19 @@ public class TokenRegistry {
 		return null;
 	}
 	public void addRequestToken(RequestToken token) {
-		requestTokenCache.put(token.getToken(), new SoftReference<RequestToken>(token));
+		Map<String, RequestToken> map = hazelcast.getMap(REQUEST_TOKEN_CACHE);
+		map.put(token.getToken(), token);
 	}
 	
 	public void addResetToken(ResetToken token) {
-		resetTokenCache.put(token.getToken(), new SoftReference<ResetToken>(token));
+		Map<String, ResetToken> map = hazelcast.getMap(RESET_TOKEN_CACHE);
+		map.put(token.getToken(), token);
 	}
 	
 	
 	public boolean isValidAccessToken(String token) {
-		SoftReference<AccessToken> ref = accessTokenCache.get(token);
-		if(ref == null)
-			return false;
-		AccessToken accessToken = ref.get();
+		Map<String, AccessToken> map = hazelcast.getMap(ACCESS_TOKEN_CACHE);
+		AccessToken accessToken = map.get(token);
 		if(accessToken == null)
 			return false;
 		if(!accessToken.isValid())
@@ -124,17 +127,14 @@ public class TokenRegistry {
 	}
 	
 	public void addAccessToken(AccessToken token) {
-		SoftReference<AccessToken> ref = new SoftReference<AccessToken>(token);
-		accessTokenCache.put(token.getToken(), ref);
-		//refreshTokenCache.put(token.getRefreshToken(), ref);
+		Map<String, AccessToken> map = hazelcast.getMap(ACCESS_TOKEN_CACHE);
+		map.put(token.getToken(), token);
 		accessTokenInspectionQ.offer(new TokenInfo(token, TokenState.CREATED));
 	}
 	
 	public boolean invalidateAccessToken(String accessToken, String username) {
-		SoftReference<AccessToken> ref = accessTokenCache.get(accessToken);
-		if(ref == null)
-			return false;
-		AccessToken token = ref.get();
+		Map<String, AccessToken> map = hazelcast.getMap(ACCESS_TOKEN_CACHE);
+		AccessToken token = map.get(accessToken);
 		if(token ==  null)
 			return false;
 		token.setValid(false);
@@ -178,13 +178,11 @@ public class TokenRegistry {
 		@Override
 		public void run() {
 			while(flag) {
-				Iterator<String> itr = requestTokenCache.keySet().iterator();
+				Map<String, RequestToken> map = hazelcast.getMap(REQUEST_TOKEN_CACHE);
+				Iterator<String> itr = map.keySet().iterator();
 				while(itr.hasNext()) {
 					String key = itr.next();
-					SoftReference<RequestToken> ref = requestTokenCache.get(key);
-					if(ref == null)
-						continue;
-					RequestToken token = ref.get();
+					RequestToken token = map.get(key);
 					if(token == null || !token.isValid()) {
 						itr.remove();
 						continue;
@@ -207,18 +205,16 @@ public class TokenRegistry {
 	}
 	
 	
-private class ResetTokenInvalidator implements Runnable {
+	private class ResetTokenInvalidator implements Runnable {
 		
 		@Override
 		public void run() {
 			while(flag) {
-				Iterator<String> itr = resetTokenCache.keySet().iterator();
+				Map<String, ResetToken> map = hazelcast.getMap(RESET_TOKEN_CACHE);
+				Iterator<String> itr = map.keySet().iterator();
 				while(itr.hasNext()) {
 					String key = itr.next();
-					SoftReference<ResetToken> ref = resetTokenCache.get(key);
-					if(ref == null)
-						continue;
-					ResetToken token = ref.get();
+					ResetToken token = map.get(key);
 					if(token == null || !token.isValid()) {
 						itr.remove();
 						continue;
@@ -246,14 +242,12 @@ private class ResetTokenInvalidator implements Runnable {
 		@Override
 		public void run() {
 			while(flag) {
-				Iterator<String> itr = accessTokenCache.keySet().iterator();
+				Map<String, AccessToken> map = hazelcast.getMap(ACCESS_TOKEN_CACHE);
+				Iterator<String> itr = map.keySet().iterator();
 				while(itr.hasNext()) {
 					try {
 						String key = itr.next();
-						SoftReference<AccessToken> ref = accessTokenCache.get(key);
-						if(ref == null)
-							continue;
-						AccessToken token = ref.get();
+						AccessToken token = map.get(key);
 						if(token == null || !token.isValid()) {
 							itr.remove();
 							accessTokenInspectionQ.offer(new TokenInfo(token, TokenState.DESTROYED), 1000, TimeUnit.MILLISECONDS);

@@ -10,7 +10,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
 import com.pack.pack.model.web.dto.UserDTO;
-import com.pack.pack.rest.api.oauth.token.AccessToken;
+import com.pack.pack.oauth.token.AccessToken;
 
 /**
  * 

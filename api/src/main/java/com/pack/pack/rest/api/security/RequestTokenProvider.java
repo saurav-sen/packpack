@@ -21,9 +21,9 @@ import org.glassfish.jersey.server.oauth1.internal.OAuthServerRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.pack.pack.rest.api.oauth.token.RequestToken;
-import com.pack.pack.rest.api.oauth.token.TokenGenerator;
-import com.pack.pack.rest.api.oauth.token.TokenRegistry;
+import com.pack.pack.oauth.token.RequestToken;
+import com.pack.pack.oauth.token.TokenGenerator;
+import com.pack.pack.oauth.token.TokenRegistry;
 
 /**
  * 
