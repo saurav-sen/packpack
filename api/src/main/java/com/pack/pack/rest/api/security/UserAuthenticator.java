@@ -27,11 +27,6 @@ public class UserAuthenticator {
 	private UserAuthenticator() {
 	}
 
-	public AccessToken getAccessToken(String requestToken, String username,
-			String password) {
-		return getAccessToken(requestToken, username, password, null);
-	}
-	
 	public AccessToken getNewAccessTokenIfRefreshTokenIsValid(String refreshToken) {
 		return null;
 	}
@@ -49,7 +44,7 @@ public class UserAuthenticator {
 				}
 				AccessToken token = new TokenGenerator()
 						.generateNewAccessToken();
-				TokenRegistry.INSTANCE.addAccessToken(token);
+				TokenRegistry.INSTANCE.addAccessToken(token, username, deviceID);
 				return token;
 			}
 			logger.info("Request Token is not valid");

@@ -26,9 +26,10 @@ public class AccessTokenProvider {
 	@Consumes(value = MediaType.APPLICATION_JSON)
 	public AccessToken login(
 			@HeaderParam(OAuthConstants.AUTHORIZATION_HEADER) String requestToken,
+			@HeaderParam(OAuthConstants.DEVICE_ID) String deviceId,
 			UserDTO dto) {
 		return UserAuthenticator.INSTANCE.getAccessToken(requestToken,
-				dto.getUsername(), dto.getPassword());
+				dto.getUsername(), dto.getPassword(), deviceId);
 	}
 
 	@GET

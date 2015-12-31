@@ -27,7 +27,7 @@ public class TokenGenerator {
 		RequestToken token = new RequestToken();
 		String tokenValue = new KeyGenerator().generateNewToken();
 		token.setToken(tokenValue);
-		token.setExpiry(new TTL(2, TimeUnit.HOURS));
+		token.setExpiry(new TTL(10, TimeUnit.MINUTES));
 		token.setTimeOfIssue(System.currentTimeMillis());
 		return token;
 	}

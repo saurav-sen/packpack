@@ -1,0 +1,19 @@
+<hazelcast
+	xsi:schemaLocation="http://www.hazelcast.com/schema/config hazelcast-config-3.6.xsd"
+	xmlns="http://www.hazelcast.com/schema/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<map name="requestTokenCache">
+		<time-to-live-seconds>600</time-to-live-seconds>
+		<eviction-policy>LRU</eviction-policy>
+		<max-size policy="PER_NODE">15000</max-size>
+		<eviction-percentage>25</eviction-percentage>
+		<min-eviction-check-millis>100</min-eviction-check-millis>
+	</map>
+	<map name="accessTokenCache">
+		<time-to-live-seconds>7200</time-to-live-seconds>
+		<max-idle-seconds>1800</max-idle-seconds>
+		<eviction-policy>LRU</eviction-policy>
+		<max-size policy="PER_NODE">15000</max-size>
+		<eviction-percentage>25</eviction-percentage>
+		<min-eviction-check-millis>100</min-eviction-check-millis>
+	</map>
+</hazelcast>
