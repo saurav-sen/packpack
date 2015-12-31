@@ -8,6 +8,6 @@ package com.pack.pack.event;
 public enum MsgEventType {
 
 	USER,
-	GROUP,
+	TOPIC,
 	BROADCAST
 }

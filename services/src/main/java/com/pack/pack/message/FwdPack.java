@@ -22,6 +22,16 @@ public class FwdPack {
 	private int likes;
 	
 	private int comments;
+	
+	private String message;
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
 
 	public String getPackId() {
 		return packId;

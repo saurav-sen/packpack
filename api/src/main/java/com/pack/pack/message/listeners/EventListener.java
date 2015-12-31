@@ -28,7 +28,7 @@ public class EventListener implements IEventListener {
 			String userId = event.getOriginEntityId();
 			broadCaster = BroadcastManager.INSTANCE.getSseBroadCasterForUser(userId);
 			break;
-		case GROUP:
+		case TOPIC:
 			String groupId = event.getOriginEntityId();
 			broadCaster = BroadcastManager.INSTANCE.getSseBroadcaster(groupId);
 			break;

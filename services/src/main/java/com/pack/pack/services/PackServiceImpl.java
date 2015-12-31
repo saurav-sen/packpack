@@ -67,6 +67,7 @@ public class PackServiceImpl implements IPackService {
 		fwdPack.setFromUserProfilePicUrl(null); // TODO
 		fwdPack.setLikes(pack.getLikes());
 		fwdPack.setViews(pack.getViews());
+		fwdPack.setMessage("Pack :: " + pack.getTitle() + " :: has been sent to you by " + user.getName());
 		MessagePublisher messagingService = ServiceRegistry.INSTANCE
 				.findService(MessagePublisher.class);
 		messagingService.forwardPack(fwdPack, user);
@@ -107,6 +108,21 @@ public class PackServiceImpl implements IPackService {
 		topic.getPackIds().add(pack.getId());
 		service2.update(topic);
 		JPack jPack = ModelConverter.convert(pack);
+		FwdPack fwdPack = new FwdPack();
+		fwdPack.setAccessUrl(null);
+		fwdPack.setFromUserId(userId);
+		UserRepositoryService userService = ServiceRegistry.INSTANCE
+				.findService(UserRepositoryService.class);
+		User user = userService.get(userId);
+		fwdPack.setFromUserName(user.getUsername());
+		fwdPack.setFromUserProfilePicUrl(null);
+		fwdPack.setLikes(pack.getLikes());
+		fwdPack.setPackId(pack.getId());
+		fwdPack.setViews(pack.getViews());
+		fwdPack.setMessage("Pack :: " + pack.getTitle() + " :: has been uploaded by " + user.getName());
+		MessagePublisher messagePublisher = ServiceRegistry.INSTANCE
+				.findService(MessagePublisher.class);
+		messagePublisher.notifyPackModify(fwdPack, topic, user);
 		return jPack;
 	}
 
@@ -157,10 +173,26 @@ public class PackServiceImpl implements IPackService {
 
 	@Override
 	public JPack updatePack(InputStream file, String fileName,
-			PackAttachmentType type, String packId, String topicId)
+			PackAttachmentType type, String packId, String topicId,
+			String userId)
 			throws PackPackException {
 		Pack pack = findPackById(packId);
 		addPackAttachment(pack, topicId, type, fileName, file);
+		TopicRepositoryService topicService = ServiceRegistry.INSTANCE.findService(TopicRepositoryService.class);
+		Topic topic = topicService.get(topicId);
+		FwdPack fwdPack = new FwdPack();
+		fwdPack.setAccessUrl(null);
+		fwdPack.setFromUserId(userId);
+		UserRepositoryService userService = ServiceRegistry.INSTANCE.findService(UserRepositoryService.class);
+		User user = userService.get(userId);
+		fwdPack.setFromUserName(user.getUsername());
+		fwdPack.setFromUserProfilePicUrl(null);
+		fwdPack.setLikes(pack.getLikes());
+		fwdPack.setPackId(pack.getId());
+		fwdPack.setViews(pack.getViews());
+		fwdPack.setMessage("Pack :: " + pack.getTitle() + " :: has been updated by " + user.getName());
+		MessagePublisher messagePublisher = ServiceRegistry.INSTANCE.findService(MessagePublisher.class);
+		messagePublisher.notifyPackModify(fwdPack, topic, user);
 		return ModelConverter.convert(pack);
 	}
 }

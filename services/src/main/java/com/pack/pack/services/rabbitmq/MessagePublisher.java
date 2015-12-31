@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.pack.pack.message.FwdPack;
+import com.pack.pack.model.Topic;
 import com.pack.pack.model.User;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.rabbitmq.objects.BroadcastCriteria;
@@ -40,29 +41,29 @@ public class MessagePublisher {
 					user.getUsername(), null, null);
 			channel.basicPublish("", msg_queue, props, message.getBytes());
 		} catch (IOException e) {
-			throw new PackPackException("", e.getMessage(), e);
+			new PackPackException("TODO", e.getMessage(), e);
 		} catch (TimeoutException e) {
-			throw new PackPackException("", e.getMessage(), e);
+			new PackPackException("TODO", e.getMessage(), e);
 		}
 	}
 	
-	/*public void forwardPack(FwdPack fwdPack, Group group) throws PackPackException {
+	public void notifyPackModify(FwdPack fwdPack, Topic topic, User fromUser) throws PackPackException {
 		try {
 			MsgConnection connection = connectionManager.openConnection();
 			Channel channel = connection.getChannel();
-			String exchange_name = group.getId() + "_" + group.getName();
-			channel.exchangeDeclare(exchange_name, "fanout");
+			String exhange_name = "topic_" + topic.getId() + "_" + topic.getName();
+			channel.exchangeDeclare(exhange_name, "fanout");
 			String message = JSONUtil.serialize(fwdPack);
 			BasicProperties props = new BasicProperties(null, null, null, 0, 0,
-					null, Constants.REPLY_TO_GROUP_PREFIX + group.getId(), null, null, null, null,
-					null, null, null);
-			channel.basicPublish(exchange_name, "", props, message.getBytes());
+					null, Constants.REPLY_TO_TOPIC_PREFIX + topic.getId(),
+					null, null, null, null, null, null, null);
+			channel.basicPublish(exhange_name, "", props, message.getBytes());
 		} catch (IOException e) {
-			throw new PackPackException("", e.getMessage(), e);
+			new PackPackException("TODO", e.getMessage(), e);
 		} catch (TimeoutException e) {
-			throw new PackPackException("", e.getMessage(), e);
+			new PackPackException("TODO", e.getMessage(), e);
 		}
-	}*/
+	}
 	
 	public void broadcast(BroadcastPack broadcastPack) throws PackPackException {
 		FwdPack fwdPack = broadcastPack.getFwdPack();

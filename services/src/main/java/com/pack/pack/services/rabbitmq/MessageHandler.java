@@ -36,9 +36,9 @@ public class MessageHandler extends DefaultConsumer {
 		String originEntityId = null;
 		MsgEventType evtType = MsgEventType.BROADCAST;
 		if(replyTo != null) {
-			if(replyTo.startsWith(Constants.REPLY_TO_GROUP_PREFIX)) {
-				evtType = MsgEventType.GROUP;
-				originEntityId = replyTo.substring(Constants.REPLY_TO_GROUP_PREFIX.length());
+			if(replyTo.startsWith(Constants.REPLY_TO_TOPIC_PREFIX)) {
+				evtType = MsgEventType.TOPIC;
+				originEntityId = replyTo.substring(Constants.REPLY_TO_TOPIC_PREFIX.length());
 			}
 			else if(replyTo.startsWith(Constants.REPLY_TO_USER_PREFIX)) {
 				evtType = MsgEventType.USER;

@@ -102,21 +102,22 @@ public class AttachmentResource {
 	}
 	
 	@PUT
-	@Path("images/topic/{topicId}/pack/{packId}")
+	@Path("images/topic/{topicId}/pack/{packId}/usr/{userId}")
 	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
 	@Produces(value = MediaType.APPLICATION_JSON)
 	public JPack modifyPack_addImage(@FormDataParam("file") InputStream file,
 			@FormDataParam("file") FormDataContentDisposition aboutFile,
 			@PathParam("topicId") String topicId,
-			@PathParam("packId") String packId) throws PackPackException {
+			@PathParam("packId") String packId,
+			@PathParam("userId") String userId) throws PackPackException {
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
 		return service.updatePack(file, aboutFile.getFileName(),
-				PackAttachmentType.IMAGE, packId, topicId);
+				PackAttachmentType.IMAGE, packId, topicId, userId);
 	}
 	
 	@PUT
-	@Path("video/topic/{topicId}usr/{userId}")
+	@Path("video/topic/{topicId}/usr/{userId}")
 	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
 	@Produces(value =MediaType.APPLICATION_JSON)
 	public JPack uploadVideoPack(@FormDataParam("file") InputStream file,
@@ -134,16 +135,17 @@ public class AttachmentResource {
 	}
 	
 	@PUT
-	@Path("video/topic/{topicId}/pack/{packId}")
+	@Path("video/topic/{topicId}/pack/{packId}/usr/{userId}")
 	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
 	@Produces(value = MediaType.APPLICATION_JSON)
 	public JPack modifyPack_addVideo(@FormDataParam("file") InputStream file,
 			@FormDataParam("file") FormDataContentDisposition aboutFile,
 			@PathParam("topicId") String topicId,
-			@PathParam("packId") String packId) throws PackPackException {
+			@PathParam("packId") String packId,
+			@PathParam("userId") String userId) throws PackPackException {
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
 		return service.updatePack(file, aboutFile.getFileName(),
-				PackAttachmentType.VIDEO, packId, topicId);
+				PackAttachmentType.VIDEO, packId, topicId, userId);
 	}
 }
