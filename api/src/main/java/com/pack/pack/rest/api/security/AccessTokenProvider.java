@@ -5,12 +5,14 @@ import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
 import com.pack.pack.model.web.dto.UserDTO;
 import com.pack.pack.oauth.token.AccessToken;
+import com.pack.pack.services.exception.PackPackException;
 
 /**
  * 
@@ -33,10 +35,17 @@ public class AccessTokenProvider {
 	}
 
 	@GET
+	@Path("{username}")
 	@Produces(value = MediaType.APPLICATION_JSON)
 	public AccessToken relogin(
-			@HeaderParam(OAuthConstants.AUTHORIZATION_HEADER) String refreshToken) {
-		return UserAuthenticator.INSTANCE
-				.getNewAccessTokenIfRefreshTokenIsValid(refreshToken);
+			@HeaderParam(OAuthConstants.AUTHORIZATION_HEADER) String refreshToken,
+			@HeaderParam(OAuthConstants.DEVICE_ID) String deviceId,
+			@PathParam("username") String username) throws PackPackException {
+		try {
+			return UserAuthenticator.INSTANCE
+					.getNewAccessTokenIfRefreshTokenIsValid(refreshToken, username, deviceId);
+		} catch (Exception e) {
+			throw new PackPackException("TODO", e);
+		}
 	}
 }

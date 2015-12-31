@@ -5,9 +5,11 @@ import javax.ws.rs.WebApplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pack.pack.model.PersistedUserToken;
 import com.pack.pack.oauth.token.AccessToken;
 import com.pack.pack.oauth.token.TokenGenerator;
 import com.pack.pack.oauth.token.TokenRegistry;
+import com.pack.pack.services.couchdb.PersistedUserTokenRepositoryService;
 import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
@@ -27,7 +29,21 @@ public class UserAuthenticator {
 	private UserAuthenticator() {
 	}
 
-	public AccessToken getNewAccessTokenIfRefreshTokenIsValid(String refreshToken) {
+	public AccessToken getNewAccessTokenIfRefreshTokenIsValid(
+			String refreshToken, String username, String deviceID)
+			throws Exception {
+		if (TokenRegistry.INSTANCE.isValidRefreshToken(refreshToken, null,
+				username, deviceID)) {
+			PersistedUserTokenRepositoryService service = ServiceRegistry.INSTANCE
+					.findService(PersistedUserTokenRepositoryService.class);
+			PersistedUserToken token = service.findByRefreshToken(refreshToken);
+			service.remove(token);
+			AccessToken accessToken = new TokenGenerator()
+					.generateNewAccessToken();
+			TokenRegistry.INSTANCE.addAccessToken(accessToken, username,
+					deviceID);
+			return accessToken;
+		}
 		return null;
 	}
 
@@ -44,7 +60,8 @@ public class UserAuthenticator {
 				}
 				AccessToken token = new TokenGenerator()
 						.generateNewAccessToken();
-				TokenRegistry.INSTANCE.addAccessToken(token, username, deviceID);
+				TokenRegistry.INSTANCE
+						.addAccessToken(token, username, deviceID);
 				return token;
 			}
 			logger.info("Request Token is not valid");
