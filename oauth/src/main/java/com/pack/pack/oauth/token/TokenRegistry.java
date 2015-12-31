@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.joda.time.DateTime;
 
+import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -25,10 +26,12 @@ public class TokenRegistry {
 
 	private HazelcastInstance hazelcast;
 
-	private static final String REQUEST_TOKEN_CACHE = "requestTokenCache";
-	private static final String ACCESS_TOKEN_CACHE = "accessTokenCache";
+	private static final String REQUEST_TOKEN_CACHE = "requestTokenCache"; //$NON-NLS-1$
+	private static final String ACCESS_TOKEN_CACHE = "accessTokenCache"; //$NON-NLS-1$
 
-	public static final String TOKEN_REGISTRY = "token-registry";
+	public static final String TOKEN_REGISTRY = "token-registry"; //$NON-NLS-1$
+	
+	private static final String HAZELCAST_XML_CONFIG = "META-INF/hazelcast-config.xml"; //$NON-NLS-1$
 
 	private TokenRegistry() {
 		reinitialize();
@@ -38,7 +41,8 @@ public class TokenRegistry {
 		if(isRunning) {
 			return;
 		}
-		Config cfg = new Config(TOKEN_REGISTRY);
+		Config cfg = new ClasspathXmlConfig(HAZELCAST_XML_CONFIG);
+		cfg.setInstanceName(TOKEN_REGISTRY);
 		hazelcast = Hazelcast.newHazelcastInstance(cfg);
 		isRunning = true;
 	}
