@@ -10,9 +10,17 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
+import org.glassfish.jersey.media.sse.SseBroadcaster;
+
+import com.pack.pack.model.User;
 import com.pack.pack.model.web.dto.UserDTO;
 import com.pack.pack.oauth.token.AccessToken;
+import com.pack.pack.oauth.token.TokenRegistry;
+import com.pack.pack.rest.api.broadcast.BroadcastManager;
+import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.exception.PackPackException;
+import com.pack.pack.services.rabbitmq.MessageSubscriber;
+import com.pack.pack.services.registry.ServiceRegistry;
 
 /**
  * 
@@ -28,10 +36,28 @@ public class AccessTokenProvider {
 	@Consumes(value = MediaType.APPLICATION_JSON)
 	public AccessToken login(
 			@HeaderParam(OAuthConstants.AUTHORIZATION_HEADER) String requestToken,
-			@HeaderParam(OAuthConstants.DEVICE_ID) String deviceId,
-			UserDTO dto) {
-		return UserAuthenticator.INSTANCE.getAccessToken(requestToken,
-				dto.getUsername(), dto.getPassword(), deviceId);
+			@HeaderParam(OAuthConstants.DEVICE_ID) String deviceId, UserDTO dto)
+			throws PackPackException {
+		AccessToken token = null;
+		try {
+			token = UserAuthenticator.INSTANCE.getAccessToken(requestToken,
+					dto.getUsername(), dto.getPassword(), deviceId);
+			UserRepositoryService userService = ServiceRegistry.INSTANCE
+					.findService(UserRepositoryService.class);
+			User user = userService.getBasedOnUsername(dto.getUsername())
+					.get(0);
+			MessageSubscriber messageSubscriber = ServiceRegistry.INSTANCE
+					.findService(MessageSubscriber.class);
+			messageSubscriber.subscribeToChannel(user);
+			BroadcastManager.INSTANCE.registerUserSseBroadcaster(user.getId());
+			return token;
+		} catch (PackPackException e) {
+			if (token != null) {
+				TokenRegistry.INSTANCE.invalidateAccessToken(token.getToken(),
+						dto.getUsername());
+			}
+			throw e;
+		}
 	}
 
 	@GET
@@ -43,7 +69,8 @@ public class AccessTokenProvider {
 			@PathParam("username") String username) throws PackPackException {
 		try {
 			return UserAuthenticator.INSTANCE
-					.getNewAccessTokenIfRefreshTokenIsValid(refreshToken, username, deviceId);
+					.getNewAccessTokenIfRefreshTokenIsValid(refreshToken,
+							username, deviceId);
 		} catch (Exception e) {
 			throw new PackPackException("TODO", e);
 		}

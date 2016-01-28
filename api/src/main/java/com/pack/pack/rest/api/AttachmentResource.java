@@ -100,6 +100,7 @@ public class AttachmentResource {
 		return service.uploadPack(file, fileName, title, description,
 				story, topicId, userId, null, PackAttachmentType.IMAGE);
 	}
+	//http://javapapers.com/android/android-get-address-with-street-name-city-for-location-with-geocoding/
 	
 	@PUT
 	@Path("images/topic/{topicId}/pack/{packId}/usr/{userId}")

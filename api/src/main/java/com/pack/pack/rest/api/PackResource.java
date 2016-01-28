@@ -56,7 +56,7 @@ public class PackResource {
 		return jPacks;
 	}
 
-	@PUT
+	/*@PUT
 	@Path("usr/{userId}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -66,7 +66,7 @@ public class PackResource {
 		// ServiceRegistry.INSTANCE.findCompositeService();
 		// service.uploadPack(arg0, arg1, arg2);
 		return null;
-	}
+	}*/
 
 	@POST
 	@Path("{id}")

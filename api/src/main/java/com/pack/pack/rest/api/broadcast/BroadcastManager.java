@@ -3,6 +3,7 @@ package com.pack.pack.rest.api.broadcast;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.glassfish.jersey.media.sse.EventOutput;
 import org.glassfish.jersey.media.sse.SseBroadcaster;
 
 import com.pack.pack.services.rabbitmq.objects.BroadcastCriteria;
@@ -39,15 +40,29 @@ public class BroadcastManager {
 		return groupBroadcatsers.get(id);
 	}
 	
-	public void registerGroupBroadcaster(String id, SseBroadcaster sseBroadcaster) {
-		groupBroadcatsers.put(id, sseBroadcaster);
+	public EventOutput registerTopicBroadcaster(String topicId) {
+		SseBroadcaster sseBroadcaster = getSseBroadcaster(topicId);
+		if(sseBroadcaster == null) {
+			sseBroadcaster = new SseBroadcaster();
+			groupBroadcatsers.put(topicId, sseBroadcaster);
+		}
+		EventOutput eventOutput = new EventOutput();
+		sseBroadcaster.add(eventOutput);
+		return eventOutput;
 	}
 	
-	public SseBroadcaster getSseBroadCasterForUser(String id) {
-		return userSseMap.get(id);
+	public SseBroadcaster getSseBroadCasterForUser(String userId) {
+		return userSseMap.get(userId);
 	}
 	
-	public void registerUserSseBroadcaster(String id, SseBroadcaster sseBroadcaster) {
-		userSseMap.put(id, sseBroadcaster);
+	public EventOutput registerUserSseBroadcaster(String userId) {
+		SseBroadcaster sseBroadcaster = getSseBroadCasterForUser(userId);
+		if(sseBroadcaster == null) {
+			sseBroadcaster = new SseBroadcaster();
+			userSseMap.put(userId, sseBroadcaster);
+		}
+		EventOutput eventOutput = new EventOutput();
+		sseBroadcaster.add(eventOutput);
+		return eventOutput;
 	}
 }

@@ -26,6 +26,7 @@ public class SystemPropertyUtil {
 	private static final String BASE_URL = "base.url";
 	
 	private static final String URL_SEPARATOR = "/";
+	public static final String BROADCAST_API_PREFIX = "broadcast";
 	public static final String ATTACHMENT = "attachment";
 	public static final String IMAGE = "image";
 	public static final String VIDEO = "video";
