@@ -31,8 +31,11 @@ import com.pack.pack.util.SystemPropertyUtil;
 import static com.pack.pack.util.SystemPropertyUtil.ATTACHMENT;
 import static com.pack.pack.util.SystemPropertyUtil.IMAGE;
 import static com.pack.pack.util.SystemPropertyUtil.VIDEO;
+import static com.pack.pack.util.SystemPropertyUtil.PROFILE;
+import static com.pack.pack.util.SystemPropertyUtil.URL_SEPARATOR;
 import static com.pack.pack.util.SystemPropertyUtil.IMAGE_ATTACHMENT_URL_SUFFIX;
 import static com.pack.pack.util.SystemPropertyUtil.VIDEO_ATTACHMENT_URL_SUFFIX;
+import static com.pack.pack.util.SystemPropertyUtil.PROFILE_IMAGE_URL_SUFFIX;
 
 /**
  * 
@@ -44,6 +47,25 @@ import static com.pack.pack.util.SystemPropertyUtil.VIDEO_ATTACHMENT_URL_SUFFIX;
 public class AttachmentResource {
 	
 	private static Logger logger = LoggerFactory.getLogger(AttachmentResource.class);
+	
+	@GET
+	@Path(PROFILE + URL_SEPARATOR + IMAGE)
+	@Produces({"image/png", "image/jpg"})
+	public Response getProfilePictureImage(@Context UriInfo uriInfo) throws PackPackException {
+		try {
+			String profilePictureHome = SystemPropertyUtil.getProfilePictureHome();
+			String path = uriInfo.getPath();
+			int index = path.indexOf(PROFILE_IMAGE_URL_SUFFIX) + PROFILE_IMAGE_URL_SUFFIX.length();
+			path = path.substring(index);
+			path = profilePictureHome + path;
+			path = path.replaceAll(URL_SEPARATOR, File.separator);
+			File imageFile = new File(path);
+			return ImageUtil.buildResponse(imageFile);
+		} catch (FileNotFoundException e) {
+			logger.info(e.getMessage(), e);
+			throw new PackPackException("TODO", e.getMessage(), e);
+		}
+	}
 
 	@GET
 	@Path(IMAGE)
@@ -55,7 +77,7 @@ public class AttachmentResource {
 			int index = path.indexOf(IMAGE_ATTACHMENT_URL_SUFFIX) + IMAGE_ATTACHMENT_URL_SUFFIX.length();
 			path = path.substring(index);
 			path = imageHome + path;
-			path = path.replaceAll("\\/", File.separator);
+			path = path.replaceAll(URL_SEPARATOR, File.separator);
 			File imageFile = new File(path);
 			return ImageUtil.buildResponse(imageFile);
 		} catch (FileNotFoundException e) {
@@ -74,7 +96,7 @@ public class AttachmentResource {
 			int index = path.indexOf(VIDEO_ATTACHMENT_URL_SUFFIX) + VIDEO_ATTACHMENT_URL_SUFFIX.length();
 			path = path.substring(index);
 			path = videoHome + path;
-			path = path.replaceAll("\\/", File.separator);
+			path = path.replaceAll(URL_SEPARATOR, File.separator);
 			File videoFile = new File(path);
 			return ImageUtil.buildResponse(videoFile);
 		} catch (FileNotFoundException e) {

@@ -54,18 +54,22 @@ public class ModelConverter {
 				.getImageAttachmentBaseURL() : SystemPropertyUtil
 				.getVideoAttachmentBaseURL());
 		String thumbnailUrl = attachment.getAttachmentThumbnailUrl();
-		thumbnailUrl = thumbnailUrl.replaceAll(File.separator, "\\/");
-		if (!thumbnailUrl.startsWith("/") && !baseURL.endsWith("/")) {
-			thumbnailUrl = baseURL + "/" + thumbnailUrl;
+		thumbnailUrl = thumbnailUrl.replaceAll(File.separator,
+				SystemPropertyUtil.URL_SEPARATOR);
+		if (!thumbnailUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)
+				&& !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+			thumbnailUrl = baseURL + SystemPropertyUtil.URL_SEPARATOR
+					+ thumbnailUrl;
 		} else {
 			thumbnailUrl = baseURL + thumbnailUrl;
 		}
 		jAttachment.setAttachmentThumbnailUrl(thumbnailUrl);
 		jAttachment.setAttachmentType(type.name());
 		String url = attachment.getAttachmentUrl();
-		url = url.replaceAll(File.separator, "\\/");
-		if (!url.startsWith("/") && !baseURL.endsWith("/")) {
-			url = baseURL + "/" + url;
+		url = url.replaceAll(File.separator, SystemPropertyUtil.URL_SEPARATOR);
+		if (!url.startsWith(SystemPropertyUtil.URL_SEPARATOR)
+				&& !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+			url = baseURL + SystemPropertyUtil.URL_SEPARATOR + url;
 		} else {
 			url = baseURL + url;
 		}
@@ -87,14 +91,33 @@ public class ModelConverter {
 		return jPacks;
 	}
 
-	public static JUser convert(User user, String profilePictureUrl) {
+	public static JUser convert(User user) {
 		JUser jUser = new JUser();
 		jUser.setId(user.getId());
 		jUser.setDob(user.getDob());
 		jUser.setName(user.getName());
 		jUser.setUsername(user.getUsername());
-		jUser.setProfilePictureUrl(profilePictureUrl);
+		jUser.setProfilePictureUrl(resolveProfilePictureUrl(user
+				.getProfilePicture()));
 		return jUser;
+	}
+
+	public static String resolveProfilePictureUrl(String profilePicture) {
+		if (profilePicture == null) {
+			return null;
+		}
+		String baseURL = SystemPropertyUtil.getProfilePictureBaseURL();
+		String profilePictureUrl = profilePicture;
+		profilePictureUrl = profilePictureUrl.replaceAll(File.separator,
+				SystemPropertyUtil.URL_SEPARATOR);
+		if (!profilePictureUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)
+				&& !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+			profilePictureUrl = baseURL + SystemPropertyUtil.URL_SEPARATOR
+					+ profilePictureUrl;
+		} else {
+			profilePictureUrl = baseURL + profilePictureUrl;
+		}
+		return profilePictureUrl;
 	}
 
 	public static Comment convert(JComment jComment) {

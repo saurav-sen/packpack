@@ -10,10 +10,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
-import org.glassfish.jersey.media.sse.SseBroadcaster;
-
 import com.pack.pack.model.User;
-import com.pack.pack.model.web.dto.UserDTO;
+import com.pack.pack.model.web.dto.LoginDTO;
 import com.pack.pack.oauth.token.AccessToken;
 import com.pack.pack.oauth.token.TokenRegistry;
 import com.pack.pack.rest.api.broadcast.BroadcastManager;
@@ -36,7 +34,7 @@ public class AccessTokenProvider {
 	@Consumes(value = MediaType.APPLICATION_JSON)
 	public AccessToken login(
 			@HeaderParam(OAuthConstants.AUTHORIZATION_HEADER) String requestToken,
-			@HeaderParam(OAuthConstants.DEVICE_ID) String deviceId, UserDTO dto)
+			@HeaderParam(OAuthConstants.DEVICE_ID) String deviceId, LoginDTO dto)
 			throws PackPackException {
 		AccessToken token = null;
 		try {

@@ -25,14 +25,18 @@ public class SystemPropertyUtil {
 	private static final String THUMBNAIL_HOME = "thumbnail.home";
 	private static final String BASE_URL = "base.url";
 	
-	private static final String URL_SEPARATOR = "/";
+	private static final String PROFILE_PICTURE_HOME = "profile.picture.home";
+	
+	public static final String URL_SEPARATOR = "/";
 	public static final String BROADCAST_API_PREFIX = "broadcast";
 	public static final String ATTACHMENT = "attachment";
 	public static final String IMAGE = "image";
 	public static final String VIDEO = "video";
+	public static final String PROFILE = "profile";
 	private static final String ATTACHMENT_URL_SUFFIX = ATTACHMENT + URL_SEPARATOR;
 	public static final String IMAGE_ATTACHMENT_URL_SUFFIX = ATTACHMENT_URL_SUFFIX + IMAGE + URL_SEPARATOR;
 	public static final String VIDEO_ATTACHMENT_URL_SUFFIX = ATTACHMENT_URL_SUFFIX + VIDEO + URL_SEPARATOR;
+	public static final String PROFILE_IMAGE_URL_SUFFIX = ATTACHMENT_URL_SUFFIX + PROFILE + URL_SEPARATOR + IMAGE + URL_SEPARATOR;
 	
 	private static final String CONFIG_FILE = "../conf/system_internal.properties";
 
@@ -61,6 +65,10 @@ public class SystemPropertyUtil {
 		return properties.getProperty(THUMBNAIL_HOME);
 	}
 	
+	public static String getProfilePictureHome() {
+		return properties.getProperty(PROFILE_PICTURE_HOME);
+	}
+	
 	public static String getBaseURL() {
 		return properties.getProperty(BASE_URL);
 	}
@@ -79,5 +87,13 @@ public class SystemPropertyUtil {
 			baseURL = baseURL + URL_SEPARATOR;
 		}
 		return baseURL + VIDEO_ATTACHMENT_URL_SUFFIX;
+	}
+	
+	public static String getProfilePictureBaseURL() {
+		String baseURL = getBaseURL();
+		if(!baseURL.endsWith(URL_SEPARATOR)) {
+			baseURL = baseURL + URL_SEPARATOR;
+		}
+		return baseURL + PROFILE_IMAGE_URL_SUFFIX;
 	}
 }
