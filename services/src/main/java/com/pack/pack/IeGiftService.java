@@ -1,9 +1,9 @@
 package com.pack.pack;
 
 import java.io.InputStream;
-import java.util.List;
 
 import com.pack.pack.model.web.JeGift;
+import com.pack.pack.services.couchdb.Pagination;
 import com.pack.pack.services.exception.PackPackException;
 
 /**
@@ -41,29 +41,31 @@ public interface IeGiftService {
 	 * 
 	 * @param eGiftId
 	 * @param fromUserId
+	 * @param title
+	 * @param message
 	 * @param userIds
 	 * @throws PackPackException
 	 */
-	public void sendEGift(String eGiftId, String fromUserId, String... userIds)
-			throws PackPackException;
+	public void sendEGift(String eGiftId, String fromUserId, String title,
+			String message, String... userIds) throws PackPackException;
 
 	/**
 	 * 
 	 * @param category
-	 * @param pageNo
+	 * @param pageLink
 	 * @return
 	 * @throws PackPackException
 	 */
-	public List<JeGift> loadeGiftsByCategory(String category, int pageNo)
-			throws PackPackException;
+	public Pagination<JeGift> loadeGiftsByCategory(String category,
+			String pageLink) throws PackPackException;
 
 	/**
 	 * 
 	 * @param brandId
-	 * @param pageNo
+	 * @param pageLink
 	 * @return
 	 * @throws PackPackException
 	 */
-	public List<JeGift> loadeGiftsByBrand(String brandId, int pageNo)
+	public Pagination<JeGift> loadeGiftsByBrand(String brandId, String pageLink)
 			throws PackPackException;
 }

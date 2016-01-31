@@ -70,7 +70,10 @@ public class PackServiceImpl implements IPackService {
 		fwdPack.setMessage("Pack :: " + pack.getTitle() + " :: has been sent to you by " + user.getName());
 		MessagePublisher messagingService = ServiceRegistry.INSTANCE
 				.findService(MessagePublisher.class);
-		messagingService.forwardPack(fwdPack, user);
+		for(String userId : userIds) {
+			User toUser = userRepoService.get(userId);
+			messagingService.forwardPack(fwdPack, toUser);
+		}
 	}
 
 	@Override

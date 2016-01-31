@@ -30,7 +30,9 @@ import com.pack.pack.model.Topic;
  */
 @Component
 @Scope("singleton")
-@Views({ @View(name = "findTopicByID", map = "function(doc) {if(doc.id) { emit(doc.id, doc); }}") })
+@Views({ 
+	@View(name = "findTopicByID", map = "function(doc) {if(doc.id) { emit(doc.id, doc); }}") 
+})
 public class TopicRepositoryService extends CouchDbRepositorySupport<Topic> {
 	
 	private static Logger logger = LoggerFactory.getLogger(TopicRepositoryService.class);

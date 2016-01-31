@@ -1,7 +1,5 @@
 package com.pack.pack.rest.api;
 
-import java.util.List;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -14,9 +12,9 @@ import javax.ws.rs.ext.Provider;
 import com.pack.pack.IeGiftService;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JeGift;
-import com.pack.pack.model.web.JeGifts;
 import com.pack.pack.model.web.StatusType;
-import com.pack.pack.model.web.dto.ForwardDTO;
+import com.pack.pack.model.web.dto.EGiftForwardDTO;
+import com.pack.pack.services.couchdb.Pagination;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 
@@ -40,46 +38,37 @@ public class EGiftResource {
 	}
 
 	@GET
-	@Path("brand/{brandId}/page/{pageNo}")
+	@Path("brand/{brandId}/page/{pageLink}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public JeGifts getEGiftsById(@PathParam("brandId") String brandId,
-			@PathParam("pageNo") int pageNo) throws PackPackException {
+	public Pagination<JeGift> getEGiftsById(@PathParam("brandId") String brandId,
+			@PathParam("pageLink") String pageLink) throws PackPackException {
 		IeGiftService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IeGiftService.class);
-		List<JeGift> list = service.loadeGiftsByBrand(brandId, pageNo);
-		JeGifts jEGifts = new JeGifts();
-		if (list != null) {
-			jEGifts.geteGifts().addAll(list);
-		}
-		return jEGifts;
+		return service.loadeGiftsByBrand(brandId, pageLink);
 	}
 
 	@GET
-	@Path("category/{category}/page/{pageNo}")
+	@Path("category/{category}/page/{pageLink}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public JeGifts getEGiftsByCategory(@PathParam("category") String category,
-			@PathParam("pageNo") int pageNo) throws PackPackException {
+	public Pagination<JeGift> getEGiftsByCategory(@PathParam("category") String category,
+			@PathParam("pageLink") String pageLink) throws PackPackException {
 		IeGiftService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IeGiftService.class);
-		List<JeGift> list = service.loadeGiftsByCategory(category, pageNo);
-		JeGifts jEGifts = new JeGifts();
-		if (list != null) {
-			jEGifts.geteGifts().addAll(list);
-		}
-		return jEGifts;
+		return service.loadeGiftsByCategory(category, pageLink);
 	}
 
 	@POST
 	@Path("{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public JStatus forwardEGift(ForwardDTO dto, @PathParam("id") String id)
+	public JStatus forwardEGift(EGiftForwardDTO dto, @PathParam("id") String id)
 			throws PackPackException {
 		String fromUserId = dto.getFromUserId();
-		String toUserId = dto.getToUserId();
+		String toUserIdLine = dto.getToUserId();
+		String[] toUserIds = toUserIdLine.trim().split(",");
 		IeGiftService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IeGiftService.class);
-		service.sendEGift(id, fromUserId, toUserId);
+		service.sendEGift(id, fromUserId, dto.getTitle(), dto.getMessage(), toUserIds);
 		JStatus status = new JStatus();
 		status.setStatus(StatusType.OK);
 		status.setInfo("Successfully sent the eGift");
