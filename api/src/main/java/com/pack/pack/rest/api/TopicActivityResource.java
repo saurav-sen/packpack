@@ -55,7 +55,7 @@ public class TopicActivityResource {
 	}
 
 	@DELETE
-	@Path("topic/{topicId}/user/{userId}")
+	@Path("{topicId}/user/{userId}")
 	public JStatus neglectTopic(@PathParam("userId") String userId,
 			@PathParam("topicId") String topicId) throws PackPackException {
 		ITopicService service = ServiceRegistry.INSTANCE

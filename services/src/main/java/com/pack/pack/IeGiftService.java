@@ -12,7 +12,7 @@ import com.pack.pack.services.exception.PackPackException;
  *
  */
 public interface IeGiftService {
-	
+
 	/**
 	 * 
 	 * @param id
@@ -23,13 +23,19 @@ public interface IeGiftService {
 
 	/**
 	 * 
-	 * @param jsonBody
-	 * @param attachment
+	 * @param title
+	 * @param category
+	 * @param brandId
+	 * @param brandInfo
+	 * @param file
+	 * @param fileName
 	 * @param userId
+	 * @return
 	 * @throws PackPackException
 	 */
-	public void uploadEGift(String jsonBody, InputStream attachment,
-			String userId) throws PackPackException;
+	public JeGift uploadEGift(String title, String category, String brandId,
+			String brandInfo, InputStream file, String fileName, String userId)
+			throws PackPackException;
 
 	/**
 	 * 
@@ -50,7 +56,7 @@ public interface IeGiftService {
 	 */
 	public List<JeGift> loadeGiftsByCategory(String category, int pageNo)
 			throws PackPackException;
-	
+
 	/**
 	 * 
 	 * @param brandId

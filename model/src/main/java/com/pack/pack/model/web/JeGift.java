@@ -6,6 +6,8 @@ package com.pack.pack.model.web;
  *
  */
 public class JeGift {
+	
+	private String id;
 
 	private String title;
 	
@@ -16,6 +18,16 @@ public class JeGift {
 	private String brandId;
 	
 	private String imageUrl;
+	
+	private String imageThumbnailUrl;
+	
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
 
 	public String getTitle() {
 		return title;
@@ -55,5 +67,13 @@ public class JeGift {
 
 	public void setImageUrl(String imageUrl) {
 		this.imageUrl = imageUrl;
+	}
+
+	public String getImageThumbnailUrl() {
+		return imageThumbnailUrl;
+	}
+
+	public void setImageThumbnailUrl(String imageThumbnailUrl) {
+		this.imageThumbnailUrl = imageThumbnailUrl;
 	}
 }

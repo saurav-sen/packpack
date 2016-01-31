@@ -24,6 +24,7 @@ public class SystemPropertyUtil {
 	private static final String VIDEO_HOME = "video.home";
 	private static final String THUMBNAIL_HOME = "thumbnail.home";
 	private static final String BASE_URL = "base.url";
+	private static final String EGIFT_IMAGE_HOME = "egift.home";
 	
 	private static final String PROFILE_PICTURE_HOME = "profile.picture.home";
 	
@@ -39,7 +40,7 @@ public class SystemPropertyUtil {
 	public static final String PROFILE_IMAGE_URL_SUFFIX = ATTACHMENT_URL_SUFFIX + PROFILE + URL_SEPARATOR + IMAGE + URL_SEPARATOR;
 	
 	private static final String CONFIG_FILE = "../conf/system_internal.properties";
-
+	
 	public static void init() {
 		try {
 			properties = new Properties();
@@ -51,6 +52,10 @@ public class SystemPropertyUtil {
 			logger.info(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
+	}
+	
+	public static String getEGiftImageHome() {
+		return properties.getProperty(EGIFT_IMAGE_HOME);
 	}
 	
 	public static String getImageHome() {

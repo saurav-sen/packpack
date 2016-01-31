@@ -18,18 +18,28 @@ public class EGift extends CouchDbDocument {
 	
 	private String brandId;
 	
-	private String imageId;
-	
 	private String title;
 	
 	private String category;
+	
+	private String imageUrl;
+	
+	private String imageThumbnailUrl;
 
-	public String getImageId() {
-		return imageId;
+	public String getImageThumbnailUrl() {
+		return imageThumbnailUrl;
 	}
 
-	public void setImageId(String imageId) {
-		this.imageId = imageId;
+	public void setImageThumbnailUrl(String imageThumbnailUrl) {
+		this.imageThumbnailUrl = imageThumbnailUrl;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 
 	public String getTitle() {

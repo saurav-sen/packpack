@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.pack.pack.model.Comment;
+import com.pack.pack.model.EGift;
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.PackAttachment;
 import com.pack.pack.model.PackAttachmentType;
@@ -16,6 +17,7 @@ import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JPacks;
 import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.JUser;
+import com.pack.pack.model.web.JeGift;
 import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.registry.ServiceRegistry;
 
@@ -165,5 +167,32 @@ public class ModelConverter {
 		topic.setName(jTopic.getName());
 		topic.setOwnerId(jTopic.getOwnerId());
 		return topic;
+	}
+
+	public static JeGift convert(EGift eGift) {
+		JeGift jeGift = new JeGift();
+		jeGift.setBrandId(eGift.getBrandId());
+		jeGift.setBrandInfo(eGift.getBrandInfo());
+		jeGift.setCategory(eGift.getCategory());
+		jeGift.setId(eGift.getId());
+		jeGift.setImageThumbnailUrl(resolveEGiftUrl(eGift
+				.getImageThumbnailUrl()));
+		jeGift.setImageUrl(resolveEGiftUrl(eGift.getImageUrl()));
+		jeGift.setTitle(eGift.getTitle());
+		return jeGift;
+	}
+
+	private static String resolveEGiftUrl(String url) {
+		String baseURL = SystemPropertyUtil.getImageAttachmentBaseURL();
+		String resolvedUrl = url.replaceAll(File.separator,
+				SystemPropertyUtil.URL_SEPARATOR);
+		if (!resolvedUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)
+				&& !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+			resolvedUrl = baseURL + SystemPropertyUtil.URL_SEPARATOR
+					+ resolvedUrl;
+		} else {
+			resolvedUrl = baseURL + resolvedUrl;
+		}
+		return resolvedUrl;
 	}
 }

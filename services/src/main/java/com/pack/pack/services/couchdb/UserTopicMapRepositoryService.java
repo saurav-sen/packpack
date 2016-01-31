@@ -1,6 +1,7 @@
 package com.pack.pack.services.couchdb;
 
 import static com.pack.pack.services.rabbitmq.Constants.STANDARD_PAGE_SIZE;
+import static com.pack.pack.services.rabbitmq.Constants.NULL_PAGE_LINK;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +48,7 @@ public class UserTopicMapRepositoryService extends CouchDbRepositorySupport<User
 	public Pagination<Topic> getAllTopicsFollowedByUser(String userId, String pageLink) {
 		logger.debug("Loading All Topic information followed by user having userId="
 				+ userId + " in paginated API with page-link=" + pageLink);
-		PageRequest pr = pageLink != null ? PageRequest.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
+		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink))? PageRequest.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
 		ViewQuery query = createQuery("allForUser").key(userId);
 		Page<UserTopicMap> page = db.queryForPage(query, pr, UserTopicMap.class);
 		if(page == null) {

@@ -1,5 +1,6 @@
 package com.pack.pack.services.couchdb;
 
+import static com.pack.pack.services.rabbitmq.Constants.NULL_PAGE_LINK;
 import static com.pack.pack.services.rabbitmq.Constants.STANDARD_PAGE_SIZE;
 
 import java.util.Collections;
@@ -80,7 +81,7 @@ public class TopicRepositoryService extends CouchDbRepositorySupport<Topic> {
 	public Pagination<Topic> getAllTopics(String userId, String pageLink) {
 		logger.debug("getAllTopics(userId=" + userId + ", pageLink=" + pageLink);
 		ViewQuery query = createQuery("findTopicByID");
-		PageRequest pr = pageLink != null ? PageRequest.fromLink(pageLink)
+		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink)) ? PageRequest.fromLink(pageLink)
 				: PageRequest.firstPage(STANDARD_PAGE_SIZE);
 		Page<Topic> page = db.queryForPage(query, pr, Topic.class);
 		String nextLink = page.getNextLink();
