@@ -8,8 +8,7 @@ import javax.ws.rs.ext.Provider;
 
 import com.pack.pack.model.web.Info;
 import com.pack.pack.model.web.SystemInfo;
-import static com.pack.pack.util.SystemPropertyUtil.DEFAULT_TOPIC_ID_KEY;
-import static com.pack.pack.util.SystemPropertyUtil.DEFAULT_TOPIC_ID_VALUE;;
+import com.pack.pack.util.SystemPropertyUtil;
 
 /**
  * 
@@ -25,8 +24,8 @@ public class SystemInfoResource {
 	public SystemInfo getSystemInfo() {
 		SystemInfo sysInfo = new SystemInfo();
 		Info info = new Info();
-		info.setKey(DEFAULT_TOPIC_ID_KEY);
-		info.setValue(DEFAULT_TOPIC_ID_VALUE);
+		info.setKey("default.topic.id");
+		info.setValue(SystemPropertyUtil.getDefaultSystemTopicId());
 		sysInfo.getInfos().add(info);
 		return sysInfo;
 	}

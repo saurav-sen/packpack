@@ -41,8 +41,7 @@ public class SystemPropertyUtil {
 	
 	private static final String CONFIG_FILE = "../conf/system_internal.properties";
 	
-	public static final String DEFAULT_TOPIC_ID_KEY = "default.topic.id";
-	public static final String DEFAULT_TOPIC_ID_VALUE = "home.topic";
+	private static final String DEFAULT_TOPIC_ID_VALUE = "home.topic";
 	
 	public static void init() {
 		try {
@@ -103,5 +102,9 @@ public class SystemPropertyUtil {
 			baseURL = baseURL + URL_SEPARATOR;
 		}
 		return baseURL + PROFILE_IMAGE_URL_SUFFIX;
+	}
+	
+	public static String getDefaultSystemTopicId() {
+		return DEFAULT_TOPIC_ID_VALUE;
 	}
 }

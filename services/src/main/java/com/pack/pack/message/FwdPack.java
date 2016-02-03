@@ -1,5 +1,10 @@
 package com.pack.pack.message;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.pack.pack.model.web.JPackAttachment;
+
 /**
  * 
  * @author Saurav
@@ -8,8 +13,6 @@ package com.pack.pack.message;
 public class FwdPack {
 
 	private String packId;
-	
-	private String accessUrl;
 	
 	private String fromUserId;
 	
@@ -24,6 +27,19 @@ public class FwdPack {
 	private int comments;
 	
 	private String message;
+	
+	private List<JPackAttachment> attachments;
+
+	public List<JPackAttachment> getAttachments() {
+		if(attachments == null) {
+			attachments = new ArrayList<JPackAttachment>(5);
+		}
+		return attachments;
+	}
+
+	public void setAttachments(List<JPackAttachment> attachments) {
+		this.attachments = attachments;
+	}
 
 	public String getMessage() {
 		return message;
@@ -39,14 +55,6 @@ public class FwdPack {
 
 	public void setPackId(String packId) {
 		this.packId = packId;
-	}
-
-	public String getAccessUrl() {
-		return accessUrl;
-	}
-
-	public void setAccessUrl(String accessUrl) {
-		this.accessUrl = accessUrl;
 	}
 
 	public String getFromUserId() {

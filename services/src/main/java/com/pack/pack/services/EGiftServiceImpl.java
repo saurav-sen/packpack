@@ -106,7 +106,8 @@ public class EGiftServiceImpl implements IeGiftService {
 		User fromUser = userService.get(fromUserId);
 		for (String userId : userIds) {
 			FwdPack fwdPack = new FwdPack();
-			fwdPack.setAccessUrl(null);
+			// TODO 
+			//fwdPack.setAccessUrl(null);
 			fwdPack.setFromUserId(fromUserId);
 			User user = userService.get(userId);
 			fwdPack.setFromUserName(user.getUsername());

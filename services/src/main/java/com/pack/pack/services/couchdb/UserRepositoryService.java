@@ -30,6 +30,8 @@ import com.pack.pack.model.User;
 	/*@View(name="basedOnCity", map="function(doc) { if(doc.address && doc.address.city) { emit(doc.address.city, [user.name, user.username]); } }"),
 	@View(name="basedOnState", map="function(doc) { if(doc.address && doc.address.state) { emit(doc.address.state, [user.name, user.username]); } }"),
 	@View(name="basedOnCountry", map="function(doc) { if(doc.address && doc.address.country) { emit(doc.address.country, [user.name, user.username]); } }"),*/
+	@View(name="basedOnLocation", map="function(doc) { if(doc.address && doc.address.city && doc.address.state "
+			+ "&& doc.address.country) { emit([doc.address.city, doc.address.state, doc.address.country], doc]); } }"),
 	@View(name="basedOnAddress", map="function(doc) { if(doc.address) { emit([doc.address.city, doc.address.state, doc.address.country], doc); } }"),
 	@View(name="basedOnUsername", map="function(doc) { if(doc.username) { emit([doc.username, doc.password], doc); } }")
 })

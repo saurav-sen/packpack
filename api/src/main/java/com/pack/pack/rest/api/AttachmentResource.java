@@ -120,7 +120,7 @@ public class AttachmentResource {
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
 		return service.uploadPack(file, fileName, title, description,
-				story, topicId, userId, null, PackAttachmentType.IMAGE);
+				story, topicId, userId, null, PackAttachmentType.IMAGE, true);
 	}
 	//http://javapapers.com/android/android-get-address-with-street-name-city-for-location-with-geocoding/
 	
@@ -154,7 +154,7 @@ public class AttachmentResource {
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
 		return service.uploadPack(file, fileName, title, description,
-				story, topicId, userId, null, PackAttachmentType.IMAGE);
+				story, topicId, userId, null, PackAttachmentType.IMAGE, true);
 	}
 	
 	@PUT

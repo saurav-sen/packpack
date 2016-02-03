@@ -7,6 +7,7 @@ import com.pack.pack.model.PackAttachmentType;
 import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.services.exception.PackPackException;
+import com.pack.pack.services.rabbitmq.objects.BroadcastCriteria;
 
 /**
  * 
@@ -70,12 +71,14 @@ public interface IPackService {
 	 * @param userId
 	 * @param mimeType
 	 * @param type
+	 * @param publish
 	 * @return
 	 * @throws PackPackException
 	 */
 	public JPack uploadPack(InputStream file, String fileName, String title,
 			String description, String story, String topicId, String userId,
-			String mimeType, PackAttachmentType type) throws PackPackException;
+			String mimeType, PackAttachmentType type, boolean publish)
+			throws PackPackException;
 
 	/**
 	 * 
@@ -91,4 +94,23 @@ public interface IPackService {
 	public JPack updatePack(InputStream file, String fileName,
 			PackAttachmentType type, String packId, String topicId,
 			String userId) throws PackPackException;
+
+	/**
+	 * 
+	 * @param criteria
+	 * @param packId
+	 * @param userId
+	 * @throws PackPackException
+	 */
+	public void broadcastPack(BroadcastCriteria criteria, String packId,
+			String userId) throws PackPackException;
+
+	/**
+	 * 
+	 * @param criteria
+	 * @param packId
+	 * @throws PackPackException
+	 */
+	public void broadcastSystemPack(BroadcastCriteria criteria, String packId)
+			throws PackPackException;
 }
