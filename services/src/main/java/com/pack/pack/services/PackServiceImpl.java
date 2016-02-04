@@ -20,14 +20,18 @@ import com.pack.pack.model.User;
 import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPackAttachment;
+import com.pack.pack.model.web.dto.PackReceipent;
+import com.pack.pack.model.web.dto.PackReceipentType;
 import com.pack.pack.services.couchdb.PackRepositoryService;
 import com.pack.pack.services.couchdb.TopicRepositoryService;
 import com.pack.pack.services.couchdb.UserRepositoryService;
+import com.pack.pack.services.email.EmailSender;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.rabbitmq.MessagePublisher;
 import com.pack.pack.services.rabbitmq.objects.BroadcastCriteria;
 import com.pack.pack.services.rabbitmq.objects.BroadcastPack;
 import com.pack.pack.services.registry.ServiceRegistry;
+import com.pack.pack.services.sms.SMSSender;
 import com.pack.pack.util.AttachmentUtil;
 import com.pack.pack.util.ModelConverter;
 import com.pack.pack.util.SystemPropertyUtil;
@@ -54,14 +58,21 @@ public class PackServiceImpl implements IPackService {
 	}
 
 	@Override
-	public void forwardPack(String packId, String fromUserId, String... userIds)
-			throws PackPackException {
+	public void forwardPack(String packId, String fromUserId,
+			PackReceipent... receipents) throws PackPackException {
+		if (receipents == null || receipents.length == 0)
+			return;
 		PackRepositoryService repoService = ServiceRegistry.INSTANCE
 				.findService(PackRepositoryService.class);
 		Pack pack = repoService.findById(packId);
 		FwdPack fwdPack = new FwdPack();
-		// TODO fwdPack.setAccessUrl(null);
-		// fwdPack.setComments(pack.);
+		List<PackAttachment> packAttachments = pack.getPackAttachments();
+		for (PackAttachment packAttachment : packAttachments) {
+			JPackAttachment jPackAttachment = ModelConverter
+					.convert(packAttachment);
+			fwdPack.getAttachments().add(jPackAttachment);
+		}
+		fwdPack.setComments(pack.getComments());
 		fwdPack.setFromUserId(fromUserId);
 		UserRepositoryService userRepoService = ServiceRegistry.INSTANCE
 				.findService(UserRepositoryService.class);
@@ -70,12 +81,32 @@ public class PackServiceImpl implements IPackService {
 		fwdPack.setFromUserProfilePicUrl(null); // TODO
 		fwdPack.setLikes(pack.getLikes());
 		fwdPack.setViews(pack.getViews());
-		fwdPack.setMessage("Pack :: " + pack.getTitle() + " :: has been sent to you by " + user.getName());
-		MessagePublisher messagingService = ServiceRegistry.INSTANCE
-				.findService(MessagePublisher.class);
-		for(String userId : userIds) {
-			User toUser = userRepoService.get(userId);
-			messagingService.forwardPack(fwdPack, toUser);
+		fwdPack.setMessage("Pack :: " + pack.getTitle()
+				+ " :: has been sent to you by " + user.getName());
+		for (PackReceipent receipent : receipents) {
+			String userId = receipent.getToUserId();
+			PackReceipentType type = receipent.getType();
+			if (type == null) {
+				type = PackReceipentType.USER;
+			}
+			switch (type) {
+			case USER:
+				User toUser = userRepoService.get(userId);
+				MessagePublisher messagingService = ServiceRegistry.INSTANCE
+						.findService(MessagePublisher.class);
+				messagingService.forwardPack(fwdPack, toUser);
+				break;
+			case EMAIL:
+				EmailSender emailService = ServiceRegistry.INSTANCE
+						.findService(EmailSender.class);
+				emailService.forwardPack(fwdPack, userId);
+				break;
+			case SMS:
+				SMSSender smsService = ServiceRegistry.INSTANCE
+						.findService(SMSSender.class);
+				smsService.forwardPack(fwdPack, userId);
+				break;
+			}
 		}
 	}
 
@@ -105,7 +136,8 @@ public class PackServiceImpl implements IPackService {
 	@Override
 	public JPack uploadPack(InputStream file, String fileName, String title,
 			String description, String story, String topicId, String userId,
-			String mimeType, PackAttachmentType type, boolean publish) throws PackPackException {
+			String mimeType, PackAttachmentType type, boolean publish)
+			throws PackPackException {
 		Pack pack = addNewPack(story, title, userId);
 		addPackAttachment(pack, topicId, type, fileName, file);
 		TopicRepositoryService service2 = ServiceRegistry.INSTANCE
@@ -114,7 +146,7 @@ public class PackServiceImpl implements IPackService {
 		topic.getPackIds().add(pack.getId());
 		service2.update(topic);
 		JPack jPack = ModelConverter.convert(pack);
-		if(publish) {
+		if (publish) {
 			FwdPack fwdPack = new FwdPack();
 			// TODO fwdPack.setAccessUrl(null);
 			fwdPack.setFromUserId(userId);
@@ -126,7 +158,8 @@ public class PackServiceImpl implements IPackService {
 			fwdPack.setLikes(pack.getLikes());
 			fwdPack.setPackId(pack.getId());
 			fwdPack.setViews(pack.getViews());
-			fwdPack.setMessage("Pack :: " + pack.getTitle() + " :: has been uploaded by " + user.getName());
+			fwdPack.setMessage("Pack :: " + pack.getTitle()
+					+ " :: has been uploaded by " + user.getName());
 			MessagePublisher messagePublisher = ServiceRegistry.INSTANCE
 					.findService(MessagePublisher.class);
 			messagePublisher.notifyPackModify(fwdPack, topic, user);
@@ -182,24 +215,27 @@ public class PackServiceImpl implements IPackService {
 	@Override
 	public JPack updatePack(InputStream file, String fileName,
 			PackAttachmentType type, String packId, String topicId,
-			String userId)
-			throws PackPackException {
+			String userId) throws PackPackException {
 		Pack pack = findPackById(packId);
 		addPackAttachment(pack, topicId, type, fileName, file);
-		TopicRepositoryService topicService = ServiceRegistry.INSTANCE.findService(TopicRepositoryService.class);
+		TopicRepositoryService topicService = ServiceRegistry.INSTANCE
+				.findService(TopicRepositoryService.class);
 		Topic topic = topicService.get(topicId);
 		FwdPack fwdPack = new FwdPack();
 		// TODO fwdPack.setAccessUrl(null);
 		fwdPack.setFromUserId(userId);
-		UserRepositoryService userService = ServiceRegistry.INSTANCE.findService(UserRepositoryService.class);
+		UserRepositoryService userService = ServiceRegistry.INSTANCE
+				.findService(UserRepositoryService.class);
 		User user = userService.get(userId);
 		fwdPack.setFromUserName(user.getUsername());
 		fwdPack.setFromUserProfilePicUrl(null);
 		fwdPack.setLikes(pack.getLikes());
 		fwdPack.setPackId(pack.getId());
 		fwdPack.setViews(pack.getViews());
-		fwdPack.setMessage("Pack :: " + pack.getTitle() + " :: has been updated by " + user.getName());
-		MessagePublisher messagePublisher = ServiceRegistry.INSTANCE.findService(MessagePublisher.class);
+		fwdPack.setMessage("Pack :: " + pack.getTitle()
+				+ " :: has been updated by " + user.getName());
+		MessagePublisher messagePublisher = ServiceRegistry.INSTANCE
+				.findService(MessagePublisher.class);
 		messagePublisher.notifyPackModify(fwdPack, topic, user);
 		return ModelConverter.convert(pack);
 	}
@@ -207,24 +243,26 @@ public class PackServiceImpl implements IPackService {
 	@Override
 	public void broadcastPack(BroadcastCriteria criteria, String packId,
 			String userId) throws PackPackException {
-		PackRepositoryService service = ServiceRegistry.INSTANCE.findService(PackRepositoryService.class);
+		PackRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(PackRepositoryService.class);
 		Pack pack = service.get(packId);
 		BroadcastPack bPack = new BroadcastPack();
 		FwdPack fwdPack = new FwdPack();
 		List<PackAttachment> packAttachments = pack.getPackAttachments();
-		if(packAttachments != null && !packAttachments.isEmpty()) {
-			for(PackAttachment packAttachment : packAttachments) {
-				JPackAttachment jPackAttachment = ModelConverter.convert(packAttachment);
+		if (packAttachments != null && !packAttachments.isEmpty()) {
+			for (PackAttachment packAttachment : packAttachments) {
+				JPackAttachment jPackAttachment = ModelConverter
+						.convert(packAttachment);
 				fwdPack.getAttachments().add(jPackAttachment);
 			}
 		}
 		fwdPack.setComments(pack.getComments());
-		if(userId == null) {
+		if (userId == null) {
 			fwdPack.setFromUserName("System");
-		}
-		else {
+		} else {
 			fwdPack.setFromUserId(userId);
-			UserRepositoryService userRepositoryService = ServiceRegistry.INSTANCE.findService(UserRepositoryService.class);
+			UserRepositoryService userRepositoryService = ServiceRegistry.INSTANCE
+					.findService(UserRepositoryService.class);
 			User user = userRepositoryService.get(userId);
 			fwdPack.setFromUserName(user.getUsername());
 		}
@@ -232,7 +270,8 @@ public class PackServiceImpl implements IPackService {
 		fwdPack.setPackId(pack.getId());
 		fwdPack.setViews(pack.getViews());
 		bPack.setFwdPack(fwdPack);
-		MessagePublisher publisher = ServiceRegistry.INSTANCE.findService(MessagePublisher.class);
+		MessagePublisher publisher = ServiceRegistry.INSTANCE
+				.findService(MessagePublisher.class);
 		publisher.broadcast(bPack);
 	}
 

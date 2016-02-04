@@ -1,5 +1,7 @@
 package com.pack.pack.rest.api;
 
+import java.util.List;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -14,6 +16,7 @@ import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JeGift;
 import com.pack.pack.model.web.StatusType;
 import com.pack.pack.model.web.dto.EGiftForwardDTO;
+import com.pack.pack.model.web.dto.PackReceipent;
 import com.pack.pack.services.couchdb.Pagination;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
@@ -40,7 +43,8 @@ public class EGiftResource {
 	@GET
 	@Path("brand/{brandId}/page/{pageLink}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Pagination<JeGift> getEGiftsById(@PathParam("brandId") String brandId,
+	public Pagination<JeGift> getEGiftsById(
+			@PathParam("brandId") String brandId,
 			@PathParam("pageLink") String pageLink) throws PackPackException {
 		IeGiftService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IeGiftService.class);
@@ -50,7 +54,8 @@ public class EGiftResource {
 	@GET
 	@Path("category/{category}/page/{pageLink}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Pagination<JeGift> getEGiftsByCategory(@PathParam("category") String category,
+	public Pagination<JeGift> getEGiftsByCategory(
+			@PathParam("category") String category,
 			@PathParam("pageLink") String pageLink) throws PackPackException {
 		IeGiftService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IeGiftService.class);
@@ -64,11 +69,11 @@ public class EGiftResource {
 	public JStatus forwardEGift(EGiftForwardDTO dto, @PathParam("id") String id)
 			throws PackPackException {
 		String fromUserId = dto.getFromUserId();
-		String toUserIdLine = dto.getToUserId();
-		String[] toUserIds = toUserIdLine.trim().split(",");
+		List<PackReceipent> receipents = dto.getReceipents();
 		IeGiftService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IeGiftService.class);
-		service.sendEGift(id, fromUserId, dto.getTitle(), dto.getMessage(), toUserIds);
+		service.sendEGift(id, fromUserId, dto.getTitle(), dto.getMessage(),
+				receipents.toArray(new PackReceipent[receipents.size()]));
 		JStatus status = new JStatus();
 		status.setStatus(StatusType.OK);
 		status.setInfo("Successfully sent the eGift");

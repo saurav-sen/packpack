@@ -17,14 +17,19 @@ import com.pack.pack.model.Pack;
 import com.pack.pack.model.PackAttachment;
 import com.pack.pack.model.PackAttachmentType;
 import com.pack.pack.model.User;
+import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JeGift;
+import com.pack.pack.model.web.dto.PackReceipent;
+import com.pack.pack.model.web.dto.PackReceipentType;
 import com.pack.pack.services.couchdb.EGiftRepositoryService;
 import com.pack.pack.services.couchdb.PackRepositoryService;
 import com.pack.pack.services.couchdb.Pagination;
 import com.pack.pack.services.couchdb.UserRepositoryService;
+import com.pack.pack.services.email.EmailSender;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.rabbitmq.MessagePublisher;
 import com.pack.pack.services.registry.ServiceRegistry;
+import com.pack.pack.services.sms.SMSSender;
 import com.pack.pack.util.AttachmentUtil;
 import com.pack.pack.util.ModelConverter;
 import com.pack.pack.util.SystemPropertyUtil;
@@ -94,29 +99,58 @@ public class EGiftServiceImpl implements IeGiftService {
 
 	@Override
 	public void sendEGift(String eGiftId, String fromUserId, String title,
-			String message, String... userIds) throws PackPackException {
+			String message, PackReceipent... receipents)
+			throws PackPackException {
+		if (receipents == null || receipents.length == 0)
+			return;
 		EGiftRepositoryService eGiftService = ServiceRegistry.INSTANCE
 				.findService(EGiftRepositoryService.class);
 		EGift eGift = eGiftService.get(eGiftId);
 		Pack pack = createPack(eGift, fromUserId, title, message);
+
 		UserRepositoryService userService = ServiceRegistry.INSTANCE
 				.findService(UserRepositoryService.class);
-		MessagePublisher messagePublisher = ServiceRegistry.INSTANCE
-				.findService(MessagePublisher.class);
-		User fromUser = userService.get(fromUserId);
-		for (String userId : userIds) {
-			FwdPack fwdPack = new FwdPack();
-			// TODO 
-			//fwdPack.setAccessUrl(null);
-			fwdPack.setFromUserId(fromUserId);
-			User user = userService.get(userId);
-			fwdPack.setFromUserName(user.getUsername());
-			fwdPack.setFromUserProfilePicUrl(null);
-			fwdPack.setLikes(pack.getLikes());
-			fwdPack.setPackId(pack.getId());
-			fwdPack.setViews(pack.getViews());
-			fwdPack.setMessage("Received a Gift from: " + fromUser.getName());
-			messagePublisher.forwardPack(fwdPack, user);
+
+		FwdPack fwdPack = new FwdPack();
+		List<PackAttachment> packAttachments = pack.getPackAttachments();
+		for (PackAttachment packAttachment : packAttachments) {
+			JPackAttachment jPackAttachment = ModelConverter
+					.convert(packAttachment);
+			fwdPack.getAttachments().add(jPackAttachment);
+		}
+		fwdPack.setFromUserId(fromUserId);
+		User user = userService.get(fromUserId);
+		fwdPack.setFromUserName(user.getUsername());
+		fwdPack.setFromUserProfilePicUrl(null);
+		fwdPack.setLikes(pack.getLikes());
+		fwdPack.setPackId(pack.getId());
+		fwdPack.setViews(pack.getViews());
+
+		for (PackReceipent receipent : receipents) {
+			String toUserId = receipent.getToUserId();
+			PackReceipentType type = receipent.getType();
+			if (type == null) {
+				type = PackReceipentType.USER;
+			}
+			switch (type) {
+			case USER:
+				MessagePublisher messagePublisher = ServiceRegistry.INSTANCE
+						.findService(MessagePublisher.class);
+				User toUser = userService.get(toUserId);
+				fwdPack.setMessage("Received a Gift from: " + user.getName());
+				messagePublisher.forwardPack(fwdPack, toUser);
+				break;
+			case EMAIL:
+				EmailSender emailService = ServiceRegistry.INSTANCE
+						.findService(EmailSender.class);
+				emailService.forwardPack(fwdPack, toUserId);
+				break;
+			case SMS:
+				SMSSender smsService = ServiceRegistry.INSTANCE
+						.findService(SMSSender.class);
+				smsService.forwardPack(fwdPack, toUserId);
+				break;
+			}
 		}
 	}
 

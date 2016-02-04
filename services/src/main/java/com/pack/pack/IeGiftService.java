@@ -3,6 +3,7 @@ package com.pack.pack;
 import java.io.InputStream;
 
 import com.pack.pack.model.web.JeGift;
+import com.pack.pack.model.web.dto.PackReceipent;
 import com.pack.pack.services.couchdb.Pagination;
 import com.pack.pack.services.exception.PackPackException;
 
@@ -43,11 +44,11 @@ public interface IeGiftService {
 	 * @param fromUserId
 	 * @param title
 	 * @param message
-	 * @param userIds
+	 * @param receipents
 	 * @throws PackPackException
 	 */
 	public void sendEGift(String eGiftId, String fromUserId, String title,
-			String message, String... userIds) throws PackPackException;
+			String message, PackReceipent... receipents) throws PackPackException;
 
 	/**
 	 * 

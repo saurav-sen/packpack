@@ -6,6 +6,7 @@ import java.util.List;
 import com.pack.pack.model.PackAttachmentType;
 import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPack;
+import com.pack.pack.model.web.dto.PackReceipent;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.rabbitmq.objects.BroadcastCriteria;
 
@@ -28,10 +29,10 @@ public interface IPackService {
 	 * 
 	 * @param packId
 	 * @param fromUserId
-	 * @param userIds
+	 * @param receipents
 	 * @throws PackPackException
 	 */
-	public void forwardPack(String packId, String fromUserId, String... userIds)
+	public void forwardPack(String packId, String fromUserId, PackReceipent... receipents)
 			throws PackPackException;
 
 	/**
