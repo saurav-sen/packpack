@@ -20,6 +20,8 @@ public class SystemPropertyUtil {
 	
 	private static Logger logger = LoggerFactory.getLogger(SystemPropertyUtil.class);
 	
+	private static final String APP_HOME = "app.home";
+	
 	private static final String IMAGE_HOME = "image.home";
 	private static final String VIDEO_HOME = "video.home";
 	private static final String THUMBNAIL_HOME = "thumbnail.home";
@@ -54,6 +56,10 @@ public class SystemPropertyUtil {
 			logger.info(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
+	}
+	
+	public static String getAppHome() {
+		return properties.getProperty(APP_HOME);
 	}
 	
 	public static String getEGiftImageHome() {

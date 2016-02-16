@@ -34,6 +34,11 @@
         </dependency>
         <dependency>
         	<groupId>com.pack.pack</groupId>
+        	<artifactId>services-ext</artifactId>
+         	<version>${packpack.release}</version>          	
+        </dependency>
+        <dependency>
+        	<groupId>com.pack.pack</groupId>
         	<artifactId>oauth</artifactId>
          	<version>${packpack.release}</version>          	
         </dependency>

@@ -13,6 +13,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
 import com.pack.pack.IPackService;
+import com.pack.pack.model.Pack;
+import com.pack.pack.model.User;
 import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPacks;
@@ -21,7 +23,11 @@ import com.pack.pack.model.web.StatusType;
 import com.pack.pack.model.web.dto.ForwardDTO;
 import com.pack.pack.model.web.dto.LikeDTO;
 import com.pack.pack.model.web.dto.PackReceipent;
+import com.pack.pack.model.web.dto.PackReceipentType;
+import com.pack.pack.services.couchdb.PackRepositoryService;
+import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.exception.PackPackException;
+import com.pack.pack.services.ext.email.GmailMessageService;
 import com.pack.pack.services.registry.ServiceRegistry;
 
 /**
@@ -87,6 +93,35 @@ public class PackResource {
 		status.setStatus(StatusType.OK);
 		status.setInfo("Successfully forwarded");
 		return status;
+	}
+
+	@POST
+	@Path("{id}/email/{from}/{to}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public JStatus forwardPackOverEmail(@PathParam("id") String packId,
+			@PathParam("from") String fromUserId,
+			@PathParam("to") String toUserEmail) throws PackPackException {
+		try {
+			UserRepositoryService userRepositoryService = ServiceRegistry.INSTANCE
+					.findService(UserRepositoryService.class);
+			User fromUser = userRepositoryService.get(fromUserId);
+			String fromUserEmail = fromUser.getUsername();
+			PackReceipent packReceipent = new PackReceipent();
+			packReceipent.setToUserId(toUserEmail);
+			packReceipent.setType(PackReceipentType.EMAIL);
+			PackRepositoryService packRepositoryService = ServiceRegistry.INSTANCE
+					.findService(PackRepositoryService.class);
+			Pack pack = packRepositoryService.get(packId);
+			GmailMessageService emailService = ServiceRegistry.INSTANCE
+					.findService(GmailMessageService.class);
+			emailService.forwardPack(pack, packReceipent, fromUserEmail);
+			JStatus status = new JStatus();
+			status.setStatus(StatusType.OK);
+			status.setInfo("Successfully forwarded");
+			return status;
+		} catch (Exception e) {
+			throw new PackPackException("", "", e);
+		}
 	}
 
 	@PUT
