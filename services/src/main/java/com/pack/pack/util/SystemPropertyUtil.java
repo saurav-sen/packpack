@@ -6,9 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * 
  * @author Saurav
@@ -18,7 +15,7 @@ public class SystemPropertyUtil {
 	
 	private static Properties properties;
 	
-	private static Logger logger = LoggerFactory.getLogger(SystemPropertyUtil.class);
+	//private static Logger logger = LoggerFactory.getLogger(SystemPropertyUtil.class);
 	
 	private static final String APP_HOME = "app.home";
 	
@@ -50,10 +47,10 @@ public class SystemPropertyUtil {
 			properties = new Properties();
 			properties.load(new FileInputStream(new File(CONFIG_FILE)));
 		} catch (FileNotFoundException e) {
-			logger.info(e.getMessage(), e);
+			//logger.info(e.getMessage(), e);
 			throw new RuntimeException(e);
 		} catch (IOException e) {
-			logger.info(e.getMessage(), e);
+			//logger.info(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}

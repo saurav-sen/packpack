@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import com.pack.pack.IUserService;
 import com.pack.pack.model.Address;
 import com.pack.pack.model.User;
@@ -22,6 +25,8 @@ import com.pack.pack.util.SystemPropertyUtil;
  * @author Saurav
  *
  */
+@Component
+@Scope("singleton")
 public class UserServiceImpl implements IUserService {
 
 	@Override

@@ -10,8 +10,6 @@ import org.ektorp.support.CouchDbRepositorySupport;
 import org.ektorp.support.GenerateView;
 import org.ektorp.support.View;
 import org.ektorp.support.Views;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -33,7 +31,7 @@ import com.pack.pack.model.Pack;
 })
 public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
 	
-	private static Logger logger = LoggerFactory.getLogger(PackRepositoryService.class);
+	//private static Logger logger = LoggerFactory.getLogger(PackRepositoryService.class);
 
 	@Autowired
 	public PackRepositoryService(@Qualifier("packpackDB") CouchDbConnector db) {
@@ -41,9 +39,9 @@ public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
 	}
 	
 	public void addComment(Comment comment, String packId) {
-		logger.debug("addComment");
-		logger.debug("Comment = " + comment);
-		logger.debug("PackID = " + packId);
+		//logger.debug("addComment");
+		//logger.debug("Comment = " + comment);
+		//logger.debug("PackID = " + packId);
 		comment.setPackId(packId);
 		db.create(comment);
 		Pack pack = findById(packId);
@@ -61,37 +59,37 @@ public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
 			pack.setComments(pack.getComments() + 1);
 			db.update(pack);
 		}
-		logger.debug("Successfully added comment");
+		//logger.debug("Successfully added comment");
 	}
 	
 	public void addLike(String userId, String packId) {
-		logger.debug("addLike");
-		logger.debug("UserID = " + userId);
-		logger.debug("PackID = " + packId);
+		//logger.debug("addLike");
+		//logger.debug("UserID = " + userId);
+		//logger.debug("PackID = " + packId);
 		Pack pack = findById(packId);
 		if(pack != null) {
 			pack.setLikes(pack.getLikes() + 1);
 			db.update(pack);
 		}
-		logger.debug("Successfully added like to pack");
+		//logger.debug("Successfully added like to pack");
 	}
 	
 	@Override
 	@GenerateView
 	public List<Pack> getAll() {
-		logger.debug("getAll()");
+		//logger.debug("getAll()");
 		ViewQuery query = createQuery("all").descending(true).includeDocs(true);
 		return db.queryView(query, Pack.class);
 	}
 	
 	public Page<Pack> getAll(PageRequest page) {
-		logger.debug("getAll() with pagination");
+		//logger.debug("getAll() with pagination");
 		ViewQuery query = createQuery("all").descending(true).includeDocs(true);
 		return db.queryForPage(query, page, Pack.class);
 	}
 	
 	public Pack findById(String packId) {
-		logger.debug("findById(" + packId + ")");
+		//logger.debug("findById(" + packId + ")");
 		ViewQuery query = createQuery("findPackById").key(packId);
 		List<Pack> list = db.queryView(query, Pack.class);
 		if(list == null || list.isEmpty()) {
@@ -101,7 +99,7 @@ public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
 	}
 	
 	public List<Pack> getAllPacks(List<String> ids) {
-		logger.debug("getAllPacks(...) for given set of IDs");
+		//logger.debug("getAllPacks(...) for given set of IDs");
 		ViewQuery query = createQuery("findPackById").keys(ids);
 		return db.queryView(query, Pack.class);
 	}

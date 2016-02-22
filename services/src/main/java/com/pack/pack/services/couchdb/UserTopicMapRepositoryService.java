@@ -1,7 +1,7 @@
 package com.pack.pack.services.couchdb;
 
-import static com.pack.pack.services.rabbitmq.Constants.STANDARD_PAGE_SIZE;
 import static com.pack.pack.services.rabbitmq.Constants.NULL_PAGE_LINK;
+import static com.pack.pack.services.rabbitmq.Constants.STANDARD_PAGE_SIZE;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +13,6 @@ import org.ektorp.ViewQuery;
 import org.ektorp.support.CouchDbRepositorySupport;
 import org.ektorp.support.View;
 import org.ektorp.support.Views;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -35,7 +33,7 @@ import com.pack.pack.model.UserTopicMap;
 })
 public class UserTopicMapRepositoryService extends CouchDbRepositorySupport<UserTopicMap> {
 	
-	private static Logger logger = LoggerFactory.getLogger(UserTopicMapRepositoryService.class);
+	//private static Logger logger = LoggerFactory.getLogger(UserTopicMapRepositoryService.class);
 	
 	@Autowired
 	private TopicRepositoryService topicRepoService;
@@ -46,8 +44,8 @@ public class UserTopicMapRepositoryService extends CouchDbRepositorySupport<User
 	}
 	
 	public Pagination<Topic> getAllTopicsFollowedByUser(String userId, String pageLink) {
-		logger.debug("Loading All Topic information followed by user having userId="
-				+ userId + " in paginated API with page-link=" + pageLink);
+		/*logger.debug("Loading All Topic information followed by user having userId="
+				+ userId + " in paginated API with page-link=" + pageLink);*/
 		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink))? PageRequest.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
 		ViewQuery query = createQuery("allForUser").key(userId);
 		Page<UserTopicMap> page = db.queryForPage(query, pr, UserTopicMap.class);

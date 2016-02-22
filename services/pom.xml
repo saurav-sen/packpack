@@ -25,11 +25,11 @@
 			<artifactId>org.ektorp.spring</artifactId>
 			<version>${ektorp.version}</version>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>${slf4j.version}</version>
-		</dependency>
+		</dependency-->
 		<dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
@@ -161,6 +161,7 @@
 				<directory>${basedir}/src/main/resources</directory>
 				<includes>
 					<include>META-INF/*.xml</include>
+					<include>META-INF/*.properties</include>
 					<include>META-INF/*.json</include>
 				</includes>
 			</resource>

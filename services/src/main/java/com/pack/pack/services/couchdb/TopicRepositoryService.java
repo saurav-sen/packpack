@@ -13,8 +13,6 @@ import org.ektorp.ViewQuery;
 import org.ektorp.support.CouchDbRepositorySupport;
 import org.ektorp.support.View;
 import org.ektorp.support.Views;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -35,7 +33,7 @@ import com.pack.pack.model.Topic;
 })
 public class TopicRepositoryService extends CouchDbRepositorySupport<Topic> {
 	
-	private static Logger logger = LoggerFactory.getLogger(TopicRepositoryService.class);
+	//private static Logger logger = LoggerFactory.getLogger(TopicRepositoryService.class);
 
 	@Autowired
 	private PackRepositoryService packRepoService;
@@ -46,9 +44,9 @@ public class TopicRepositoryService extends CouchDbRepositorySupport<Topic> {
 	}
 
 	public List<Pack> getAllPacks(String topicId, int pageNo) {
-		logger.debug("getAllPacks()");
-		logger.debug("TopicID = " + topicId);
-		logger.debug("PageNo = " + pageNo);
+		//logger.debug("getAllPacks()");
+		//logger.debug("TopicID = " + topicId);
+		//logger.debug("PageNo = " + pageNo);
 		Topic topic = getTopicById(topicId);
 		if (topic == null) {
 			return Collections.emptyList();
@@ -64,8 +62,8 @@ public class TopicRepositoryService extends CouchDbRepositorySupport<Topic> {
 	}
 
 	public Topic getTopicById(String topicId) {
-		logger.debug("getTopicById(...)");
-		logger.debug("TopicID = " + topicId);
+		//logger.debug("getTopicById(...)");
+		//logger.debug("TopicID = " + topicId);
 		ViewQuery query = createQuery("findTopicByID").key(topicId);
 		List<Topic> topics = db.queryView(query, Topic.class);
 		if (topics == null || topics.isEmpty()) {
@@ -75,13 +73,13 @@ public class TopicRepositoryService extends CouchDbRepositorySupport<Topic> {
 	}
 
 	public List<Topic> getAllTopicsById(List<String> topicIds) {
-		logger.debug("getAllTopicsById(...) for a specified range of topicIDs");
+		//logger.debug("getAllTopicsById(...) for a specified range of topicIDs");
 		ViewQuery query = createQuery("findTopicByID").keys(topicIds);
 		return db.queryView(query, Topic.class);
 	}
 
 	public Pagination<Topic> getAllTopics(String userId, String pageLink) {
-		logger.debug("getAllTopics(userId=" + userId + ", pageLink=" + pageLink);
+		//logger.debug("getAllTopics(userId=" + userId + ", pageLink=" + pageLink);
 		ViewQuery query = createQuery("findTopicByID");
 		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink)) ? PageRequest.fromLink(pageLink)
 				: PageRequest.firstPage(STANDARD_PAGE_SIZE);

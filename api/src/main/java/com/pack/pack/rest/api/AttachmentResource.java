@@ -1,5 +1,14 @@
 package com.pack.pack.rest.api;
 
+import static com.pack.pack.util.SystemPropertyUtil.ATTACHMENT;
+import static com.pack.pack.util.SystemPropertyUtil.IMAGE;
+import static com.pack.pack.util.SystemPropertyUtil.IMAGE_ATTACHMENT_URL_SUFFIX;
+import static com.pack.pack.util.SystemPropertyUtil.PROFILE;
+import static com.pack.pack.util.SystemPropertyUtil.PROFILE_IMAGE_URL_SUFFIX;
+import static com.pack.pack.util.SystemPropertyUtil.URL_SEPARATOR;
+import static com.pack.pack.util.SystemPropertyUtil.VIDEO;
+import static com.pack.pack.util.SystemPropertyUtil.VIDEO_ATTACHMENT_URL_SUFFIX;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -18,8 +27,6 @@ import javax.ws.rs.ext.Provider;
 
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.pack.pack.IPackService;
 import com.pack.pack.model.PackAttachmentType;
@@ -28,14 +35,6 @@ import com.pack.pack.rest.web.util.ImageUtil;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.SystemPropertyUtil;
-import static com.pack.pack.util.SystemPropertyUtil.ATTACHMENT;
-import static com.pack.pack.util.SystemPropertyUtil.IMAGE;
-import static com.pack.pack.util.SystemPropertyUtil.VIDEO;
-import static com.pack.pack.util.SystemPropertyUtil.PROFILE;
-import static com.pack.pack.util.SystemPropertyUtil.URL_SEPARATOR;
-import static com.pack.pack.util.SystemPropertyUtil.IMAGE_ATTACHMENT_URL_SUFFIX;
-import static com.pack.pack.util.SystemPropertyUtil.VIDEO_ATTACHMENT_URL_SUFFIX;
-import static com.pack.pack.util.SystemPropertyUtil.PROFILE_IMAGE_URL_SUFFIX;
 
 /**
  * 
@@ -46,7 +45,7 @@ import static com.pack.pack.util.SystemPropertyUtil.PROFILE_IMAGE_URL_SUFFIX;
 @Path("/" + ATTACHMENT)
 public class AttachmentResource {
 	
-	private static Logger logger = LoggerFactory.getLogger(AttachmentResource.class);
+	//private static Logger logger = LoggerFactory.getLogger(AttachmentResource.class);
 	
 	@GET
 	@Path(PROFILE + URL_SEPARATOR + IMAGE)
@@ -62,7 +61,7 @@ public class AttachmentResource {
 			File imageFile = new File(path);
 			return ImageUtil.buildResponse(imageFile);
 		} catch (FileNotFoundException e) {
-			logger.info(e.getMessage(), e);
+			//logger.info(e.getMessage(), e);
 			throw new PackPackException("TODO", e.getMessage(), e);
 		}
 	}
@@ -81,7 +80,7 @@ public class AttachmentResource {
 			File imageFile = new File(path);
 			return ImageUtil.buildResponse(imageFile);
 		} catch (FileNotFoundException e) {
-			logger.info(e.getMessage(), e);
+			//logger.info(e.getMessage(), e);
 			throw new PackPackException("TODO", e.getMessage(), e);
 		}
 	}
@@ -100,7 +99,7 @@ public class AttachmentResource {
 			File videoFile = new File(path);
 			return ImageUtil.buildResponse(videoFile);
 		} catch (FileNotFoundException e) {
-			logger.info(e.getMessage(), e);
+			//logger.info(e.getMessage(), e);
 			throw new PackPackException("TODO", e.getMessage(), e);
 		}
 	}

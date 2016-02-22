@@ -7,8 +7,6 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 import org.glassfish.json.JsonProviderImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.pack.pack.services.exception.ErrorCodes;
 import com.pack.pack.services.exception.PackPackException;
@@ -21,17 +19,17 @@ import com.pack.pack.services.exception.PackPackException;
 @Provider
 public class PackPackExceptionMapper implements ExceptionMapper<Throwable> {
 	
-	private static Logger logger = LoggerFactory.getLogger(PackPackExceptionMapper.class);
+	//private static Logger logger = LoggerFactory.getLogger(PackPackExceptionMapper.class);
 
 	@Override
 	public Response toResponse(Throwable exception) {
 		JsonObjectBuilder jsonObjectBuilder = new JsonProviderImpl().createBuilderFactory(null).createObjectBuilder();
 		if(exception != null) {
-			logger.info(exception.getMessage());
+			//logger.info(exception.getMessage());
 			if(exception.getCause() != null) {
-				logger.info(exception.getCause().getMessage());
+				//logger.info(exception.getCause().getMessage());
 			}
-			logger.trace(exception.getMessage(), exception);
+			//logger.trace(exception.getMessage(), exception);
 		}
 		Throwable ex = diggThrowable(exception);
 		if(ex != null) {

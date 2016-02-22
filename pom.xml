@@ -17,8 +17,9 @@
         <maven.compiler.target>1.8</maven.compiler.target>
 		<javaVersion>1.8</javaVersion>
 		<java.version>1.8</java.version>
+		<spring.version>4.1.6.RELEASE</spring.version>
 		<encoding>UTF-8</encoding>
-		<ektorp.version>1.2.2</ektorp.version>
+		<ektorp.version>1.4.2</ektorp.version>
 		<packpack.release>1.0-DEV</packpack.release>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<artifacts.directory>${project.build.directory}/artifacts</artifacts.directory>
