@@ -2,6 +2,8 @@ package com.pack.pack.services;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -27,12 +29,12 @@ import com.pack.pack.util.ModelConverter;
 @Scope("singleton")
 public class TopicServiceImpl implements ITopicService {
 	
-	//private static Logger logger = LoggerFactory.getLogger(TopicServiceImpl.class);
+	private static Logger logger = LoggerFactory.getLogger(TopicServiceImpl.class);
 
 	@Override
 	public JPacks getAllPacks(String topicId, int pageNo)
 			throws PackPackException {
-		//logger.debug("Fetching all packs for topicId=" + topicId + " with pageNumber=" + pageNo);
+		logger.debug("Fetching all packs for topicId=" + topicId + " with pageNumber=" + pageNo);
 		TopicRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(TopicRepositoryService.class);
 		List<Pack> packs = service.getAllPacks(topicId, pageNo);

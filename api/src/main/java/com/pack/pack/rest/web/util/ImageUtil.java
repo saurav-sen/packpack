@@ -11,6 +11,9 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 
  * @author Saurav
@@ -18,7 +21,7 @@ import javax.ws.rs.core.StreamingOutput;
  */
 public class ImageUtil {
 	
-	//private static Logger logger = LoggerFactory.getLogger(ImageUtil.class);
+	private static Logger logger = LoggerFactory.getLogger(ImageUtil.class);
 
 	public static Response buildResponse(File file) throws FileNotFoundException {
 		final FileInputStream fStream = new FileInputStream(file);
@@ -29,7 +32,7 @@ public class ImageUtil {
 				try {
 					pipe(fStream, output);
 				} catch (Exception e) {
-					//logger.error(e.getMessage(), e);
+					logger.error(e.getMessage(), e);
 					throw new WebApplicationException(e);
 				}
 			}

@@ -15,6 +15,8 @@ import org.imgscalr.Scalr.Method;
 import org.imgscalr.Scalr.Mode;
 import org.jcodec.api.JCodecException;
 import org.jcodec.api.awt.FrameGrab;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.pack.pack.services.exception.PackPackException;
 
@@ -25,8 +27,8 @@ import com.pack.pack.services.exception.PackPackException;
  */
 public class AttachmentUtil {
 
-	/*private static final Logger logger = LoggerFactory
-			.getLogger(AttachmentUtil.class);*/
+	private static final Logger logger = LoggerFactory
+			.getLogger(AttachmentUtil.class);
 
 	private static final int THUMBNAIL_WIDTH = 50;
 	private static final int THUMBNAIL_HEIGHT = 50;
@@ -45,7 +47,7 @@ public class AttachmentUtil {
 			}
 			outStream.flush();
 		} catch (IOException e) {
-			//logger.error(e.getMessage(), e);
+			logger.error(e.getMessage(), e);
 			throw new PackPackException("TODO", e.getMessage(), e);
 		} finally {
 			try {
@@ -53,7 +55,7 @@ public class AttachmentUtil {
 					outStream.close();
 				}
 			} catch (IOException e) {
-				//logger.error(e.getMessage(), e);
+				logger.error(e.getMessage(), e);
 				throw new PackPackException("TODO", e.getMessage(), e);
 			}
 		}
@@ -84,13 +86,13 @@ public class AttachmentUtil {
 			ImageIO.write(thumbnailImage, "jpg", thumbnailImageFile);
 			return thumbnailImageFile;
 		} catch (IllegalArgumentException e) {
-			//logger.error(e.getMessage(), e);
+			logger.error(e.getMessage(), e);
 			throw new PackPackException("TODO", e.getMessage(), e);
 		} catch (ImagingOpException e) {
-			//logger.error(e.getMessage(), e);
+			logger.error(e.getMessage(), e);
 			throw new PackPackException("TODO", e.getMessage(), e);
 		} catch (IOException e) {
-			//logger.error(e.getMessage(), e);
+			logger.error(e.getMessage(), e);
 			throw new PackPackException("TODO", e.getMessage(), e);
 		}
 	}
@@ -120,10 +122,10 @@ public class AttachmentUtil {
 			ImageIO.write(thumbnailImage, "jpg", thumbnailImageFile);
 			return thumbnailImageFile;
 		} catch (IOException e) {
-			//logger.error(e.getMessage(), e);
+			logger.error(e.getMessage(), e);
 			throw new PackPackException("TODO", e.getMessage(), e);
 		} catch (JCodecException e) {
-			//logger.error(e.getMessage(), e);
+			logger.error(e.getMessage(), e);
 			throw new PackPackException("TODO", e.getMessage(), e);
 		}
 	}

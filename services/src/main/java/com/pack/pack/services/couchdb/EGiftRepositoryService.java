@@ -5,6 +5,8 @@ import static com.pack.pack.services.rabbitmq.Constants.STANDARD_PAGE_SIZE;
 
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.ektorp.CouchDbConnector;
 import org.ektorp.Page;
 import org.ektorp.PageRequest;
@@ -12,6 +14,8 @@ import org.ektorp.ViewQuery;
 import org.ektorp.support.CouchDbRepositorySupport;
 import org.ektorp.support.View;
 import org.ektorp.support.Views;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -32,23 +36,28 @@ import com.pack.pack.model.EGift;
 		@View(name = "basedOnBrand", map = "function(doc) { if(doc.brandId) { emit(doc.brandId, [doc.id, doc.title, doc.category, doc.imageUrl, doc.imageThumbnailUrl, doc.brandInfo, doc.brandId]); } }") })
 public class EGiftRepositoryService extends CouchDbRepositorySupport<EGift> {
 
-	/*private static Logger logger = LoggerFactory
-			.getLogger(EGiftRepositoryService.class);*/
+	private static Logger logger = LoggerFactory
+			.getLogger(EGiftRepositoryService.class);
 
 	@Autowired
-	public EGiftRepositoryService(@Qualifier("packpackDB") CouchDbConnector db) {
+	public EGiftRepositoryService(@Qualifier("packDB") CouchDbConnector db) {
 		super(EGift.class, db);
+	}
+	
+	@PostConstruct
+	public void doInit() {
+		initStandardDesignDocument();
 	}
 
 	@Override
 	public List<EGift> getAll() {
-		//logger.debug("getAll()");
+		logger.debug("getAll()");
 		ViewQuery viewQuery = createQuery("basedOnCategory").group(true);
 		return db.queryView(viewQuery, EGift.class);
 	}
 
 	public Page<EGift> getAll(PageRequest pageRequest) {
-		//logger.debug("getAll()");
+		logger.debug("getAll()");
 		ViewQuery viewQuery = createQuery("basedOnCategory").group(true);
 		return db.queryForPage(viewQuery, pageRequest, EGift.class);
 	}
@@ -56,7 +65,7 @@ public class EGiftRepositoryService extends CouchDbRepositorySupport<EGift> {
 	public Pagination<EGift> getBasedOnTitle(String title, String pageLink) {
 		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink)) ? PageRequest
 				.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
-		//logger.debug("getBasedOnTitle(" + title + ", " + pr.asLink() + ")");
+		logger.debug("getBasedOnTitle(" + title + ", " + pr.asLink() + ")");
 		ViewQuery viewQuery = createQuery("basedOnTitle").key(title)
 				.descending(false);
 		Page<EGift> page = db.queryForPage(viewQuery, pr, EGift.class);

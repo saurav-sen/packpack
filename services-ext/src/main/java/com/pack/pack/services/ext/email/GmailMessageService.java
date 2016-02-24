@@ -25,6 +25,12 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -50,12 +56,13 @@ import com.pack.pack.util.SystemPropertyUtil;
  * @author Saurav
  *
  */
-/*@Component
-@Scope("singleton")*/
+@Component
+@Lazy
+@Scope("singleton")
 public class GmailMessageService {
 
-	/*private static Logger LOG = LoggerFactory
-			.getLogger(GmailMessageService.class);*/
+	private static Logger LOG = LoggerFactory
+			.getLogger(GmailMessageService.class);
 
 	private static final String APPLICATION_NAME = "PackPackApp";
 
@@ -141,7 +148,7 @@ public class GmailMessageService {
 	}
 
 	private Credential authorize() throws Exception {
-		//LOG.info("Authorizing with GMail");
+		LOG.info("Authorizing with GMail");
 		String appKeyFile = null;
 		if (SystemPropertyUtil.getAppHome() == null) {
 			appKeyFile = "D:/Saurav/packpack/services-ext/conf/"
@@ -160,7 +167,7 @@ public class GmailMessageService {
 				.build();
 		Credential credential = new AuthorizationCodeInstalledApp(flow,
 				new LocalServerReceiver()).authorize("user");
-		//LOG.debug("Credentials saved to " + dataStoreDir.getAbsolutePath());
+		LOG.debug("Credentials saved to " + dataStoreDir.getAbsolutePath());
 		return credential;
 	}
 
@@ -169,8 +176,8 @@ public class GmailMessageService {
 		Message message = createMessageWithEmail(email);
 		message = service.users().messages().send(userId, message).execute();
 
-		System.out.println("Message id: " + message.getId());
-		System.out.println(message.toPrettyString());
+		LOG.info("Message id: " + message.getId());
+		LOG.info(message.toPrettyString());
 	}
 
 	private Message createMessageWithEmail(MimeMessage email)

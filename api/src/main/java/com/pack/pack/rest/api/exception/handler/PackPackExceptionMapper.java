@@ -29,7 +29,7 @@ public class PackPackExceptionMapper implements ExceptionMapper<Throwable> {
 		if(exception != null) {
 			logger.info(exception.getMessage());
 			if(exception.getCause() != null) {
-				//logger.info(exception.getCause().getMessage());
+				logger.info(exception.getCause().getMessage());
 			}
 			logger.trace(exception.getMessage(), exception);
 		}

@@ -285,7 +285,7 @@
 				<version>2.3</version>
 				<configuration>
 					<warName>packpack</warName>
-					<packagingExcludes>WEB-INF/lib/servlet-api-*.jar,WEB-INF/lib/jetty*.jar,WEB-INF/lib/guava-jdk*.jar,WEB-INF/lib/osgi-*.jar</packagingExcludes>
+					<packagingExcludes>WEB-INF/lib/servlet-api-*.jar,WEB-INF/lib/jetty*.jar,WEB-INF/lib/guava-jdk*.jar,WEB-INF/lib/osgi-*.jar,WEB-INF/lib/slf4j-log4j12-*.jar</packagingExcludes>
 				</configuration>
 			</plugin>
 			<plugin>

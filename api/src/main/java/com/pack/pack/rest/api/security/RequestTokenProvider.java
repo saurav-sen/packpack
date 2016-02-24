@@ -18,6 +18,8 @@ import org.glassfish.jersey.oauth1.signature.OAuth1SignatureException;
 import org.glassfish.jersey.server.ContainerRequest;
 import org.glassfish.jersey.server.oauth1.OAuth1Exception;
 import org.glassfish.jersey.server.oauth1.internal.OAuthServerRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.pack.pack.oauth.token.RequestToken;
 import com.pack.pack.oauth.token.TokenGenerator;
@@ -35,7 +37,7 @@ public class RequestTokenProvider {
 	@Inject
 	private OAuth1Signature oAuth1Signature;
 	
-	//private static Logger logger = LoggerFactory.getLogger(RequestTokenProvider.class);
+	private static Logger logger = LoggerFactory.getLogger(RequestTokenProvider.class);
 	
 	@POST
 	@Produces(value=MediaType.APPLICATION_JSON)
@@ -44,7 +46,7 @@ public class RequestTokenProvider {
 	}
 	
 	private RequestToken doAuthenticateClient(ContainerRequestContext context) throws Exception {
-		//logger.info("Authorization: " + context.getHeaderString(OAuthConstants.AUTHORIZATION_HEADER));
+		logger.info("Authorization: " + context.getHeaderString(OAuthConstants.AUTHORIZATION_HEADER));
         try {
             OAuthServerRequest oauthReq = new OAuthServerRequest(context);
             OAuth1Parameters params = new OAuth1Parameters();
@@ -66,7 +68,7 @@ public class RequestTokenProvider {
             TokenRegistry.INSTANCE.addRequestToken(token);
             return token;
         } catch (OAuth1SignatureException e) {
-            //logger.info("OAuthSignatureException: Verification failed", e);
+            logger.info("OAuthSignatureException: Verification failed", e);
             throw new OAuth1Exception(Status.UNAUTHORIZED, "OAuthSignatureException: Verification failed");
         }
 	}

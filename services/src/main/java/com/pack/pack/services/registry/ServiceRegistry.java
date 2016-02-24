@@ -55,10 +55,10 @@ public class ServiceRegistry {
 	@SuppressWarnings("unchecked")
 	public <T> T findCompositeService(Class<T> serviceInterface) throws PackPackException {
 		try {
-			String name = serviceInterface.getName();
-			name = name.substring(1) + "Impl";
 			String pkgName = serviceInterface.getCanonicalName().substring(0, serviceInterface.getCanonicalName().lastIndexOf(".") + 1);
-			name = pkgName + name;
+			String name = serviceInterface.getName();
+			name = name.substring(pkgName.length() + 1) + "Impl";
+			name = pkgName + "services." + name;
 			Class<T> class1 = (Class<T>)Class.forName(name);
 			return findService(class1);
 		} catch (ClassNotFoundException e) {

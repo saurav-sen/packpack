@@ -27,6 +27,8 @@ import javax.ws.rs.ext.Provider;
 
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.pack.pack.IPackService;
 import com.pack.pack.model.PackAttachmentType;
@@ -45,7 +47,7 @@ import com.pack.pack.util.SystemPropertyUtil;
 @Path("/" + ATTACHMENT)
 public class AttachmentResource {
 	
-	//private static Logger logger = LoggerFactory.getLogger(AttachmentResource.class);
+	private static Logger logger = LoggerFactory.getLogger(AttachmentResource.class);
 	
 	@GET
 	@Path(PROFILE + URL_SEPARATOR + IMAGE)
@@ -61,7 +63,7 @@ public class AttachmentResource {
 			File imageFile = new File(path);
 			return ImageUtil.buildResponse(imageFile);
 		} catch (FileNotFoundException e) {
-			//logger.info(e.getMessage(), e);
+			logger.info(e.getMessage(), e);
 			throw new PackPackException("TODO", e.getMessage(), e);
 		}
 	}
@@ -80,7 +82,7 @@ public class AttachmentResource {
 			File imageFile = new File(path);
 			return ImageUtil.buildResponse(imageFile);
 		} catch (FileNotFoundException e) {
-			//logger.info(e.getMessage(), e);
+			logger.info(e.getMessage(), e);
 			throw new PackPackException("TODO", e.getMessage(), e);
 		}
 	}

@@ -92,7 +92,7 @@ public class UserResource {
 			@FormDataParam("locality") String locality,
 			@FormDataParam("dob") String dob,
 			@FormDataParam("profilePicture") InputStream profilePicture,
-			@FormDataParam("file") FormDataContentDisposition aboutProfilePicture)
+			@FormDataParam("profilePicture") FormDataContentDisposition aboutProfilePicture)
 			throws PackPackException {
 		String profilePictureFileName = aboutProfilePicture.getFileName();
 		IUserService service = ServiceRegistry.INSTANCE
