@@ -167,6 +167,17 @@
         </dependency>
         
         <dependency>
+	        <groupId>org.glassfish.hk2</groupId>
+	        <artifactId>hk2-locator</artifactId>
+	        <version>2.5.0-b03</version>
+	    </dependency>
+	    <dependency>
+		      <groupId>org.glassfish.hk2</groupId>
+		      <artifactId>hk2-metadata-generator</artifactId>
+		      <version>2.5.0-b03</version>
+		</dependency>
+        
+        <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
             <version>1.0.0</version>
@@ -285,7 +296,7 @@
 				<version>2.3</version>
 				<configuration>
 					<warName>packpack</warName>
-					<packagingExcludes>WEB-INF/lib/servlet-api-*.jar,WEB-INF/lib/jetty*.jar,WEB-INF/lib/guava-jdk*.jar,WEB-INF/lib/osgi-*.jar,WEB-INF/lib/slf4j-log4j12-*.jar</packagingExcludes>
+					<packagingExcludes>WEB-INF/lib/servlet-api-*.jar,WEB-INF/lib/jetty*.jar,WEB-INF/lib/guava-jdk*.jar,WEB-INF/lib/slf4j-log4j12-*.jar</packagingExcludes>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -343,6 +354,23 @@
 				    </execution>
 				  </executions>
 			</plugin-->
+			<plugin>
+			      <groupId>org.glassfish.hk2</groupId>
+			      <artifactId>hk2-inhabitant-generator</artifactId>
+			      <version>2.5.0-b03</version>
+			      <executions>
+			        <execution>
+			        	<id>compile</id>
+						<phase>compile</phase>
+						<!--configuration>
+                            <outputDirectory>${project.build.outputDirectory}/..</outputDirectory>
+                        </configuration-->
+				        <goals>
+				          <goal>generate-inhabitants</goal>
+				        </goals>
+			        </execution>
+			      </executions>
+		    </plugin>
 		</plugins>
 	</build>
 </project>

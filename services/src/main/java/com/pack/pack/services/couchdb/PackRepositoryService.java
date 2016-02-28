@@ -9,7 +9,6 @@ import org.ektorp.Page;
 import org.ektorp.PageRequest;
 import org.ektorp.ViewQuery;
 import org.ektorp.support.CouchDbRepositorySupport;
-import org.ektorp.support.GenerateView;
 import org.ektorp.support.View;
 import org.ektorp.support.Views;
 import org.slf4j.Logger;
@@ -30,7 +29,7 @@ import com.pack.pack.model.Pack;
 @Component
 @Scope("singleton")
 @Views({
-	@View(name="all", map="function(doc) { if(doc.packImageId) { emit(doc.creationTime, doc); } }"),
+	@View(name="getAll", map="function(doc) { if(doc.packImageId) { emit(doc.creationTime, doc); } }"),
 	@View(name="findPackById", map="function(doc) { if(doc.id) { emit(doc.id, doc); }}")
 })
 public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
@@ -53,7 +52,7 @@ public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
 		logger.debug("PackID = " + packId);
 		comment.setPackId(packId);
 		db.create(comment);
-		Pack pack = findById(packId);
+		Pack pack = findBasedOnId(packId);
 		if(pack != null) {
 			List<Comment> comments = pack.getRecentComments();
 			if(comments.size() >= 5) {
@@ -75,7 +74,7 @@ public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
 		logger.debug("addLike");
 		logger.debug("UserID = " + userId);
 		logger.debug("PackID = " + packId);
-		Pack pack = findById(packId);
+		Pack pack = findBasedOnId(packId);
 		if(pack != null) {
 			pack.setLikes(pack.getLikes() + 1);
 			db.update(pack);
@@ -83,21 +82,19 @@ public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
 		logger.debug("Successfully added like to pack");
 	}
 	
-	@Override
-	@GenerateView
-	public List<Pack> getAll() {
+	public List<Pack> getAllPacks() {
 		logger.debug("getAll()");
-		ViewQuery query = createQuery("all").descending(true).includeDocs(true);
+		ViewQuery query = createQuery("getAll").descending(true).includeDocs(true);
 		return db.queryView(query, Pack.class);
 	}
 	
-	public Page<Pack> getAll(PageRequest page) {
+	public Page<Pack> getAllPacks(PageRequest page) {
 		logger.debug("getAll() with pagination");
-		ViewQuery query = createQuery("all").descending(true).includeDocs(true);
+		ViewQuery query = createQuery("getAll").descending(true).includeDocs(true);
 		return db.queryForPage(query, page, Pack.class);
 	}
 	
-	public Pack findById(String packId) {
+	public Pack findBasedOnId(String packId) {
 		logger.debug("findById(" + packId + ")");
 		ViewQuery query = createQuery("findPackById").key(packId);
 		List<Pack> list = db.queryView(query, Pack.class);

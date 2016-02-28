@@ -1,23 +1,17 @@
 package com.pack.pack.rest.api.security;
 
-import javax.inject.Inject;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.Provider;
 
-import org.glassfish.jersey.oauth1.signature.OAuth1Parameters;
-import org.glassfish.jersey.oauth1.signature.OAuth1Secrets;
-import org.glassfish.jersey.oauth1.signature.OAuth1Signature;
 import org.glassfish.jersey.oauth1.signature.OAuth1SignatureException;
 import org.glassfish.jersey.server.ContainerRequest;
 import org.glassfish.jersey.server.oauth1.OAuth1Exception;
-import org.glassfish.jersey.server.oauth1.internal.OAuthServerRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,13 +28,13 @@ import com.pack.pack.oauth.token.TokenRegistry;
 @Path("/" + OAuthConstants.OAUTH_REQUEST_TOKEN_PATH)
 public class RequestTokenProvider {
 	
-	@Inject
-	private OAuth1Signature oAuth1Signature;
+	/*@Inject
+	private OAuth1Signature oAuth1Signature;*/
 	
 	private static Logger logger = LoggerFactory.getLogger(RequestTokenProvider.class);
 	
-	@POST
-	@Produces(value=MediaType.APPLICATION_JSON)
+	/*@POST
+	@Produces(value=MediaType.APPLICATION_JSON)*/
 	public RequestToken postAuthenticateClient(@Context ContainerRequest request) throws Exception {
 		 return doAuthenticateClient(request);
 	}
@@ -48,7 +42,7 @@ public class RequestTokenProvider {
 	private RequestToken doAuthenticateClient(ContainerRequestContext context) throws Exception {
 		logger.info("Authorization: " + context.getHeaderString(OAuthConstants.AUTHORIZATION_HEADER));
         try {
-            OAuthServerRequest oauthReq = new OAuthServerRequest(context);
+           /* OAuthServerRequest oauthReq = new OAuthServerRequest(context);
             OAuth1Parameters params = new OAuth1Parameters();
             params.readRequest(oauthReq);
             String consumerKey = params.getConsumerKey();
@@ -63,9 +57,10 @@ public class RequestTokenProvider {
             boolean isValid = oAuth1Signature.verify(oauthReq, params, secrets);
             if (!isValid) {
                 throw new WebApplicationException(401);
-            }
+            }*/
             RequestToken token = new TokenGenerator().generateNewRequestToken();
             TokenRegistry.INSTANCE.addRequestToken(token);
+            logger.info("Request Token Issued: " + token.getToken());
             return token;
         } catch (OAuth1SignatureException e) {
             logger.info("OAuthSignatureException: Verification failed", e);

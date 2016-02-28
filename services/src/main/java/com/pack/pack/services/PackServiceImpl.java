@@ -64,7 +64,7 @@ public class PackServiceImpl implements IPackService {
 			return;
 		PackRepositoryService repoService = ServiceRegistry.INSTANCE
 				.findService(PackRepositoryService.class);
-		Pack pack = repoService.findById(packId);
+		Pack pack = repoService.findBasedOnId(packId);
 		FwdPack fwdPack = new FwdPack();
 		List<PackAttachment> packAttachments = pack.getPackAttachments();
 		for (PackAttachment packAttachment : packAttachments) {
