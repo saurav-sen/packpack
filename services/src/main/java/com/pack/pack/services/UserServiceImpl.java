@@ -60,6 +60,7 @@ public class UserServiceImpl implements IUserService {
 		String profilePictureUrl = storeProfilePicture(user.getId(),
 				profilePicture, profilePictureFileName);
 		user.setProfilePicture(profilePictureUrl);
+		service.update(user);
 		status.setStatus(StatusType.OK);
 		status.setInfo("Successfully registered the user " + email);
 		return status;
@@ -88,7 +89,12 @@ public class UserServiceImpl implements IUserService {
 		if (!location.endsWith(File.separator)) {
 			location = location + File.separator;
 		}
-		location = location + userId + File.separator + profilePictureFileName;
+		location = location + userId;
+		File f = new File(location);
+		if(!f.exists()) {
+			f.mkdir();
+		}
+		location = location + File.separator + profilePictureFileName;
 		AttachmentUtil.storeUploadedAttachment(profilePicture, location);
 		return location.substring(home.length());
 	}

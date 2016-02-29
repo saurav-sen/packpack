@@ -1,10 +1,5 @@
 package com.pack.pack.rest.api.security;
 
-import javax.ws.rs.WebApplicationException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.pack.pack.model.PersistedUserToken;
 import com.pack.pack.oauth.token.AccessToken;
 import com.pack.pack.oauth.token.TokenGenerator;
@@ -23,8 +18,8 @@ public class UserAuthenticator {
 
 	public static final UserAuthenticator INSTANCE = new UserAuthenticator();
 
-	private static Logger logger = LoggerFactory
-			.getLogger(UserAuthenticator.class);
+	/*private static Logger logger = LoggerFactory
+			.getLogger(UserAuthenticator.class);*/
 
 	private UserAuthenticator() {
 	}
@@ -47,7 +42,7 @@ public class UserAuthenticator {
 		return null;
 	}
 
-	public AccessToken getAccessToken(String requestToken, String username,
+	/*public AccessToken getAccessToken(String requestToken, String username,
 			String password, String deviceID) {
 		try {
 			if (deviceID != null && !deviceID.trim().isEmpty()) {
@@ -73,9 +68,9 @@ public class UserAuthenticator {
 			logger.info(e.getMessage(), e);
 			throw new WebApplicationException(401);
 		}
-	}
+	}*/
 
-	private boolean authenticateUser(String username, String password)
+	public boolean authenticateUser(String username, String password)
 			throws PackPackException {
 		UserRepositoryService umService = ServiceRegistry.INSTANCE
 				.findService(UserRepositoryService.class);

@@ -1,13 +1,8 @@
 package com.pack.pack.rest.api.security;
 
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.ext.Provider;
 
 import org.glassfish.jersey.oauth1.signature.OAuth1SignatureException;
 import org.glassfish.jersey.server.ContainerRequest;
@@ -24,8 +19,8 @@ import com.pack.pack.oauth.token.TokenRegistry;
  * @author Saurav
  *
  */
-@Provider
-@Path("/" + OAuthConstants.OAUTH_REQUEST_TOKEN_PATH)
+/*@Provider
+@Path("/" + OAuthConstants.OAUTH_REQUEST_TOKEN_PATH)*/
 public class RequestTokenProvider {
 	
 	/*@Inject

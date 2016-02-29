@@ -30,9 +30,9 @@ import com.pack.pack.model.User;
 @Scope("singleton")
 @Views({
 	@View(name="basedOnLocation", map="function(doc) { if(doc.address && doc.address.city && doc.address.state "
-			+ "&& doc.address.country) { emit([doc.address.city, doc.address.state, doc.address.country], doc]); } }"),
+			+ "&& doc.address.country) { emit([doc.address.city, doc.address.state, doc.address.country], doc); } }"),
 	@View(name="basedOnAddress", map="function(doc) { if(doc.address) { emit([doc.address.city, doc.address.state, doc.address.country], doc); } }"),
-	@View(name="basedOnUsername", map="function(doc) { if(doc.username) { emit([doc.username, doc.password], doc); } }")
+	@View(name="basedOnUsername", map="function(doc) { if(doc.username) { emit(doc.username, doc); } }")
 })
 public class UserRepositoryService extends CouchDbRepositorySupport<User> {
 	
@@ -71,15 +71,13 @@ public class UserRepositoryService extends CouchDbRepositorySupport<User> {
 	
 	public List<User> getBasedOnUsername(String username) {
 		logger.debug("getBasedOnUsername(username=" + username);
-		ComplexKey key = ComplexKey.of(username, ComplexKey.emptyObject());
-		ViewQuery query = createQuery("basedOnUsername").key(key);
+		ViewQuery query = createQuery("basedOnUsername").key(username);
 		return db.queryView(query, User.class);
 	}
 	
 	public boolean validateCredential(String username, String password) {
 		logger.debug("validateCredential(username=" + username);
-		ComplexKey key = ComplexKey.of(username, password);
-		ViewQuery query = createQuery("basedOnUsername").key(key);
+		ViewQuery query = createQuery("basedOnUsername").key(username);
 		List<User> list = db.queryView(query, User.class);
 		if(list == null || list.isEmpty()) {
 			logger.debug("Not valid credential");
@@ -89,7 +87,12 @@ public class UserRepositoryService extends CouchDbRepositorySupport<User> {
 			logger.debug("Not valid credential");
 			return false;
 		}
-		logger.debug("Valid credential");
-		return true;
+		User user = list.get(0);
+		if(password != null && password.equals(user.getPassword())) {
+			logger.debug("Valid credential");
+			return true;
+		}
+		logger.debug("Not valid credential");
+		return false;
 	}
 }

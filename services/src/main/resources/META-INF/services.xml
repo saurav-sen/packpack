@@ -30,7 +30,7 @@
      </bean-->
      
       <bean id="packDB" class="org.ektorp.impl.StdCouchDbConnector">
-             <constructor-arg value="userDB" />
+             <constructor-arg value="packpack" />
              <constructor-arg ref="couchDbInstance" />
      </bean>
      
