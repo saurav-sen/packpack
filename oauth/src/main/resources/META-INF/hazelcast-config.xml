@@ -8,7 +8,22 @@
 		<eviction-percentage>25</eviction-percentage>
 		<min-eviction-check-millis>100</min-eviction-check-millis>
 	</map>
+	<map name="requestTokenVsVerifierCache">
+		<time-to-live-seconds>800</time-to-live-seconds>
+		<eviction-policy>LRU</eviction-policy>
+		<max-size policy="PER_NODE">15000</max-size>
+		<eviction-percentage>25</eviction-percentage>
+		<min-eviction-check-millis>100</min-eviction-check-millis>
+	</map>
 	<map name="accessTokenCache">
+		<time-to-live-seconds>7200</time-to-live-seconds>
+		<max-idle-seconds>1800</max-idle-seconds>
+		<eviction-policy>LRU</eviction-policy>
+		<max-size policy="PER_NODE">15000</max-size>
+		<eviction-percentage>25</eviction-percentage>
+		<min-eviction-check-millis>100</min-eviction-check-millis>
+	</map>
+	<map name="principalVsAccessTokenCache">
 		<time-to-live-seconds>7200</time-to-live-seconds>
 		<max-idle-seconds>1800</max-idle-seconds>
 		<eviction-policy>LRU</eviction-policy>

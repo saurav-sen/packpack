@@ -6,7 +6,7 @@ package com.pack.pack.oauth.token;
  * @author Saurav
  *
  */
-public class ResetToken extends Token {
+public class ResetToken /*extends Token */{
 
 	private String token;
 	private String email;

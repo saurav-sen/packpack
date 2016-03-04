@@ -27,4 +27,6 @@ public interface OAuthConstants {
 	public static final String OAUTH_AUTHORIZATION_PATH = "oauth/authorize";
 	
 	public static final String DEVICE_ID = "deviceID"; //$NON-NLS-1$
+	
+	public static final String DEFAULT_ROLE = "DEFAULT_ROLE"; //$NON-NLS-1$
 }

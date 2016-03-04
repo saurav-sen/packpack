@@ -31,6 +31,16 @@
 		<artifactId>hazelcast-client</artifactId>
 		<version>${hazelcast.version}</version>
 	</dependency>
+	<dependency>
+        <groupId>org.glassfish.jersey.security</groupId>
+        <artifactId>oauth1-signature</artifactId>
+        <version>${jersey2.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.glassfish.jersey.security</groupId>
+        <artifactId>oauth1-server</artifactId>
+        <version>${jersey2.version}</version>
+    </dependency>
   </dependencies>
   <build>
   	<plugins>
