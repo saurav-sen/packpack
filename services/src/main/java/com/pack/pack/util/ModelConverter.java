@@ -4,6 +4,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.pack.pack.model.Comment;
 import com.pack.pack.model.EGift;
 import com.pack.pack.model.Pack;
@@ -27,6 +30,8 @@ import com.pack.pack.services.registry.ServiceRegistry;
  *
  */
 public class ModelConverter {
+	
+	private static Logger logger = LoggerFactory.getLogger(ModelConverter.class);
 
 	public static JPack convert(Pack pack) {
 		JPack jPack = new JPack();
@@ -116,9 +121,14 @@ public class ModelConverter {
 				&& !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
 			profilePictureUrl = baseURL + SystemPropertyUtil.URL_SEPARATOR
 					+ profilePictureUrl;
+		} else if (baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)
+				&& profilePictureUrl
+						.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+			profilePictureUrl = baseURL.substring(0, baseURL.length()-2) + profilePictureUrl;
 		} else {
 			profilePictureUrl = baseURL + profilePictureUrl;
 		}
+		logger.trace("Resolved URL for profile picture = " + profilePictureUrl);
 		return profilePictureUrl;
 	}
 

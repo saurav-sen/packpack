@@ -4,7 +4,6 @@ import static com.pack.pack.util.SystemPropertyUtil.ATTACHMENT;
 import static com.pack.pack.util.SystemPropertyUtil.IMAGE;
 import static com.pack.pack.util.SystemPropertyUtil.IMAGE_ATTACHMENT_URL_SUFFIX;
 import static com.pack.pack.util.SystemPropertyUtil.PROFILE;
-import static com.pack.pack.util.SystemPropertyUtil.PROFILE_IMAGE_URL_SUFFIX;
 import static com.pack.pack.util.SystemPropertyUtil.URL_SEPARATOR;
 import static com.pack.pack.util.SystemPropertyUtil.VIDEO;
 import static com.pack.pack.util.SystemPropertyUtil.VIDEO_ATTACHMENT_URL_SUFFIX;
@@ -50,17 +49,19 @@ public class AttachmentResource {
 	private static Logger logger = LoggerFactory.getLogger(AttachmentResource.class);
 	
 	@GET
-	@Path(PROFILE + URL_SEPARATOR + IMAGE)
+	@Path(PROFILE + URL_SEPARATOR + IMAGE + URL_SEPARATOR + "{userId}" + URL_SEPARATOR + "{fileName}")
 	@Produces({"image/png", "image/jpg"})
-	public Response getProfilePictureImage(@Context UriInfo uriInfo) throws PackPackException {
+	public Response getProfilePictureImage(@PathParam("userId") String userId, @PathParam("fileName") String fileName) throws PackPackException {
 		try {
 			String profilePictureHome = SystemPropertyUtil.getProfilePictureHome();
-			String path = uriInfo.getPath();
-			int index = path.indexOf(PROFILE_IMAGE_URL_SUFFIX) + PROFILE_IMAGE_URL_SUFFIX.length();
-			path = path.substring(index);
-			path = profilePictureHome + path;
-			path = path.replaceAll(URL_SEPARATOR, File.separator);
-			File imageFile = new File(path);
+			StringBuilder path = new StringBuilder(profilePictureHome);
+			if(!profilePictureHome.endsWith(File.separator)) {
+				path = path.append(File.separator);
+			}
+			path.append(userId);
+			path.append(File.separator);
+			path.append(fileName);
+			File imageFile = new File(path.toString());
 			return ImageUtil.buildResponse(imageFile);
 		} catch (FileNotFoundException e) {
 			logger.info(e.getMessage(), e);
