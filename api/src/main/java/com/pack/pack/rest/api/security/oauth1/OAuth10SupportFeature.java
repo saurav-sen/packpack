@@ -16,7 +16,8 @@ import org.glassfish.jersey.server.oauth1.OAuth1ServerProperties;
 import org.glassfish.jersey.server.oauth1.internal.AccessTokenResource;
 import org.glassfish.jersey.server.oauth1.internal.RequestTokenResource;
 
-import com.pack.pack.rest.api.security.OAuthConstants;
+import com.pack.pack.oauth.OAuthConstants;
+import com.pack.pack.rest.api.oauth.provider.jersey.OAuth10SecurityProvider;
 
 /**
  * 

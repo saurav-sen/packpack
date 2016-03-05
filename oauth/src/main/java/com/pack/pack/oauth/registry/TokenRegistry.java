@@ -1,4 +1,4 @@
-package com.pack.pack.oauth.token;
+package com.pack.pack.oauth.registry;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -14,6 +14,8 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.pack.pack.model.PersistedUserToken;
+import com.pack.pack.oauth.token.AccessToken;
+import com.pack.pack.oauth.token.Token;
 import com.pack.pack.services.couchdb.PersistedUserTokenRepositoryService;
 import com.pack.pack.services.registry.ServiceRegistry;
 
@@ -26,7 +28,7 @@ public class TokenRegistry {
 
 	public static final TokenRegistry INSTANCE = new TokenRegistry();
 
-	private boolean isRunning = true;
+	private boolean isRunning = false;
 
 	private HazelcastInstance hazelcast;
 
@@ -41,10 +43,9 @@ public class TokenRegistry {
 	private static final String HAZELCAST_XML_CONFIG = "META-INF/hazelcast-config.xml"; //$NON-NLS-1$
 
 	private TokenRegistry() {
-		reinitialize();
 	}
 	
-	public void reinitialize() {
+	public void start() {
 		if(isRunning) {
 			return;
 		}
@@ -52,6 +53,12 @@ public class TokenRegistry {
 		cfg.setInstanceName(TOKEN_REGISTRY);
 		hazelcast = Hazelcast.newHazelcastInstance(cfg);
 		isRunning = true;
+		Runtime.getRuntime().addShutdownHook(new Thread(){
+			@Override
+			public void run() {
+				TokenRegistry.this.stop();
+			}
+		});
 	}
 
 	public Token serviceRequestToken(String token) {
@@ -60,7 +67,6 @@ public class TokenRegistry {
 		Token requestToken = map.get(token);
 		if (requestToken == null)
 			return null;
-		map.remove(token); // It is for one time use
 		/*if (!requestToken.isValid())
 			return null;*/
 		long timeOfIssue = requestToken.getTimeOfIssue();
@@ -121,7 +127,7 @@ public class TokenRegistry {
 		map.put(token.getToken(), token);
 		IMap<String, List<Token>> map2 = hazelcast.getMap(PRINCIPAL_VS_ACCESS_TOKEN_CACHE);
 		Principal principal = token.getPrincipal();
-		List<Token> list = map2.get(principal);
+		List<Token> list = map2.get(principal.getName());
 		if(list == null) {
 			list = new ArrayList<Token>();
 		}

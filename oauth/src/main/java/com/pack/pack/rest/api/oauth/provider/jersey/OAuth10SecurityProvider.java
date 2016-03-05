@@ -1,4 +1,4 @@
-package com.pack.pack.rest.api.security.oauth1;
+package com.pack.pack.rest.api.oauth.provider.jersey;
 
 import java.security.Principal;
 import java.util.HashSet;
@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -18,13 +17,14 @@ import org.glassfish.jersey.server.oauth1.OAuth1Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pack.pack.oauth.OAuthConstants;
+import com.pack.pack.oauth.registry.ConsumerRegistry;
+import com.pack.pack.oauth.registry.TokenRegistry;
 import com.pack.pack.oauth.token.AccessToken;
 import com.pack.pack.oauth.token.Consumer;
 import com.pack.pack.oauth.token.KeyGenerator;
 import com.pack.pack.oauth.token.TTL;
 import com.pack.pack.oauth.token.Token;
-import com.pack.pack.oauth.token.TokenRegistry;
-import com.pack.pack.rest.api.security.OAuthConstants;
 
 /**
  * 
@@ -37,9 +37,6 @@ public class OAuth10SecurityProvider implements OAuth1Provider {
 	private static Logger logger = LoggerFactory
 			.getLogger(OAuth10SecurityProvider.class);
 
-	private static final ConcurrentHashMap<String, Consumer> consumerByConsumerKey = new ConcurrentHashMap<String, Consumer>(
-			10);
-
 	public OAuth10SecurityProvider() {
 		super();
 		registerConsumer("packCL", OAuthConstants.DEFAULT_CLIENT_KEY,
@@ -49,7 +46,7 @@ public class OAuth10SecurityProvider implements OAuth1Provider {
 
 	@Override
 	public Consumer getConsumer(final String consumerKey) {
-		return consumerByConsumerKey.get(consumerKey);
+		return ConsumerRegistry.INSTANCE.getConsumer(consumerKey);
 	}
 
 	public Consumer registerConsumer(final String owner,
@@ -61,18 +58,12 @@ public class OAuth10SecurityProvider implements OAuth1Provider {
 	public Consumer registerConsumer(final String owner, final String key,
 			final String secret, final MultivaluedMap<String, String> attributes) {
 		final Consumer c = new Consumer(key, secret, owner, attributes);
-		consumerByConsumerKey.put(c.getKey(), c);
+		ConsumerRegistry.INSTANCE.registerConsumer(c);
 		return c;
 	}
 
 	public Set<Consumer> getConsumers(final String owner) {
-		final Set<Consumer> result = new HashSet<Consumer>();
-		for (final Consumer consumer : consumerByConsumerKey.values()) {
-			if (consumer.getOwner().equals(owner)) {
-				result.add(consumer);
-			}
-		}
-		return result;
+		return ConsumerRegistry.INSTANCE.getConsumers(owner);
 	}
 
 	public Set<Token> getAccessTokens(final String principalName) {
@@ -89,7 +80,7 @@ public class OAuth10SecurityProvider implements OAuth1Provider {
 			final Principal userPrincipal, final Set<String> roles) {
 		final Token authorized = token.authorize(userPrincipal, roles, this);
 		TokenRegistry.INSTANCE.addRequestToken(authorized);
-		final String verifier = newUUIDString();
+		final String verifier = newVerifier();
 		TokenRegistry.INSTANCE.addVerifier(token.getToken(), verifier);
 		return verifier;
 	}
@@ -110,6 +101,16 @@ public class OAuth10SecurityProvider implements OAuth1Provider {
 			return tmp.replaceAll("-", "");
 		}
 	}
+	
+	protected String newVerifier() {
+		try {
+			return new KeyGenerator().generateNewOTPHashKey();
+		} catch (Exception e) {
+			logger.error("Error generating new verifier token", e.getCause(), e);
+			final String tmp = UUID.randomUUID().toString();
+			return tmp.replaceAll("-", "");
+		}
+	}
 
 	@Override
 	public Token getRequestToken(final String token) {
@@ -120,7 +121,9 @@ public class OAuth10SecurityProvider implements OAuth1Provider {
 	public OAuth1Token newRequestToken(final String consumerKey,
 			final String callbackUrl, final Map<String, List<String>> attributes) {
 		final Token rt = new Token(newUUIDString(), newUUIDString(),
-				consumerKey, callbackUrl, attributes, this);
+				consumerKey, callbackUrl, attributes);
+		rt.setExpiry(new TTL(2, TimeUnit.HOURS));
+		rt.setTimeOfIssue(System.currentTimeMillis());
 		TokenRegistry.INSTANCE.addRequestToken(rt);
 		return rt;
 	}
@@ -128,10 +131,12 @@ public class OAuth10SecurityProvider implements OAuth1Provider {
 	@Override
 	public OAuth1Token newAccessToken(final OAuth1Token requestToken,
 			final String verifier) {
-		if (verifier == null
-				|| requestToken == null
-				|| !verifier.equals(TokenRegistry.INSTANCE
-						.removeVerifier(requestToken.getToken()))) {
+		logger.info("Verifier received: " + verifier);
+		String expectedVerifier = TokenRegistry.INSTANCE
+				.removeVerifier(requestToken.getToken());
+		logger.info("Expected verifier: " + expectedVerifier);
+		if (verifier == null || requestToken == null
+				|| !verifier.equals(expectedVerifier)) {
 			return null;
 		}
 		Token token = TokenRegistry.INSTANCE
@@ -140,8 +145,8 @@ public class OAuth10SecurityProvider implements OAuth1Provider {
 			return null;
 		}
 		String refreshToken = newUUIDString();
-		AccessToken at = new AccessToken(newUUIDString(), newUUIDString(), token,
-				this, refreshToken);
+		AccessToken at = new AccessToken(newUUIDString(), newUUIDString(),
+				token, refreshToken);
 		token.setExpiry(new TTL(2, TimeUnit.HOURS));
 		token.setTimeOfIssue(System.currentTimeMillis());
 		TokenRegistry.INSTANCE.addAccessToken(at);
@@ -154,7 +159,7 @@ public class OAuth10SecurityProvider implements OAuth1Provider {
 			final MultivaluedMap<String, String> attributes) {
 		String refreshToken = newUUIDString();
 		AccessToken accessToken = new AccessToken(token, secret, consumerKey,
-				callbackUrl, principal, roles, attributes, this, refreshToken);
+				callbackUrl, principal, roles, attributes, refreshToken);
 		accessToken.setExpiry(new TTL(2, TimeUnit.HOURS));
 		accessToken.setTimeOfIssue(System.currentTimeMillis());
 		TokenRegistry.INSTANCE.addAccessToken(accessToken);

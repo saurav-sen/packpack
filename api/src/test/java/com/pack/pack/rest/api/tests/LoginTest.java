@@ -17,7 +17,7 @@ import org.glassfish.jersey.client.oauth1.ConsumerCredentials;
 import org.glassfish.jersey.client.oauth1.OAuth1AuthorizationFlow;
 import org.glassfish.jersey.client.oauth1.OAuth1ClientSupport;
 
-import com.pack.pack.rest.api.security.OAuthConstants;
+import com.pack.pack.oauth.OAuthConstants;
 
 /**
  * 

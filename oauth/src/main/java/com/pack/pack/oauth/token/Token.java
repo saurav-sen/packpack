@@ -1,5 +1,6 @@
 package com.pack.pack.oauth.token;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.HashSet;
@@ -14,6 +15,10 @@ import org.glassfish.jersey.server.oauth1.OAuth1Consumer;
 import org.glassfish.jersey.server.oauth1.OAuth1Provider;
 import org.glassfish.jersey.server.oauth1.OAuth1Token;
 
+import com.hazelcast.nio.ObjectDataInput;
+import com.hazelcast.nio.ObjectDataOutput;
+import com.hazelcast.nio.serialization.DataSerializable;
+import com.pack.pack.oauth.registry.ConsumerRegistry;
 import com.pack.pack.security.util.OAuth1Util;
 
 
@@ -22,26 +27,26 @@ import com.pack.pack.security.util.OAuth1Util;
  * @author Saurav
  *
  */
-public class Token implements OAuth1Token {
+public class Token implements OAuth1Token, DataSerializable {
 
-	private final String token;
-	private final String secret;
-	private final String consumerKey;
-	private final String callbackUrl;
-	private final Principal principal;
-	private final Set<String> roles;
-	private final MultivaluedMap<String, String> attribs;
+	private String token;
+	private String secret;
+	private String consumerKey;
+	private String callbackUrl;
+	private Principal principal;
+	private Set<String> roles;
+	private MultivaluedMap<String, String> attribs;
 	
 	private TTL expiry;
 	private long timeOfIssue;
 	
-	private transient OAuth1Provider provider;
+	public Token() {
+	}
 
 	public Token(final String token, final String secret,
 			final String consumerKey, final String callbackUrl,
 			final Principal principal, final Set<String> roles,
-			final MultivaluedMap<String, String> attributes,
-			final OAuth1Provider provider) {
+			final MultivaluedMap<String, String> attributes) {
 		this.token = token;
 		this.secret = secret;
 		this.consumerKey = consumerKey;
@@ -49,23 +54,22 @@ public class Token implements OAuth1Token {
 		this.principal = principal;
 		this.roles = roles;
 		this.attribs = attributes;
-		this.provider = provider;
 	}
 
 	public Token(final String token, final String secret,
 			final String consumerKey, final String callbackUrl,
-			final Map<String, List<String>> attributes, OAuth1Provider provider) {
+			final Map<String, List<String>> attributes) {
 		this(token, secret, consumerKey, callbackUrl, null, Collections
 				.<String> emptySet(),
 				new ImmutableMultivaluedMap<String, String>(
-						OAuth1Util.getImmutableMap(attributes)), provider);
+						OAuth1Util.getImmutableMap(attributes)));
 	}
 
 	public Token(final String token, final String secret,
-			final Token requestToken, OAuth1Provider provider) {
+			final Token requestToken) {
 		this(token, secret, requestToken.getConsumer().getKey(), null,
 				requestToken.principal, requestToken.roles,
-				ImmutableMultivaluedMap.<String, String> empty(), provider);
+				ImmutableMultivaluedMap.<String, String> empty());
 	}
 
 	@Override
@@ -80,7 +84,7 @@ public class Token implements OAuth1Token {
 
 	@Override
 	public OAuth1Consumer getConsumer() {
-		return provider.getConsumer(consumerKey);
+		return ConsumerRegistry.INSTANCE.getConsumer(consumerKey);
 	}
 
 	@Override
@@ -104,9 +108,12 @@ public class Token implements OAuth1Token {
 
 	public Token authorize(final Principal principal,
 			final Set<String> roles, final OAuth1Provider provider) {
-		return new Token(token, secret, consumerKey, callbackUrl,
+		Token t = new Token(token, secret, consumerKey, callbackUrl,
 				principal, roles == null ? Collections.<String> emptySet()
-						: new HashSet<String>(roles), attribs, provider);
+						: new HashSet<String>(roles), attribs);
+		t.setExpiry(getExpiry());
+		t.setTimeOfIssue(getTimeOfIssue());
+		return t;
 	}
 
 	public TTL getExpiry() {
@@ -127,5 +134,55 @@ public class Token implements OAuth1Token {
 
 	public Set<String> getRoles() {
 		return roles;
+	}
+
+	@Override
+	public void writeData(ObjectDataOutput out) throws IOException {
+		out.writeUTF(token);
+		out.writeUTF(secret);
+		out.writeUTF(consumerKey);
+		out.writeUTF(callbackUrl);
+		String str = principal != null ? (principal.getName() + "") : "NULL";
+		out.writeUTF(str);
+		int len = roles != null ? roles.size() : 0;
+		out.writeInt(len);
+		if(roles != null) {
+			for(String role : roles) {
+				out.writeUTF(role);
+			}
+		}
+		out.writeObject(expiry);
+		out.writeLong(timeOfIssue);
+	}
+
+	@Override
+	public void readData(ObjectDataInput in) throws IOException {
+		token = in.readUTF();
+		secret = in.readUTF();
+		consumerKey = in.readUTF();
+		callbackUrl = in.readUTF();
+		String username = in.readUTF();
+		if(!"NULL".equals(username)) {
+			principal = new Principal() {
+				
+				@Override
+				public String getName() {
+					return username;
+				}
+			};
+		}
+		int len = in.readInt();
+		if(len < 0) {
+			len = 0;
+		}
+		roles = new HashSet<String>(len);
+		int count = 0;
+		while(count < len) {
+			String role = in.readUTF();
+			roles.add(role);
+			count++;
+		}
+		expiry = in.readObject();
+		timeOfIssue = in.readLong();
 	}
 }

@@ -22,10 +22,11 @@ import org.glassfish.jersey.server.oauth1.OAuth1Provider;
 import org.glassfish.jersey.server.oauth1.OAuth1Token;
 
 import com.pack.pack.model.web.dto.LoginDTO;
+import com.pack.pack.oauth.OAuthConstants;
+import com.pack.pack.oauth.registry.TokenRegistry;
 import com.pack.pack.oauth.token.AccessToken;
 import com.pack.pack.oauth.token.Token;
-import com.pack.pack.oauth.token.TokenRegistry;
-import com.pack.pack.rest.api.security.oauth1.OAuth10SecurityProvider;
+import com.pack.pack.rest.api.oauth.provider.jersey.OAuth10SecurityProvider;
 import com.pack.pack.services.exception.PackPackException;
 
 /**

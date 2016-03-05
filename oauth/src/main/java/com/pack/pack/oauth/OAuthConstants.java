@@ -1,4 +1,4 @@
-package com.pack.pack.rest.api.security;
+package com.pack.pack.oauth;
 
 
 /**

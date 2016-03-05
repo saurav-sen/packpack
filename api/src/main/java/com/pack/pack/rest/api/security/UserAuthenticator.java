@@ -1,7 +1,7 @@
 package com.pack.pack.rest.api.security;
 
 import com.pack.pack.model.PersistedUserToken;
-import com.pack.pack.oauth.token.TokenRegistry;
+import com.pack.pack.oauth.registry.TokenRegistry;
 import com.pack.pack.services.couchdb.PersistedUserTokenRepositoryService;
 import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.exception.PackPackException;
