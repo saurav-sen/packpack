@@ -38,7 +38,8 @@ public class LoginTest {
 								+ OAuthConstants.OAUTH_REQUEST_TOKEN_PATH,
 						"http://192.168.35.12:8080/packpack/"
 								+ OAuthConstants.OAUTH_ACCESS_TOKEN_PATH,
-						"http://192.168.35.12:8080/packpack/oauth/authorize")
+						"http://192.168.35.12:8080/packpack/"
+								+ OAuthConstants.OAUTH_AUTHORIZATION_PATH)
 				.build();
 		String authorizationUri = authFlow.start();
 		System.out.println(authorizationUri);

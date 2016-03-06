@@ -124,7 +124,7 @@ public class ModelConverter {
 		} else if (baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)
 				&& profilePictureUrl
 						.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-			profilePictureUrl = baseURL.substring(0, baseURL.length()-2) + profilePictureUrl;
+			profilePictureUrl = baseURL.substring(0, baseURL.length()-1) + profilePictureUrl;
 		} else {
 			profilePictureUrl = baseURL + profilePictureUrl;
 		}

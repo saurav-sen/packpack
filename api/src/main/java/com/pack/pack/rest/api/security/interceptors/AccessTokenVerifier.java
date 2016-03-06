@@ -5,7 +5,10 @@ import java.io.IOException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.Provider;
 
+import com.pack.pack.model.web.JStatus;
+import com.pack.pack.model.web.StatusType;
 import com.pack.pack.oauth.OAuthConstants;
 import com.pack.pack.oauth.registry.TokenRegistry;
 
@@ -14,6 +17,7 @@ import com.pack.pack.oauth.registry.TokenRegistry;
  * @author Saurav
  *
  */
+@Provider
 public class AccessTokenVerifier implements ContainerRequestFilter {
 
 	@Override
@@ -24,20 +28,23 @@ public class AccessTokenVerifier implements ContainerRequestFilter {
 				.getHeaderString(OAuthConstants.AUTHORIZATION_HEADER);
 		String path = requestContext.getUriInfo().getPath();
 		boolean isTokenEmpty = token == null || token.trim().isEmpty();
-		if (!path.endsWith(OAuthConstants.OAUTH_REQUEST_TOKEN_PATH)) {
-			if(path.endsWith(OAuthConstants.OAUTH_ACCESS_TOKEN_PATH)) {
-				allow = isTokenEmpty;
-			}
-			else if (isTokenEmpty) {
+		if (!path.endsWith(OAuthConstants.OAUTH_REQUEST_TOKEN_PATH)
+				&& !path.endsWith(OAuthConstants.OAUTH_AUTHORIZATION_PATH)
+				&& !path.endsWith(OAuthConstants.OAUTH_ACCESS_TOKEN_PATH)) {
+			if (isTokenEmpty) {
 				allow = false;
 			} else {
 				allow = TokenRegistry.INSTANCE.isValidAccessToken(token);
 			}
 		}
 		if (!allow) {
+			JStatus status = new JStatus();
+			status.setStatus(StatusType.ERROR);
+			status.setInfo("Unauthorized access: Permission denied");
 			requestContext.abortWith(Response
 					.status(Response.Status.UNAUTHORIZED)
-					.entity("Unauthorized access: Permission denied").build());
+					.header("Content-Type", "application/json")
+					.entity(status).build());
 		}
 	}
 }

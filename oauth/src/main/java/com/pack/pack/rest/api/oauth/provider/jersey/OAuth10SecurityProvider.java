@@ -147,8 +147,8 @@ public class OAuth10SecurityProvider implements OAuth1Provider {
 		String refreshToken = newUUIDString();
 		AccessToken at = new AccessToken(newUUIDString(), newUUIDString(),
 				token, refreshToken);
-		token.setExpiry(new TTL(2, TimeUnit.HOURS));
-		token.setTimeOfIssue(System.currentTimeMillis());
+		at.setExpiry(new TTL(2, TimeUnit.HOURS));
+		at.setTimeOfIssue(System.currentTimeMillis());
 		TokenRegistry.INSTANCE.addAccessToken(at);
 		return at;
 	}
