@@ -46,7 +46,7 @@ public class TopicServiceImpl implements ITopicService {
 		//logger.debug("Getting Topic Information for topicId=" + topicId);
 		TopicRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(TopicRepositoryService.class);
-		Topic topic = service.getTopicById(topicId);
+		Topic topic = service.get(topicId);
 		if (topic != null) {
 			return ModelConverter.convert(topic);
 		}

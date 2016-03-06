@@ -2,6 +2,7 @@ package com.pack.pack.services.couchdb;
 
 import static com.pack.pack.services.rabbitmq.Constants.NULL_PAGE_LINK;
 import static com.pack.pack.services.rabbitmq.Constants.STANDARD_PAGE_SIZE;
+import static com.pack.pack.services.rabbitmq.Constants.END_OF_PAGE;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,7 +34,8 @@ import com.pack.pack.model.Topic;
 @Component
 @Scope("singleton")
 @Views({ 
-	@View(name = "findTopicByID", map = "function(doc) {if(doc.id) { emit(doc.id, doc); }}") 
+	@View(name = "findTopicByOwner", map = "function(doc) {if(doc.ownerId && doc._id) { emit(doc.ownerId, doc); }}"),
+	@View(name = "findTopicByID", map = "function(doc) {if(doc.ownerId && doc._id) { emit(doc._id, doc); }}") 
 })
 public class TopicRepositoryService extends CouchDbRepositorySupport<Topic> {
 	
@@ -89,13 +91,17 @@ public class TopicRepositoryService extends CouchDbRepositorySupport<Topic> {
 
 	public Pagination<Topic> getAllTopics(String userId, String pageLink) {
 		logger.debug("getAllTopics(userId=" + userId + ", pageLink=" + pageLink);
-		ViewQuery query = createQuery("findTopicByID");
+		ViewQuery query = createQuery("findTopicByOwner").key(userId);
+		if(END_OF_PAGE.equals(pageLink)) {
+			return new Pagination<Topic>(END_OF_PAGE, END_OF_PAGE, Collections.emptyList());
+		}
 		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink)) ? PageRequest.fromLink(pageLink)
 				: PageRequest.firstPage(STANDARD_PAGE_SIZE);
 		Page<Topic> page = db.queryForPage(query, pr, Topic.class);
-		String nextLink = page.getNextLink();
-		String previousLink = page.getPreviousLink();
+		String nextLink = page.isHasNext() ? page.getNextLink() : END_OF_PAGE;
+		String previousLink = page.isHasPrevious() ? page.getPreviousLink() : END_OF_PAGE;
 		List<Topic> topics = page.getRows();
+		topics = db.queryView(query, Topic.class);
 		return new Pagination<Topic>(previousLink, nextLink, topics);
 	}
 }
