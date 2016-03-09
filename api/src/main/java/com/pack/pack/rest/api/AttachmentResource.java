@@ -68,14 +68,29 @@ public class AttachmentResource {
 			throw new PackPackException("TODO", e.getMessage(), e);
 		}
 	}
+	
+	@GET
+	@Path(IMAGE + URL_SEPARATOR + "{topicId}" + URL_SEPARATOR + "{packId}"
+			+ URL_SEPARATOR + "thumbnail" + URL_SEPARATOR + "{fileName}")
+	@Produces({ "image/png", "image/jpg" })
+	public Response getThumbnailImageAttachment(@PathParam("topicId") String topicId,
+			@PathParam("packId") String packId,
+			@PathParam("fileName") String fileName) throws PackPackException {
+		return getImageAttachment(topicId, packId, fileName, true);
+	}
 
 	@GET
 	@Path(IMAGE + URL_SEPARATOR + "{topicId}" + URL_SEPARATOR + "{packId}"
 			+ URL_SEPARATOR + "{fileName}")
 	@Produces({ "image/png", "image/jpg" })
-	public Response getImageAttachment(@PathParam("topicId") String topicId,
+	public Response getOriginalImageAttachment(@PathParam("topicId") String topicId,
 			@PathParam("packId") String packId,
 			@PathParam("fileName") String fileName) throws PackPackException {
+		return getImageAttachment(topicId, packId, fileName, false);
+	}
+	
+	private Response getImageAttachment(String topicId,
+			String packId, String fileName, boolean isThumbnail) throws PackPackException {
 		try {
 			String imageHome = SystemPropertyUtil.getImageHome();
 			StringBuilder path = new StringBuilder(imageHome);
@@ -86,6 +101,10 @@ public class AttachmentResource {
 			path.append(File.separator);
 			path.append(packId);
 			path.append(File.separator);
+			if(isThumbnail) {
+				path.append("thumbnail");
+				path.append(File.separator);
+			}
 			path.append(fileName);
 			File imageFile = new File(path.toString());
 			return ImageUtil.buildResponse(imageFile);
@@ -94,14 +113,30 @@ public class AttachmentResource {
 			throw new PackPackException("TODO", e.getMessage(), e);
 		}
 	}
+	
+	@GET
+	@Path(VIDEO + URL_SEPARATOR + "{topicId}" + URL_SEPARATOR + "{packId}"
+			+ URL_SEPARATOR + "thumbnail" + URL_SEPARATOR + "{fileName}")
+	// @Produces({"image/png", "image/jpg"})
+	public Response getThumbnailVideoAttachment(@PathParam("topicId") String topicId,
+			@PathParam("packId") String packId,
+			@PathParam("fileName") String fileName) throws PackPackException {
+		return getVideoAttachment(topicId, packId, fileName, true);
+	}
 
 	@GET
 	@Path(VIDEO + URL_SEPARATOR + "{topicId}" + URL_SEPARATOR + "{packId}"
 			+ URL_SEPARATOR + "{fileName}")
 	// @Produces({"image/png", "image/jpg"})
-	public Response getVideoAttachment(@PathParam("topicId") String topicId,
+	public Response getOriginalVideoAttachment(@PathParam("topicId") String topicId,
 			@PathParam("packId") String packId,
 			@PathParam("fileName") String fileName) throws PackPackException {
+		return getVideoAttachment(topicId, packId, fileName, false);
+	}
+	
+	
+	private Response getVideoAttachment(String topicId,
+			String packId, String fileName, boolean isThumbnail) throws PackPackException {
 		try {
 			String videoHome = SystemPropertyUtil.getVideoHome();
 			StringBuilder path = new StringBuilder(videoHome);
@@ -112,6 +147,10 @@ public class AttachmentResource {
 			path.append(File.separator);
 			path.append(packId);
 			path.append(File.separator);
+			if(isThumbnail) {
+				path.append("thumbnail");
+				path.append(File.separator);
+			}
 			path.append(fileName);
 			File videoFile = new File(path.toString());
 			return ImageUtil.buildResponse(videoFile);

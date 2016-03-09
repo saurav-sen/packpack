@@ -30,8 +30,9 @@ import com.pack.pack.services.registry.ServiceRegistry;
  *
  */
 public class ModelConverter {
-	
-	private static Logger logger = LoggerFactory.getLogger(ModelConverter.class);
+
+	private static Logger logger = LoggerFactory
+			.getLogger(ModelConverter.class);
 
 	public static JPack convert(Pack pack) {
 		JPack jPack = new JPack();
@@ -67,6 +68,10 @@ public class ModelConverter {
 				&& !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
 			thumbnailUrl = baseURL + SystemPropertyUtil.URL_SEPARATOR
 					+ thumbnailUrl;
+		} else if (baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)
+				&& thumbnailUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+			thumbnailUrl = baseURL.substring(0, baseURL.length() - 1)
+					+ thumbnailUrl;
 		} else {
 			thumbnailUrl = baseURL + thumbnailUrl;
 		}
@@ -77,6 +82,9 @@ public class ModelConverter {
 		if (!url.startsWith(SystemPropertyUtil.URL_SEPARATOR)
 				&& !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
 			url = baseURL + SystemPropertyUtil.URL_SEPARATOR + url;
+		} else if (baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)
+				&& url.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+			url = baseURL.substring(0, baseURL.length() - 1) + url;
 		} else {
 			url = baseURL + url;
 		}
@@ -124,7 +132,8 @@ public class ModelConverter {
 		} else if (baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)
 				&& profilePictureUrl
 						.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-			profilePictureUrl = baseURL.substring(0, baseURL.length()-1) + profilePictureUrl;
+			profilePictureUrl = baseURL.substring(0, baseURL.length() - 1)
+					+ profilePictureUrl;
 		} else {
 			profilePictureUrl = baseURL + profilePictureUrl;
 		}

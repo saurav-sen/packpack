@@ -196,7 +196,7 @@ public class PackServiceImpl implements IPackService {
 		if (!f.exists()) {
 			f.mkdir();
 		}
-		location = location + fileName;
+		location = location + File.separator + fileName;
 		File originalFile = AttachmentUtil.storeUploadedAttachment(file,
 				location);
 		File thumbnailFile = (type == PackAttachmentType.IMAGE ? AttachmentUtil
