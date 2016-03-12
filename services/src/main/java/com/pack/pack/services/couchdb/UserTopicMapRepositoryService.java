@@ -2,8 +2,8 @@ package com.pack.pack.services.couchdb;
 
 import static com.pack.pack.services.rabbitmq.Constants.NULL_PAGE_LINK;
 import static com.pack.pack.services.rabbitmq.Constants.STANDARD_PAGE_SIZE;
+import static com.pack.pack.services.rabbitmq.Constants.END_OF_PAGE;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -33,7 +33,10 @@ import com.pack.pack.model.UserTopicMap;
 @Component
 @Scope("singleton")
 @Views({
-	@View(name="allForUser", map="function(doc) { if(doc.userId && doc.id && doc.topicId) { emit([doc.userId, doc.topicId], doc); }}")
+	@View(name="allForUser", map="function(doc) { if(doc.userId && doc._id && doc.topicId) { emit(doc.userId, doc.topicId); }}"),
+	@View(name="allUserForTopic", map="function(doc) { if(doc.userId && doc._id && doc.topicId) { emit(doc.topicId, doc.userId); }}"),
+	@View(name="usrVsTopicMap", map="function(doc) { if(doc.userId && doc._id && doc.topicId) { emit([doc.topicId, doc.userId], doc); }}")
+	
 })
 public class UserTopicMapRepositoryService extends CouchDbRepositorySupport<UserTopicMap> {
 	
@@ -57,21 +60,17 @@ public class UserTopicMapRepositoryService extends CouchDbRepositorySupport<User
 				+ userId + " in paginated API with page-link=" + pageLink);
 		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink))? PageRequest.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
 		ViewQuery query = createQuery("allForUser").key(userId);
-		Page<UserTopicMap> page = db.queryForPage(query, pr, UserTopicMap.class);
+		Page<String> page = db.queryForPage(query, pr, String.class);
 		if(page == null) {
 			return null;
 		}
-		List<UserTopicMap> list = page.getRows();
-		if(list == null || list.isEmpty()) {
+		List<String> topicIds = page.getRows();
+		if(topicIds == null || topicIds.isEmpty()) {
 			return null;
 		}
-		List<String> topicIds = new ArrayList<String>();
-		for(UserTopicMap l : list) {
-			topicIds.add(l.getId());
-		}
 		List<Topic> result = topicRepoService.getAllTopicsById(topicIds);
-		String nextLink = page.getNextLink();
-		String previousLink = page.getPreviousLink();
+		String nextLink = page.isHasNext() ? page.getNextLink() : END_OF_PAGE;
+		String previousLink = page.isHasPrevious() ? page.getPreviousLink() : END_OF_PAGE;
 		return new Pagination<Topic>(previousLink, nextLink, result);
 	}
 	
@@ -84,7 +83,7 @@ public class UserTopicMapRepositoryService extends CouchDbRepositorySupport<User
 	}*/
 	
 	public UserTopicMap findUserTopicMapById(String userId, String topicId) {
-		ViewQuery query = createQuery("allForUser").key(userId).key(topicId);
+		ViewQuery query = createQuery("usrVsTopicMap").key(userId).key(topicId);
 		List<UserTopicMap> list = db.queryView(query, UserTopicMap.class);
 		if(list == null || list.isEmpty()) {
 			return null;

@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.pack.pack.event.MsgEvent;
 import com.pack.pack.event.MsgEventType;
 import com.pack.pack.message.FwdPack;
+import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.EventManager;
 import com.pack.pack.util.JSONUtil;
 import com.rabbitmq.client.AMQP.BasicProperties;
@@ -31,7 +32,12 @@ public class MessageHandler extends DefaultConsumer {
 			BasicProperties properties, byte[] body) throws IOException {
 		super.handleDelivery(consumerTag, envelope, properties, body);
 		String message = new String(body);
-		FwdPack fwdPack = JSONUtil.deserialize(message, FwdPack.class);
+		FwdPack fwdPack;
+		try {
+			fwdPack = JSONUtil.deserialize(message, FwdPack.class);
+		} catch (PackPackException e1) {
+			throw new RuntimeException(e1);
+		}
 		String replyTo = properties != null ? properties.getReplyTo() : null;
 		String originEntityId = null;
 		MsgEventType evtType = MsgEventType.BROADCAST;

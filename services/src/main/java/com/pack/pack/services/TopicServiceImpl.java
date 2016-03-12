@@ -1,5 +1,6 @@
 package com.pack.pack.services;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -56,7 +57,12 @@ public class TopicServiceImpl implements ITopicService {
 	@Override
 	public void followTopic(String userId, String topicId)
 			throws PackPackException {
-		//logger.debug("followTopic(userId=" + userId + ", topicId=" + topicId);
+		logger.debug("followTopic(userId=" + userId + ", topicId=" + topicId);
+		TopicRepositoryService topicService = ServiceRegistry.INSTANCE.findService(TopicRepositoryService.class);
+		Topic topic = topicService.get(topicId);
+		if(topic == null) {
+			throw new PackPackException("TODO", "No topic found matching the criteria");
+		}
 		UserTopicMapRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(UserTopicMapRepositoryService.class);
 		UserTopicMap userTopicMap = service.findUserTopicMapById(userId,
@@ -66,6 +72,9 @@ public class TopicServiceImpl implements ITopicService {
 			userTopicMap.setUserId(userId);
 			userTopicMap.setTopicId(topicId);
 			service.add(userTopicMap);
+			long followers = topic.getFollowers();
+			topic.setFollowers(followers + 1);
+			topicService.update(topic);
 		}
 		//logger.info("User having id=" + userId + " following topic with id=" + topicId);
 	}
@@ -90,14 +99,23 @@ public class TopicServiceImpl implements ITopicService {
 			throws PackPackException {
 		/*logger.debug("Loading all topics as requested by user having userId="
 				+ userId + " page info(page-link)=" + pageLink);*/
-		TopicRepositoryService service = ServiceRegistry.INSTANCE
+		UserTopicMapRepositoryService mapService = ServiceRegistry.INSTANCE
+				.findService(UserTopicMapRepositoryService.class);
+		Pagination<Topic> page = mapService.getAllTopicsFollowedByUser(userId,
+				pageLink);
+		String nextLink = page != null ? page.getNextLink() : null;
+		String previousLink = page != null ? page.getPreviousLink() : null;
+		List<Topic> topics = page!= null ? page.getResult() : Collections.emptyList();
+		List<JTopic> jTopics = ModelConverter.convertTopicList(topics);
+		return new Pagination<JTopic>(previousLink, nextLink, jTopics);
+		/*TopicRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(TopicRepositoryService.class);
 		Pagination<Topic> page = service.getAllTopics(userId, pageLink);
 		String nextLink = page.getNextLink();
 		String previousLink = page.getPreviousLink();
 		List<Topic> topics = page.getResult();
 		List<JTopic> jTopics = ModelConverter.convertTopicList(topics);
-		return new Pagination<JTopic>(previousLink, nextLink, jTopics);
+		return new Pagination<JTopic>(previousLink, nextLink, jTopics);*/
 	}
 
 	@Override
@@ -111,6 +129,13 @@ public class TopicServiceImpl implements ITopicService {
 		if (userTopicMap == null)
 			return;
 		service.remove(userTopicMap);
+		TopicRepositoryService topicService = ServiceRegistry.INSTANCE.findService(TopicRepositoryService.class);
+		Topic topic = topicService.get(topicId);
+		if(topic != null) {
+			long followers = topic.getFollowers();
+			topic.setFollowers(followers-1);
+			
+		}
 		/*logger.info("User having ID=" + userId
 				+ " is neglecting topic whose ID=" + topicId);*/
 	}
@@ -123,6 +148,7 @@ public class TopicServiceImpl implements ITopicService {
 				.findService(TopicRepositoryService.class);
 		Topic topic = ModelConverter.convert(jTopic);
 		service.add(topic);
+		followTopic(topic.getOwnerId(), topic.getId());
 		/*logger.info("Successfully created new topic " + jTopic.getName()
 				+ " by user(owner) having ID=" + jTopic.getOwnerId()
 				+ " User(owner) name=" + jTopic.getOwnerName());*/

@@ -3,6 +3,8 @@ package com.pack.pack.services.rabbitmq;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -29,6 +31,8 @@ public class MessagePublisher {
 	@Autowired
 	private MsgConnectionManager connectionManager;
 	
+	private static Logger logger = LoggerFactory.getLogger(MessagePublisher.class);
+	
 	public void forwardPack(FwdPack fwdPack, User user) throws PackPackException {
 		try {
 			MsgConnection connection = connectionManager.openConnection();
@@ -48,20 +52,33 @@ public class MessagePublisher {
 	}
 	
 	public void notifyPackModify(FwdPack fwdPack, Topic topic, User fromUser) throws PackPackException {
+		MsgConnection connection = null;
 		try {
-			MsgConnection connection = connectionManager.openConnection();
+			connection = connectionManager.openConnection();
 			Channel channel = connection.getChannel();
-			String exhange_name = "topic_" + topic.getId() + "_" + topic.getName();
-			channel.exchangeDeclare(exhange_name, "fanout");
+			String exchange_name = "topic_" + topic.getId() + "_" + topic.getName();
+			logger.debug("RabbitMQ exchange name: " + exchange_name);
+			channel.exchangeDeclare(exchange_name, "fanout");
 			String message = JSONUtil.serialize(fwdPack);
+			logger.debug("message to RabbitMQ: " + message);
 			BasicProperties props = new BasicProperties(null, null, null, 0, 0,
 					null, Constants.REPLY_TO_TOPIC_PREFIX + topic.getId(),
 					null, null, null, null, null, null, null);
-			channel.basicPublish(exhange_name, "", props, message.getBytes());
+			channel.basicPublish(exchange_name, "", null, message.getBytes());
 		} catch (IOException e) {
 			new PackPackException("TODO", e.getMessage(), e);
 		} catch (TimeoutException e) {
 			new PackPackException("TODO", e.getMessage(), e);
+		} finally {
+			try {
+				connectionManager.closeConnection();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (TimeoutException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	

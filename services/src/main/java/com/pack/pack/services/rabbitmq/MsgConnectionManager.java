@@ -24,7 +24,7 @@ public class MsgConnectionManager {
 	
 	public MsgConnectionManager() {
 		connectionFactory = new ConnectionFactory();
-		connectionFactory.setHost("192.168.35.11");
+		connectionFactory.setHost("localhost");
 	}
 
 	public MsgConnection openConnection() throws IOException, TimeoutException {
