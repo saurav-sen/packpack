@@ -19,7 +19,7 @@ public class Comment extends CouchDbDocument {
 	
 	private String comment;
 	
-	private DateTime dateTime;
+	private long dateTime;
 	
 	private String packId;
 
@@ -47,11 +47,11 @@ public class Comment extends CouchDbDocument {
 		this.packId = packId;
 	}
 
-	public DateTime getDateTime() {
+	public long getDateTime() {
 		return dateTime;
 	}
 
-	public void setDateTime(DateTime dateTime) {
+	public void setDateTime(long dateTime) {
 		this.dateTime = dateTime;
 	}
 }

@@ -30,7 +30,7 @@ import com.pack.pack.model.Pack;
 @Scope("singleton")
 @Views({
 	@View(name="getAll", map="function(doc) { if(doc.packImageId) { emit(doc.creationTime, doc); } }"),
-	@View(name="findPackById", map="function(doc) { if(doc.id) { emit(doc.id, doc); }}")
+	@View(name="findPackById", map="function(doc) { if(doc._id && doc.creatorId) { emit(doc.id, doc); }}")
 })
 public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
 	

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.Config;
@@ -138,7 +139,7 @@ public class TokenRegistry {
 		if (refreshToken != null) {
 			PersistedUserToken pToken = new PersistedUserToken();
 			pToken.setRefreshToken(refreshToken);
-			pToken.setTimeOfIssue(new DateTime());
+			pToken.setTimeOfIssue(new DateTime(DateTimeZone.getDefault()).getMillis());
 			pToken.setUserId(username);
 			//pToken.setUserIp(deviceId);
 			PersistedUserTokenRepositoryService service = ServiceRegistry.INSTANCE

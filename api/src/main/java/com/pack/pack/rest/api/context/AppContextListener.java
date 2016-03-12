@@ -5,7 +5,9 @@ import javax.servlet.ServletContextListener;
 
 import com.pack.pack.event.IEventListener;
 import com.pack.pack.event.MsgEvent;
+import com.pack.pack.message.listeners.EventListener;
 import com.pack.pack.oauth.registry.TokenRegistry;
+import com.pack.pack.services.registry.EventManager;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.SystemPropertyUtil;
 
@@ -27,7 +29,7 @@ public class AppContextListener implements ServletContextListener, IEventListene
 			TokenRegistry.INSTANCE.start();
 			//logger.info("Started service-registry, successfully");
 			//logger.info("Starting event-manager & registering generic listener");
-			//EventManager.INSTANCE.registerListener(new EventListener());
+			EventManager.INSTANCE.registerListener(new EventListener());
 			//logger.info("Started event-manager & registered generic listener, successfully");
 		} catch (Exception e) {
 			//logger.error("Failed to start application: " + e.getMessage(), e);

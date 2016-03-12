@@ -1,5 +1,9 @@
-package com.pack.pack.util;
+package com.pack.pack.common.util;
 
+import java.util.TimeZone;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +23,37 @@ public class JSONUtil {
 	private static Logger logger = LoggerFactory.getLogger(JSONUtil.class);
 
 	private JSONUtil() {
+	}
+	
+	public static void main(String[] args) throws Exception {
+		DateTime t = new DateTime(DateTimeZone.getDefault());
+		System.out.println(t.toString());
+		long millis = t.getMillis();
+		System.out.println(millis);
+		t = new DateTime(millis, DateTimeZone.getDefault());
+		System.out.println(t);
+		long millis1 = t.getMillis();
+		System.out.println(millis1);
+		assert(millis - millis1 == 0);
+		t = new DateTime(millis, DateTimeZone.forTimeZone(TimeZone.getTimeZone("America/Los_Angeles")));
+		System.out.println(t);
+		long millis2 = t.getMillis();
+		System.out.println(millis2);
+		assert(millis - millis2 == 0);
+		assert(millis1 - millis2 == 0);
+		//System.out.println();
+		/*String str = serialize(t);
+		System.out.println(str);
+		t = deserialize(str, DateTime.class);
+		System.out.println(t.toString());*/
+		//DateTime t1 = new DateTime(DateTimeZone.forTimeZone(TimeZone.getTimeZone("America/Los_Angeles")));
+		//System.out.println(t1.toString());
+		/*str = serialize(t1);
+		System.out.println(str);
+		t1 = deserialize(str, DateTime.class);
+		System.out.println(t1.toString());
+		int compareTo = t.compareTo(t1);
+		System.out.println(compareTo);*/
 	}
 
 	public static String serialize(Object object) throws PackPackException {

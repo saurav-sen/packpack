@@ -17,7 +17,7 @@ public class PersistedUserToken extends CouchDbDocument {
 
 	private String refreshToken;
 	
-	private DateTime timeOfIssue;
+	private long timeOfIssue;
 	
 	private String userId;
 	
@@ -33,11 +33,11 @@ public class PersistedUserToken extends CouchDbDocument {
 		this.refreshToken = refreshToken;
 	}
 
-	public DateTime getTimeOfIssue() {
+	public long getTimeOfIssue() {
 		return timeOfIssue;
 	}
 
-	public void setTimeOfIssue(DateTime timeOfIssue) {
+	public void setTimeOfIssue(long timeOfIssue) {
 		this.timeOfIssue = timeOfIssue;
 	}
 

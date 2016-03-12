@@ -3,9 +3,11 @@ package com.pack.pack.model;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.ektorp.support.CouchDbDocument;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 /**
  * 
@@ -13,7 +15,7 @@ import org.joda.time.DateTime;
  *
  */
 public class Pack extends CouchDbDocument {
-
+	
 	/**
 	 * 
 	 */
@@ -29,7 +31,7 @@ public class Pack extends CouchDbDocument {
 	
 	private Float avgRating;
 	
-	private DateTime creationTime;
+	private long creationTime;
 	
 	private int likes;
 	
@@ -76,11 +78,11 @@ public class Pack extends CouchDbDocument {
 		this.avgRating = avgRating;
 	}
 
-	public DateTime getCreationTime() {
+	public long getCreationTime() {
 		return creationTime;
 	}
 
-	public void setCreationTime(DateTime creationTime) {
+	public void setCreationTime(long creationTime) {
 		this.creationTime = creationTime;
 	}
 	

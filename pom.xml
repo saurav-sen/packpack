@@ -67,6 +67,7 @@
 
 	<modules>
 		<module>model</module>
+		<module>common</module>
 		<module>services</module>
 		<module>oauth</module>
 		<module>api</module>		

@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.joda.time.DateTime;
-
 /**
  * 
  * @author Saurav
@@ -23,7 +21,7 @@ public class JPack {
 	
 	private String rating;
 	
-	private DateTime creationTime;
+	private long creationTime;
 	
 	private int likes;
 	
@@ -73,11 +71,11 @@ public class JPack {
 		this.rating = rating;
 	}
 
-	public DateTime getCreationTime() {
+	public long getCreationTime() {
 		return creationTime;
 	}
 
-	public void setCreationTime(DateTime creationTime) {
+	public void setCreationTime(long creationTime) {
 		this.creationTime = creationTime;
 	}
 

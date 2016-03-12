@@ -2,12 +2,12 @@ package com.pack.pack.services.rabbitmq;
 
 import java.io.IOException;
 
+import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.event.MsgEvent;
 import com.pack.pack.event.MsgEventType;
 import com.pack.pack.message.FwdPack;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.EventManager;
-import com.pack.pack.util.JSONUtil;
 import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DefaultConsumer;

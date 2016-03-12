@@ -9,13 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.message.FwdPack;
 import com.pack.pack.model.Topic;
 import com.pack.pack.model.User;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.rabbitmq.objects.BroadcastCriteria;
 import com.pack.pack.services.rabbitmq.objects.BroadcastPack;
-import com.pack.pack.util.JSONUtil;
 import com.rabbitmq.client.AMQP.BasicProperties;
 import com.rabbitmq.client.Channel;
 

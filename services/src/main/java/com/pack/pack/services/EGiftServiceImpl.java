@@ -158,7 +158,7 @@ public class EGiftServiceImpl implements IeGiftService {
 			String message) {
 		Pack pack = new Pack();
 		pack.setCreatorId(creatorId);
-		pack.setCreationTime(new DateTime(DateTimeZone.getDefault()));
+		pack.setCreationTime(new DateTime(DateTimeZone.getDefault()).getMillis());
 		pack.setTitle(title + "[" + eGift.getTitle() + "]");
 		pack.setStory(message);
 		PackRepositoryService service = ServiceRegistry.INSTANCE

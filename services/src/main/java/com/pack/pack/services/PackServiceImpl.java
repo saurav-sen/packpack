@@ -169,7 +169,7 @@ public class PackServiceImpl implements IPackService {
 
 	private Pack addNewPack(String story, String title, String userId) {
 		Pack pack = new Pack();
-		pack.setCreationTime(new DateTime(DateTimeZone.getDefault()));
+		pack.setCreationTime(new DateTime(DateTimeZone.getDefault()).getMillis());
 		pack.setStory(story);
 		pack.setTitle(title);
 		pack.setCreatorId(userId);

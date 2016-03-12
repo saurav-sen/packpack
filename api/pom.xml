@@ -16,6 +16,11 @@
         	<artifactId>model</artifactId>
          	<version>${packpack.release}</version>          	
         </dependency>
+        <dependency>
+			<groupId>com.pack.pack</groupId>
+			<artifactId>common</artifactId>
+			<version>${packpack.release}</version>
+		</dependency>
 		<dependency>
         	<groupId>com.pack.pack</groupId>
         	<artifactId>services</artifactId>
