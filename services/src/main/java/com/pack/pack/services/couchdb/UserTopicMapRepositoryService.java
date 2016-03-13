@@ -1,9 +1,10 @@
 package com.pack.pack.services.couchdb;
 
-import static com.pack.pack.services.rabbitmq.Constants.NULL_PAGE_LINK;
-import static com.pack.pack.services.rabbitmq.Constants.STANDARD_PAGE_SIZE;
-import static com.pack.pack.services.rabbitmq.Constants.END_OF_PAGE;
+import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
+import static com.pack.pack.common.util.CommonConstants.STANDARD_PAGE_SIZE;
+import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -74,14 +75,6 @@ public class UserTopicMapRepositoryService extends CouchDbRepositorySupport<User
 		return new Pagination<Topic>(previousLink, nextLink, result);
 	}
 	
-	/*public static void main(String[] args) {
-		PageRequest pr = PageRequest.firstPage(20);
-		System.out.println(pr.asLink());
-		pr = pr.fromLink(pr.asLink());
-		System.out.println(pr.asLink());
-		pr.
-	}*/
-	
 	public UserTopicMap findUserTopicMapById(String userId, String topicId) {
 		ViewQuery query = createQuery("usrVsTopicMap").key(userId).key(topicId);
 		List<UserTopicMap> list = db.queryView(query, UserTopicMap.class);
@@ -89,5 +82,18 @@ public class UserTopicMapRepositoryService extends CouchDbRepositorySupport<User
 			return null;
 		}
 		return list.get(0);
+	}
+	
+	public List<String> getAllTopicIDsFollowedByUser(String userId) {
+		ViewQuery query = createQuery("allForUser").key(userId).key(userId);
+		List<UserTopicMap> list = db.queryView(query, UserTopicMap.class);
+		if(list == null || list.isEmpty()) {
+			return null;
+		}
+		List<String> IDs = new ArrayList<String>();
+		for(UserTopicMap l : list) {
+			IDs.add(l.getId());
+		}
+		return IDs;
 	}
 }

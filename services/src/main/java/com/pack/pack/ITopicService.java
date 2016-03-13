@@ -1,6 +1,6 @@
 package com.pack.pack;
 
-import com.pack.pack.model.web.JPacks;
+import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JTopic;
 import com.pack.pack.services.couchdb.Pagination;
 import com.pack.pack.services.exception.PackPackException;
@@ -15,11 +15,11 @@ public interface ITopicService {
 	/**
 	 * 
 	 * @param topicId
-	 * @param pageNo
+	 * @param pageLink
 	 * @return
 	 * @throws PackPackException
 	 */
-	public JPacks getAllPacks(String topicId, int pageNo)
+	public Pagination<JPack> getAllPacks(String topicId, String pageLink)
 			throws PackPackException;
 
 	/**

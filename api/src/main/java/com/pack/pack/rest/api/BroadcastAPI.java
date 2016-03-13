@@ -15,12 +15,12 @@ import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import com.pack.pack.IPackService;
+import com.pack.pack.common.util.CommonConstants;
 import com.pack.pack.model.PackAttachmentType;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.rabbitmq.objects.BroadcastCriteria;
 import com.pack.pack.services.registry.ServiceRegistry;
-import com.pack.pack.util.SystemPropertyUtil;
 
 /**
  * 
@@ -42,7 +42,7 @@ public class BroadcastAPI {
 			@FormDataParam("city") String city,
 			@FormDataParam("state") String state,
 			@FormDataParam("country") String country) throws PackPackException {
-		String defaultTopicId = SystemPropertyUtil.getDefaultSystemTopicId();
+		String defaultTopicId = CommonConstants.DEFAULT_TOPIC_ID;
 		IPackService service = ServiceRegistry.INSTANCE.findCompositeService(IPackService.class);
 		JPack pack = service.uploadPack(file, aboutFile.getFileName(), title, description,
 				story, defaultTopicId, null, null, PackAttachmentType.IMAGE, false);

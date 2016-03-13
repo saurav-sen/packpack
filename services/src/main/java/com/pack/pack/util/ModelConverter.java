@@ -2,6 +2,7 @@ package com.pack.pack.util;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -101,6 +102,19 @@ public class ModelConverter {
 			JPack jPack = convert(pack);
 			if (jPack != null) {
 				jPacks.getPacks().add(jPack);
+			}
+		}
+		return jPacks;
+	}
+	
+	public static List<JPack> convertAll(List<Pack> packs) {
+		if (packs == null)
+			return Collections.emptyList();
+		List<JPack> jPacks = new ArrayList<JPack>();
+		for (Pack pack : packs) {
+			JPack jPack = convert(pack);
+			if (jPack != null) {
+				jPacks.add(jPack);
 			}
 		}
 		return jPacks;

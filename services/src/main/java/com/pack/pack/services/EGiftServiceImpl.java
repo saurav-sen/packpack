@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.pack.pack.IeGiftService;
+import com.pack.pack.common.util.CommonConstants;
 import com.pack.pack.message.FwdPack;
 import com.pack.pack.model.EGift;
 import com.pack.pack.model.Pack;
@@ -106,7 +107,12 @@ public class EGiftServiceImpl implements IeGiftService {
 		EGiftRepositoryService eGiftService = ServiceRegistry.INSTANCE
 				.findService(EGiftRepositoryService.class);
 		EGift eGift = eGiftService.get(eGiftId);
-		Pack pack = createPack(eGift, fromUserId, title, message);
+		String brandId = eGift.getBrandId();
+		if(brandId == null) {
+			brandId = CommonConstants.DEFAULT_EGIFT_TOPIC_ID;
+		}
+		brandId = "brand:" + brandId;
+		Pack pack = createPack(eGift, fromUserId, title, message, brandId);
 
 		UserRepositoryService userService = ServiceRegistry.INSTANCE
 				.findService(UserRepositoryService.class);
@@ -155,9 +161,10 @@ public class EGiftServiceImpl implements IeGiftService {
 	}
 
 	private Pack createPack(EGift eGift, String creatorId, String title,
-			String message) {
+			String message, String topicId) {
 		Pack pack = new Pack();
 		pack.setCreatorId(creatorId);
+		pack.setTopicId(topicId);
 		pack.setCreationTime(new DateTime(DateTimeZone.getDefault()).getMillis());
 		pack.setTitle(title + "[" + eGift.getTitle() + "]");
 		pack.setStory(message);

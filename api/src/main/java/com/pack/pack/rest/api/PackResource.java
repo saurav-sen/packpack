@@ -13,11 +13,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
 import com.pack.pack.IPackService;
+import com.pack.pack.common.util.CommonConstants;
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.User;
 import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPack;
-import com.pack.pack.model.web.JPacks;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.StatusType;
 import com.pack.pack.model.web.dto.ForwardDTO;
@@ -25,6 +25,7 @@ import com.pack.pack.model.web.dto.LikeDTO;
 import com.pack.pack.model.web.dto.PackReceipent;
 import com.pack.pack.model.web.dto.PackReceipentType;
 import com.pack.pack.services.couchdb.PackRepositoryService;
+import com.pack.pack.services.couchdb.Pagination;
 import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.ext.email.GmailMessageService;
@@ -49,33 +50,23 @@ public class PackResource {
 	}
 
 	@GET
-	@Path("usr/{userId}/page/{pageNo}")
+	@Path("usr/{userId}/page/{pageLink}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public JPacks getAll(@PathParam("userId") String userId,
-			@PathParam("pageNo") int pageNo) throws PackPackException {
-		IPackService service = ServiceRegistry.INSTANCE
-				.findCompositeService(IPackService.class);
-		List<JPack> list = service.loadLatestPack(userId, pageNo);
-		JPacks jPacks = new JPacks();
-		if (list != null) {
-			jPacks.getPacks().addAll(list);
-		}
-		return jPacks;
+	public Pagination<JPack> getAll(@PathParam("userId") String userId,
+			@PathParam("pageLink") String pageLink) throws PackPackException {
+		return getAll(userId, CommonConstants.DEFAULT_TOPIC_ID, pageLink);
 	}
 
-	/*
-	 * @PUT
-	 * 
-	 * @Path("usr/{userId}")
-	 * 
-	 * @Produces(MediaType.APPLICATION_JSON)
-	 * 
-	 * @Consumes(MediaType.APPLICATION_JSON) public JPack
-	 * uploadPack(@PathParam("userId") String userId, JPack pack) throws
-	 * PackPackException { // IServiceComposite service = //
-	 * ServiceRegistry.INSTANCE.findCompositeService(); //
-	 * service.uploadPack(arg0, arg1, arg2); return null; }
-	 */
+	@GET
+	@Path("usr/{userId}/topic/{topicId}/page/{pageLink}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Pagination<JPack> getAll(@PathParam("userId") String userId,
+			@PathParam("topicId") String topicId,
+			@PathParam("pageLink") String pageLink) throws PackPackException {
+		IPackService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IPackService.class);
+		return service.loadLatestPack(userId, topicId, pageLink);
+	}
 
 	@POST
 	@Path("{id}")

@@ -12,7 +12,7 @@ import com.pack.pack.ITopicService;
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.Topic;
 import com.pack.pack.model.UserTopicMap;
-import com.pack.pack.model.web.JPacks;
+import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JTopic;
 import com.pack.pack.services.couchdb.Pagination;
 import com.pack.pack.services.couchdb.TopicRepositoryService;
@@ -33,13 +33,17 @@ public class TopicServiceImpl implements ITopicService {
 	private static Logger logger = LoggerFactory.getLogger(TopicServiceImpl.class);
 
 	@Override
-	public JPacks getAllPacks(String topicId, int pageNo)
+	public Pagination<JPack> getAllPacks(String topicId, String pageLink)
 			throws PackPackException {
-		logger.debug("Fetching all packs for topicId=" + topicId + " with pageNumber=" + pageNo);
+		logger.debug("Fetching all packs for topicId=" + topicId
+				+ " with pageLink=" + pageLink);
 		TopicRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(TopicRepositoryService.class);
-		List<Pack> packs = service.getAllPacks(topicId, pageNo);
-		return ModelConverter.convert(packs);
+		Pagination<Pack> pagination = service.getAllPacks(topicId, pageLink);
+		List<Pack> packs = pagination.getResult();
+		List<JPack> jPacks = ModelConverter.convertAll(packs);
+		return new Pagination<JPack>(pagination.getPreviousLink(),
+				pagination.getNextLink(), jPacks);
 	}
 
 	@Override

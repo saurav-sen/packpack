@@ -3,11 +3,8 @@ package com.pack.pack.model;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.TimeZone;
 
 import org.ektorp.support.CouchDbDocument;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 
 /**
  * 
@@ -42,6 +39,8 @@ public class Pack extends CouchDbDocument {
 	private List<Comment> recentComments;
 	
 	private List<PackAttachment> packAttachments;
+	
+	private String topicId;
 
 	public String getStory() {
 		return story;
@@ -138,5 +137,13 @@ public class Pack extends CouchDbDocument {
 
 	public void setPackAttachments(List<PackAttachment> packAttachments) {
 		this.packAttachments = packAttachments;
+	}
+
+	public String getTopicId() {
+		return topicId;
+	}
+
+	public void setTopicId(String topicId) {
+		this.topicId = topicId;
 	}
 }

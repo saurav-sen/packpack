@@ -1,7 +1,7 @@
 package com.pack.pack.services.couchdb;
 
-import static com.pack.pack.services.rabbitmq.Constants.NULL_PAGE_LINK;
-import static com.pack.pack.services.rabbitmq.Constants.STANDARD_PAGE_SIZE;
+import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
+import static com.pack.pack.common.util.CommonConstants.STANDARD_PAGE_SIZE;
 
 import java.util.List;
 

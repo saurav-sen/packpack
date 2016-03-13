@@ -1,8 +1,8 @@
 package com.pack.pack.services.couchdb;
 
-import static com.pack.pack.services.rabbitmq.Constants.NULL_PAGE_LINK;
-import static com.pack.pack.services.rabbitmq.Constants.STANDARD_PAGE_SIZE;
-import static com.pack.pack.services.rabbitmq.Constants.END_OF_PAGE;
+import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
+import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
+import static com.pack.pack.common.util.CommonConstants.STANDARD_PAGE_SIZE;
 
 import java.util.Collections;
 import java.util.List;
@@ -54,22 +54,18 @@ public class TopicRepositoryService extends CouchDbRepositorySupport<Topic> {
 		initStandardDesignDocument();
 	}
 
-	public List<Pack> getAllPacks(String topicId, int pageNo) {
+	public Pagination<Pack> getAllPacks(String topicId, String pageLink) {
 		logger.debug("getAllPacks()");
 		logger.debug("TopicID = " + topicId);
-		logger.debug("PageNo = " + pageNo);
-		Topic topic = getTopicById(topicId);
-		if (topic == null) {
+		logger.debug("PageNo = " + pageLink);
+		/*if (topic == null) {
 			return Collections.emptyList();
-		}
-		List<String> packIds = topic.getPackIds();
-		if (packIds == null || packIds.isEmpty()) {
+		}*/
+		//List<String> packIds = topic.getPackIds();
+		/*if (packIds == null || packIds.isEmpty()) {
 			return Collections.emptyList();
-		}
-		int start = pageNo * STANDARD_PAGE_SIZE;
-		int end = start + STANDARD_PAGE_SIZE - 1;
-		packIds = packIds.subList(start, end);
-		return packRepoService.getAllPacks(packIds);
+		}*/
+		return packRepoService.getAllPacks(topicId, pageLink);
 	}
 
 	public Topic getTopicById(String topicId) {

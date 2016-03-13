@@ -1,5 +1,9 @@
 package com.pack.pack.services.couchdb;
 
+import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
+import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
+import static com.pack.pack.common.util.CommonConstants.STANDARD_PAGE_SIZE;
+
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -28,9 +32,12 @@ import com.pack.pack.model.Pack;
  */
 @Component
 @Scope("singleton")
-@Views({
+/*@Views({
 	@View(name="getAll", map="function(doc) { if(doc.packImageId) { emit(doc.creationTime, doc); } }"),
-	@View(name="findPackById", map="function(doc) { if(doc._id && doc.creatorId) { emit(doc.id, doc); }}")
+	@View(name="findPackById", map="function(doc) { if(doc._id && doc.creatorId) { emit(doc._id, doc); }}")
+})*/
+@Views({
+	@View(name="topicVsPack", map="function(doc) { if(doc.topicId && doc.creationTime) { emit([doc.topicId, doc.creationTime], doc); } }")
 })
 public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
 	
@@ -52,7 +59,7 @@ public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
 		logger.debug("PackID = " + packId);
 		comment.setPackId(packId);
 		db.create(comment);
-		Pack pack = findBasedOnId(packId);
+		Pack pack = get(packId);
 		if(pack != null) {
 			List<Comment> comments = pack.getRecentComments();
 			if(comments.size() >= 5) {
@@ -74,7 +81,7 @@ public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
 		logger.debug("addLike");
 		logger.debug("UserID = " + userId);
 		logger.debug("PackID = " + packId);
-		Pack pack = findBasedOnId(packId);
+		Pack pack = get(packId);
 		if(pack != null) {
 			pack.setLikes(pack.getLikes() + 1);
 			db.update(pack);
@@ -82,31 +89,31 @@ public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
 		logger.debug("Successfully added like to pack");
 	}
 	
-	public List<Pack> getAllPacks() {
-		logger.debug("getAll()");
-		ViewQuery query = createQuery("getAll").descending(true).includeDocs(true);
-		return db.queryView(query, Pack.class);
+	public Pagination<Pack> getAllPacks(String topicId, String pageLink) {
+		ViewQuery query = createQuery("topicVsPack").startKey(topicId)
+				.endKey(topicId).descending(false);
+		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink)) ? PageRequest
+				.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
+		Page<Pack> page = db.queryForPage(query, pr, Pack.class);
+		if (page == null) {
+			return null;
+		}
+		List<Pack> result = page.getRows();
+		String nextLink = page.isHasNext() ? page.getNextLink() : END_OF_PAGE;
+		String previousLink = page.isHasPrevious() ? page.getPreviousLink()
+				: END_OF_PAGE;
+		return new Pagination<Pack>(previousLink, nextLink, result);
 	}
 	
-	public Page<Pack> getAllPacks(PageRequest page) {
+	/*public Page<Pack> getAllPacks(PageRequest page) {
 		logger.debug("getAll() with pagination");
 		ViewQuery query = createQuery("getAll").descending(true).includeDocs(true);
 		return db.queryForPage(query, page, Pack.class);
-	}
+	}*/
 	
-	public Pack findBasedOnId(String packId) {
-		logger.debug("findById(" + packId + ")");
-		ViewQuery query = createQuery("findPackById").key(packId);
-		List<Pack> list = db.queryView(query, Pack.class);
-		if(list == null || list.isEmpty()) {
-			return null;
-		}
-		return list.get(0);
-	}
-	
-	public List<Pack> getAllPacks(List<String> ids) {
+	/*public List<Pack> getAllPacks(List<String> ids) {
 		logger.debug("getAllPacks(...) for given set of IDs");
 		ViewQuery query = createQuery("findPackById").keys(ids);
 		return db.queryView(query, Pack.class);
-	}
+	}*/
 }

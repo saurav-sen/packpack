@@ -2,6 +2,7 @@ package com.pack.pack.services;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.pack.pack.IPackService;
+import com.pack.pack.common.util.CommonConstants;
 import com.pack.pack.message.FwdPack;
 import com.pack.pack.model.Comment;
 import com.pack.pack.model.Pack;
@@ -23,8 +25,10 @@ import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.dto.PackReceipent;
 import com.pack.pack.model.web.dto.PackReceipentType;
 import com.pack.pack.services.couchdb.PackRepositoryService;
+import com.pack.pack.services.couchdb.Pagination;
 import com.pack.pack.services.couchdb.TopicRepositoryService;
 import com.pack.pack.services.couchdb.UserRepositoryService;
+import com.pack.pack.services.couchdb.UserTopicMapRepositoryService;
 import com.pack.pack.services.email.EmailSender;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.rabbitmq.MessagePublisher;
@@ -35,6 +39,8 @@ import com.pack.pack.services.sms.SMSSender;
 import com.pack.pack.util.AttachmentUtil;
 import com.pack.pack.util.ModelConverter;
 import com.pack.pack.util.SystemPropertyUtil;
+
+import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
 
 /**
  * 
@@ -64,7 +70,7 @@ public class PackServiceImpl implements IPackService {
 			return;
 		PackRepositoryService repoService = ServiceRegistry.INSTANCE
 				.findService(PackRepositoryService.class);
-		Pack pack = repoService.findBasedOnId(packId);
+		Pack pack = repoService.get(packId);
 		FwdPack fwdPack = new FwdPack();
 		List<PackAttachment> packAttachments = pack.getPackAttachments();
 		for (PackAttachment packAttachment : packAttachments) {
@@ -109,12 +115,27 @@ public class PackServiceImpl implements IPackService {
 			}
 		}
 	}
-
+	
 	@Override
-	public List<JPack> loadLatestPack(String userId, int pageNo)
-			throws PackPackException {
-		// TODO Auto-generated method stub
-		return null;
+	public Pagination<JPack> loadLatestPack(String userId, String topicId,
+			String pageLink) throws PackPackException {
+		UserTopicMapRepositoryService mapRepositoryService = ServiceRegistry.INSTANCE
+				.findService(UserTopicMapRepositoryService.class);
+		List<String> IDs = mapRepositoryService
+				.getAllTopicIDsFollowedByUser(userId);
+		if ((!IDs.isEmpty() && IDs.contains(topicId))
+				|| CommonConstants.DEFAULT_TOPIC_ID.equals(topicId)
+				|| CommonConstants.DEFAULT_EGIFT_TOPIC_ID.equals(topicId)) {
+			PackRepositoryService packRepositoryService = ServiceRegistry.INSTANCE
+					.findService(PackRepositoryService.class);
+			Pagination<Pack> page = packRepositoryService.getAllPacks(topicId,
+					pageLink);
+			List<JPack> jPacks = ModelConverter.convertAll(page.getResult());
+			return new Pagination<JPack>(page.getPreviousLink(),
+					page.getNextLink(), jPacks);
+		}
+		return new Pagination<JPack>(END_OF_PAGE, END_OF_PAGE,
+				Collections.emptyList());
 	}
 
 	@Override
@@ -138,7 +159,7 @@ public class PackServiceImpl implements IPackService {
 			String description, String story, String topicId, String userId,
 			String mimeType, PackAttachmentType type, boolean publish)
 			throws PackPackException {
-		Pack pack = addNewPack(story, title, userId);
+		Pack pack = addNewPack(story, title, userId, topicId);
 		addPackAttachment(pack, topicId, type, fileName, file);
 		TopicRepositoryService service2 = ServiceRegistry.INSTANCE
 				.findService(TopicRepositoryService.class);
@@ -167,12 +188,13 @@ public class PackServiceImpl implements IPackService {
 		return jPack;
 	}
 
-	private Pack addNewPack(String story, String title, String userId) {
+	private Pack addNewPack(String story, String title, String userId, String topicId) {
 		Pack pack = new Pack();
 		pack.setCreationTime(new DateTime(DateTimeZone.getDefault()).getMillis());
 		pack.setStory(story);
 		pack.setTitle(title);
 		pack.setCreatorId(userId);
+		pack.setTopicId(topicId);
 		PackRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(PackRepositoryService.class);
 		service.add(pack);

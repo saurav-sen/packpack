@@ -7,6 +7,7 @@ import com.pack.pack.model.PackAttachmentType;
 import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.dto.PackReceipent;
+import com.pack.pack.services.couchdb.Pagination;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.rabbitmq.objects.BroadcastCriteria;
 
@@ -34,15 +35,16 @@ public interface IPackService {
 	 */
 	public void forwardPack(String packId, String fromUserId, PackReceipent... receipents)
 			throws PackPackException;
-
+	
 	/**
 	 * 
 	 * @param userId
-	 * @param pageNo
+	 * @param topicId
+	 * @param pageLink
 	 * @return
 	 * @throws PackPackException
 	 */
-	public List<JPack> loadLatestPack(String userId, int pageNo)
+	public Pagination<JPack> loadLatestPack(String userId, String topicId, String pageLink)
 			throws PackPackException;
 
 	/**

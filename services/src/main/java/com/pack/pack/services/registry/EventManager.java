@@ -48,12 +48,14 @@ public class EventManager {
 		if(listener == null) {
 			return;
 		}
-		while(lock.tryLock(1000, TimeUnit.MILLISECONDS)) {
-			try {
-				listeners.add(listener);
-			} finally {
-				lock.unlock();
-			}
+		boolean bool = false;
+		while(!bool) {
+			bool = lock.tryLock(1000, TimeUnit.MILLISECONDS);
+		}
+		try {
+			listeners.add(listener);
+		} finally {
+			lock.unlock();
 		}
 	}
 }
