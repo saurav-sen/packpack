@@ -15,8 +15,6 @@ import com.pack.pack.client.api.COMMAND;
 public class SignUpUserTest {
 
 	private static final String NAME = "Saurav Sen";
-	private static final String EMAIL = "sourabhnits@gmail.com";
-	private static final String PASSWORD = "P@ckp@K#123";
 	private static final String LOCALITY = "Sanath Nagar";
 	private static final String CITY = "Hyderabad";
 	private static final String STATE = "Telangana";
@@ -30,8 +28,8 @@ public class SignUpUserTest {
 					.create()
 					.setAction(COMMAND.SIGN_UP)
 					.addApiParam(APIConstants.User.Register.NAME, NAME)
-					.addApiParam(APIConstants.User.Register.EMAIL, EMAIL)
-					.addApiParam(APIConstants.User.Register.PASSWORD, PASSWORD)
+					.addApiParam(APIConstants.User.Register.EMAIL, SignInUtil.USERNAME)
+					.addApiParam(APIConstants.User.Register.PASSWORD, SignInUtil.PASSWORD)
 					.addApiParam(APIConstants.User.Register.LOCALITY, LOCALITY)
 					.addApiParam(APIConstants.User.Register.CITY, CITY)
 					.addApiParam(APIConstants.User.Register.STATE, STATE)
