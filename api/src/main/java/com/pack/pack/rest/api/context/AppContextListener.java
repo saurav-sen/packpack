@@ -1,5 +1,7 @@
 package com.pack.pack.rest.api.context;
 
+import java.util.UUID;
+
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -17,6 +19,10 @@ import com.pack.pack.util.SystemPropertyUtil;
  *
  */
 public class AppContextListener implements ServletContextListener, IEventListener {
+	
+	public static void main(String[] args) {
+		System.out.println(UUID.randomUUID());
+	}
 	
 	//private static Logger logger = LoggerFactory.getLogger(AppContextListener.class);
 

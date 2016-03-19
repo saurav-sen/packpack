@@ -63,6 +63,7 @@
 		<imgscalr.version>4.2</imgscalr.version>
 		<jcodec-javase.version>0.1.9</jcodec-javase.version>
 		<hazelcast.version>3.2</hazelcast.version>
+		<apache.httpclient>4.5.2</apache.httpclient>
 	</properties>
 
 	<modules>
@@ -70,7 +71,8 @@
 		<module>common</module>
 		<module>services</module>
 		<module>oauth</module>
-		<module>api</module>		
+		<module>api</module>
+		<module>api-client-java</module>
 	</modules>
 	<profiles>
 		<!--profile>
