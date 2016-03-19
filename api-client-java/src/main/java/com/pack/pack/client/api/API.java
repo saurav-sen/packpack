@@ -1,15 +1,11 @@
 package com.pack.pack.client.api;
 
-import java.util.Map;
-
+/**
+ * 
+ * @author Saurav
+ *
+ */
 public interface API {
 	
-	public static interface Login {
-		public static final String CLIENT_KEY = "clientKey";
-		public static final String CLIENT_SECRET = "clientSecret";
-		public static final String USERNAME = "username";
-		public static final String PASSWORD = "password";
-	}
-
-	public <T> T execute(Class<T> clazz, COMMAND action, Map<String, Object> params) throws Exception;
+	public Object execute() throws Exception;
 }

@@ -16,6 +16,11 @@
 			<version>${apache.httpclient}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpmime</artifactId>
+			<version>${apache.httpclient}</version>
+		</dependency>			
+		<dependency>
 			<groupId>com.pack.pack</groupId>
 			<artifactId>common</artifactId>
 			<version>1.0-DEV</version>
