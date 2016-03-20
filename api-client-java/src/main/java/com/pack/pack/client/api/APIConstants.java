@@ -43,5 +43,9 @@ public interface APIConstants {
 	
 	public static interface Topic {
 		public static final String TOPIC_ID = "topicId";
+		public static final String OWNER_ID = "ownerId";
+		public static final String OWNER_NAME = "ownerName";
+		public static final String NAME = "name";
+		public static final String DESCRIPTION = "description";
 	}
 }

@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -67,6 +68,50 @@ public class TopicApi extends AbstractAPI {
 				JStatus.class);
 	}
 
+	private JStatus neglectTopic(String userId, String topicId,
+			String oAuthToken) throws Exception {
+		String url = BASE_URL + "activity/topic/" + topicId + "/user/" + userId;
+		CloseableHttpClient client = HttpClientBuilder.create().build();
+		HttpDelete DELETE = new HttpDelete(url);
+		DELETE.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		CloseableHttpResponse response = client.execute(DELETE);
+		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
+				JStatus.class);
+	}
+
+	private JTopic getTopicById(String topicId, String oAuthToken)
+			throws Exception {
+		String url = BASE_URL + "topic/" + topicId;
+		CloseableHttpClient client = HttpClientBuilder.create().build();
+		HttpGet GET = new HttpGet(url);
+		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		CloseableHttpResponse response = client.execute(GET);
+		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
+				JTopic.class);
+	}
+
+	private JTopic createTopic(String ownerId, String ownerName, String name,
+			String description, String oAuthToken) throws Exception {
+		int followers = 0;
+		JTopic topic = new JTopic();
+		topic.setDescription(description);
+		topic.setName(name);
+		topic.setFollowers(followers);
+		topic.setOwnerName(ownerName);
+		topic.setOwnerId(ownerId);
+		String json = JSONUtil.serialize(topic);
+		String url = BASE_URL + "topic/";
+		CloseableHttpClient client = HttpClientBuilder.create().build();
+		HttpPost POST = new HttpPost(url);
+		POST.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		POST.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
+		HttpEntity jsonBody = new StringEntity(json);
+		POST.setEntity(jsonBody);
+		CloseableHttpResponse response = client.execute(POST);
+		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
+				JTopic.class);
+	}
+
 	private class Invoker implements ApiInvoker {
 
 		private COMMAND action;
@@ -88,15 +133,35 @@ public class TopicApi extends AbstractAPI {
 			if (action == COMMAND.GET_USER_FOLLOWED_TOPIC_LIST) {
 				String pageLink = (String) params
 						.get(APIConstants.PageInfo.PAGE_LINK);
-				if (pageLink == null) {
+				if (pageLink == null || pageLink.trim().equals("")) {
 					pageLink = "FIRST_PAGE";
 				}
 				String userId = (String) params.get(APIConstants.User.USER_ID);
 				result = getUserTopicList(pageLink, oAuthToken, userId);
-			} else if(action == COMMAND.FOLLOW_TOPIC) {
-				String userId = (String)params.get(APIConstants.User.USER_ID);
-				String topicId = (String)params.get(APIConstants.Topic.TOPIC_ID);
+			} else if (action == COMMAND.FOLLOW_TOPIC) {
+				String userId = (String) params.get(APIConstants.User.USER_ID);
+				String topicId = (String) params
+						.get(APIConstants.Topic.TOPIC_ID);
 				result = followTopic(userId, topicId, oAuthToken);
+			} else if (action == COMMAND.NEGLECT_TOPIC) {
+				String topicId = (String) params
+						.get(APIConstants.Topic.TOPIC_ID);
+				String userId = (String) params.get(APIConstants.User.USER_ID);
+				result = neglectTopic(userId, topicId, oAuthToken);
+			} else if (action == COMMAND.GET_TOPIC_BY_ID) {
+				String topicId = (String) params
+						.get(APIConstants.Topic.TOPIC_ID);
+				result = getTopicById(topicId, oAuthToken);
+			} else if (action == COMMAND.CREATE_NEW_TOPIC) {
+				String ownerId = (String) params
+						.get(APIConstants.Topic.OWNER_ID);
+				String ownerName = (String) params
+						.get(APIConstants.Topic.OWNER_NAME);
+				String name = (String) params.get(APIConstants.Topic.NAME);
+				String description = (String) params
+						.get(APIConstants.Topic.DESCRIPTION);
+				result = createTopic(ownerId, ownerName, name, description,
+						oAuthToken);
 			}
 			return result;
 		}
