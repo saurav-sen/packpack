@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import com.pack.pack.model.Comment;
 import com.pack.pack.model.Pack;
+import com.pack.pack.model.web.Pagination;
 
 /**
  * 

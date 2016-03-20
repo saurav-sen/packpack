@@ -1,4 +1,4 @@
-package com.pack.pack.services.couchdb;
+package com.pack.pack.model.web;
 
 import java.util.List;
 

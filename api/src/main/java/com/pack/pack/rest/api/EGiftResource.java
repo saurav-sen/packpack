@@ -14,10 +14,10 @@ import javax.ws.rs.ext.Provider;
 import com.pack.pack.IeGiftService;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JeGift;
+import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.StatusType;
 import com.pack.pack.model.web.dto.EGiftForwardDTO;
 import com.pack.pack.model.web.dto.PackReceipent;
-import com.pack.pack.services.couchdb.Pagination;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 

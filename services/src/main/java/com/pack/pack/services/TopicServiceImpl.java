@@ -14,7 +14,7 @@ import com.pack.pack.model.Topic;
 import com.pack.pack.model.UserTopicMap;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JTopic;
-import com.pack.pack.services.couchdb.Pagination;
+import com.pack.pack.model.web.Pagination;
 import com.pack.pack.services.couchdb.TopicRepositoryService;
 import com.pack.pack.services.couchdb.UserTopicMapRepositoryService;
 import com.pack.pack.services.exception.PackPackException;

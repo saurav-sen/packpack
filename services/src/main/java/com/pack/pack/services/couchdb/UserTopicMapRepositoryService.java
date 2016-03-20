@@ -1,8 +1,8 @@
 package com.pack.pack.services.couchdb;
 
+import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
 import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
 import static com.pack.pack.common.util.CommonConstants.STANDARD_PAGE_SIZE;
-import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 
 import com.pack.pack.model.Topic;
 import com.pack.pack.model.UserTopicMap;
+import com.pack.pack.model.web.Pagination;
 
 /**
  * 

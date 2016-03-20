@@ -1,5 +1,7 @@
 package com.pack.pack.services;
 
+import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
+
 import java.io.File;
 import java.io.InputStream;
 import java.util.Collections;
@@ -22,10 +24,10 @@ import com.pack.pack.model.User;
 import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPackAttachment;
+import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.dto.PackReceipent;
 import com.pack.pack.model.web.dto.PackReceipentType;
 import com.pack.pack.services.couchdb.PackRepositoryService;
-import com.pack.pack.services.couchdb.Pagination;
 import com.pack.pack.services.couchdb.TopicRepositoryService;
 import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.couchdb.UserTopicMapRepositoryService;
@@ -39,8 +41,6 @@ import com.pack.pack.services.sms.SMSSender;
 import com.pack.pack.util.AttachmentUtil;
 import com.pack.pack.util.ModelConverter;
 import com.pack.pack.util.SystemPropertyUtil;
-
-import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
 
 /**
  * 

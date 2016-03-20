@@ -3,8 +3,8 @@ package com.pack.pack;
 import java.io.InputStream;
 
 import com.pack.pack.model.web.JeGift;
+import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.dto.PackReceipent;
-import com.pack.pack.services.couchdb.Pagination;
 import com.pack.pack.services.exception.PackPackException;
 
 /**

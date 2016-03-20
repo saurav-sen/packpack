@@ -2,7 +2,7 @@ package com.pack.pack;
 
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JTopic;
-import com.pack.pack.services.couchdb.Pagination;
+import com.pack.pack.model.web.Pagination;
 import com.pack.pack.services.exception.PackPackException;
 
 /**

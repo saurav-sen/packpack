@@ -1,13 +1,12 @@
 package com.pack.pack;
 
 import java.io.InputStream;
-import java.util.List;
 
 import com.pack.pack.model.PackAttachmentType;
 import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPack;
+import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.dto.PackReceipent;
-import com.pack.pack.services.couchdb.Pagination;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.rabbitmq.objects.BroadcastCriteria;
 

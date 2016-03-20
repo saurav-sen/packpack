@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.pack.pack.model.EGift;
+import com.pack.pack.model.web.Pagination;
 
 /**
  * 

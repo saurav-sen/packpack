@@ -11,7 +11,7 @@ import javax.ws.rs.ext.Provider;
 
 import com.pack.pack.ITopicService;
 import com.pack.pack.model.web.JTopic;
-import com.pack.pack.services.couchdb.Pagination;
+import com.pack.pack.model.web.Pagination;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 
