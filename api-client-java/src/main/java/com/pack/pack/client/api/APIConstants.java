@@ -20,7 +20,7 @@ public interface APIConstants {
 	}
 	
 	public static interface User {
-		public static final String USER_ID = "userId";
+		public static final String ID = "userId";
 		public static final String USERNAME = "username";
 		public static final String SEARCH_USER_BY_NAME = "namePattern";
 		
@@ -42,10 +42,27 @@ public interface APIConstants {
 	}
 	
 	public static interface Topic {
-		public static final String TOPIC_ID = "topicId";
+		public static final String ID = "topicId";
 		public static final String OWNER_ID = "ownerId";
 		public static final String OWNER_NAME = "ownerName";
 		public static final String NAME = "name";
 		public static final String DESCRIPTION = "description";
+		public static final String CATEGORY = "category";
+	}
+
+	public static interface Pack {
+		public static final String ID = "packId";
+	}
+	
+	public static interface ForwardPack {
+		public static final String FROM_USER_ID = "fromUserId";
+		public static final String TO_USER_ID = "toUserId";
+		public static final String TO_USER_EMAIL = "toUserEmail";
+	}
+	
+	public static interface Comment {
+		public static final String FROM_USER_ID = "fromUserId";
+		public static final String FROM_USER_NAME = "fromUserName";
+		public static final String COMMENT = "comment";
 	}
 }

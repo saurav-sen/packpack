@@ -26,6 +26,8 @@ public class Topic extends CouchDbDocument {
 	private long followers;
 	
 	private List<String> packIds;
+	
+	private String category;
 
 	public String getOwnerId() {
 		return ownerId;
@@ -68,5 +70,13 @@ public class Topic extends CouchDbDocument {
 
 	public void setPackIds(List<String> packIds) {
 		this.packIds = packIds;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
 	}
 }

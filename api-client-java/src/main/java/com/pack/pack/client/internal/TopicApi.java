@@ -91,7 +91,7 @@ public class TopicApi extends AbstractAPI {
 	}
 
 	private JTopic createTopic(String ownerId, String ownerName, String name,
-			String description, String oAuthToken) throws Exception {
+			String description, String category, String oAuthToken) throws Exception {
 		int followers = 0;
 		JTopic topic = new JTopic();
 		topic.setDescription(description);
@@ -99,6 +99,7 @@ public class TopicApi extends AbstractAPI {
 		topic.setFollowers(followers);
 		topic.setOwnerName(ownerName);
 		topic.setOwnerId(ownerId);
+		topic.setCategory(category);
 		String json = JSONUtil.serialize(topic);
 		String url = BASE_URL + "topic/";
 		CloseableHttpClient client = HttpClientBuilder.create().build();
@@ -136,21 +137,21 @@ public class TopicApi extends AbstractAPI {
 				if (pageLink == null || pageLink.trim().equals("")) {
 					pageLink = "FIRST_PAGE";
 				}
-				String userId = (String) params.get(APIConstants.User.USER_ID);
+				String userId = (String) params.get(APIConstants.User.ID);
 				result = getUserTopicList(pageLink, oAuthToken, userId);
 			} else if (action == COMMAND.FOLLOW_TOPIC) {
-				String userId = (String) params.get(APIConstants.User.USER_ID);
+				String userId = (String) params.get(APIConstants.User.ID);
 				String topicId = (String) params
-						.get(APIConstants.Topic.TOPIC_ID);
+						.get(APIConstants.Topic.ID);
 				result = followTopic(userId, topicId, oAuthToken);
 			} else if (action == COMMAND.NEGLECT_TOPIC) {
 				String topicId = (String) params
-						.get(APIConstants.Topic.TOPIC_ID);
-				String userId = (String) params.get(APIConstants.User.USER_ID);
+						.get(APIConstants.Topic.ID);
+				String userId = (String) params.get(APIConstants.User.ID);
 				result = neglectTopic(userId, topicId, oAuthToken);
 			} else if (action == COMMAND.GET_TOPIC_BY_ID) {
 				String topicId = (String) params
-						.get(APIConstants.Topic.TOPIC_ID);
+						.get(APIConstants.Topic.ID);
 				result = getTopicById(topicId, oAuthToken);
 			} else if (action == COMMAND.CREATE_NEW_TOPIC) {
 				String ownerId = (String) params
@@ -160,8 +161,10 @@ public class TopicApi extends AbstractAPI {
 				String name = (String) params.get(APIConstants.Topic.NAME);
 				String description = (String) params
 						.get(APIConstants.Topic.DESCRIPTION);
+				String category = (String) params
+						.get(APIConstants.Topic.CATEGORY);
 				result = createTopic(ownerId, ownerName, name, description,
-						oAuthToken);
+						category, oAuthToken);
 			}
 			return result;
 		}

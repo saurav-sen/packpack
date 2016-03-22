@@ -199,6 +199,7 @@ public class ModelConverter {
 		topic.setDescription(jTopic.getDescription());
 		topic.setName(jTopic.getName());
 		topic.setOwnerId(jTopic.getOwnerId());
+		topic.setCategory(jTopic.getCategory());
 		return topic;
 	}
 

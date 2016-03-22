@@ -32,7 +32,7 @@ public class UserInfoTest {
 			
 			api = APIBuilder.create().setAction(COMMAND.GET_USER_BY_ID)
 					.setOauthToken(oAuthToken)
-					.addApiParam(APIConstants.User.USER_ID, id).build();
+					.addApiParam(APIConstants.User.ID, id).build();
 			user = (JUser) api.execute();
 		} catch (Exception e) {
 			e.printStackTrace();

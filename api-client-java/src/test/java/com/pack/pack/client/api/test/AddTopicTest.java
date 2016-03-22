@@ -1,5 +1,7 @@
 package com.pack.pack.client.api.test;
 
+import java.util.UUID;
+
 import com.pack.pack.client.api.API;
 import com.pack.pack.client.api.APIBuilder;
 import com.pack.pack.client.api.APIConstants;
@@ -27,12 +29,13 @@ public class AddTopicTest extends UserFollowedTopicListTest {
 					.addApiParam(APIConstants.Topic.OWNER_NAME, "Saurav Sen")
 					.addApiParam(APIConstants.Topic.NAME, "Freedom of life")
 					.addApiParam(APIConstants.Topic.DESCRIPTION,
-							"Freedom of mind, thought & work.").build();
+							"Freedom of mind, thought & work.")
+					.addApiParam(APIConstants.Topic.CATEGORY, "Study").build();
 			JTopic topic = (JTopic) api.execute();
 
 			api = APIBuilder.create().setAction(COMMAND.GET_TOPIC_BY_ID)
 					.setOauthToken(oAuthToken)
-					.addApiParam(APIConstants.Topic.TOPIC_ID, topic.getId())
+					.addApiParam(APIConstants.Topic.ID, topic.getId())
 					.build();
 			topic = (JTopic) api.execute();
 		} catch (Exception e) {

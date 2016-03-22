@@ -123,7 +123,7 @@ public class UserManagementApi extends AbstractAPI {
 
 	private JUser getUserById(Map<String, Object> params, String accessToken)
 			throws ClientProtocolException, IOException, PackPackException {
-		String id = (String) params.get(APIConstants.User.USER_ID);
+		String id = (String) params.get(APIConstants.User.ID);
 		String url = BASE_URL + "user/id/" + id;
 		HttpClient client = HttpClientBuilder.create().build();
 		HttpGet GET = new HttpGet(url);

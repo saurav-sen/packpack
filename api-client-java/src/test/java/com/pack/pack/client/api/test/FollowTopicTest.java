@@ -25,8 +25,8 @@ public class FollowTopicTest extends UserFollowedTopicListTest {
 			JTopic topic = page.getResult().get(0);
 			API api = APIBuilder.create().setAction(COMMAND.FOLLOW_TOPIC)
 					.setOauthToken(oAuthToken)
-					.addApiParam(APIConstants.User.USER_ID, userId)
-					.addApiParam(APIConstants.Topic.TOPIC_ID, topic.getId())
+					.addApiParam(APIConstants.User.ID, userId)
+					.addApiParam(APIConstants.Topic.ID, topic.getId())
 					.build();
 			api.execute();
 		} catch (Exception e) {

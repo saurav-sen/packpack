@@ -20,6 +20,8 @@ public class JTopic {
 	
 	private String id;
 	
+	private String category;
+	
 	public String getOwnerId() {
 		return ownerId;
 	}
@@ -66,5 +68,13 @@ public class JTopic {
 
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
 	}
 }
