@@ -22,7 +22,7 @@ public interface APIConstants {
 	public static interface User {
 		public static final String ID = "userId";
 		public static final String USERNAME = "username";
-		public static final String SEARCH_USER_BY_NAME = "namePattern";
+		public static final String NAME_SEARCH_PATTERN = "namePattern";
 		
 		public static interface Register {
 			public static final String NAME = "name";
@@ -73,6 +73,7 @@ public interface APIConstants {
 	
 	public static interface Brand {
 		public static final String ID = "brandId";
+		public static final String COMPANY_NAME = "compnayName";
 	}
 	
 	public static interface ForwardEGift {

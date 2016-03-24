@@ -79,7 +79,7 @@ public class UserManagementApi extends AbstractAPI {
 				result = getUserByUsername(params, oAuthToken);
 			} else if (action == COMMAND.SEARCH_USER_BY_NAME) {
 				result = searchUserByName(
-						(String) params.get(APIConstants.User.SEARCH_USER_BY_NAME),
+						(String) params.get(APIConstants.User.NAME_SEARCH_PATTERN),
 						oAuthToken);
 			} else {
 				throw new UnsupportedOperationException(action.name()

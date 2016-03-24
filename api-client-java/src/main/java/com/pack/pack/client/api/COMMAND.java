@@ -11,7 +11,7 @@ public enum COMMAND {
 			APIConstants.Login.USERNAME, APIConstants.Login.PASSWORD), SIGN_UP(), SIGN_OUT(), GET_USER_BY_ID(
 			APIConstants.User.ID), GET_USER_BY_USERNAME(
 			APIConstants.User.USERNAME), SEARCH_USER_BY_NAME(
-			APIConstants.User.SEARCH_USER_BY_NAME), GET_USER_FOLLOWED_TOPIC_LIST(
+			APIConstants.User.NAME_SEARCH_PATTERN), GET_USER_FOLLOWED_TOPIC_LIST(
 			APIConstants.PageInfo.PAGE_LINK, APIConstants.User.ID), FOLLOW_TOPIC(
 			APIConstants.User.ID, APIConstants.Topic.ID), NEGLECT_TOPIC(
 			APIConstants.Topic.ID, APIConstants.User.ID), GET_TOPIC_BY_ID(
@@ -34,7 +34,8 @@ public enum COMMAND {
 			APIConstants.EGift.CATEGORY, APIConstants.PageInfo.PAGE_LINK), FORWARD_EGIFT(
 			APIConstants.ForwardEGift.FROM_USER_ID,
 			APIConstants.ForwardEGift.TO_USER_ID,
-			APIConstants.ForwardEGift.TITLE, APIConstants.ForwardEGift.MESSAGE);
+			APIConstants.ForwardEGift.TITLE, APIConstants.ForwardEGift.MESSAGE), SEARCH_BRANDS_INFO(
+			APIConstants.Brand.COMPANY_NAME);
 
 	private String[] paramNames;
 
