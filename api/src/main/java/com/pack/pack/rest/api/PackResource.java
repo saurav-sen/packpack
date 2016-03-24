@@ -68,7 +68,7 @@ public class PackResource {
 		return service.loadLatestPack(userId, topicId, pageLink);
 	}
 
-	@POST
+	@PUT
 	@Path("{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -86,7 +86,7 @@ public class PackResource {
 		return status;
 	}
 
-	@POST
+	@PUT
 	@Path("{id}/email/{from}/{to}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public JStatus forwardPackOverEmail(@PathParam("id") String packId,

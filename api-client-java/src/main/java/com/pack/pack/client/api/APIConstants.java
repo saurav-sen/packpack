@@ -65,4 +65,22 @@ public interface APIConstants {
 		public static final String FROM_USER_NAME = "fromUserName";
 		public static final String COMMENT = "comment";
 	}
+	
+	public static interface EGift {
+		public static final String ID = "eGiftId";
+		public static final String CATEGORY = "category";
+	}
+	
+	public static interface Brand {
+		public static final String ID = "brandId";
+	}
+	
+	public static interface ForwardEGift {
+		public static final String FROM_USER_ID = "fromUserId";
+		public static final String TO_USER_ID = "toUserId";
+		public static final String TO_USER_EMAIL = "toUserEmail";
+		
+		public static final String TITLE = "title";
+		public static final String MESSAGE = "message";
+	}
 }

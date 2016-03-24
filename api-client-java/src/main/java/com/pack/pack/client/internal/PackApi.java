@@ -1,8 +1,8 @@
 package com.pack.pack.client.internal;
 
+import static com.pack.pack.client.api.APIConstants.APPLICATION_JSON;
 import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
 import static com.pack.pack.client.api.APIConstants.BASE_URL;
-import static com.pack.pack.client.api.APIConstants.APPLICATION_JSON;
 import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
 
 import java.util.Map;
@@ -10,7 +10,6 @@ import java.util.Map;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -24,7 +23,10 @@ import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.Pagination;
+import com.pack.pack.model.web.dto.ForwardDTO;
 import com.pack.pack.model.web.dto.LikeDTO;
+import com.pack.pack.model.web.dto.PackReceipent;
+import com.pack.pack.model.web.dto.PackReceipentType;
 
 /**
  * 
@@ -78,9 +80,19 @@ public class PackApi extends AbstractAPI {
 			String toUserId, String oAuthToken) throws Exception {
 		CloseableHttpClient client = HttpClientBuilder.create().build();
 		String url = BASE_URL + "pack/" + packId;
-		HttpPost POST = new HttpPost(url);
-		POST.addHeader(AUTHORIZATION_HEADER, oAuthToken);
-		CloseableHttpResponse response = client.execute(POST);
+		HttpPut PUT = new HttpPut(url);
+		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
+		ForwardDTO dto = new ForwardDTO();
+		dto.setFromUserId(fromUserId);
+		PackReceipent receipent = new PackReceipent();
+		receipent.setToUserId(toUserId);
+		receipent.setType(PackReceipentType.USER);
+		dto.getReceipents().add(receipent);
+		String json = JSONUtil.serialize(dto);
+		HttpEntity jsonBody = new StringEntity(json);
+		PUT.setEntity(jsonBody);
+		CloseableHttpResponse response = client.execute(PUT);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JStatus.class);
 	}
@@ -90,9 +102,9 @@ public class PackApi extends AbstractAPI {
 		CloseableHttpClient client = HttpClientBuilder.create().build();
 		String url = BASE_URL + "pack/" + packId + "/email/" + fromUserId + "/"
 				+ toUserEmail;
-		HttpPost POST = new HttpPost(url);
-		POST.addHeader(AUTHORIZATION_HEADER, oAuthToken);
-		CloseableHttpResponse response = client.execute(POST);
+		HttpPut PUT = new HttpPut(url);
+		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		CloseableHttpResponse response = client.execute(PUT);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JStatus.class);
 	}

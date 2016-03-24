@@ -28,7 +28,13 @@ public enum COMMAND {
 			APIConstants.ForwardPack.TO_USER_EMAIL), ADD_COMMENT(
 			APIConstants.Pack.ID, APIConstants.Comment.FROM_USER_ID,
 			APIConstants.Comment.FROM_USER_NAME, APIConstants.Comment.COMMENT), ADD_LIKE_TO_PACK(
-			APIConstants.User.ID, APIConstants.Pack.ID);
+			APIConstants.User.ID, APIConstants.Pack.ID), GET_EGIFT_BY_ID(
+			APIConstants.EGift.ID), GET_EGIFTS_BY_BRAND_ID(
+			APIConstants.Brand.ID, APIConstants.PageInfo.PAGE_LINK), GET_EGIFTS_BY_CATEGORY(
+			APIConstants.EGift.CATEGORY, APIConstants.PageInfo.PAGE_LINK), FORWARD_EGIFT(
+			APIConstants.ForwardEGift.FROM_USER_ID,
+			APIConstants.ForwardEGift.TO_USER_ID,
+			APIConstants.ForwardEGift.TITLE, APIConstants.ForwardEGift.MESSAGE);
 
 	private String[] paramNames;
 
