@@ -84,4 +84,12 @@ public interface APIConstants {
 		public static final String TITLE = "title";
 		public static final String MESSAGE = "message";
 	}
+	
+	public static interface Attachment {
+		public static final String FILE_NAME = "fileName";
+		public static final String FILE_ATTACHMENT = "file";
+		public static final String TITLE = "title";
+		public static final String DESCRIPTION = "description";
+		public static final String STORY = "story";
+	}
 }

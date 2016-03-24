@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.pack.pack.client.internal.APIWrapper;
+import com.pack.pack.client.internal.AttachmentsApi;
 import com.pack.pack.client.internal.BrandsApi;
 import com.pack.pack.client.internal.Configuration;
 import com.pack.pack.client.internal.EGiftApi;
@@ -80,6 +81,17 @@ public class APIBuilder {
 			api.getInvoker().setConfiguration(config);
 		} else if (action == COMMAND.SEARCH_BRANDS_INFO) {
 			api = new APIWrapper(new BrandsApi());
+			api.getInvoker().setConfiguration(config);
+		} else if(action == COMMAND.GET_PROFILE_PICTURE
+				|| action == COMMAND.GET_THUMBNAIL_IMAGE_ATTACHMENT
+				|| action == COMMAND.GET_ORIGINAL_IMAGE_ATTACHMENT
+				|| action == COMMAND.GET_THUMBNAIL_VIDEO_ATTACHMENT
+				|| action == COMMAND.GET_ORIGINAL_VIDEO_ATTACHMENT
+				|| action == COMMAND.UPLOAD_IMAGE_PACK
+				|| action == COMMAND.ADD_IMAGE_TO_PACK
+				|| action == COMMAND.UPLOAD_VIDEO_PACK
+				|| action == COMMAND.ADD_VIDEO_TO_PACK) {
+			api = new APIWrapper(new AttachmentsApi());
 			api.getInvoker().setConfiguration(config);
 		}
 		return api;

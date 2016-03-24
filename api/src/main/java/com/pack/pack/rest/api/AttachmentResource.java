@@ -12,6 +12,7 @@ import java.io.InputStream;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -160,7 +161,7 @@ public class AttachmentResource {
 		}
 	}
 
-	@PUT
+	@POST
 	@Path("image/topic/{topicId}/usr/{userId}")
 	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
 	@Produces(value = MediaType.APPLICATION_JSON)
@@ -195,7 +196,7 @@ public class AttachmentResource {
 				PackAttachmentType.IMAGE, packId, topicId, userId);
 	}
 
-	@PUT
+	@POST
 	@Path("video/topic/{topicId}/usr/{userId}")
 	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
 	@Produces(value = MediaType.APPLICATION_JSON)

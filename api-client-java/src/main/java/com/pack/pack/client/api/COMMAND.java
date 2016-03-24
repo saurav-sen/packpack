@@ -35,7 +35,28 @@ public enum COMMAND {
 			APIConstants.ForwardEGift.FROM_USER_ID,
 			APIConstants.ForwardEGift.TO_USER_ID,
 			APIConstants.ForwardEGift.TITLE, APIConstants.ForwardEGift.MESSAGE), SEARCH_BRANDS_INFO(
-			APIConstants.Brand.COMPANY_NAME);
+			APIConstants.Brand.COMPANY_NAME), GET_PROFILE_PICTURE(
+			APIConstants.User.ID, APIConstants.Attachment.FILE_NAME), GET_THUMBNAIL_IMAGE_ATTACHMENT(
+			APIConstants.Topic.ID, APIConstants.Pack.ID,
+			APIConstants.Attachment.FILE_NAME), GET_ORIGINAL_IMAGE_ATTACHMENT(
+			APIConstants.Topic.ID, APIConstants.Pack.ID,
+			APIConstants.Attachment.FILE_NAME), GET_THUMBNAIL_VIDEO_ATTACHMENT(
+			APIConstants.Topic.ID, APIConstants.Pack.ID,
+			APIConstants.Attachment.FILE_NAME), GET_ORIGINAL_VIDEO_ATTACHMENT(
+			APIConstants.Topic.ID, APIConstants.Pack.ID,
+			APIConstants.Attachment.FILE_NAME), UPLOAD_IMAGE_PACK(
+			APIConstants.Attachment.FILE_ATTACHMENT,
+			APIConstants.Attachment.TITLE, APIConstants.Attachment.DESCRIPTION,
+			APIConstants.Attachment.STORY, APIConstants.Topic.ID,
+			APIConstants.User.ID), ADD_IMAGE_TO_PACK(
+			APIConstants.Attachment.FILE_ATTACHMENT, APIConstants.Topic.ID,
+			APIConstants.Pack.ID, APIConstants.User.ID), UPLOAD_VIDEO_PACK(
+			APIConstants.Attachment.FILE_ATTACHMENT,
+			APIConstants.Attachment.TITLE, APIConstants.Attachment.DESCRIPTION,
+			APIConstants.Attachment.STORY, APIConstants.Topic.ID,
+			APIConstants.User.ID), ADD_VIDEO_TO_PACK(
+			APIConstants.Attachment.FILE_ATTACHMENT, APIConstants.Topic.ID,
+			APIConstants.Pack.ID, APIConstants.User.ID);
 
 	private String[] paramNames;
 
