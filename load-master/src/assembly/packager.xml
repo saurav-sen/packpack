@@ -15,20 +15,20 @@
 			<outputDirectory>bin</outputDirectory>
 			<includes>
 				<include>*.txt</include>
-				<include>*.xml</include>
+				<!--include>*.xml</include>
 				<include>*.docx</include>
-				<include>*.json</include>
+				<include>*.json</include-->
 			</includes>
 			<lineEnding>unix</lineEnding>
 			<fileMode>0755</fileMode>
 		</fileSet>
-		<fileSet>
+		<!--fileSet>
 			<directory>src/logs</directory>
 			<outputDirectory>logs</outputDirectory>
 			<includes>
 				<include>*.log</include>
 			</includes>
-		</fileSet>
+		</fileSet-->
 		<fileSet>
 			<directory>src/conf</directory>
 			<outputDirectory>conf</outputDirectory>
@@ -36,18 +36,18 @@
 				<include>*.properties</include>
 			</includes>
 		</fileSet>
-		<fileSet>
+		<!--fileSet>
 			<directory>src/stagging</directory>
 			<outputDirectory>stagging</outputDirectory>
 			<includes>
 				<include>*</include>
 			</includes>
-		</fileSet>
+		</fileSet-->
 		<fileSet>
 			<directory>target</directory>
 			<outputDirectory>bin</outputDirectory>
 			<includes>
-				<include>setup*.jar</include>				
+				<include>load-master-1.0-DEV.jar</include>				
 			</includes>
 		</fileSet>
 	</fileSets>

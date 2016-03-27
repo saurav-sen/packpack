@@ -14,7 +14,7 @@ public class Setup {
 
 	public static void main(String[] args) throws Exception {
 		Properties p = new Properties();
-		p.load(new FileReader(new File("elasticsearch.properties")));
+		p.load(new FileReader(new File(/*"D:/Saurav/packpack/load-master/src/conf/elasticsearch.properties")));*/"../conf/elasticsearch.properties")));
 		Iterator<Object> itr = p.keySet().iterator();
 		while(itr.hasNext()) {
 			String key = (String) itr.next();
