@@ -73,6 +73,7 @@
 		<module>oauth</module>
 		<module>api</module>
 		<module>api-client-java</module>
+		<module>load-master</module>
 	</modules>
 	<profiles>
 		<!--profile>

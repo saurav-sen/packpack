@@ -55,12 +55,16 @@ public class JSONUtil {
 		int compareTo = t.compareTo(t1);
 		System.out.println(compareTo);*/
 	}
-
+	
 	public static String serialize(Object object) throws PackPackException {
+		return serialize(object, true);
+	}
+
+	public static String serialize(Object object, boolean wrapRoot) throws PackPackException {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
 		mapper.configure(DeserializationFeature.EAGER_DESERIALIZER_FETCH, true);
-		mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, true);
+		mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, wrapRoot);
 		String json = new String();
 		try {
 			json = mapper.writeValueAsString(object);
