@@ -27,7 +27,9 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.pack.pack.common.util.JSONUtil;
+import com.pack.pack.model.Address;
 import com.pack.pack.model.User;
+import com.pack.pack.model.es.UserDetail;
 import com.pack.pack.util.SystemPropertyUtil;
 
 /**
@@ -116,12 +118,13 @@ public class ESUploadService {
 		}
 
 		private void uploadNewUserDetails(User newUser) throws Exception {
+			UserDetail userDetail = convert(newUser);
 			String url = new StringBuilder(esUploadUrl).append(newUser.getId())
 					.toString();
 			HttpPut PUT = new HttpPut(url);
 			PUT.addHeader(CONTENT_TYPE_HEADER_NAME,
 					ContentType.APPLICATION_JSON.getMimeType());
-			String json = JSONUtil.serialize(newUser);
+			String json = JSONUtil.serialize(userDetail);
 			HttpEntity jsonBody = new StringEntity(json,
 					ContentType.APPLICATION_JSON);
 			PUT.setEntity(jsonBody);
@@ -129,6 +132,21 @@ public class ESUploadService {
 			logger.info("Successfully uploaded new user details to ES @ PUT "
 					+ esUploadUrl);
 			logger.info(EntityUtils.toString(response.getEntity()));
+		}
+
+		private UserDetail convert(User newUser) {
+			UserDetail userDetail = new UserDetail();
+			userDetail.setName(newUser.getName());
+			userDetail.setUserName(newUser.getUsername());
+			userDetail.setProfilePictureUrl(newUser.getProfilePicture());
+			Address address = newUser.getAddress();
+			if (address != null) {
+				userDetail.setLocality(address.getLocality());
+				userDetail.setCity(address.getCity());
+				userDetail.setState(address.getState());
+				userDetail.setCountry(address.getCountry());
+			}
+			return userDetail;
 		}
 	}
 }
