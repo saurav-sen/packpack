@@ -100,7 +100,7 @@ public class ESUploadService {
 		@Override
 		public void run() {
 			try {
-				while (true) {
+				while (!stopSignal) {
 					User newUser = producerQueue.take();
 					uploadNewUserDetails(newUser);
 				}
