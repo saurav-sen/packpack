@@ -14,6 +14,7 @@ import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.StatusType;
 import com.pack.pack.services.couchdb.UserRepositoryService;
+import com.pack.pack.services.es.ESUploadService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.AttachmentUtil;
@@ -63,6 +64,9 @@ public class UserServiceImpl implements IUserService {
 		service.update(user);
 		status.setStatus(StatusType.OK);
 		status.setInfo("Successfully registered the user " + email);
+		ESUploadService esService = ServiceRegistry.INSTANCE
+				.findService(ESUploadService.class);
+		esService.uploadNewUserDetails(user);
 		return status;
 	}
 
@@ -91,7 +95,7 @@ public class UserServiceImpl implements IUserService {
 		}
 		location = location + userId;
 		File f = new File(location);
-		if(!f.exists()) {
+		if (!f.exists()) {
 			f.mkdir();
 		}
 		location = location + File.separator + profilePictureFileName;
