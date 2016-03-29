@@ -5,9 +5,9 @@ import java.util.List;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.pack.pack.model.User;
 import com.pack.pack.model.es.CityLocation;
 import com.pack.pack.model.web.JTopics;
-import com.pack.pack.model.web.JUsers;
 import com.pack.pack.services.exception.PackPackException;
 
 /**
@@ -24,7 +24,7 @@ public class SearchService {
 		return null;
 	}
 
-	public JUsers searchUserByName(String pattern) throws PackPackException {
+	public List<User> searchUserByName(String pattern) throws PackPackException {
 		// TODO Auto-generated method stub
 		return null;
 	}

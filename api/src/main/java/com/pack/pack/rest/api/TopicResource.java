@@ -34,6 +34,24 @@ public class TopicResource {
 		return service.getTopicById(topicId);
 	}
 
+	/*@GET
+	@Path("categories")
+	@Produces(value = MediaType.APPLICATION_JSON)
+	public JCategories getAllCategories() throws PackPackException {
+		return null;
+	}*/
+
+	@GET
+	@Path("{pageLink}/category/{categoryName}")
+	@Produces(value = MediaType.APPLICATION_JSON)
+	public Pagination<JTopic> getTopicsByCategory(
+			@PathParam("categoryName") String categoryName,
+			@PathParam("pageLink") String pageLink) throws PackPackException {
+		ITopicService service = ServiceRegistry.INSTANCE
+				.findCompositeService(ITopicService.class);
+		return service.getAllTopicsByCategoryName(categoryName, pageLink);
+	}
+
 	@GET
 	@Path("{pageLink}/user/{userId}")
 	@Produces(value = MediaType.APPLICATION_JSON)

@@ -75,4 +75,14 @@ public interface ITopicService {
 	 * @throws PackPackException
 	 */
 	public JTopic createNewTopic(JTopic topic) throws PackPackException;
+	
+	/**
+	 * 
+	 * @param categoryName
+	 * @param pageLink
+	 * @return
+	 * @throws PackPackException
+	 */
+	public Pagination<JTopic> getAllTopicsByCategoryName(String categoryName,
+			String pageLink) throws PackPackException;
 }

@@ -34,13 +34,14 @@ import com.pack.pack.model.web.Pagination;
  */
 @Component
 @Scope("singleton")
-@Views({ 
-	@View(name = "findTopicByOwner", map = "function(doc) {if(doc.ownerId && doc._id) { emit(doc.ownerId, doc); }}"),
-	@View(name = "findTopicByID", map = "function(doc) {if(doc.ownerId && doc._id) { emit(doc._id, doc); }}") 
-})
+@Views({
+		@View(name = "findTopicByOwner", map = "function(doc) {if(doc.ownerId && doc._id) { emit(doc.ownerId, doc); }}"),
+		@View(name = "findTopicByID", map = "function(doc) {if(doc.ownerId && doc._id) { emit(doc._id, doc); }}"),
+		@View(name = "findTopicByCategoryName", map = "function(doc) { if(doc.ownerId && doc.id && doc.category) { emit(doc.category, doc);}}") })
 public class TopicRepositoryService extends CouchDbRepositorySupport<Topic> {
-	
-	private static Logger logger = LoggerFactory.getLogger(TopicRepositoryService.class);
+
+	private static Logger logger = LoggerFactory
+			.getLogger(TopicRepositoryService.class);
 
 	@Autowired
 	private PackRepositoryService packRepoService;
@@ -49,7 +50,7 @@ public class TopicRepositoryService extends CouchDbRepositorySupport<Topic> {
 	public TopicRepositoryService(@Qualifier("packDB") CouchDbConnector db) {
 		super(Topic.class, db);
 	}
-	
+
 	@PostConstruct
 	public void doInit() {
 		initStandardDesignDocument();
@@ -59,13 +60,14 @@ public class TopicRepositoryService extends CouchDbRepositorySupport<Topic> {
 		logger.debug("getAllPacks()");
 		logger.debug("TopicID = " + topicId);
 		logger.debug("PageNo = " + pageLink);
-		/*if (topic == null) {
-			return Collections.emptyList();
-		}*/
-		//List<String> packIds = topic.getPackIds();
-		/*if (packIds == null || packIds.isEmpty()) {
-			return Collections.emptyList();
-		}*/
+		/*
+		 * if (topic == null) { return Collections.emptyList(); }
+		 */
+		// List<String> packIds = topic.getPackIds();
+		/*
+		 * if (packIds == null || packIds.isEmpty()) { return
+		 * Collections.emptyList(); }
+		 */
 		return packRepoService.getAllPacks(topicId, pageLink);
 	}
 
@@ -89,16 +91,37 @@ public class TopicRepositoryService extends CouchDbRepositorySupport<Topic> {
 	public Pagination<Topic> getAllTopics(String userId, String pageLink) {
 		logger.debug("getAllTopics(userId=" + userId + ", pageLink=" + pageLink);
 		ViewQuery query = createQuery("findTopicByOwner").key(userId);
-		if(END_OF_PAGE.equals(pageLink)) {
-			return new Pagination<Topic>(END_OF_PAGE, END_OF_PAGE, Collections.emptyList());
+		if (END_OF_PAGE.equals(pageLink)) {
+			return new Pagination<Topic>(END_OF_PAGE, END_OF_PAGE,
+					Collections.emptyList());
 		}
-		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink)) ? PageRequest.fromLink(pageLink)
-				: PageRequest.firstPage(STANDARD_PAGE_SIZE);
+		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink)) ? PageRequest
+				.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
 		Page<Topic> page = db.queryForPage(query, pr, Topic.class);
 		String nextLink = page.isHasNext() ? page.getNextLink() : END_OF_PAGE;
-		String previousLink = page.isHasPrevious() ? page.getPreviousLink() : END_OF_PAGE;
+		String previousLink = page.isHasPrevious() ? page.getPreviousLink()
+				: END_OF_PAGE;
 		List<Topic> topics = page.getRows();
-		topics = db.queryView(query, Topic.class);
+		return new Pagination<Topic>(previousLink, nextLink, topics);
+	}
+
+	public Pagination<Topic> getAllTopicsByCategoryName(String categoryName,
+			String pageLink) {
+		logger.debug("getAllTopicsByCategoryName(categoryName=" + categoryName
+				+ ", pageLink=" + pageLink);
+		ViewQuery query = createQuery("findTopicByCategoryName").key(
+				categoryName);
+		if (END_OF_PAGE.equals(pageLink)) {
+			return new Pagination<Topic>(END_OF_PAGE, END_OF_PAGE,
+					Collections.emptyList());
+		}
+		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink)) ? PageRequest
+				.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
+		Page<Topic> page = db.queryForPage(query, pr, Topic.class);
+		String nextLink = page.isHasNext() ? page.getNextLink() : END_OF_PAGE;
+		String previousLink = page.isHasPrevious() ? page.getPreviousLink()
+				: END_OF_PAGE;
+		List<Topic> topics = page.getRows();
 		return new Pagination<Topic>(previousLink, nextLink, topics);
 	}
 }
