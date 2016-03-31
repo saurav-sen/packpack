@@ -5,9 +5,9 @@ import java.util.List;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.pack.pack.model.User;
 import com.pack.pack.model.es.CityLocation;
-import com.pack.pack.model.web.JTopics;
+import com.pack.pack.model.es.TopicDetail;
+import com.pack.pack.model.es.UserDetail;
 import com.pack.pack.services.exception.PackPackException;
 
 /**
@@ -19,17 +19,18 @@ import com.pack.pack.services.exception.PackPackException;
 @Scope("singleton")
 public class SearchService {
 
-	public List<CityLocation> searchCityByName(String pattern) throws PackPackException {
-		// TODO Auto-generated method stub
-		return null;
+	public List<CityLocation> searchCityByName(String pattern)
+			throws PackPackException {
+		return IndexSearchService.INSTANCE.searchCityByName(pattern);
 	}
 
-	public List<User> searchUserByName(String pattern) throws PackPackException {
-		// TODO Auto-generated method stub
-		return null;
+	public List<UserDetail> searchUserByName(String pattern)
+			throws PackPackException {
+		return IndexSearchService.INSTANCE.searchUserByName(pattern);
 	}
-	
-	public JTopics searchTopic(String pattern) throws PackPackException {
-		return null;
+
+	public List<TopicDetail> searchTopic(String pattern)
+			throws PackPackException {
+		return IndexSearchService.INSTANCE.searchTopic(pattern);
 	}
 }

@@ -20,6 +20,8 @@ public class UserDetail {
 	private String state;
 	
 	private String country;
+	
+	private String userId;
 
 	public String getUserName() {
 		return userName;
@@ -75,5 +77,13 @@ public class UserDetail {
 
 	public void setCountry(String country) {
 		this.country = country;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 }

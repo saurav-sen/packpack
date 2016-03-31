@@ -69,6 +69,7 @@
 	<modules>
 		<module>model</module>
 		<module>common</module>
+		<module>elastic-search</module>
 		<module>services</module>
 		<module>oauth</module>
 		<module>api</module>

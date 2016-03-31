@@ -1,10 +1,5 @@
 package com.pack.pack.services.es;
 
-import static com.pack.pack.util.SystemPropertyUtil.CONTENT_TYPE_HEADER_NAME;
-import static com.pack.pack.util.SystemPropertyUtil.ES_USER_DOC_TYPE;
-import static com.pack.pack.util.SystemPropertyUtil.URL_SEPARATOR;
-
-import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -13,24 +8,16 @@ import java.util.concurrent.Executors;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.Address;
+import com.pack.pack.model.Topic;
 import com.pack.pack.model.User;
+import com.pack.pack.model.es.TopicDetail;
 import com.pack.pack.model.es.UserDetail;
-import com.pack.pack.util.SystemPropertyUtil;
 
 /**
  * 
@@ -44,7 +31,7 @@ public class ESUploadService {
 	private static Logger logger = LoggerFactory
 			.getLogger(ESUploadService.class);
 
-	private BlockingQueue<User> producerQueue = new ArrayBlockingQueue<User>(
+	private BlockingQueue<Object> producerQueue = new ArrayBlockingQueue<Object>(
 			100, true);
 
 	private ExecutorService pool;
@@ -77,65 +64,62 @@ public class ESUploadService {
 		}
 	}
 
+	public void uploadNewTopicDetails(Topic topic) {
+		if (!stopSignal) {
+			logger.info("Scheduling newly added topic " + topic.getName()
+					+ " for upload to Elasticsearch store.");
+			producerQueue.add(topic);
+		}
+	}
+
 	private class ConsumerTask implements Runnable {
 
-		private CloseableHttpClient client;
-
-		private String esUploadUrl;
-
 		private ConsumerTask() {
-			client = HttpClientBuilder.create().build();
-			String esUrl = SystemPropertyUtil.getElasticSearchBaseUrl();
-			if (!esUrl.endsWith(URL_SEPARATOR)) {
-				esUrl = esUploadUrl + URL_SEPARATOR;
-			}
-			esUploadUrl = new StringBuilder(esUrl)
-					.append(SystemPropertyUtil
-							.getElasticSearchDefaultDocumentName())
-					.append(URL_SEPARATOR).append(ES_USER_DOC_TYPE)
-					.append(URL_SEPARATOR).toString();
-
 		}
 
 		@Override
 		public void run() {
 			try {
 				while (!stopSignal) {
-					User newUser = producerQueue.take();
-					uploadNewUserDetails(newUser);
+					Object object = producerQueue.take();
+					if (object instanceof User) {
+						User newUser = (User) object;
+						uploadNewUserDetails(newUser);
+					} else if (object instanceof Topic) {
+						Topic topic = (Topic) object;
+						uploadNewTopcDetails(topic);
+					}
 				}
 			} catch (Exception e) {
 				logger.info(e.getMessage(), e);
-			} finally {
-				try {
-					if (client != null) {
-						client.close();
-					}
-				} catch (IOException e) {
-					logger.info(e.getMessage(), e);
-				}
 			}
+		}
+
+		private void uploadNewTopcDetails(Topic topic) throws Exception {
+			TopicDetail topicDetail = convert(topic);
+			IndexUploadService.INSTANCE.uploadNewTopcDetails(topicDetail);
+			logger.info("Successfully uploaded newly created topic details to ES");
 		}
 
 		private void uploadNewUserDetails(User newUser) throws Exception {
 			UserDetail userDetail = convert(newUser);
-			String url = new StringBuilder(esUploadUrl).append(newUser.getId())
-					.toString();
-			HttpPut PUT = new HttpPut(url);
-			PUT.addHeader(CONTENT_TYPE_HEADER_NAME,
-					ContentType.APPLICATION_JSON.getMimeType());
-			String json = JSONUtil.serialize(userDetail);
-			HttpEntity jsonBody = new StringEntity(json,
-					ContentType.APPLICATION_JSON);
-			PUT.setEntity(jsonBody);
-			CloseableHttpResponse response = client.execute(PUT);
-			logger.info("Successfully uploaded new user details to ES @ PUT "
-					+ esUploadUrl);
-			logger.info(EntityUtils.toString(response.getEntity()));
+			IndexUploadService.INSTANCE.uploadNewUserDetails(userDetail);
+			logger.info("Successfully uploaded new user details to ES");
+		}
+
+		private TopicDetail convert(Topic topic) {
+			TopicDetail esTopic = new TopicDetail();
+			esTopic.setCategory(topic.getCategory());
+			esTopic.setDescription(topic.getDescription());
+			esTopic.setName(topic.getName());
+			esTopic.setOwnerId(topic.getOwnerId());
+			esTopic.setTopicId(topic.getId());
+			return esTopic;
 		}
 
 		private UserDetail convert(User newUser) {
 			UserDetail userDetail = new UserDetail();
+			userDetail.setUserId(newUser.getId());
 			userDetail.setName(newUser.getName());
 			userDetail.setUserName(newUser.getUsername());
 			userDetail.setProfilePictureUrl(newUser.getProfilePicture());

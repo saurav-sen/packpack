@@ -1,65 +1,55 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.pack.pack</groupId>
-  <artifactId>services</artifactId>
-  <name>Services Layer</name>
-  <description>Messaging and NoSQL</description>
+  <artifactId>elastic-search</artifactId>
+  <name>elastic-search</name>
+  <description>elastic-search</description>
   <parent>
 		<groupId>com.pack.pack</groupId>
 		<artifactId>com.pack.pack</artifactId>
 		<version>1.0-DEV</version>
-  </parent>
-  <dependencies>		
+	</parent>
+  <dependencies>			
 		<dependency>
-			<groupId>com.pack.pack</groupId>
-			<artifactId>model</artifactId>
-			<version>${packpack.release}</version>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>${apache.httpclient}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpmime</artifactId>
+			<version>${apache.httpclient}</version>
+		</dependency>			
 		<dependency>
 			<groupId>com.pack.pack</groupId>
 			<artifactId>common</artifactId>
-			<version>${packpack.release}</version>
+			<version>1.0-DEV</version>
 		</dependency>
 		<dependency>
-			<groupId>com.pack.pack</groupId>
-			<artifactId>elastic-search</artifactId>
-			<version>${packpack.release}</version>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-log4j12</artifactId>
+				<version>${slf4j.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.ektorp</groupId>
-			<artifactId>org.ektorp</artifactId>
-			<version>${ektorp.version}</version>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20160212</version>
 		</dependency>
-		<dependency>
-			<groupId>org.ektorp</groupId>
-			<artifactId>org.ektorp.spring</artifactId>
-			<version>${ektorp.version}</version>
-		</dependency>
-		<!--dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>${slf4j.version}</version>
-		</dependency-->
 		<dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>${joda-time.version}</version>
         </dependency>
+        <!--dependency>
+			<groupId>org.glassfish.jersey.core</groupId>
+			<artifactId>jersey-client</artifactId>
+			<version>${jersey2.version}</version>
+		</dependency>
         <dependency>
-			<groupId>com.rabbitmq</groupId>
-			<artifactId>amqp-client</artifactId>
-			<version>${rabbitmq.version}</version>
-		</dependency>
-		<dependency>
-		    <groupId>org.imgscalr</groupId>
-		    <artifactId>imgscalr-lib</artifactId>
-		    <version>${imgscalr.version}</version>
-		</dependency>
-		<dependency>
-		  <groupId>org.jcodec</groupId>
-		  <artifactId>jcodec-javase</artifactId>
-		  <version>${jcodec-javase.version}</version>
-		</dependency>
+            <groupId>org.glassfish.jersey.security</groupId>
+            <artifactId>oauth1-client</artifactId>
+            <version>${jersey2.version}</version>
+        </dependency-->
 	</dependencies>
 	<build>
 	<finalName>${project.artifactId}-${project.version}</finalName>
@@ -80,7 +70,25 @@
 				<configuration>
 					<skip>true</skip>
 				</configuration>
-			</plugin>			
+			</plugin>
+			<!--plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.1</version>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${basedir}/lib</outputDirectory>
+							<overWriteIfNewer>true</overWriteIfNewer>
+							<excludeTransitive>true</excludeTransitive>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin-->
 			<plugin>
 				<artifactId>maven-clean-plugin</artifactId>
 				<version>2.4.1</version>
@@ -105,6 +113,27 @@
 				</configuration-->
 			</plugin>
 			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>hibernate3-maven-plugin</artifactId>
+				<version>2.2</version>
+				<configuration>
+					<components>
+						<component>
+							<name>hbm2ddl</name>
+							<implementation>jpaconfiguration</implementation>
+						</component>
+					</components>
+					<componentProperties>
+						<persistenceUnit>Default</persistenceUnit>
+						<outputfilename>packDB-create.ddl</outputfilename>
+						<drop>false</drop>
+						<create>true</create>
+						<export>false</export>
+						<format>true</format>
+					</componentProperties>
+				</configuration>
+			</plugin>
+			<plugin>
 		        <groupId>org.apache.maven.plugins</groupId>
 		        <artifactId>maven-eclipse-plugin</artifactId>
 		        <version>2.10</version>
@@ -112,7 +141,7 @@
 		          <downloadSources>true</downloadSources>
 		          <downloadJavadocs>true</downloadJavadocs>
 		        </configuration>
-		      </plugin>	
+		      </plugin>
 		      <plugin>
 				  <groupId>org.apache.maven.plugins</groupId>
 				  <artifactId>maven-source-plugin</artifactId>
@@ -136,7 +165,7 @@
 				      </goals>
 				    </execution>
 				  </executions>
-			</plugin>		
+			</plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -165,16 +194,6 @@
 					</configuration>
 				</plugin>
 			</plugins>
-		</pluginManagement>
-		<resources>			
-			<resource>
-				<directory>${basedir}/src/main/resources</directory>
-				<includes>
-					<include>META-INF/*.xml</include>
-					<include>META-INF/*.properties</include>
-					<include>META-INF/*.json</include>
-				</includes>
-			</resource>
-		</resources>
+		</pluginManagement>		
 	</build>
 </project>

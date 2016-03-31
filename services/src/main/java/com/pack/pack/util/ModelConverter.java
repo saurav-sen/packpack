@@ -15,6 +15,7 @@ import com.pack.pack.model.PackAttachment;
 import com.pack.pack.model.PackAttachmentType;
 import com.pack.pack.model.Topic;
 import com.pack.pack.model.User;
+import com.pack.pack.model.es.UserDetail;
 import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPackAttachment;
@@ -128,6 +129,16 @@ public class ModelConverter {
 		jUser.setUsername(user.getUsername());
 		jUser.setProfilePictureUrl(resolveProfilePictureUrl(user
 				.getProfilePicture()));
+		return jUser;
+	}
+	
+	public static JUser convert(UserDetail user) {
+		JUser jUser = new JUser();
+		jUser.setId(user.getUserId());
+		//jUser.setDob(user.getDob());
+		jUser.setName(user.getName());
+		jUser.setUsername(user.getUserName());
+		jUser.setProfilePictureUrl(resolveProfilePictureUrl(user.getProfilePictureUrl()));
 		return jUser;
 	}
 

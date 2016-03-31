@@ -17,6 +17,7 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import com.pack.pack.IUserService;
 import com.pack.pack.model.User;
+import com.pack.pack.model.es.UserDetail;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.JUsers;
@@ -70,9 +71,9 @@ public class UserResource {
 			throws PackPackException {
 		SearchService service = ServiceRegistry.INSTANCE
 				.findService(SearchService.class);
-		List<User> users = service.searchUserByName(namePattern);
+		List<UserDetail> users = service.searchUserByName(namePattern);
 		JUsers jUsers = new JUsers();
-		for (User user : users) {
+		for (UserDetail user : users) {
 			JUser jUser = ModelConverter.convert(user);
 			jUsers.getUsers().add(jUser);
 		}

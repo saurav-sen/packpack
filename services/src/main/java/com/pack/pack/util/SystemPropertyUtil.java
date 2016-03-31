@@ -9,6 +9,8 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pack.pack.services.es.Constants;
+
 /**
  * 
  * @author Saurav
@@ -50,18 +52,12 @@ public class SystemPropertyUtil {
 
 	private static final String DEFAULT_TOPIC_ID_VALUE = "home.topic";
 
-	public static final String ES_BASE_URL = "esUrl";
-
-	private static final String ES_DEFAULT_DOCUMENT_NAME = "esDocName";
-	
-	public static final String ES_USER_DOC_TYPE = "user";
-	
-	public static final String CONTENT_TYPE_HEADER_NAME = "Content-Type";
-
 	public static void init() {
 		try {
 			properties = new Properties();
 			properties.load(new FileInputStream(new File(CONFIG_FILE)));
+			String esBaseUrl = properties.getProperty(Constants.ES_BASE_URL);
+			System.setProperty(Constants.ES_BASE_URL, esBaseUrl);
 		} catch (FileNotFoundException e) {
 			logger.info(e.getMessage(), e);
 			throw new RuntimeException(e);
@@ -73,18 +69,6 @@ public class SystemPropertyUtil {
 
 	private static String getPropertyValue(String key) {
 		return properties.getProperty(key);
-	}
-
-	public static String getElasticSearchDefaultDocumentName() {
-		String docName = getPropertyValue(ES_DEFAULT_DOCUMENT_NAME);
-		if(docName == null || docName.trim().equals("")) {
-			docName = "packpack";
-		}
-		return docName;
-	}
-
-	public static String getElasticSearchBaseUrl() {
-		return getPropertyValue(ES_BASE_URL);
 	}
 
 	public static String getAppHome() {

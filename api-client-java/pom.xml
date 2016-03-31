@@ -23,7 +23,12 @@
 		<dependency>
 			<groupId>com.pack.pack</groupId>
 			<artifactId>common</artifactId>
-			<version>1.0-DEV</version>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.pack.pack</groupId>
+			<artifactId>elastic-search</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 				<groupId>org.slf4j</groupId>

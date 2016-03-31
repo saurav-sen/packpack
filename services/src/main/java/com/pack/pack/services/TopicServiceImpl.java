@@ -17,6 +17,7 @@ import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.services.couchdb.TopicRepositoryService;
 import com.pack.pack.services.couchdb.UserTopicMapRepositoryService;
+import com.pack.pack.services.es.ESUploadService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.ModelConverter;
@@ -161,20 +162,14 @@ public class TopicServiceImpl implements ITopicService {
 
 	@Override
 	public JTopic createNewTopic(JTopic jTopic) throws PackPackException {
-		/*
-		 * logger.debug("creating new topic " + jTopic.getName() +
-		 * " by user(owner) having ID=" + jTopic.getOwnerId());
-		 */
 		TopicRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(TopicRepositoryService.class);
 		Topic topic = ModelConverter.convert(jTopic);
 		service.add(topic);
 		followTopic(topic.getOwnerId(), topic.getId());
-		/*
-		 * logger.info("Successfully created new topic " + jTopic.getName() +
-		 * " by user(owner) having ID=" + jTopic.getOwnerId() +
-		 * " User(owner) name=" + jTopic.getOwnerName());
-		 */
+		ESUploadService esUploadService = ServiceRegistry.INSTANCE
+				.findService(ESUploadService.class);
+		esUploadService.uploadNewTopicDetails(topic);
 		return ModelConverter.convert(topic);
 	}
 
