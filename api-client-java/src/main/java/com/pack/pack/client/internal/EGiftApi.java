@@ -34,10 +34,12 @@ import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
 public class EGiftApi extends AbstractAPI {
 
 	private static final String EGIFTS = "egifts/";
+	
+	private Invoker invoker = new Invoker();
 
 	@Override
 	protected ApiInvoker getInvoker() {
-		return new Invoker();
+		return invoker;
 	}
 
 	private JeGift getEGiftById(String egiftId, String oAuthToken)

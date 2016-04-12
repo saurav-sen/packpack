@@ -34,10 +34,12 @@ import com.pack.pack.model.web.dto.PackReceipentType;
  *
  */
 public class PackApi extends AbstractAPI {
+	
+	private Invoker invoker = new Invoker();
 
 	@Override
 	protected ApiInvoker getInvoker() {
-		return new Invoker();
+		return invoker;
 	}
 
 	private JPack getPackById(String packId, String oAuthToken)

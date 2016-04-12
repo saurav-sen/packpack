@@ -24,10 +24,12 @@ import static com.pack.pack.client.api.APIConstants.BASE_URL;
 public class BrandsApi extends AbstractAPI {
 
 	private static final String BRANDS = "/brands/";
+	
+	private Invoker invoker = new Invoker();
 
 	@Override
 	protected ApiInvoker getInvoker() {
-		return new Invoker();
+		return invoker;
 	}
 
 	public JBrands getBrandsInfo(String companyName, String oAuthToken)

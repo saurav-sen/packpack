@@ -2,6 +2,7 @@ package com.pack.pack.rest.api.security.interceptors;
 
 import java.io.IOException;
 
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Response;
@@ -35,6 +36,9 @@ public class AccessTokenVerifier implements ContainerRequestFilter {
 				allow = false;
 			} else {
 				allow = TokenRegistry.INSTANCE.isValidAccessToken(token);
+			}
+			if(path.endsWith("user") && requestContext.getMethod().equals(HttpMethod.POST)) {
+				allow = true;				
 			}
 		}
 		if (!allow) {

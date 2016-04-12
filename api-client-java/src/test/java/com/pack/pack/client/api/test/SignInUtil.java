@@ -1,11 +1,10 @@
 package com.pack.pack.client.api.test;
 
-import org.glassfish.jersey.client.oauth1.AccessToken;
-
 import com.pack.pack.client.api.API;
 import com.pack.pack.client.api.APIBuilder;
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
+import com.pack.pack.oauth1.client.AccessToken;
 
 public class SignInUtil {
 	

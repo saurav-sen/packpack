@@ -19,7 +19,7 @@ public class AddTopicTest extends UserFollowedTopicListTest {
 		super.beforeTest();
 	}
 
-	public void createNewTest() {
+	public void createNewTopic() {
 		try {
 			API api = APIBuilder
 					.create()

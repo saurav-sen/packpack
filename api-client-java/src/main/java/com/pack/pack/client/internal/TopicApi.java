@@ -7,6 +7,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -31,10 +32,12 @@ import static com.pack.pack.client.api.APIConstants.BASE_URL;
  *
  */
 public class TopicApi extends AbstractAPI {
+	
+	private Invoker invoker = new Invoker();
 
 	@Override
 	protected ApiInvoker getInvoker() {
-		return new Invoker();
+		return invoker;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -100,13 +103,13 @@ public class TopicApi extends AbstractAPI {
 		topic.setOwnerName(ownerName);
 		topic.setOwnerId(ownerId);
 		topic.setCategory(category);
-		String json = JSONUtil.serialize(topic);
+		String json = JSONUtil.serialize(topic, false);
 		String url = BASE_URL + "topic/";
 		CloseableHttpClient client = HttpClientBuilder.create().build();
 		HttpPost POST = new HttpPost(url);
 		POST.addHeader(AUTHORIZATION_HEADER, oAuthToken);
-		POST.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
-		HttpEntity jsonBody = new StringEntity(json);
+		//POST.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
+		HttpEntity jsonBody = new StringEntity(json, ContentType.APPLICATION_JSON);
 		POST.setEntity(jsonBody);
 		CloseableHttpResponse response = client.execute(POST);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),

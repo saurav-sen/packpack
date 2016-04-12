@@ -38,10 +38,12 @@ import com.pack.pack.services.exception.PackPackException;
 public class AttachmentsApi extends AbstractAPI {
 
 	private static final String ATTACHMENT = "attachment/";
+	
+	private Invoker invoker = new Invoker();
 
 	@Override
 	protected ApiInvoker getInvoker() {
-		return new Invoker();
+		return invoker;
 	}
 
 	private HttpResponse getProfilePicture(String userId, String fileName,

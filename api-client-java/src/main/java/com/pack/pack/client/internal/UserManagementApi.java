@@ -18,21 +18,20 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.glassfish.jersey.client.oauth1.AccessToken;
-import org.glassfish.jersey.client.oauth1.ConsumerCredentials;
-import org.glassfish.jersey.client.oauth1.OAuth1AuthorizationFlow;
-import org.glassfish.jersey.client.oauth1.OAuth1ClientSupport;
 
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JUser;
+import com.pack.pack.oauth1.client.AccessToken;
+import com.pack.pack.oauth1.client.OAuth1ClientCredentials;
+import com.pack.pack.oauth1.client.OAuth1RequestFlow;
+import com.pack.pack.oauth1.client.OAuth1Support;
 import com.pack.pack.services.exception.PackPackException;
 
 /**
@@ -45,10 +44,12 @@ public class UserManagementApi extends AbstractAPI {
 	private static final String OAUTH_REQUEST_TOKEN_PATH = "oauth/request_token"; //$NON-NLS-1$
 	private static final String OAUTH_ACCESS_TOKEN_PATH = "oauth/access_token"; //$NON-NLS-1$
 	private static final String OAUTH_AUTHORIZATION_PATH = "oauth/authorize"; //$NON-NLS-1$
+	
+	private Invoker invoker = new Invoker();
 
 	@Override
 	protected ApiInvoker getInvoker() {
-		return new Invoker();
+		return invoker;
 	}
 	
 	private class Invoker implements ApiInvoker {
@@ -154,8 +155,8 @@ public class UserManagementApi extends AbstractAPI {
 		}
 		HttpEntity entity = builder.build();
 		POST.setEntity(entity);
-		POST.addHeader("Content-Type",
-				ContentType.MULTIPART_FORM_DATA.getMimeType());
+		/*POST.addHeader("Content-Type",
+				ContentType.MULTIPART_FORM_DATA.getMimeType());*/
 		CloseableHttpResponse response = client.execute(POST);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JStatus.class);
@@ -170,8 +171,26 @@ public class UserManagementApi extends AbstractAPI {
 		String password = (String) params.get(APIConstants.Login.PASSWORD);
 		return doSignIn(clientKey, clientSecret, username, password);
 	}
-
+	
 	private AccessToken doSignIn(String clientKey, String clientSecret,
+			String username, String password) throws ClientProtocolException,
+			IOException {
+		OAuth1ClientCredentials consumerCredentials = new OAuth1ClientCredentials(
+				clientKey, clientSecret);
+		OAuth1RequestFlow authFlow = OAuth1Support.builder(consumerCredentials,
+				BASE_URL).build();
+		String authorizationUri = authFlow.start();
+
+		String query = URI.create(authorizationUri).getQuery();
+		int index = query.indexOf("oauth_token=");
+		String requestToken = query.substring(index + "oauth_token=".length());
+
+		String verifier = authFlow.authorize(requestToken, username, password);
+
+		return authFlow.finish(requestToken, verifier);
+	}
+
+	/*private AccessToken doSignIn(String clientKey, String clientSecret,
 			String username, String password) throws ClientProtocolException,
 			IOException {
 		ConsumerCredentials consumerCredentials = new ConsumerCredentials(
@@ -201,5 +220,19 @@ public class UserManagementApi extends AbstractAPI {
 
 		AccessToken accessToken = authFlow.finish(verifier);
 		return accessToken;
+	}*/
+	
+	private String fetchRequestToken(String clientKey, String clientSecret)
+			throws ClientProtocolException, IOException {
+		OAuth1ClientCredentials consumerCredentials = new OAuth1ClientCredentials(
+				clientKey, clientSecret);
+		OAuth1RequestFlow authFlow = OAuth1Support.builder(consumerCredentials,
+				BASE_URL).build();
+		String authorizationUri = authFlow.start();
+
+		String query = URI.create(authorizationUri).getQuery();
+		int index = query.indexOf("oauth_token=");
+		String requestToken = query.substring(index + "oauth_token=".length());
+		return requestToken;
 	}
 }

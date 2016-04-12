@@ -14,8 +14,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -49,6 +47,8 @@ public class IndexSearchService {
 	private static final String PREFIX_LENGTH = "prefix_length";
 
 	private static final String _SEARCH = "_search";
+	
+	private static final String _SOURCE = "_source";
 
 	private static final String HITS = "hits";
 
@@ -56,7 +56,7 @@ public class IndexSearchService {
 	
 	public static final IndexSearchService INSTANCE = new IndexSearchService();
 
-	private void IndexSearchService() {
+	private IndexSearchService() {
 		client = HttpClientBuilder.create().build();
 		esBaseURL = System.getProperty(ES_BASE_URL);
 		if (!esBaseURL.endsWith(URL_SEPARATOR)) {
@@ -97,6 +97,7 @@ public class IndexSearchService {
 			result = new ArrayList<CityLocation>((int) (len * 1.5f));
 			for (int i = 0; i < len; i++) {
 				jsonObj = jsonArray.getJSONObject(i);
+				jsonObj = jsonObj.getJSONObject(_SOURCE);
 				CityLocation cityLocation = JSONUtil.deserialize(
 						jsonObj.toString(), CityLocation.class);
 				result.add(cityLocation);
@@ -142,6 +143,7 @@ public class IndexSearchService {
 			result = new ArrayList<UserDetail>((int) (len * 1.5f));
 			for (int i = 0; i < len; i++) {
 				jsonObj = jsonArray.getJSONObject(i);
+				jsonObj = jsonObj.getJSONObject(_SOURCE);
 				UserDetail cityLocation = JSONUtil.deserialize(
 						jsonObj.toString(), UserDetail.class);
 				result.add(cityLocation);
@@ -187,6 +189,7 @@ public class IndexSearchService {
 			result = new ArrayList<TopicDetail>((int) (len * 1.5f));
 			for (int i = 0; i < len; i++) {
 				jsonObj = jsonArray.getJSONObject(i);
+				jsonObj = jsonObj.getJSONObject(_SOURCE);
 				TopicDetail topicDetail = JSONUtil.deserialize(
 						jsonObj.toString(), TopicDetail.class);
 				result.add(topicDetail);
