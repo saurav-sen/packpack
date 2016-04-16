@@ -1,16 +1,20 @@
 package com.pack.pack.client.internal;
 
+import static com.pack.pack.client.api.APIConstants.APPLICATION_JSON;
+import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
+import static com.pack.pack.client.api.APIConstants.BASE_URL;
+import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
+
+import java.util.List;
 import java.util.Map;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import com.pack.pack.client.api.APIConstants;
@@ -18,13 +22,9 @@ import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JTopic;
+import com.pack.pack.model.web.JTopics;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.dto.TopicFollowDTO;
-
-import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
-import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
-import static com.pack.pack.client.api.APIConstants.APPLICATION_JSON;
-import static com.pack.pack.client.api.APIConstants.BASE_URL;
 
 /**
  * 
@@ -45,12 +45,18 @@ public class TopicApi extends AbstractAPI {
 			String oAuthToken, String userId) throws Exception {
 		String url = BASE_URL + "activity/topic/" + pageLink + "/user/"
 				+ userId;
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		HttpGet GET = new HttpGet(url);
 		GET.setHeader(AUTHORIZATION_HEADER, oAuthToken);
-		CloseableHttpResponse response = client.execute(GET);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
+		HttpResponse response = client.execute(GET);
+		Pagination<JTopic> page = JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				Pagination.class);
+		List<JTopic> result = page.getResult();
+		String json = "{\"topics\": " + JSONUtil.serialize(result, false) + "}";
+		JTopics topics = JSONUtil.deserialize(json, JTopics.class);
+		result = topics.getTopics();
+		page.setResult(result);
+		return page;
 	}
 
 	private JStatus followTopic(String userId, String topicId, String oAuthToken)
@@ -60,13 +66,13 @@ public class TopicApi extends AbstractAPI {
 		dto.setTopicId(topicId);
 		dto.setUserId(userId);
 		String json = JSONUtil.serialize(dto);
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		HttpPost POST = new HttpPost(url);
 		POST.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		POST.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
 		HttpEntity jsonBody = new StringEntity(json);
 		POST.setEntity(jsonBody);
-		CloseableHttpResponse response = client.execute(POST);
+		HttpResponse response = client.execute(POST);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JStatus.class);
 	}
@@ -74,10 +80,10 @@ public class TopicApi extends AbstractAPI {
 	private JStatus neglectTopic(String userId, String topicId,
 			String oAuthToken) throws Exception {
 		String url = BASE_URL + "activity/topic/" + topicId + "/user/" + userId;
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		HttpDelete DELETE = new HttpDelete(url);
 		DELETE.addHeader(AUTHORIZATION_HEADER, oAuthToken);
-		CloseableHttpResponse response = client.execute(DELETE);
+		HttpResponse response = client.execute(DELETE);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JStatus.class);
 	}
@@ -85,10 +91,10 @@ public class TopicApi extends AbstractAPI {
 	private JTopic getTopicById(String topicId, String oAuthToken)
 			throws Exception {
 		String url = BASE_URL + "topic/" + topicId;
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
-		CloseableHttpResponse response = client.execute(GET);
+		HttpResponse response = client.execute(GET);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JTopic.class);
 	}
@@ -105,13 +111,13 @@ public class TopicApi extends AbstractAPI {
 		topic.setCategory(category);
 		String json = JSONUtil.serialize(topic, false);
 		String url = BASE_URL + "topic/";
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		HttpPost POST = new HttpPost(url);
 		POST.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		//POST.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
-		HttpEntity jsonBody = new StringEntity(json, ContentType.APPLICATION_JSON);
+		HttpEntity jsonBody = new StringEntity(json, APPLICATION_JSON);
 		POST.setEntity(jsonBody);
-		CloseableHttpResponse response = client.execute(POST);
+		HttpResponse response = client.execute(POST);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JTopic.class);
 	}

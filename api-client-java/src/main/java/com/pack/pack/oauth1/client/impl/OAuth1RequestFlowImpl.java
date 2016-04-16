@@ -9,14 +9,12 @@ import java.util.Set;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
+import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.oauth1.client.AccessToken;
 import com.pack.pack.oauth1.client.OAuth1ClientCredentials;
 import com.pack.pack.oauth1.client.OAuth1RequestFlow;
@@ -33,8 +31,8 @@ public class OAuth1RequestFlowImpl implements OAuth1RequestFlow {
 
 	private OAuth1ClientCredentials credentials;
 
-	private static final CloseableHttpClient HTTP_CLIENT = HttpClientBuilder
-			.create().build();
+	/*private static final CloseableHttpClient HTTP_CLIENT = HttpClientBuilder
+			.create().build();*/
 	
 	private Map<String, String> tokensMap = new HashMap<String, String>(2);
 
@@ -84,7 +82,8 @@ public class OAuth1RequestFlowImpl implements OAuth1RequestFlow {
 		POST.addHeader(InternalConstants.AUTHORIZATION,
 				authorizationHeader.toString());
 		POST.addHeader("user-agent", "PackPack-OAuth1-Client");
-		CloseableHttpResponse response = HTTP_CLIENT.execute(POST);
+		DefaultHttpClient client = new DefaultHttpClient();
+		HttpResponse response = client.execute(POST);
 		String responseFields = EntityUtils.toString(response.getEntity());
 		return responseFields;
 	}
@@ -94,12 +93,13 @@ public class OAuth1RequestFlowImpl implements OAuth1RequestFlow {
 			String password) throws ClientProtocolException, IOException {
 		HttpPost POST = new HttpPost(authorizeUrl);
 		POST.addHeader("Authorization", requestToken);
-		POST.addHeader("Content-Type", "application/json");
+		POST.addHeader("Content-Type", APIConstants.APPLICATION_JSON);
 		String json = "{\"username\": \"" + username + "\", \"password\": \""
 				+ password + "\"}";
-		HttpEntity body = new StringEntity(json, ContentType.APPLICATION_JSON);
+		HttpEntity body = new StringEntity(json);
 		POST.setEntity(body);
-		HttpResponse response = HTTP_CLIENT.execute(POST);
+		DefaultHttpClient client = new DefaultHttpClient();
+		HttpResponse response = client.execute(POST);
 		String verifier = EntityUtils.toString(response.getEntity());
 		return verifier;
 	}

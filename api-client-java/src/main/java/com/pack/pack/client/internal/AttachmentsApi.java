@@ -9,18 +9,17 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
 import com.pack.pack.client.api.APIConstants;
@@ -48,56 +47,56 @@ public class AttachmentsApi extends AbstractAPI {
 
 	private HttpResponse getProfilePicture(String userId, String fileName,
 			String oAuthToken) throws Exception {
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		String url = BASE_URL + ATTACHMENT + "profile/image/" + userId + "/"
 				+ fileName;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
-		CloseableHttpResponse response = client.execute(GET);
+		HttpResponse response = client.execute(GET);
 		return response;
 	}
 
 	private HttpResponse getThumnailImage(String topicId, String packId,
 			String fileName, String oAuthToken) throws Exception {
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		String url = BASE_URL + ATTACHMENT + "image/" + topicId + "/" + packId
 				+ "/thumbnail/" + fileName;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
-		CloseableHttpResponse response = client.execute(GET);
+		HttpResponse response = client.execute(GET);
 		return response;
 	}
 
 	private HttpResponse getOriginalImage(String topicId, String packId,
 			String fileName, String oAuthToken) throws Exception {
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		String url = BASE_URL + ATTACHMENT + "image/" + topicId + "/" + packId
 				+ "/" + fileName;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
-		CloseableHttpResponse response = client.execute(GET);
+		HttpResponse response = client.execute(GET);
 		return response;
 	}
 
 	private HttpResponse getThumnailVideo(String topicId, String packId,
 			String fileName, String oAuthToken) throws Exception {
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		String url = BASE_URL + ATTACHMENT + "video/" + topicId + "/" + packId
 				+ "/thumbnail/" + fileName;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
-		CloseableHttpResponse response = client.execute(GET);
+		HttpResponse response = client.execute(GET);
 		return response;
 	}
 
 	private HttpResponse getOriginalVideo(String topicId, String packId,
 			String fileName, String oAuthToken) throws Exception {
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		String url = BASE_URL + ATTACHMENT + "video/" + topicId + "/" + packId
 				+ "/" + fileName;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
-		CloseableHttpResponse response = client.execute(GET);
+		HttpResponse response = client.execute(GET);
 		return response;
 	}
 
@@ -124,9 +123,10 @@ public class AttachmentsApi extends AbstractAPI {
 	private JStatus uploadPack(Map<String, Object> params, String url,
 			String oAuthToken) throws ClientProtocolException, IOException,
 			ParseException, PackPackException {
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();//new DefaultHttpClient();
 		HttpPost POST = new HttpPost(url);
-		MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+		//MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+		MultipartEntity multipartEntity = new MultipartEntity();
 		Iterator<String> itr = params.keySet().iterator();
 		while (itr.hasNext()) {
 			String key = itr.next();
@@ -135,19 +135,27 @@ public class AttachmentsApi extends AbstractAPI {
 				continue;
 			} else if (APIConstants.Attachment.FILE_ATTACHMENT.equals(key)) {
 				File file = (File) params.get(key);
-				builder.addBinaryBody(key, file,
-						ContentType.APPLICATION_OCTET_STREAM, file.getName());
+				FileBody fileBody = new FileBody(file, file.getName(),
+						HTTP.OCTET_STREAM_TYPE, null);
+				multipartEntity.addPart(key, fileBody);
+				/*builder.addBinaryBody(key, file,
+						HTTP.OCTET_STREAM_TYPE, file.getName());*/
 			} else {
 				String text = (String) params.get(key);
-				builder.addTextBody(key, text);
+				StringBody textBody = new StringBody(text);
+				multipartEntity.addPart(key, textBody);
+				//builder.addTextBody(key, text);
 			}
 		}
-		HttpEntity entity = builder.build();
-		POST.setEntity(entity);
+		POST.setEntity(multipartEntity);
+		//HttpEntity entity = builder.build();
+		//POST.setEntity(entity);
 		POST.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		/*POST.addHeader(CONTENT_TYPE_HEADER,
+				ContentType.MULTIPART_FORM_DATA.getMimeType());*/
 		POST.addHeader(CONTENT_TYPE_HEADER,
-				ContentType.MULTIPART_FORM_DATA.getMimeType());
-		CloseableHttpResponse response = client.execute(POST);
+				"multipart/form-data");
+		HttpResponse response = client.execute(POST);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JStatus.class);
 	}
@@ -177,9 +185,10 @@ public class AttachmentsApi extends AbstractAPI {
 	private JPack editPack(Map<String, Object> params, String url,
 			String oAuthToken) throws ClientProtocolException, IOException,
 			ParseException, PackPackException {
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		HttpPut PUT = new HttpPut(url);
-		MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+		MultipartEntity multipartEntity = new MultipartEntity();
+		//MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 		Iterator<String> itr = params.keySet().iterator();
 		while (itr.hasNext()) {
 			String key = itr.next();
@@ -189,19 +198,27 @@ public class AttachmentsApi extends AbstractAPI {
 				continue;
 			} else if (APIConstants.Attachment.FILE_ATTACHMENT.equals(key)) {
 				File file = (File) params.get(key);
-				builder.addBinaryBody(key, file,
-						ContentType.APPLICATION_OCTET_STREAM, file.getName());
+				FileBody fileBody = new FileBody(file, file.getName(),
+						HTTP.OCTET_STREAM_TYPE, null);
+				multipartEntity.addPart(key, fileBody);
+				/*builder.addBinaryBody(key, file,
+						ContentType.APPLICATION_OCTET_STREAM, file.getName());*/
 			} else {
 				String text = (String) params.get(key);
-				builder.addTextBody(key, text);
+				StringBody textBody = new StringBody(text);
+				multipartEntity.addPart(key, textBody);
+				//builder.addTextBody(key, text);
 			}
 		}
-		HttpEntity entity = builder.build();
-		PUT.setEntity(entity);
+		PUT.setEntity(multipartEntity);
+		//HttpEntity entity = builder.build();
+		//PUT.setEntity(entity);
 		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		PUT.addHeader(CONTENT_TYPE_HEADER,
-				ContentType.MULTIPART_FORM_DATA.getMimeType());
-		CloseableHttpResponse response = client.execute(PUT);
+				"multipart/form-data");
+		/*PUT.addHeader(CONTENT_TYPE_HEADER,
+				ContentType.MULTIPART_FORM_DATA.getMimeType());*/
+		HttpResponse response = client.execute(PUT);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JPack.class);
 	}

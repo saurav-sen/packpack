@@ -1,20 +1,19 @@
 package com.pack.pack.client.internal;
 
+import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
+import static com.pack.pack.client.api.APIConstants.BASE_URL;
+
 import java.util.Map;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JBrands;
-
-import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
-import static com.pack.pack.client.api.APIConstants.BASE_URL;
 
 /**
  * 
@@ -34,11 +33,11 @@ public class BrandsApi extends AbstractAPI {
 
 	public JBrands getBrandsInfo(String companyName, String oAuthToken)
 			throws Exception {
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		String url = BASE_URL + BRANDS + "companyName/" + companyName;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
-		CloseableHttpResponse response = client.execute(GET);
+		HttpResponse response = client.execute(GET);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JBrands.class);
 	}

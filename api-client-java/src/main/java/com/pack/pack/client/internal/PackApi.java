@@ -8,12 +8,11 @@ import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
 import java.util.Map;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import com.pack.pack.client.api.APIConstants;
@@ -44,11 +43,11 @@ public class PackApi extends AbstractAPI {
 
 	private JPack getPackById(String packId, String oAuthToken)
 			throws Exception {
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		String url = BASE_URL + "pack/" + packId;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
-		CloseableHttpResponse response = client.execute(GET);
+		HttpResponse response = client.execute(GET);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JPack.class);
 	}
@@ -56,11 +55,11 @@ public class PackApi extends AbstractAPI {
 	@SuppressWarnings("unchecked")
 	private Pagination<JPack> getAllLatestPackInDefaultTopics(String userId,
 			String pageLink, String oAuthToken) throws Exception {
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		String url = BASE_URL + "pack/" + "usr/" + userId + "/page/" + pageLink;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
-		CloseableHttpResponse response = client.execute(GET);
+		HttpResponse response = client.execute(GET);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				Pagination.class);
 	}
@@ -68,19 +67,19 @@ public class PackApi extends AbstractAPI {
 	@SuppressWarnings("unchecked")
 	private Pagination<JPack> getAllPacksInTopic(String userId, String topicId,
 			String pageLink, String oAuthToken) throws Exception {
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		String url = BASE_URL + "pack/" + "usr/" + userId + "/topic/" + topicId
 				+ "/page/" + pageLink;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
-		CloseableHttpResponse response = client.execute(GET);
+		HttpResponse response = client.execute(GET);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				Pagination.class);
 	}
 
 	private JStatus forwardPack(String packId, String fromUserId,
 			String toUserId, String oAuthToken) throws Exception {
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		String url = BASE_URL + "pack/" + packId;
 		HttpPut PUT = new HttpPut(url);
 		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
@@ -94,26 +93,26 @@ public class PackApi extends AbstractAPI {
 		String json = JSONUtil.serialize(dto);
 		HttpEntity jsonBody = new StringEntity(json);
 		PUT.setEntity(jsonBody);
-		CloseableHttpResponse response = client.execute(PUT);
+		HttpResponse response = client.execute(PUT);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JStatus.class);
 	}
 
 	private JStatus forwardPackOverEMail(String packId, String fromUserId,
 			String toUserEmail, String oAuthToken) throws Exception {
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		String url = BASE_URL + "pack/" + packId + "/email/" + fromUserId + "/"
 				+ toUserEmail;
 		HttpPut PUT = new HttpPut(url);
 		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
-		CloseableHttpResponse response = client.execute(PUT);
+		HttpResponse response = client.execute(PUT);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JStatus.class);
 	}
 
 	private JComment addComment(JComment comment, String oAuthToken)
 			throws Exception {
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		String url = BASE_URL + "pack/comment";
 		HttpPut PUT = new HttpPut(url);
 		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
@@ -121,14 +120,14 @@ public class PackApi extends AbstractAPI {
 		String json = JSONUtil.serialize(comment);
 		HttpEntity jsonBody = new StringEntity(json);
 		PUT.setEntity(jsonBody);
-		CloseableHttpResponse response = client.execute(PUT);
+		HttpResponse response = client.execute(PUT);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JComment.class);
 	}
 
 	private JStatus addLikeToPack(LikeDTO dto, String oAuthToken)
 			throws Exception {
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		String url = BASE_URL + "pack/favourite";
 		HttpPut PUT = new HttpPut(url);
 		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
@@ -136,7 +135,7 @@ public class PackApi extends AbstractAPI {
 		String json = JSONUtil.serialize(dto);
 		HttpEntity jsonBody = new StringEntity(json);
 		PUT.setEntity(jsonBody);
-		CloseableHttpResponse response = client.execute(PUT);
+		HttpResponse response = client.execute(PUT);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JStatus.class);
 	}

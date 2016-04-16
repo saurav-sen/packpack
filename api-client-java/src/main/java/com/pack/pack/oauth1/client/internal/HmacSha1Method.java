@@ -57,8 +57,6 @@ public class HmacSha1Method {
 			throw new IllegalStateException(ike);
 		}
 
-		return new String(java.util.Base64.getEncoder().encode(
-				mac.doFinal(baseString.getBytes())));
-		// return Base64.encode(mac.doFinal(baseString.getBytes()));
+		return new String(Base64.encode(mac.doFinal(baseString.getBytes())));
 	}
 }

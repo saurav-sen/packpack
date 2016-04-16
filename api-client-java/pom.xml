@@ -13,28 +13,28 @@
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
-			<version>${apache.httpclient}</version>
+			<version>4.1.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpmime</artifactId>
-			<version>${apache.httpclient}</version>
+			<version>4.1.1</version><!-- ${apache.httpclient} -->
 		</dependency>			
 		<dependency>
 			<groupId>com.pack.pack</groupId>
 			<artifactId>common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>com.pack.pack</groupId>
 			<artifactId>elastic-search</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-		<dependency>
+		</dependency-->
+		<!--dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-log4j12</artifactId>
 				<version>${slf4j.version}</version>
-		</dependency>
+		</dependency-->
 		<!--dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>

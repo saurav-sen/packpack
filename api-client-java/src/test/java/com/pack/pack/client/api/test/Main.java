@@ -1,20 +1,12 @@
 package com.pack.pack.client.api.test;
 
-import static com.pack.pack.client.api.APIConstants.BASE_URL;
-
-import java.net.URI;
-
-import com.pack.pack.oauth1.client.AccessToken;
-import com.pack.pack.oauth1.client.OAuth1ClientCredentials;
-import com.pack.pack.oauth1.client.OAuth1RequestFlow;
-import com.pack.pack.oauth1.client.OAuth1Support;
 
 
 public class Main {
 	
 	
-	private static final String ANDROID_APP_CLIENT_KEY = "53e8a1f2-7568-4ac8-ab26-45738ca02599";
-	private static final String ANDROID_APP_CLIENT_SECRET = "b1f6d761-dcb7-482b-a695-ab17e4a29b25";
+	//private static final String ANDROID_APP_CLIENT_KEY = "53e8a1f2-7568-4ac8-ab26-45738ca02599";
+	//private static final String ANDROID_APP_CLIENT_SECRET = "b1f6d761-dcb7-482b-a695-ab17e4a29b25";
 	
 	public static final String USERNAME = "sourabhnits@gmail.com";
 	public static final String PASSWORD = "P@ckp@K#123";
@@ -24,8 +16,9 @@ public class Main {
 		/*SignUpUserTest signUpUserTest = new SignUpUserTest();
 		signUpUserTest.signUp();*/
 		
-		AddTopicTest addTopicTest = new AddTopicTest();
-		addTopicTest.beforeTest();
+		UserFollowedTopicListTest userFollowedTopicListTest = new UserFollowedTopicListTest();
+		userFollowedTopicListTest.beforeTest();
+		userFollowedTopicListTest.testUserFollowedTopicList();
 		//addTopicTest.createNewTopic();
 		
 		/*OAuth1ClientCredentials consumerCredentials = new OAuth1ClientCredentials(

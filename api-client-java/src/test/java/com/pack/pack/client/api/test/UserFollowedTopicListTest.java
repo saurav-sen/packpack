@@ -1,5 +1,7 @@
 package com.pack.pack.client.api.test;
 
+import java.util.List;
+
 import com.pack.pack.client.api.API;
 import com.pack.pack.client.api.APIBuilder;
 import com.pack.pack.client.api.APIConstants;
@@ -40,6 +42,10 @@ public class UserFollowedTopicListTest {
 					.addApiParam(APIConstants.User.ID, userId)
 					.build();
 			page = (Pagination<JTopic>)api.execute();
+			List<JTopic> result = page.getResult();
+			for(JTopic r : result) {
+				System.out.println(r.getName() + "::" + r.getCategory() + "::" + r.getDescription());
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -1,14 +1,18 @@
 package com.pack.pack.client.internal;
 
+import static com.pack.pack.client.api.APIConstants.APPLICATION_JSON;
+import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
+import static com.pack.pack.client.api.APIConstants.BASE_URL;
+import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
+
 import java.util.Map;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import com.pack.pack.client.api.APIConstants;
@@ -20,11 +24,6 @@ import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.dto.EGiftForwardDTO;
 import com.pack.pack.model.web.dto.PackReceipent;
 import com.pack.pack.model.web.dto.PackReceipentType;
-
-import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
-import static com.pack.pack.client.api.APIConstants.BASE_URL;
-import static com.pack.pack.client.api.APIConstants.APPLICATION_JSON;
-import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
 
 /**
  * 
@@ -44,11 +43,11 @@ public class EGiftApi extends AbstractAPI {
 
 	private JeGift getEGiftById(String egiftId, String oAuthToken)
 			throws Exception {
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		String url = BASE_URL + EGIFTS + egiftId;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
-		CloseableHttpResponse response = client.execute(GET);
+		HttpResponse response = client.execute(GET);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JeGift.class);
 	}
@@ -56,12 +55,12 @@ public class EGiftApi extends AbstractAPI {
 	@SuppressWarnings("unchecked")
 	private Pagination<JeGift> getAllEGiftsByBrandId(String brandId,
 			String pageLink, String oAuthToken) throws Exception {
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		String url = BASE_URL + EGIFTS + "brand/" + brandId + "/page/"
 				+ pageLink;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
-		CloseableHttpResponse response = client.execute(GET);
+		HttpResponse response = client.execute(GET);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				Pagination.class);
 	}
@@ -69,19 +68,19 @@ public class EGiftApi extends AbstractAPI {
 	@SuppressWarnings("unchecked")
 	private Pagination<JeGift> getAllEGiftsByCategory(String category,
 			String pageLink, String oAuthToken) throws Exception {
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		String url = BASE_URL + EGIFTS + "category/" + category + "/page/"
 				+ pageLink;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
-		CloseableHttpResponse response = client.execute(GET);
+		HttpResponse response = client.execute(GET);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				Pagination.class);
 	}
 
 	private JStatus forwardEGift(EGiftForwardDTO dto, String egiftId,
 			String oAuthToken) throws Exception {
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		String url = BASE_URL + EGIFTS + egiftId;
 		HttpPut PUT = new HttpPut(url);
 		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
@@ -89,7 +88,7 @@ public class EGiftApi extends AbstractAPI {
 		String json = JSONUtil.serialize(dto);
 		HttpEntity jsonBody = new StringEntity(json);
 		PUT.setEntity(jsonBody);
-		CloseableHttpResponse response = client.execute(PUT);
+		HttpResponse response = client.execute(PUT);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JStatus.class);
 	}

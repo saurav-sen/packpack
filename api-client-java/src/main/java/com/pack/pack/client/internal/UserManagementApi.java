@@ -9,18 +9,17 @@ import java.net.URI;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
 import com.pack.pack.client.api.APIConstants;
@@ -101,10 +100,10 @@ public class UserManagementApi extends AbstractAPI {
 			throws ClientProtocolException, IOException, ParseException,
 			PackPackException {
 		String url = BASE_URL + "user/name/" + namePattern;
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, accessToken);
-		CloseableHttpResponse response = client.execute(GET);
+		HttpResponse response = client.execute(GET);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JUser.class);
 	}
@@ -114,10 +113,10 @@ public class UserManagementApi extends AbstractAPI {
 			ParseException, PackPackException {
 		String username = (String) params.get(APIConstants.User.USERNAME);
 		String url = BASE_URL + "user/username/" + username;
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, accessToken);
-		CloseableHttpResponse response = client.execute(GET);
+		HttpResponse response = client.execute(GET);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JUser.class);
 	}
@@ -126,7 +125,7 @@ public class UserManagementApi extends AbstractAPI {
 			throws ClientProtocolException, IOException, PackPackException {
 		String id = (String) params.get(APIConstants.User.ID);
 		String url = BASE_URL + "user/id/" + id;
-		HttpClient client = HttpClientBuilder.create().build();
+		HttpClient client = new DefaultHttpClient();
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, accessToken);
 		HttpResponse response = client.execute(GET);
@@ -138,26 +137,32 @@ public class UserManagementApi extends AbstractAPI {
 			throws ClientProtocolException, IOException, ParseException,
 			PackPackException {
 		String url = BASE_URL + "user";
-		CloseableHttpClient client = HttpClientBuilder.create().build();
+		DefaultHttpClient client = new DefaultHttpClient();
 		HttpPost POST = new HttpPost(url);
-		MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+		MultipartEntity multipartEntity = new MultipartEntity();
+		//MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 		Iterator<String> itr = params.keySet().iterator();
 		while (itr.hasNext()) {
 			String key = itr.next();
 			if (APIConstants.User.Register.PROFILE_PICTURE.equals(key)) {
 				File file = (File) params.get(key);
-				builder.addBinaryBody(key, file,
-						ContentType.APPLICATION_OCTET_STREAM, file.getName());
+				FileBody fileBody = new FileBody(file, file.getName(),
+						HTTP.OCTET_STREAM_TYPE, null);
+				multipartEntity.addPart(key, fileBody);
+				//builder.addBinaryBody(key, file, HTTP.OCTET_STREAM_TYPE, file.getName());
 			} else {
 				String text = (String) params.get(key);
-				builder.addTextBody(key, text);
+				//builder.addTextBody(key, text);
+				StringBody contentBody = new StringBody(text);
+				multipartEntity.addPart(key, contentBody);
 			}
 		}
-		HttpEntity entity = builder.build();
-		POST.setEntity(entity);
+		//HttpEntity entity = builder.build();
+		//POST.setEntity(entity);
+		POST.setEntity(multipartEntity);
 		/*POST.addHeader("Content-Type",
 				ContentType.MULTIPART_FORM_DATA.getMimeType());*/
-		CloseableHttpResponse response = client.execute(POST);
+		HttpResponse response = client.execute(POST);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JStatus.class);
 	}
@@ -206,7 +211,7 @@ public class UserManagementApi extends AbstractAPI {
 		int index = query.indexOf("oauth_token=");
 		String requestToken = query.substring(index + "oauth_token=".length());
 
-		HttpClient client = HttpClientBuilder.create().build();
+		HttpClient client = new DefaultHttpClient();
 		HttpPost POST = new HttpPost(
 				"http://192.168.35.12:8080/packpack/oauth/authorize");
 		POST.addHeader("Authorization", requestToken);

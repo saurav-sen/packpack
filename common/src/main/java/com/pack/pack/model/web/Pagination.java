@@ -14,6 +14,9 @@ public class Pagination<T> {
 
 	private List<T> result;
 	
+	public Pagination() {
+	}
+	
 	public Pagination(String previousLink, String nextLink, List<T> result) {
 		this.previousLink = previousLink;
 		this.nextLink = nextLink;
@@ -30,5 +33,17 @@ public class Pagination<T> {
 
 	public List<T> getResult() {
 		return result;
+	}
+
+	public void setPreviousLink(String previousLink) {
+		this.previousLink = previousLink;
+	}
+
+	public void setNextLink(String nextLink) {
+		this.nextLink = nextLink;
+	}
+
+	public void setResult(List<T> result) {
+		this.result = result;
 	}
 }
