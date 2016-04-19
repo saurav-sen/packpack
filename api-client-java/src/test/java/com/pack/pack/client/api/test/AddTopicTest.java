@@ -1,5 +1,7 @@
 package com.pack.pack.client.api.test;
 
+import java.io.File;
+
 import com.pack.pack.client.api.API;
 import com.pack.pack.client.api.APIBuilder;
 import com.pack.pack.client.api.APIConstants;
@@ -12,7 +14,7 @@ import com.pack.pack.model.web.JTopic;
  *
  */
 public class AddTopicTest extends UserFollowedTopicListTest {
-	
+
 	private static final String TOPIC_WALLPAPER = "D:/Saurav/Freedom.jpg";
 
 	public void beforeTest() throws Exception {
@@ -30,13 +32,13 @@ public class AddTopicTest extends UserFollowedTopicListTest {
 					.addApiParam(APIConstants.Topic.DESCRIPTION,
 							"New way for Freedom of mind, thought & work.")
 					.addApiParam(APIConstants.Topic.CATEGORY, "Study")
-					.addApiParam(APIConstants.Topic.WALLPAPER, TOPIC_WALLPAPER).build();
+					.addApiParam(APIConstants.Topic.WALLPAPER,
+							new File(TOPIC_WALLPAPER)).build();
 			JTopic topic = (JTopic) api.execute();
 
 			api = APIBuilder.create().setAction(COMMAND.GET_TOPIC_BY_ID)
 					.setOauthToken(oAuthToken)
-					.addApiParam(APIConstants.Topic.ID, topic.getId())
-					.build();
+					.addApiParam(APIConstants.Topic.ID, topic.getId()).build();
 			topic = (JTopic) api.execute();
 		} catch (Exception e) {
 			e.printStackTrace();

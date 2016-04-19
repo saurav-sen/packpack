@@ -10,8 +10,14 @@ public class Main {
 	
 	public static final String USERNAME = "sourabhnits@gmail.com";
 	public static final String PASSWORD = "P@ckp@K#123";
-
+	
 	public static void main(String[] args) throws Exception {
+		AddTopicTest addTopicTest = new AddTopicTest();
+		addTopicTest.beforeTest();
+		addTopicTest.createNewTopic();
+	}
+
+	public static void main1(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		/*SignUpUserTest signUpUserTest = new SignUpUserTest();
 		signUpUserTest.signUp();*/
