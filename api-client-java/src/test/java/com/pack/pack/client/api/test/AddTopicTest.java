@@ -1,7 +1,5 @@
 package com.pack.pack.client.api.test;
 
-import java.util.UUID;
-
 import com.pack.pack.client.api.API;
 import com.pack.pack.client.api.APIBuilder;
 import com.pack.pack.client.api.APIConstants;
@@ -14,6 +12,8 @@ import com.pack.pack.model.web.JTopic;
  *
  */
 public class AddTopicTest extends UserFollowedTopicListTest {
+	
+	private static final String TOPIC_WALLPAPER = "D:/Saurav/Freedom.jpg";
 
 	public void beforeTest() throws Exception {
 		super.beforeTest();
@@ -26,11 +26,11 @@ public class AddTopicTest extends UserFollowedTopicListTest {
 					.setAction(COMMAND.CREATE_NEW_TOPIC)
 					.setOauthToken(oAuthToken)
 					.addApiParam(APIConstants.Topic.OWNER_ID, userId)
-					.addApiParam(APIConstants.Topic.OWNER_NAME, "Saurav Sen")
-					.addApiParam(APIConstants.Topic.NAME, "Freedom of life")
+					.addApiParam(APIConstants.Topic.NAME, "Freedom of Thought")
 					.addApiParam(APIConstants.Topic.DESCRIPTION,
-							"Freedom of mind, thought & work.")
-					.addApiParam(APIConstants.Topic.CATEGORY, "Study").build();
+							"New way for Freedom of mind, thought & work.")
+					.addApiParam(APIConstants.Topic.CATEGORY, "Study")
+					.addApiParam(APIConstants.Topic.WALLPAPER, TOPIC_WALLPAPER).build();
 			JTopic topic = (JTopic) api.execute();
 
 			api = APIBuilder.create().setAction(COMMAND.GET_TOPIC_BY_ID)

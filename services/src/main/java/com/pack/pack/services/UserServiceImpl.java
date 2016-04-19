@@ -17,7 +17,7 @@ import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.es.ESUploadService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
-import com.pack.pack.util.AttachmentUtil;
+import static com.pack.pack.util.AttachmentUtil.*;
 import com.pack.pack.util.ModelConverter;
 import com.pack.pack.util.SystemPropertyUtil;
 
@@ -69,6 +69,14 @@ public class UserServiceImpl implements IUserService {
 		esService.uploadNewUserDetails(user);
 		return status;
 	}
+	
+	@Override
+	public JUser findUserById(String userId) throws PackPackException {
+		UserRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(UserRepositoryService.class);
+		User user = service.get(userId);
+		return ModelConverter.convert(user);
+	}
 
 	@Override
 	public JUser uploadProfilePicture(String userId,
@@ -99,7 +107,7 @@ public class UserServiceImpl implements IUserService {
 			f.mkdir();
 		}
 		location = location + File.separator + profilePictureFileName;
-		AttachmentUtil.storeUploadedAttachment(profilePicture, location);
+		resizeAndStoreUploadedAttachment(profilePicture, location, 30, 30);
 		return location.substring(home.length());
 	}
 }

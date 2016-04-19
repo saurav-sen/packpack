@@ -1,5 +1,7 @@
 package com.pack.pack;
 
+import java.io.InputStream;
+
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.Pagination;
@@ -71,10 +73,12 @@ public interface ITopicService {
 	/**
 	 * 
 	 * @param topic
+	 * @param wallpaper
+	 * @param wallpaperName
 	 * @return
 	 * @throws PackPackException
 	 */
-	public JTopic createNewTopic(JTopic topic) throws PackPackException;
+	public JTopic createNewTopic(JTopic topic, InputStream wallpaper, String wallpaperName) throws PackPackException;
 	
 	/**
 	 * 

@@ -1,5 +1,7 @@
 package com.pack.pack.services;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,7 +22,9 @@ import com.pack.pack.services.couchdb.UserTopicMapRepositoryService;
 import com.pack.pack.services.es.ESUploadService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
+import static com.pack.pack.util.AttachmentUtil.*;
 import com.pack.pack.util.ModelConverter;
+import com.pack.pack.util.SystemPropertyUtil;
 
 /**
  * 
@@ -161,16 +165,39 @@ public class TopicServiceImpl implements ITopicService {
 	}
 
 	@Override
-	public JTopic createNewTopic(JTopic jTopic) throws PackPackException {
+	public JTopic createNewTopic(JTopic jTopic, InputStream wallpaper,
+			String wallpaperName) throws PackPackException {
 		TopicRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(TopicRepositoryService.class);
 		Topic topic = ModelConverter.convert(jTopic);
 		service.add(topic);
+		String location = storeTopicWallpaper(topic.getId(), wallpaper,
+				wallpaperName);
+		topic.setWallpaperUrl(location);
+		service.update(topic);
 		followTopic(topic.getOwnerId(), topic.getId());
 		ESUploadService esUploadService = ServiceRegistry.INSTANCE
 				.findService(ESUploadService.class);
 		esUploadService.uploadNewTopicDetails(topic);
 		return ModelConverter.convert(topic);
+	}
+	
+	private String storeTopicWallpaper(String topicId,
+			InputStream wallpaper, String wallpaperFileName)
+			throws PackPackException {
+		String home = SystemPropertyUtil.getTopicWallpaperHome();
+		String location = home;
+		if (!location.endsWith(File.separator)) {
+			location = location + File.separator;
+		}
+		location = location + topicId;
+		File f = new File(location);
+		if (!f.exists()) {
+			f.mkdir();
+		}
+		location = location + File.separator + wallpaperFileName;
+		resizeAndStoreUploadedAttachment(wallpaper, location, 100, 100);
+		return location.substring(home.length());
 	}
 
 	@Override

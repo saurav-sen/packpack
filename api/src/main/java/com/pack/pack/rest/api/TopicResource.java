@@ -1,5 +1,7 @@
 package com.pack.pack.rest.api;
 
+import java.io.InputStream;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -8,6 +10,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
+
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import com.pack.pack.ITopicService;
 import com.pack.pack.model.web.JTopic;
@@ -64,10 +69,24 @@ public class TopicResource {
 
 	@POST
 	@Produces(value = MediaType.APPLICATION_JSON)
-	@Consumes(value = MediaType.APPLICATION_JSON)
-	public JTopic add(JTopic topic) throws PackPackException {
+	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
+	public JTopic createNewTopic(
+			@FormDataParam("name") String name,
+			@FormDataParam("description") String description,
+			@FormDataParam("ownerId") String ownerId,
+			@FormDataParam("category") String category,
+			@FormDataParam("wallpaper") InputStream wallpaper,
+			@FormDataParam("wallpaper") FormDataContentDisposition aboutWallpaper)
+			throws PackPackException {
+		JTopic topic = new JTopic();
+		topic.setName(name);
+		topic.setDescription(description);
+		topic.setFollowers(1);
+		topic.setOwnerId(ownerId);
+		topic.setCategory(category);
 		ITopicService service = ServiceRegistry.INSTANCE
 				.findCompositeService(ITopicService.class);
-		return service.createNewTopic(topic);
+		return service.createNewTopic(topic, wallpaper,
+				aboutWallpaper.getFileName());
 	}
 }

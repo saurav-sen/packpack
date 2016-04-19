@@ -28,6 +28,8 @@ public class Topic extends CouchDbDocument {
 	private List<String> packIds;
 	
 	private String category;
+	
+	private String wallpaperUrl;
 
 	public String getOwnerId() {
 		return ownerId;
@@ -78,5 +80,13 @@ public class Topic extends CouchDbDocument {
 
 	public void setCategory(String category) {
 		this.category = category;
+	}
+
+	public String getWallpaperUrl() {
+		return wallpaperUrl;
+	}
+
+	public void setWallpaperUrl(String wallpaperUrl) {
+		this.wallpaperUrl = wallpaperUrl;
 	}
 }

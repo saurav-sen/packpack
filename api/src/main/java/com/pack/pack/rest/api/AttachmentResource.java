@@ -3,6 +3,7 @@ package com.pack.pack.rest.api;
 import static com.pack.pack.util.SystemPropertyUtil.ATTACHMENT;
 import static com.pack.pack.util.SystemPropertyUtil.IMAGE;
 import static com.pack.pack.util.SystemPropertyUtil.PROFILE;
+import static com.pack.pack.util.SystemPropertyUtil.TOPIC;
 import static com.pack.pack.util.SystemPropertyUtil.URL_SEPARATOR;
 import static com.pack.pack.util.SystemPropertyUtil.VIDEO;
 
@@ -17,6 +18,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
@@ -45,6 +47,39 @@ public class AttachmentResource {
 
 	private static Logger logger = LoggerFactory
 			.getLogger(AttachmentResource.class);
+	
+	@GET
+	@Path(TOPIC + URL_SEPARATOR + IMAGE + URL_SEPARATOR + "{topicId}"
+			+ URL_SEPARATOR + "{fileName}")
+	@Produces({ "image/png", "image/jpg" })
+	public Response getTopicWallpaperImage(@PathParam("topicId") String topicId,
+			@PathParam("fileName") String fileName, @QueryParam("thumnail") String thumnail) throws PackPackException {
+		boolean isThumbnail = false;
+		try {
+			isThumbnail = thumnail != null ? Boolean.parseBoolean(thumnail.trim()) : false;
+		} catch (Exception e) {
+			// ignore
+		}
+		try {
+			String topicWallpaperHome = SystemPropertyUtil.getTopicWallpaperHome();
+			StringBuilder path = new StringBuilder(topicWallpaperHome);
+			if (!topicWallpaperHome.endsWith(File.separator)) {
+				path = path.append(File.separator);
+			}
+			path.append(topicId);
+			path.append(File.separator);
+			if(isThumbnail) {
+				path.append("thumbnail");
+				path.append(File.separator);
+			}
+			path.append(fileName);
+			File imageFile = new File(path.toString());
+			return ImageUtil.buildResponse(imageFile);
+		} catch (FileNotFoundException e) {
+			logger.info(e.getMessage(), e);
+			throw new PackPackException("TODO", e.getMessage(), e);
+		}
+	}
 
 	@GET
 	@Path(PROFILE + URL_SEPARATOR + IMAGE + URL_SEPARATOR + "{userId}"

@@ -22,6 +22,10 @@ public class JTopic {
 	
 	private String category;
 	
+	private String wallpaperUrl;
+	
+	private String ownerProfilePicture;
+	
 	public String getOwnerId() {
 		return ownerId;
 	}
@@ -76,5 +80,21 @@ public class JTopic {
 
 	public void setCategory(String category) {
 		this.category = category;
+	}
+
+	public String getWallpaperUrl() {
+		return wallpaperUrl;
+	}
+
+	public void setWallpaperUrl(String wallpaperUrl) {
+		this.wallpaperUrl = wallpaperUrl;
+	}
+
+	public String getOwnerProfilePicture() {
+		return ownerProfilePicture;
+	}
+
+	public void setOwnerProfilePicture(String ownerProfilePicture) {
+		this.ownerProfilePicture = ownerProfilePicture;
 	}
 }

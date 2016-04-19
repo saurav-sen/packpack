@@ -32,6 +32,12 @@ public class AttachmentUtil {
 
 	private static final int THUMBNAIL_WIDTH = 50;
 	private static final int THUMBNAIL_HEIGHT = 50;
+	
+	public static File resizeAndStoreUploadedAttachment(InputStream inputStream,
+			String fileLoc, int width, int height) throws PackPackException {
+		File attachmentFile = storeUploadedAttachment(inputStream, fileLoc);
+		return createThumnailForImage(attachmentFile, width, height);
+	}
 
 	public static File storeUploadedAttachment(InputStream inputStream,
 			String fileLoc) throws PackPackException {
@@ -61,13 +67,18 @@ public class AttachmentUtil {
 		}
 		return attachmentFile;
 	}
-
+	
 	public static File createThumnailForImage(File imageFile)
+			throws PackPackException {
+		return createThumnailForImage(imageFile, THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT);
+	}
+
+	private static File createThumnailForImage(File imageFile, int width, int height)
 			throws PackPackException {
 		try {
 			BufferedImage image = ImageIO.read(imageFile);
 			BufferedImage thumbnailImage = Scalr.resize(image, Method.QUALITY,
-					Mode.AUTOMATIC, THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT,
+					Mode.AUTOMATIC, width, height,
 					Scalr.OP_ANTIALIAS);
 			File parentFile = imageFile.getParentFile();
 			String path = parentFile.getAbsolutePath() + File.separator

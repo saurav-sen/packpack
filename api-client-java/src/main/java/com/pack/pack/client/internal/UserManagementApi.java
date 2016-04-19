@@ -40,10 +40,10 @@ import com.pack.pack.services.exception.PackPackException;
  */
 public class UserManagementApi extends AbstractAPI {
 
-	private static final String OAUTH_REQUEST_TOKEN_PATH = "oauth/request_token"; //$NON-NLS-1$
+	/*private static final String OAUTH_REQUEST_TOKEN_PATH = "oauth/request_token"; //$NON-NLS-1$
 	private static final String OAUTH_ACCESS_TOKEN_PATH = "oauth/access_token"; //$NON-NLS-1$
 	private static final String OAUTH_AUTHORIZATION_PATH = "oauth/authorize"; //$NON-NLS-1$
-	
+*/	
 	private Invoker invoker = new Invoker();
 
 	@Override
@@ -227,7 +227,7 @@ public class UserManagementApi extends AbstractAPI {
 		return accessToken;
 	}*/
 	
-	private String fetchRequestToken(String clientKey, String clientSecret)
+	/*private String fetchRequestToken(String clientKey, String clientSecret)
 			throws ClientProtocolException, IOException {
 		OAuth1ClientCredentials consumerCredentials = new OAuth1ClientCredentials(
 				clientKey, clientSecret);
@@ -239,5 +239,5 @@ public class UserManagementApi extends AbstractAPI {
 		int index = query.indexOf("oauth_token=");
 		String requestToken = query.substring(index + "oauth_token=".length());
 		return requestToken;
-	}
+	}*/
 }

@@ -5,6 +5,8 @@ import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
 import static com.pack.pack.client.api.APIConstants.BASE_URL;
 import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
 
+import java.io.File;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +16,11 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
 import com.pack.pack.client.api.APIConstants;
@@ -99,9 +105,8 @@ public class TopicApi extends AbstractAPI {
 				JTopic.class);
 	}
 
-	private JTopic createTopic(String ownerId, String ownerName, String name,
-			String description, String category, String oAuthToken) throws Exception {
-		int followers = 0;
+	private JTopic createTopic(Map<String, Object> params, String oAuthToken) throws Exception {
+		/*int followers = 0;
 		JTopic topic = new JTopic();
 		topic.setDescription(description);
 		topic.setName(name);
@@ -109,14 +114,37 @@ public class TopicApi extends AbstractAPI {
 		topic.setOwnerName(ownerName);
 		topic.setOwnerId(ownerId);
 		topic.setCategory(category);
-		String json = JSONUtil.serialize(topic, false);
+		String json = JSONUtil.serialize(topic, false);*/
 		String url = BASE_URL + "topic/";
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpPost POST = new HttpPost(url);
 		POST.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		//POST.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
-		HttpEntity jsonBody = new StringEntity(json, APPLICATION_JSON);
-		POST.setEntity(jsonBody);
+		/*HttpEntity jsonBody = new StringEntity(json, APPLICATION_JSON);
+		POST.setEntity(jsonBody);*/
+		
+		MultipartEntity multipartEntity = new MultipartEntity();
+		//MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+		Iterator<String> itr = params.keySet().iterator();
+		while (itr.hasNext()) {
+			String key = itr.next();
+			if (APIConstants.Topic.WALLPAPER.equals(key)) {
+				File file = (File) params.get(key);
+				FileBody fileBody = new FileBody(file, file.getName(),
+						HTTP.OCTET_STREAM_TYPE, null);
+				multipartEntity.addPart(key, fileBody);
+				//builder.addBinaryBody(key, file, HTTP.OCTET_STREAM_TYPE, file.getName());
+			} else {
+				String text = (String) params.get(key);
+				//builder.addTextBody(key, text);
+				StringBody contentBody = new StringBody(text);
+				multipartEntity.addPart(key, contentBody);
+			}
+		}
+		//HttpEntity entity = builder.build();
+		//POST.setEntity(entity);
+		POST.setEntity(multipartEntity);
+		
 		HttpResponse response = client.execute(POST);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JTopic.class);
@@ -163,7 +191,7 @@ public class TopicApi extends AbstractAPI {
 						.get(APIConstants.Topic.ID);
 				result = getTopicById(topicId, oAuthToken);
 			} else if (action == COMMAND.CREATE_NEW_TOPIC) {
-				String ownerId = (String) params
+				/*String ownerId = (String) params
 						.get(APIConstants.Topic.OWNER_ID);
 				String ownerName = (String) params
 						.get(APIConstants.Topic.OWNER_NAME);
@@ -171,9 +199,8 @@ public class TopicApi extends AbstractAPI {
 				String description = (String) params
 						.get(APIConstants.Topic.DESCRIPTION);
 				String category = (String) params
-						.get(APIConstants.Topic.CATEGORY);
-				result = createTopic(ownerId, ownerName, name, description,
-						category, oAuthToken);
+						.get(APIConstants.Topic.CATEGORY);*/
+				result = createTopic(params, oAuthToken);
 			}
 			return result;
 		}

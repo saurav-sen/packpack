@@ -8,6 +8,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pack.pack.IUserService;
 import com.pack.pack.model.Comment;
 import com.pack.pack.model.EGift;
 import com.pack.pack.model.Pack;
@@ -24,6 +25,7 @@ import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.JeGift;
 import com.pack.pack.services.couchdb.UserRepositoryService;
+import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 
 /**
@@ -165,6 +167,30 @@ public class ModelConverter {
 		logger.trace("Resolved URL for profile picture = " + profilePictureUrl);
 		return profilePictureUrl;
 	}
+	
+	public static String resolveTopicWallpaperUrl(String wallpaperLocation) {
+		if (wallpaperLocation == null) {
+			return null;
+		}
+		String baseURL = SystemPropertyUtil.getTopicWallpaperBaseURL();
+		String topicWallpaperUrl = wallpaperLocation;
+		topicWallpaperUrl = topicWallpaperUrl.replaceAll(File.separator,
+				SystemPropertyUtil.URL_SEPARATOR);
+		if (!topicWallpaperUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)
+				&& !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+			topicWallpaperUrl = baseURL + SystemPropertyUtil.URL_SEPARATOR
+					+ topicWallpaperUrl;
+		} else if (baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)
+				&& topicWallpaperUrl
+						.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+			topicWallpaperUrl = baseURL.substring(0, baseURL.length() - 1)
+					+ topicWallpaperUrl;
+		} else {
+			topicWallpaperUrl = baseURL + topicWallpaperUrl;
+		}
+		logger.trace("Resolved URL for topic wallpaper = " + topicWallpaperUrl);
+		return topicWallpaperUrl;
+	}
 
 	public static Comment convert(JComment jComment) {
 		Comment comment = new Comment();
@@ -175,7 +201,7 @@ public class ModelConverter {
 		return comment;
 	}
 
-	public static JTopic convert(Topic topic) {
+	public static JTopic convert(Topic topic) throws PackPackException {
 		JTopic jTopic = new JTopic();
 		jTopic.setDescription(topic.getDescription());
 		jTopic.setFollowers(topic.getFollowers());
@@ -183,14 +209,18 @@ public class ModelConverter {
 		String userId = topic.getOwnerId();
 		jTopic.setOwnerId(userId);
 		jTopic.setId(topic.getId());
-		User user = getUserInfo(userId);
+		jTopic.setCategory(topic.getCategory());
+		jTopic.setWallpaperUrl(resolveTopicWallpaperUrl(topic.getWallpaperUrl()));
+		JUser user = getUserInfo(userId);
 		if (user != null) {
 			jTopic.setOwnerName(user.getName());
+			jTopic.setOwnerProfilePicture(user.getProfilePictureUrl());
+			
 		}
 		return jTopic;
 	}
 
-	public static List<JTopic> convertTopicList(List<Topic> topics) {
+	public static List<JTopic> convertTopicList(List<Topic> topics) throws PackPackException {
 		List<JTopic> jTopics = new ArrayList<JTopic>();
 		for (Topic topic : topics) {
 			JTopic jTopic = convert(topic);
@@ -199,10 +229,10 @@ public class ModelConverter {
 		return jTopics;
 	}
 
-	private static User getUserInfo(String userId) {
-		UserRepositoryService service = ServiceRegistry.INSTANCE
-				.findService(UserRepositoryService.class);
-		return service.get(userId);
+	private static JUser getUserInfo(String userId) throws PackPackException {
+		IUserService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IUserService.class);
+		return service.findUserById(userId);
 	}
 
 	public static Topic convert(JTopic jTopic) {

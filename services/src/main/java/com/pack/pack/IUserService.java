@@ -21,4 +21,6 @@ public interface IUserService {
 	public JUser uploadProfilePicture(String userId,
 			InputStream profilePicture, String profilePictureFileName)
 			throws PackPackException;
+	
+	public JUser findUserById(String userId) throws PackPackException;
 }
