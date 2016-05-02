@@ -93,4 +93,8 @@ public interface APIConstants {
 		public static final String DESCRIPTION = "description";
 		public static final String STORY = "story";
 	}
+	
+	public static interface ProtectedResource {
+		public static final String RESOURCE_URL = "url";
+	}
 }

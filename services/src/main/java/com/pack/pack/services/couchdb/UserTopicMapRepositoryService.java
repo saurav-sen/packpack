@@ -35,7 +35,7 @@ import com.pack.pack.model.web.Pagination;
 @Component
 @Scope("singleton")
 @Views({
-	@View(name="allForUser", map="function(doc) { if(doc.userId && doc._id && doc.topicId) { emit(doc.userId, doc.topicId); }}"),
+	@View(name="allForUser", map="function(doc) { if(doc.userId && doc._id && doc.topicId && doc.topicCategory) { emit([doc.userId, doc.topicCategory], doc.topicId); }}"),
 	@View(name="allUserForTopic", map="function(doc) { if(doc.userId && doc._id && doc.topicId) { emit(doc.topicId, doc.userId); }}"),
 	@View(name="usrVsTopicMap", map="function(doc) { if(doc.userId && doc._id && doc.topicId) { emit([doc.topicId, doc.userId], doc); }}")
 	
@@ -61,7 +61,31 @@ public class UserTopicMapRepositoryService extends CouchDbRepositorySupport<User
 		logger.debug("Loading All Topic information followed by user having userId="
 				+ userId + " in paginated API with page-link=" + pageLink);
 		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink))? PageRequest.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
-		ViewQuery query = createQuery("allForUser").key(userId);
+		List<String> keys = new ArrayList<String>();
+		keys.add(userId);
+		ViewQuery query = createQuery("allForUser").keys(keys);
+		Page<String> page = db.queryForPage(query, pr, String.class);
+		if(page == null) {
+			return null;
+		}
+		List<String> topicIds = page.getRows();
+		if(topicIds == null || topicIds.isEmpty()) {
+			return null;
+		}
+		List<Topic> result = topicRepoService.getAllTopicsById(topicIds);
+		String nextLink = page.isHasNext() ? page.getNextLink() : END_OF_PAGE;
+		String previousLink = page.isHasPrevious() ? page.getPreviousLink() : END_OF_PAGE;
+		return new Pagination<Topic>(previousLink, nextLink, result);
+	}
+	
+	public Pagination<Topic> getAllTopicsFollowedByUserAndCategory(String userId, String topicCategory, String pageLink) {
+		logger.debug("Loading All Topic information followed by user having userId="
+				+ userId + " in paginated API with page-link=" + pageLink);
+		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink))? PageRequest.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
+		List<String> keys = new ArrayList<String>();
+		keys.add(userId);
+		keys.add(topicCategory);
+		ViewQuery query = createQuery("allForUser").keys(keys);
 		Page<String> page = db.queryForPage(query, pr, String.class);
 		if(page == null) {
 			return null;

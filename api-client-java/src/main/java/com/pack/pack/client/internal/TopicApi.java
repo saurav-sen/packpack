@@ -48,9 +48,9 @@ public class TopicApi extends AbstractAPI {
 
 	@SuppressWarnings("unchecked")
 	private Pagination<JTopic> getUserTopicList(String pageLink,
-			String oAuthToken, String userId) throws Exception {
-		String url = BASE_URL + "activity/topic/" + pageLink + "/user/"
-				+ userId;
+			String oAuthToken, String userId, String category) throws Exception {
+		String url = BASE_URL + "activity/topic/" + pageLink + "/category/"
+				+ category + "/user/" + userId;
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpGet GET = new HttpGet(url);
 		GET.setHeader(AUTHORIZATION_HEADER, oAuthToken);
@@ -175,7 +175,8 @@ public class TopicApi extends AbstractAPI {
 					pageLink = "FIRST_PAGE";
 				}
 				String userId = (String) params.get(APIConstants.User.ID);
-				result = getUserTopicList(pageLink, oAuthToken, userId);
+				String category = (String) params.get(APIConstants.Topic.CATEGORY);
+				result = getUserTopicList(pageLink, oAuthToken, userId, category);
 			} else if (action == COMMAND.FOLLOW_TOPIC) {
 				String userId = (String) params.get(APIConstants.User.ID);
 				String topicId = (String) params

@@ -6,6 +6,7 @@ import com.pack.pack.client.api.API;
 import com.pack.pack.client.api.APIBuilder;
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
+import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.Pagination;
@@ -44,7 +45,9 @@ public class UserFollowedTopicListTest {
 			page = (Pagination<JTopic>)api.execute();
 			List<JTopic> result = page.getResult();
 			for(JTopic r : result) {
-				System.out.println(r.getName() + "::" + r.getCategory() + "::" + r.getDescription());
+				String json = JSONUtil.serialize(r);
+				System.out.println(json);
+				//System.out.println(r.getName() + "::" + r.getCategory() + "::" + r.getDescription());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

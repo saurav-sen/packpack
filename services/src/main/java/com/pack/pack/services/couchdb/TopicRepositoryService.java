@@ -109,8 +109,7 @@ public class TopicRepositoryService extends CouchDbRepositorySupport<Topic> {
 			String pageLink) {
 		logger.debug("getAllTopicsByCategoryName(categoryName=" + categoryName
 				+ ", pageLink=" + pageLink);
-		ViewQuery query = createQuery("findTopicByCategoryName").key(
-				categoryName);
+		ViewQuery query = createQuery("findTopicByCategoryName").key(categoryName);
 		if (END_OF_PAGE.equals(pageLink)) {
 			return new Pagination<Topic>(END_OF_PAGE, END_OF_PAGE,
 					Collections.emptyList());

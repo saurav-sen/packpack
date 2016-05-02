@@ -12,6 +12,17 @@ public class Main {
 	public static final String PASSWORD = "P@ckp@K#123";
 	
 	public static void main(String[] args) throws Exception {
+		//addTopicTest();
+		testUserFOllowedTopicList();
+	}
+	
+	private static void testUserFOllowedTopicList() throws Exception {
+		UserFollowedTopicListTest userFollowedTopicListTest = new UserFollowedTopicListTest();
+		userFollowedTopicListTest.beforeTest();
+		userFollowedTopicListTest.testUserFollowedTopicList();
+	}
+	
+	private static void addTopicTest() throws Exception {
 		AddTopicTest addTopicTest = new AddTopicTest();
 		addTopicTest.beforeTest();
 		addTopicTest.createNewTopic();

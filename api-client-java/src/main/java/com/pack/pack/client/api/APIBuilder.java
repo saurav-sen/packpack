@@ -9,6 +9,7 @@ import com.pack.pack.client.internal.BrandsApi;
 import com.pack.pack.client.internal.Configuration;
 import com.pack.pack.client.internal.EGiftApi;
 import com.pack.pack.client.internal.PackApi;
+import com.pack.pack.client.internal.ResourceLoaderApi;
 import com.pack.pack.client.internal.TopicApi;
 import com.pack.pack.client.internal.UserManagementApi;
 
@@ -92,6 +93,9 @@ public class APIBuilder {
 				|| action == COMMAND.UPLOAD_VIDEO_PACK
 				|| action == COMMAND.ADD_VIDEO_TO_PACK) {
 			api = new APIWrapper(new AttachmentsApi());
+			api.getInvoker().setConfiguration(config);
+		} else if(action == COMMAND.LOAD_RESOURCE) {
+			api = new APIWrapper(new ResourceLoaderApi());
 			api.getInvoker().setConfiguration(config);
 		}
 		return api;

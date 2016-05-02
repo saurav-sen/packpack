@@ -17,6 +17,8 @@ public class UserTopicMap extends CouchDbDocument {
 	private String userId;
 	
 	private String topicId;
+	
+	private String topicCategory;
 
 	public String getUserId() {
 		return userId;
@@ -32,5 +34,13 @@ public class UserTopicMap extends CouchDbDocument {
 
 	public void setTopicId(String topicId) {
 		this.topicId = topicId;
+	}
+
+	public String getTopicCategory() {
+		return topicCategory;
+	}
+
+	public void setTopicCategory(String topicCategory) {
+		this.topicCategory = topicCategory;
 	}
 }

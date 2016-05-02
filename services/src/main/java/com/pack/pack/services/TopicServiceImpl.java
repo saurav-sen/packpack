@@ -22,7 +22,9 @@ import com.pack.pack.services.couchdb.UserTopicMapRepositoryService;
 import com.pack.pack.services.es.ESUploadService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
+
 import static com.pack.pack.util.AttachmentUtil.*;
+
 import com.pack.pack.util.ModelConverter;
 import com.pack.pack.util.SystemPropertyUtil;
 
@@ -104,6 +106,20 @@ public class TopicServiceImpl implements ITopicService {
 				.findService(UserTopicMapRepositoryService.class);
 		Pagination<Topic> page = service.getAllTopicsFollowedByUser(userId,
 				pageLink);
+		List<Topic> topics = page.getResult();
+		List<JTopic> jTopics = ModelConverter.convertTopicList(topics);
+		return new Pagination<JTopic>(page.getPreviousLink(),
+				page.getNextLink(), jTopics);
+	}
+	
+	@Override
+	public Pagination<JTopic> getUserFollowedTopicsFilteredByCategory(
+			String userId, String categoryName, String pageLink)
+			throws PackPackException {
+		UserTopicMapRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(UserTopicMapRepositoryService.class);
+		Pagination<Topic> page = service.getAllTopicsFollowedByUserAndCategory(
+				userId, categoryName, pageLink);
 		List<Topic> topics = page.getResult();
 		List<JTopic> jTopics = ModelConverter.convertTopicList(topics);
 		return new Pagination<JTopic>(page.getPreviousLink(),

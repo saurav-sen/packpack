@@ -66,6 +66,18 @@ public class TopicResource {
 				.findCompositeService(ITopicService.class);
 		return service.getAllTopicListing(userId, pageLink);
 	}
+	
+	@GET
+	@Path("{pageLink}/category/{category}/user/{userId}")
+	@Produces(value = MediaType.APPLICATION_JSON)
+	public Pagination<JTopic> getAllTopicsFilteredByCategory(
+			@PathParam("userId") String userId,
+			@PathParam("pageLink") String pageLink,
+			@PathParam("category") String category) throws PackPackException {
+		ITopicService service = ServiceRegistry.INSTANCE
+				.findCompositeService(ITopicService.class);
+		return service.getUserFollowedTopicsFilteredByCategory(userId, category, pageLink);
+	}
 
 	@POST
 	@Produces(value = MediaType.APPLICATION_JSON)

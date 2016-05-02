@@ -60,6 +60,18 @@ public interface ITopicService {
 	 */
 	public Pagination<JTopic> getAllTopicListing(String userId, String pageLink)
 			throws PackPackException;
+	
+	/**
+	 * 
+	 * @param userId
+	 * @param category
+	 * @param pageLink
+	 * @return
+	 * @throws PackPackException
+	 */
+	public Pagination<JTopic> getUserFollowedTopicsFilteredByCategory(
+			String userId, String category, String pageLink)
+			throws PackPackException;
 
 	/**
 	 * 

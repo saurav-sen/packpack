@@ -56,7 +56,8 @@ public enum COMMAND {
 			APIConstants.Attachment.STORY, APIConstants.Topic.ID,
 			APIConstants.User.ID), ADD_VIDEO_TO_PACK(
 			APIConstants.Attachment.FILE_ATTACHMENT, APIConstants.Topic.ID,
-			APIConstants.Pack.ID, APIConstants.User.ID);
+			APIConstants.Pack.ID, APIConstants.User.ID),
+			LOAD_RESOURCE(APIConstants.ProtectedResource.RESOURCE_URL);
 
 	private String[] paramNames;
 
