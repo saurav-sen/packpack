@@ -153,8 +153,8 @@ public class AttachmentsApi extends AbstractAPI {
 		POST.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		/*POST.addHeader(CONTENT_TYPE_HEADER,
 				ContentType.MULTIPART_FORM_DATA.getMimeType());*/
-		POST.addHeader(CONTENT_TYPE_HEADER,
-				"multipart/form-data");
+		/*POST.addHeader(CONTENT_TYPE_HEADER,
+				"multipart/form-data");*/
 		HttpResponse response = client.execute(POST);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JStatus.class);

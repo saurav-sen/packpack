@@ -91,8 +91,7 @@ public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
 	}
 	
 	public Pagination<Pack> getAllPacks(String topicId, String pageLink) {
-		ViewQuery query = createQuery("topicVsPack").startKey(topicId)
-				.endKey(topicId).descending(false);
+		ViewQuery query = createQuery("topicVsPack").startKey(topicId).descending(false);
 		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink)) ? PageRequest
 				.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
 		Page<Pack> page = db.queryForPage(query, pr, Pack.class);

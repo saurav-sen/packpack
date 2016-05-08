@@ -5,6 +5,7 @@ import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
 import static com.pack.pack.client.api.APIConstants.BASE_URL;
 import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.http.HttpEntity;
@@ -20,6 +21,7 @@ import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPack;
+import com.pack.pack.model.web.JPacks;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.dto.ForwardDTO;
@@ -73,8 +75,14 @@ public class PackApi extends AbstractAPI {
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
+		Pagination<JPack> page = JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				Pagination.class);
+		List<JPack> result = page.getResult();
+		String json = "{\"packs\": " + JSONUtil.serialize(result, false) + "}";
+		JPacks packs = JSONUtil.deserialize(json, JPacks.class);
+		result = packs.getPacks();
+		page.setResult(result);
+		return page;
 	}
 
 	private JStatus forwardPack(String packId, String fromUserId,

@@ -109,15 +109,8 @@ public class UserTopicMapRepositoryService extends CouchDbRepositorySupport<User
 	}
 	
 	public List<String> getAllTopicIDsFollowedByUser(String userId) {
-		ViewQuery query = createQuery("allForUser").key(userId).key(userId);
-		List<UserTopicMap> list = db.queryView(query, UserTopicMap.class);
-		if(list == null || list.isEmpty()) {
-			return null;
-		}
-		List<String> IDs = new ArrayList<String>();
-		for(UserTopicMap l : list) {
-			IDs.add(l.getId());
-		}
+		ViewQuery query = createQuery("allForUser").startKey(userId);
+		List<String> IDs = db.queryView(query, String.class);
 		return IDs;
 	}
 }

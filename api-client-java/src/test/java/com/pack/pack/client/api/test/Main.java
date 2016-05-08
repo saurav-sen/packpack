@@ -1,5 +1,12 @@
 package com.pack.pack.client.api.test;
 
+import java.util.List;
+
+import com.pack.pack.common.util.JSONUtil;
+import com.pack.pack.model.web.JPack;
+import com.pack.pack.model.web.JTopic;
+import com.pack.pack.model.web.Pagination;
+
 
 
 public class Main {
@@ -14,13 +21,45 @@ public class Main {
 	public static void main(String[] args) throws Exception {
 		//new SignUpUserTest().signUp();
 		//addTopicTest();
-		testUserFOllowedTopicList();
+		//testUserFOllowedTopicList();
+		uploadPackTest(false);
 	}
 	
-	private static void testUserFOllowedTopicList() throws Exception {
+	private static void uploadPackTest(boolean uploadNew) throws Exception {
+		PackUploadTest test = new PackUploadTest();
+		test.beforeTest();
+		Pagination<JTopic> topicList = test.testUserFollowedTopicList();
+		String[] files = new String[] {"D:/Saurav/Images_Shantineketan/123.JPG", "D:/Saurav/Images_Shantineketan/456.JPG"};
+		if(topicList != null) {
+			List<JTopic> result = topicList.getResult();
+			if(result == null || result.isEmpty())
+				return;
+			int count = 0;
+			for(JTopic r : result) {
+				if(count > 1)
+					break;
+				String topicId = r.getId();
+				if(uploadNew) {
+					test.uploadIMagePackTest(topicId, files[count]);
+				}
+				Pagination<JPack> page = test.testGetAllPacksInTopic(topicId);
+				assert (page != null);
+				assert (page.getResult() != null && !page.getResult().isEmpty());
+				List<JPack> packs = page.getResult();
+				assert (packs != null);
+				for(JPack pack : packs) {
+					String json = JSONUtil.serialize(pack);
+					System.out.println(json);
+				}
+				count++;
+			}
+		}
+	}
+	
+	private static Pagination<JTopic> testUserFOllowedTopicList() throws Exception {
 		UserFollowedTopicListTest userFollowedTopicListTest = new UserFollowedTopicListTest();
 		userFollowedTopicListTest.beforeTest();
-		userFollowedTopicListTest.testUserFollowedTopicList();
+		return userFollowedTopicListTest.testUserFollowedTopicList();
 	}
 	
 	private static void addTopicTest() throws Exception {

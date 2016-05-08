@@ -53,6 +53,9 @@ public interface APIConstants {
 
 	public static interface Pack {
 		public static final String ID = "packId";
+		public static final String TITLE = "title";
+		public static final String DESCRIPTION = "description";
+		public static final String STORY = "story";
 	}
 	
 	public static interface ForwardPack {
