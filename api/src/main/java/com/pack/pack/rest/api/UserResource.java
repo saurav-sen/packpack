@@ -98,6 +98,14 @@ public class UserResource {
 		String profilePictureFileName = aboutProfilePicture.getFileName();
 		IUserService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IUserService.class);
+		UserRepositoryService repoService = ServiceRegistry.INSTANCE
+				.findService(UserRepositoryService.class);
+		List<User> users = repoService.getBasedOnUsername(email);
+		if(users != null && !users.isEmpty()) {
+			throw new PackPackException("TODO",
+					"Duplicate user. User with username = " + email
+							+ " already registered");
+		}
 		return service.registerNewUser(name, email, password, city, country,
 				state, locality, dob, profilePicture, profilePictureFileName);
 	}

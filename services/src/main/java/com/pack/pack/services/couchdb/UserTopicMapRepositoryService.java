@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.ektorp.ComplexKey;
 import org.ektorp.CouchDbConnector;
 import org.ektorp.Page;
 import org.ektorp.PageRequest;
@@ -82,10 +83,8 @@ public class UserTopicMapRepositoryService extends CouchDbRepositorySupport<User
 		logger.debug("Loading All Topic information followed by user having userId="
 				+ userId + " in paginated API with page-link=" + pageLink);
 		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink))? PageRequest.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
-		List<String> keys = new ArrayList<String>();
-		keys.add(userId);
-		keys.add(topicCategory);
-		ViewQuery query = createQuery("allForUser").keys(keys);
+		ComplexKey key = ComplexKey.of(userId, topicCategory);
+		ViewQuery query = createQuery("allForUser").key(key);
 		Page<String> page = db.queryForPage(query, pr, String.class);
 		if(page == null) {
 			return null;

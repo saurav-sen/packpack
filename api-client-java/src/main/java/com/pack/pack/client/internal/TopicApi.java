@@ -49,7 +49,7 @@ public class TopicApi extends AbstractAPI {
 	@SuppressWarnings("unchecked")
 	private Pagination<JTopic> getUserTopicList(String pageLink,
 			String oAuthToken, String userId, String category) throws Exception {
-		String url = BASE_URL + "activity/topic/" + pageLink + "/category/"
+		String url = BASE_URL + "topic/" + pageLink + "/category/"
 				+ category + "/user/" + userId;
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpGet GET = new HttpGet(url);

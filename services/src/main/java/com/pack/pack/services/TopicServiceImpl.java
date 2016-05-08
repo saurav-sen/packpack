@@ -85,6 +85,7 @@ public class TopicServiceImpl implements ITopicService {
 			userTopicMap = new UserTopicMap();
 			userTopicMap.setUserId(userId);
 			userTopicMap.setTopicId(topicId);
+			userTopicMap.setTopicCategory(topic.getCategory());
 			service.add(userTopicMap);
 			long followers = topic.getFollowers();
 			topic.setFollowers(followers + 1);
