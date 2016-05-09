@@ -22,7 +22,35 @@ public class Main {
 		//new SignUpUserTest().signUp();
 		//addTopicTest();
 		//testUserFOllowedTopicList();
-		uploadPackTest(false);
+		//uploadPackTest(true);
+		addImageToPack();
+	}
+	
+	private static void addImageToPack() throws Exception {
+		PackUploadTest test = new PackUploadTest();
+		test.beforeTest();
+		Pagination<JTopic> topicList = test.testUserFollowedTopicList();
+		String imageFilePath = "D:/Saurav/Images_Shantineketan/456.JPG";
+		if (topicList != null) {
+			List<JTopic> result = topicList.getResult();
+			if (result == null || result.isEmpty())
+				return;
+			int count = 0;
+			for (JTopic r : result) {
+				if (count > 1)
+					break;
+				String topicId = r.getId();
+				Pagination<JPack> page = test.testGetAllPacksInTopic(topicId);
+				if(page == null)
+					continue;
+				List<JPack> packs = page.getResult();
+				if(packs == null || packs.isEmpty())
+					continue;
+				System.out.println(JSONUtil.serialize(test.testAddImageToPack(
+						topicId, packs.get(0).getId(), imageFilePath)));
+				break;
+			}
+		}
 	}
 	
 	private static void uploadPackTest(boolean uploadNew) throws Exception {
@@ -42,6 +70,7 @@ public class Main {
 				if(uploadNew) {
 					test.uploadIMagePackTest(topicId, files[count]);
 				}
+				System.out.println("*******************************************************");
 				Pagination<JPack> page = test.testGetAllPacksInTopic(topicId);
 				assert (page != null);
 				assert (page.getResult() != null && !page.getResult().isEmpty());

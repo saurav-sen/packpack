@@ -214,8 +214,8 @@ public class AttachmentsApi extends AbstractAPI {
 		//HttpEntity entity = builder.build();
 		//PUT.setEntity(entity);
 		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
-		PUT.addHeader(CONTENT_TYPE_HEADER,
-				"multipart/form-data");
+		/*PUT.addHeader(CONTENT_TYPE_HEADER,
+				"multipart/form-data");*/
 		/*PUT.addHeader(CONTENT_TYPE_HEADER,
 				ContentType.MULTIPART_FORM_DATA.getMimeType());*/
 		HttpResponse response = client.execute(PUT);

@@ -46,4 +46,17 @@ public class PackUploadTest extends UserFollowedTopicListTest {
 		Pagination<JPack> page = (Pagination<JPack>) api.execute();
 		return page;
 	}
+
+	public JPack testAddImageToPack(String topicId, String packId,
+			String imageFilePath) throws Exception {
+		File file = new File(imageFilePath);
+		API api = APIBuilder.create().setAction(COMMAND.ADD_IMAGE_TO_PACK)
+				.setOauthToken(oAuthToken)
+				.addApiParam(APIConstants.Topic.ID, topicId)
+				.addApiParam(APIConstants.Pack.ID, packId)
+				.addApiParam(APIConstants.User.ID, userId)
+				.addApiParam(APIConstants.Attachment.FILE_ATTACHMENT, file)
+				.build();
+		return (JPack) api.execute();
+	}
 }

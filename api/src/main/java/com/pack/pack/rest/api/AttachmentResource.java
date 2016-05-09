@@ -217,7 +217,7 @@ public class AttachmentResource {
 	// http://javapapers.com/android/android-get-address-with-street-name-city-for-location-with-geocoding/
 
 	@PUT
-	@Path("images/topic/{topicId}/pack/{packId}/usr/{userId}")
+	@Path("image/topic/{topicId}/pack/{packId}/usr/{userId}")
 	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
 	@Produces(value = MediaType.APPLICATION_JSON)
 	public JPack modifyPack_addImage(@FormDataParam("file") InputStream file,
