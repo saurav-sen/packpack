@@ -20,6 +20,7 @@ import com.pack.pack.model.Pack;
 import com.pack.pack.model.PackAttachment;
 import com.pack.pack.model.PackAttachmentType;
 import com.pack.pack.model.Topic;
+import com.pack.pack.model.TopicPackMap;
 import com.pack.pack.model.User;
 import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPack;
@@ -28,6 +29,7 @@ import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.dto.PackReceipent;
 import com.pack.pack.model.web.dto.PackReceipentType;
 import com.pack.pack.services.couchdb.PackRepositoryService;
+import com.pack.pack.services.couchdb.TopicPackMapRepositoryService;
 import com.pack.pack.services.couchdb.TopicRepositoryService;
 import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.couchdb.UserTopicMapRepositoryService;
@@ -188,9 +190,11 @@ public class PackServiceImpl implements IPackService {
 		return jPack;
 	}
 
-	private Pack addNewPack(String story, String title, String userId, String topicId) {
+	private Pack addNewPack(String story, String title, String userId,
+			String topicId) {
 		Pack pack = new Pack();
-		pack.setCreationTime(new DateTime(DateTimeZone.getDefault()).getMillis());
+		long dateTime = new DateTime(DateTimeZone.getDefault()).getMillis();
+		pack.setCreationTime(dateTime);
 		pack.setStory(story);
 		pack.setTitle(title);
 		pack.setCreatorId(userId);
@@ -198,6 +202,13 @@ public class PackServiceImpl implements IPackService {
 		PackRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(PackRepositoryService.class);
 		service.add(pack);
+		TopicPackMap topicPackMap = new TopicPackMap();
+		topicPackMap.setPackId(pack.getId());
+		topicPackMap.setTopicId(topicId);
+		topicPackMap.setDateTime(dateTime);
+		TopicPackMapRepositoryService service2 = ServiceRegistry.INSTANCE
+				.findService(TopicPackMapRepositoryService.class);
+		service2.add(topicPackMap);
 		return pack;
 	}
 

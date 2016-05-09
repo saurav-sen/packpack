@@ -1,16 +1,10 @@
 package com.pack.pack.services.couchdb;
 
-import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
-import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
-import static com.pack.pack.common.util.CommonConstants.STANDARD_PAGE_SIZE;
-
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 
 import org.ektorp.CouchDbConnector;
-import org.ektorp.Page;
-import org.ektorp.PageRequest;
 import org.ektorp.ViewQuery;
 import org.ektorp.support.CouchDbRepositorySupport;
 import org.ektorp.support.View;
@@ -33,16 +27,15 @@ import com.pack.pack.model.web.Pagination;
  */
 @Component
 @Scope("singleton")
-/*@Views({
-	@View(name="getAll", map="function(doc) { if(doc.packImageId) { emit(doc.creationTime, doc); } }"),
-	@View(name="findPackById", map="function(doc) { if(doc._id && doc.creatorId) { emit(doc._id, doc); }}")
-})*/
 @Views({
-	@View(name="topicVsPack", map="function(doc) { if(doc.topicId && doc.creationTime) { emit([doc.topicId, doc.creationTime], doc); } }")
+	@View(name="findTopicByIDs", map="function(doc) { if(doc.topicId) { emit(doc._id, doc); } }")
 })
 public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
 	
 	private static Logger logger = LoggerFactory.getLogger(PackRepositoryService.class);
+	
+	@Autowired
+	private TopicPackMapRepositoryService topicPackMapRepoService;
 
 	@Autowired
 	public PackRepositoryService(@Qualifier("packDB") CouchDbConnector db) {
@@ -91,18 +84,15 @@ public class PackRepositoryService extends CouchDbRepositorySupport<Pack>{
 	}
 	
 	public Pagination<Pack> getAllPacks(String topicId, String pageLink) {
-		ViewQuery query = createQuery("topicVsPack").startKey(topicId).descending(false);
-		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink)) ? PageRequest
-				.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
-		Page<Pack> page = db.queryForPage(query, pr, Pack.class);
-		if (page == null) {
+		Pagination<String> page = topicPackMapRepoService.getAllTopicPackMap(
+				topicId, pageLink);
+		if (page == null)
 			return null;
-		}
-		List<Pack> result = page.getRows();
-		String nextLink = page.isHasNext() ? page.getNextLink() : END_OF_PAGE;
-		String previousLink = page.isHasPrevious() ? page.getPreviousLink()
-				: END_OF_PAGE;
-		return new Pagination<Pack>(previousLink, nextLink, result);
+		List<String> packIDs = page.getResult();
+		ViewQuery query = createQuery("findTopicByIDs").keys(packIDs);
+		List<Pack> result = db.queryView(query, Pack.class);
+		return new Pagination<Pack>(page.getPreviousLink(), page.getNextLink(),
+				result);
 	}
 	
 	/*public Page<Pack> getAllPacks(PageRequest page) {
