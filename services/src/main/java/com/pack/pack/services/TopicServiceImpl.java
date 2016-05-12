@@ -121,7 +121,7 @@ public class TopicServiceImpl implements ITopicService {
 				.findService(UserTopicMapRepositoryService.class);
 		Pagination<Topic> page = service.getAllTopicsFollowedByUserAndCategory(
 				userId, categoryName, pageLink);
-		List<Topic> topics = page.getResult();
+		List<Topic> topics = page != null ? page.getResult() : Collections.emptyList();
 		List<JTopic> jTopics = ModelConverter.convertTopicList(topics);
 		return new Pagination<JTopic>(page.getPreviousLink(),
 				page.getNextLink(), jTopics);
