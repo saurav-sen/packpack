@@ -1,6 +1,5 @@
 package com.pack.pack.rest.api;
 
-import static com.pack.pack.util.SystemPropertyUtil.ATTACHMENT;
 import static com.pack.pack.util.SystemPropertyUtil.IMAGE;
 import static com.pack.pack.util.SystemPropertyUtil.PROFILE;
 import static com.pack.pack.util.SystemPropertyUtil.TOPIC;
@@ -42,7 +41,7 @@ import com.pack.pack.util.SystemPropertyUtil;
  *
  */
 @Provider
-@Path("/" + ATTACHMENT)
+@Path("/attachment")
 public class AttachmentResource {
 
 	private static Logger logger = LoggerFactory
@@ -53,7 +52,7 @@ public class AttachmentResource {
 			+ URL_SEPARATOR + "{fileName}")
 	@Produces({ "image/png", "image/jpg" })
 	public Response getTopicWallpaperImage(@PathParam("topicId") String topicId,
-			@PathParam("fileName") String fileName, @QueryParam("thumnail") String thumnail) throws PackPackException {
+			@PathParam("fileName") String fileName, @QueryParam("thumbnail") String thumnail) throws PackPackException {
 		boolean isThumbnail = false;
 		try {
 			isThumbnail = thumnail != null ? Boolean.parseBoolean(thumnail.trim()) : false;
