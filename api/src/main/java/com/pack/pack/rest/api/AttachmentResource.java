@@ -6,10 +6,14 @@ import static com.pack.pack.util.SystemPropertyUtil.TOPIC;
 import static com.pack.pack.util.SystemPropertyUtil.URL_SEPARATOR;
 import static com.pack.pack.util.SystemPropertyUtil.VIDEO;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOError;
+import java.io.IOException;
 import java.io.InputStream;
 
+import javax.imageio.ImageIO;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -24,6 +28,9 @@ import javax.ws.rs.ext.Provider;
 
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.imgscalr.Scalr;
+import org.imgscalr.Scalr.Method;
+import org.imgscalr.Scalr.Mode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -142,8 +149,20 @@ public class AttachmentResource {
 			}
 			path.append(fileName);
 			File imageFile = new File(path.toString());
-			return ImageUtil.buildResponse(imageFile);
+			if(!isThumbnail) {
+				BufferedImage image = ImageIO.read(imageFile);
+				image = Scalr.resize(image, Method.QUALITY,
+						Mode.AUTOMATIC, 600, 600,
+						Scalr.OP_ANTIALIAS);
+				return ImageUtil.buildResponse(image);
+			}
+			else {
+				return ImageUtil.buildResponse(imageFile);
+			}
 		} catch (FileNotFoundException e) {
+			logger.info(e.getMessage(), e);
+			throw new PackPackException("TODO", e.getMessage(), e);
+		} catch (IOException e) {
 			logger.info(e.getMessage(), e);
 			throw new PackPackException("TODO", e.getMessage(), e);
 		}

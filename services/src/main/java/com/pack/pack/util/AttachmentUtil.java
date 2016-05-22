@@ -30,8 +30,8 @@ public class AttachmentUtil {
 	private static final Logger logger = LoggerFactory
 			.getLogger(AttachmentUtil.class);
 
-	private static final int THUMBNAIL_WIDTH = 50;
-	private static final int THUMBNAIL_HEIGHT = 50;
+	private static final int THUMBNAIL_WIDTH = 100;
+	private static final int THUMBNAIL_HEIGHT = 100;
 	
 	public static File resizeAndStoreUploadedAttachment(InputStream inputStream,
 			String fileLoc, int width, int height) throws PackPackException {
