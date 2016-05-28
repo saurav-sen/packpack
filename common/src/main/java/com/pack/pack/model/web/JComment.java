@@ -1,5 +1,8 @@
 package com.pack.pack.model.web;
 
+import java.util.LinkedList;
+import java.util.List;
+
 
 /**
  * 
@@ -16,7 +19,7 @@ public class JComment {
 	
 	private long dateTime;
 	
-	private String packId;
+	private List<JComment> replies;
 
 	public String getFromUserId() {
 		return fromUserId;
@@ -50,11 +53,14 @@ public class JComment {
 		this.dateTime = dateTime;
 	}
 
-	public String getPackId() {
-		return packId;
+	public List<JComment> getReplies() {
+		if(replies == null) {
+			replies = new LinkedList<JComment>();
+		}
+		return replies;
 	}
 
-	public void setPackId(String packId) {
-		this.packId = packId;
+	public void setReplies(List<JComment> replies) {
+		this.replies = replies;
 	}
 }

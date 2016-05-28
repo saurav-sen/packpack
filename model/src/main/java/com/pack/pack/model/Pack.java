@@ -1,7 +1,6 @@
 package com.pack.pack.model;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.ektorp.support.CouchDbDocument;
@@ -34,14 +33,10 @@ public class Pack extends CouchDbDocument {
 	
 	private int views;
 	
-	private int comments;
+	private String packParentTopicId;
 	
-	private List<Comment> recentComments;
+	private List<Comment> comments;
 	
-	private List<PackAttachment> packAttachments;
-	
-	private String topicId;
-
 	public String getStory() {
 		return story;
 	}
@@ -109,41 +104,22 @@ public class Pack extends CouchDbDocument {
 		this.views = views;
 	}
 
-	public List<Comment> getRecentComments() {
-		if(recentComments == null) {
-			recentComments = new ArrayList<Comment>(1);
+	public String getPackParentTopicId() {
+		return packParentTopicId;
+	}
+
+	public void setPackParentTopicId(String packParentTopicId) {
+		this.packParentTopicId = packParentTopicId;
+	}
+
+	public List<Comment> getComments() {
+		if(comments == null) {
+			comments = new ArrayList<Comment>();
 		}
-		return recentComments;
-	}
-
-	public void setRecentComments(List<Comment> recentComments) {
-		this.recentComments = recentComments;
-	}
-
-	public int getComments() {
 		return comments;
 	}
 
-	public void setComments(int comments) {
+	public void setComments(List<Comment> comments) {
 		this.comments = comments;
-	}
-
-	public List<PackAttachment> getPackAttachments() {
-		if(packAttachments == null) {
-			packAttachments = new LinkedList<PackAttachment>();
-		}
-		return packAttachments;
-	}
-
-	public void setPackAttachments(List<PackAttachment> packAttachments) {
-		this.packAttachments = packAttachments;
-	}
-
-	public String getTopicId() {
-		return topicId;
-	}
-
-	public void setTopicId(String topicId) {
-		this.topicId = topicId;
 	}
 }

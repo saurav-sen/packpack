@@ -22,7 +22,7 @@ public class Main {
 		//new SignUpUserTest().signUp();
 		//addTopicTest();
 		//testUserFOllowedTopicList();
-		//uploadPackTest(true);
+		//uploadPackTest(false);
 		addImageToPack();
 	}
 	
@@ -30,7 +30,7 @@ public class Main {
 		PackUploadTest test = new PackUploadTest();
 		test.beforeTest();
 		Pagination<JTopic> topicList = test.testUserFollowedTopicList();
-		String imageFilePath = "D:/Saurav/Images_Shantineketan/456.JPG";
+		String imageFilePath = "D:/Saurav/Images_Shantineketan/678_1.JPG";
 		if (topicList != null) {
 			List<JTopic> result = topicList.getResult();
 			if (result == null || result.isEmpty())

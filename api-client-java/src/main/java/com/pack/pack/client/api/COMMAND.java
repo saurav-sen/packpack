@@ -25,10 +25,13 @@ public enum COMMAND {
 			APIConstants.Pack.ID, APIConstants.ForwardPack.FROM_USER_ID,
 			APIConstants.ForwardPack.TO_USER_ID), FORWARD_PACK_OVER_EMAIL(
 			APIConstants.Pack.ID, APIConstants.ForwardPack.FROM_USER_ID,
-			APIConstants.ForwardPack.TO_USER_EMAIL), ADD_COMMENT(
+			APIConstants.ForwardPack.TO_USER_EMAIL), ADD_COMMENT_TO_PACK(
 			APIConstants.Pack.ID, APIConstants.Comment.FROM_USER_ID,
-			APIConstants.Comment.FROM_USER_NAME, APIConstants.Comment.COMMENT), ADD_LIKE_TO_PACK(
-			APIConstants.User.ID, APIConstants.Pack.ID), GET_EGIFT_BY_ID(
+			APIConstants.Comment.COMMENT), ADD_COMMENT_TO_PACK_ATTACHMENT(
+			APIConstants.PackAttachment.ID, APIConstants.Comment.FROM_USER_ID,
+			APIConstants.Comment.COMMENT), ADD_LIKE_TO_PACK(
+			APIConstants.User.ID, APIConstants.Pack.ID), ADD_LIKE_TO_PACK_ATTACHMENT(
+			APIConstants.User.ID, APIConstants.PackAttachment.ID), GET_EGIFT_BY_ID(
 			APIConstants.EGift.ID), GET_EGIFTS_BY_BRAND_ID(
 			APIConstants.Brand.ID, APIConstants.PageInfo.PAGE_LINK), GET_EGIFTS_BY_CATEGORY(
 			APIConstants.EGift.CATEGORY, APIConstants.PageInfo.PAGE_LINK), FORWARD_EGIFT(
@@ -56,8 +59,8 @@ public enum COMMAND {
 			APIConstants.Attachment.STORY, APIConstants.Topic.ID,
 			APIConstants.User.ID), ADD_VIDEO_TO_PACK(
 			APIConstants.Attachment.FILE_ATTACHMENT, APIConstants.Topic.ID,
-			APIConstants.Pack.ID, APIConstants.User.ID),
-			LOAD_RESOURCE(APIConstants.ProtectedResource.RESOURCE_URL);
+			APIConstants.Pack.ID, APIConstants.User.ID), LOAD_RESOURCE(
+			APIConstants.ProtectedResource.RESOURCE_URL);
 
 	private String[] paramNames;
 

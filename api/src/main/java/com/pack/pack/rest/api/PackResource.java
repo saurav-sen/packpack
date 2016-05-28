@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -12,6 +11,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
+import com.pack.pack.IMiscService;
+import com.pack.pack.IMiscService.EntityType;
 import com.pack.pack.IPackService;
 import com.pack.pack.common.util.CommonConstants;
 import com.pack.pack.model.Pack;
@@ -21,6 +22,7 @@ import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.StatusType;
+import com.pack.pack.model.web.dto.CommentDTO;
 import com.pack.pack.model.web.dto.ForwardDTO;
 import com.pack.pack.model.web.dto.LikeDTO;
 import com.pack.pack.model.web.dto.PackReceipent;
@@ -119,10 +121,42 @@ public class PackResource {
 	@Path("comment")
 	@Consumes(value = MediaType.APPLICATION_JSON)
 	@Produces(value = MediaType.APPLICATION_JSON)
-	public JComment addComment(JComment comment) throws PackPackException {
-		IPackService service = ServiceRegistry.INSTANCE
-				.findCompositeService(IPackService.class);
-		return service.addComment(comment);
+	public JStatus addComment(CommentDTO commentDTO) throws PackPackException {
+		IMiscService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IMiscService.class);
+		JComment comment = new JComment();
+		comment.setComment(commentDTO.getComment());
+		comment.setDateTime(System.currentTimeMillis());
+		comment.setFromUserId(commentDTO.getFromUserId());
+		String entityType = commentDTO.getEntityType();
+		if (entityType == null || entityType.trim().isEmpty()) {
+			JStatus status = new JStatus();
+			status.setStatus(StatusType.ERROR);
+			status.setInfo("Entity Type Not Valid");
+			return status;
+		}
+		EntityType type = null;
+		try {
+			type = EntityType.valueOf(entityType.trim());
+		} catch (Exception e) {
+			JStatus status = new JStatus();
+			status.setStatus(StatusType.ERROR);
+			status.setInfo("Entity Type Not Valid");
+			return status;
+		}
+
+		if (type == null) {
+			JStatus status = new JStatus();
+			status.setStatus(StatusType.ERROR);
+			status.setInfo("Entity Type Not Valid");
+			return status;
+		}
+		service.addComment(commentDTO.getFromUserId(),
+				commentDTO.getEntityId(), type, comment);
+		JStatus status = new JStatus();
+		status.setStatus(StatusType.OK);
+		status.setInfo("Successfully Executed");
+		return status;
 	}
 
 	@PUT
@@ -131,10 +165,34 @@ public class PackResource {
 	@Produces(value = MediaType.APPLICATION_JSON)
 	public JStatus addLike(LikeDTO likeDTO) throws PackPackException {
 		String userId = likeDTO.getUserId();
-		String packId = likeDTO.getPackId();
-		IPackService service = ServiceRegistry.INSTANCE
-				.findCompositeService(IPackService.class);
-		service.addLike(userId, packId);
+		String entityId = likeDTO.getEntityId();
+		String entityType = likeDTO.getEntityType();
+		if (entityType == null || entityType.trim().isEmpty()) {
+			JStatus status = new JStatus();
+			status.setStatus(StatusType.ERROR);
+			status.setInfo("Entity Type Not Valid");
+			return status;
+		}
+		EntityType type = null;
+		try {
+			type = EntityType.valueOf(entityType.trim());
+		} catch (Exception e) {
+			JStatus status = new JStatus();
+			status.setStatus(StatusType.ERROR);
+			status.setInfo("Entity Type Not Valid");
+			return status;
+		}
+
+		if (type == null) {
+			JStatus status = new JStatus();
+			status.setStatus(StatusType.ERROR);
+			status.setInfo("Entity Type Not Valid");
+			return status;
+		}
+
+		IMiscService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IMiscService.class);
+		service.addLike(userId, entityId, type);
 		JStatus status = new JStatus();
 		status.setStatus(StatusType.OK);
 		status.setInfo("Successfully Executed");

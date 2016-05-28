@@ -24,6 +24,7 @@ import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPacks;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.Pagination;
+import com.pack.pack.model.web.dto.CommentDTO;
 import com.pack.pack.model.web.dto.ForwardDTO;
 import com.pack.pack.model.web.dto.LikeDTO;
 import com.pack.pack.model.web.dto.PackReceipent;
@@ -118,14 +119,14 @@ public class PackApi extends AbstractAPI {
 				JStatus.class);
 	}
 
-	private JComment addComment(JComment comment, String oAuthToken)
+	private JComment addComment(CommentDTO commentDTO, String oAuthToken)
 			throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
 		String url = BASE_URL + "pack/comment";
 		HttpPut PUT = new HttpPut(url);
 		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
-		String json = JSONUtil.serialize(comment);
+		String json = JSONUtil.serialize(commentDTO);
 		HttpEntity jsonBody = new StringEntity(json);
 		PUT.setEntity(jsonBody);
 		HttpResponse response = client.execute(PUT);
@@ -203,26 +204,45 @@ public class PackApi extends AbstractAPI {
 						.get(APIConstants.ForwardPack.TO_USER_EMAIL);
 				result = forwardPackOverEMail(packId, fromUserId, toUserEmail,
 						oAuthToken);
-			} else if (COMMAND.ADD_COMMENT.equals(action)) {
+			} else if (COMMAND.ADD_COMMENT_TO_PACK.equals(action)) {
 				String packId = (String) params.get(APIConstants.Pack.ID);
 				String fromUserId = (String) params
 						.get(APIConstants.Comment.FROM_USER_ID);
-				String fromUserName = (String) params
-						.get(APIConstants.Comment.FROM_USER_NAME);
 				String comment = (String) params
 						.get(APIConstants.Comment.COMMENT);
-				JComment jComment = new JComment();
-				jComment.setComment(comment);
-				jComment.setFromUserId(fromUserId);
-				jComment.setFromUserName(fromUserName);
-				jComment.setPackId(packId);
-				result = addComment(jComment, oAuthToken);
+				CommentDTO commentDTO = new CommentDTO();
+				commentDTO.setComment(comment);
+				commentDTO.setEntityId(packId);
+				commentDTO.setFromUserId(fromUserId);
+				commentDTO.setEntityType("PACK");
+				result = addComment(commentDTO, oAuthToken);
+			} else if (COMMAND.ADD_COMMENT_TO_PACK.equals(action)) {
+				String packAttachmentId = (String) params.get(APIConstants.PackAttachment.ID);
+				String fromUserId = (String) params
+						.get(APIConstants.Comment.FROM_USER_ID);
+				String comment = (String) params
+						.get(APIConstants.Comment.COMMENT);
+				CommentDTO commentDTO = new CommentDTO();
+				commentDTO.setComment(comment);
+				commentDTO.setEntityId(packAttachmentId);
+				commentDTO.setFromUserId(fromUserId);
+				commentDTO.setEntityType("PACK_ATTACHMENT");
+				result = addComment(commentDTO, oAuthToken);
 			} else if (COMMAND.ADD_LIKE_TO_PACK.equals(action)) {
 				String packId = (String) params.get(APIConstants.Pack.ID);
 				String userId = (String) params.get(APIConstants.User.ID);
 				LikeDTO dto = new LikeDTO();
-				dto.setPackId(packId);
+				dto.setEntityId(packId);
 				dto.setUserId(userId);
+				dto.setEntityType("PACK");
+				result = addLikeToPack(dto, oAuthToken);
+			} else if (COMMAND.ADD_LIKE_TO_PACK.equals(action)) {
+				String packAttachmentId = (String) params.get(APIConstants.PackAttachment.ID);
+				String userId = (String) params.get(APIConstants.User.ID);
+				LikeDTO dto = new LikeDTO();
+				dto.setEntityId(packAttachmentId);
+				dto.setUserId(userId);
+				dto.setEntityType("PACK_ATTACHMENT");
 				result = addLikeToPack(dto, oAuthToken);
 			}
 			return result;

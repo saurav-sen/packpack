@@ -1,7 +1,9 @@
 package com.pack.pack.model;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.ektorp.support.CouchDbDocument;
-import org.joda.time.DateTime;
 
 /**
  * 
@@ -21,8 +23,8 @@ public class Comment extends CouchDbDocument {
 	
 	private long dateTime;
 	
-	private String packId;
-
+	private List<Comment> replies;
+	
 	public String getFromUser() {
 		return fromUser;
 	}
@@ -39,19 +41,22 @@ public class Comment extends CouchDbDocument {
 		this.comment = comment;
 	}
 
-	public String getPackId() {
-		return packId;
-	}
-
-	public void setPackId(String packId) {
-		this.packId = packId;
-	}
-
 	public long getDateTime() {
 		return dateTime;
 	}
 
 	public void setDateTime(long dateTime) {
 		this.dateTime = dateTime;
+	}
+
+	public List<Comment> getReplies() {
+		if(replies == null) {
+			replies = new LinkedList<Comment>();
+		}
+		return replies;
+	}
+
+	public void setReplies(List<Comment> replies) {
+		this.replies = replies;
 	}
 }

@@ -49,6 +49,8 @@ import com.pack.pack.model.Pack;
 import com.pack.pack.model.PackAttachment;
 import com.pack.pack.model.PackAttachmentType;
 import com.pack.pack.model.web.dto.PackReceipent;
+import com.pack.pack.services.couchdb.PackAttachmentRepositoryService;
+import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.SystemPropertyUtil;
 
 /**
@@ -107,7 +109,10 @@ public class GmailMessageService {
 
 	public void forwardPack(Pack pack, PackReceipent receipent,
 			String fromUserEmail) throws Exception {
-		List<PackAttachment> packAttachments = pack.getPackAttachments();
+		PackAttachmentRepositoryService repositoryService = ServiceRegistry.INSTANCE
+				.findService(PackAttachmentRepositoryService.class);
+		List<PackAttachment> packAttachments = repositoryService
+				.getAllListOfPackAttachments(pack.getId());
 		List<File> mailAttachments = new ArrayList<File>();
 		if (packAttachments != null && !packAttachments.isEmpty()) {
 			for (PackAttachment packAttachment : packAttachments) {
@@ -233,7 +238,7 @@ public class GmailMessageService {
 
 		return email;
 	}
-	
+
 	/*
 	 * private MimeMessage createEmail(String to, String from, String subject,
 	 * String bodyText) throws MessagingException { Properties props = new

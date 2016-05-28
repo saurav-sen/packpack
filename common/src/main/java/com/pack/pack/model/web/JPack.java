@@ -1,7 +1,6 @@
 package com.pack.pack.model.web;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -29,8 +28,6 @@ public class JPack {
 	
 	private List<JComment> recentComments;
 	
-	private List<JPackAttachment> packAttachments;
-
 	public String getId() {
 		return id;
 	}
@@ -79,7 +76,7 @@ public class JPack {
 		this.creationTime = creationTime;
 	}
 
-	public int getLikes() {
+	public int getLikes() { 
 		return likes;
 	}
 
@@ -104,16 +101,5 @@ public class JPack {
 
 	public void setRecentComments(List<JComment> recentComments) {
 		this.recentComments = recentComments;
-	}
-
-	public List<JPackAttachment> getAttachments() {
-		if(packAttachments == null) {
-			packAttachments = new LinkedList<JPackAttachment>();
-		}
-		return packAttachments;
-	}
-
-	public void setAttachments(List<JPackAttachment> attachments) {
-		this.packAttachments = attachments;
 	}
 }

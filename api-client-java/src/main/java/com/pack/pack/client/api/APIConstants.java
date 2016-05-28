@@ -58,6 +58,10 @@ public interface APIConstants {
 		public static final String STORY = "story";
 	}
 	
+	public static interface PackAttachment {
+		public static final String ID = "packId";
+	}
+	
 	public static interface ForwardPack {
 		public static final String FROM_USER_ID = "fromUserId";
 		public static final String TO_USER_ID = "toUserId";

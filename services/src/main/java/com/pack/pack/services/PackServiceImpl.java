@@ -4,7 +4,9 @@ import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -22,12 +24,12 @@ import com.pack.pack.model.PackAttachmentType;
 import com.pack.pack.model.Topic;
 import com.pack.pack.model.TopicPackMap;
 import com.pack.pack.model.User;
-import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.dto.PackReceipent;
 import com.pack.pack.model.web.dto.PackReceipentType;
+import com.pack.pack.services.couchdb.PackAttachmentRepositoryService;
 import com.pack.pack.services.couchdb.PackRepositoryService;
 import com.pack.pack.services.couchdb.TopicPackMapRepositoryService;
 import com.pack.pack.services.couchdb.TopicRepositoryService;
@@ -74,13 +76,24 @@ public class PackServiceImpl implements IPackService {
 				.findService(PackRepositoryService.class);
 		Pack pack = repoService.get(packId);
 		FwdPack fwdPack = new FwdPack();
-		List<PackAttachment> packAttachments = pack.getPackAttachments();
-		for (PackAttachment packAttachment : packAttachments) {
-			JPackAttachment jPackAttachment = ModelConverter
-					.convert(packAttachment);
-			fwdPack.getAttachments().add(jPackAttachment);
+		PackAttachmentRepositoryService repoService2 = ServiceRegistry.INSTANCE
+				.findService(PackAttachmentRepositoryService.class);
+		Pagination<PackAttachment> page = repoService2.getAllPackAttachment(
+				packId, null);
+		List<PackAttachment> packAttachments = page.getResult();
+		if (packAttachments != null && !packAttachments.isEmpty()) {
+			for (PackAttachment packAttachment : packAttachments) {
+				JPackAttachment jPackAttachment = ModelConverter
+						.convert(packAttachment);
+				fwdPack.getAttachments().add(jPackAttachment);
+			}
 		}
-		fwdPack.setComments(pack.getComments());
+		List<Comment> comments = pack.getComments();
+		if (comments != null && !comments.isEmpty()) {
+			for (Comment comment : comments) {
+				fwdPack.getComments().add(ModelConverter.convert(comment));
+			}
+		}
 		fwdPack.setFromUserId(fromUserId);
 		UserRepositoryService userRepoService = ServiceRegistry.INSTANCE
 				.findService(UserRepositoryService.class);
@@ -117,7 +130,7 @@ public class PackServiceImpl implements IPackService {
 			}
 		}
 	}
-	
+
 	@Override
 	public Pagination<JPack> loadLatestPack(String userId, String topicId,
 			String pageLink) throws PackPackException {
@@ -139,23 +152,36 @@ public class PackServiceImpl implements IPackService {
 		return new Pagination<JPack>(END_OF_PAGE, END_OF_PAGE,
 				Collections.emptyList());
 	}
-
+	
 	@Override
-	public JComment addComment(JComment comment) throws PackPackException {
-		Comment c = ModelConverter.convert(comment);
-		PackRepositoryService packRepoService = ServiceRegistry.INSTANCE
-				.findService(PackRepositoryService.class);
-		packRepoService.addComment(c, comment.getPackId());
-		return comment;
+	public Pagination<JPackAttachment> loadPackAttachments(String userId,
+			String topicId, String packId, String pageLink)
+			throws PackPackException {
+		UserTopicMapRepositoryService mapRepositoryService = ServiceRegistry.INSTANCE
+				.findService(UserTopicMapRepositoryService.class);
+		List<String> IDs = mapRepositoryService
+				.getAllTopicIDsFollowedByUser(userId);
+		if ((!IDs.isEmpty() && IDs.contains(topicId))
+				|| CommonConstants.DEFAULT_TOPIC_ID.equals(topicId)
+				|| CommonConstants.DEFAULT_EGIFT_TOPIC_ID.equals(topicId)) {
+			List<JPackAttachment> result = new LinkedList<JPackAttachment>();
+			PackAttachmentRepositoryService packAttachmentRepositoryService = ServiceRegistry.INSTANCE.findService(PackAttachmentRepositoryService.class);
+			Pagination<PackAttachment> page = packAttachmentRepositoryService.getAllPackAttachment(packId, pageLink);
+			if(page != null) {
+				List<PackAttachment> attachments = page.getResult();
+				if(attachments != null && !attachments.isEmpty()) {
+					result = new ArrayList<JPackAttachment>();
+					for(PackAttachment attachment : attachments) {
+						result.add(ModelConverter.convert(attachment));
+					}
+				}
+				return new Pagination<JPackAttachment>(page.getPreviousLink(), page.getNextLink(), result);
+			}
+		}
+		return new Pagination<JPackAttachment>(END_OF_PAGE, END_OF_PAGE,
+				Collections.emptyList());
 	}
-
-	@Override
-	public void addLike(String userId, String packId) throws PackPackException {
-		PackRepositoryService packRepoService = ServiceRegistry.INSTANCE
-				.findService(PackRepositoryService.class);
-		packRepoService.addLike(userId, packId);
-	}
-
+	
 	@Override
 	public JPack uploadPack(InputStream file, String fileName, String title,
 			String description, String story, String topicId, String userId,
@@ -198,7 +224,7 @@ public class PackServiceImpl implements IPackService {
 		pack.setStory(story);
 		pack.setTitle(title);
 		pack.setCreatorId(userId);
-		pack.setTopicId(topicId);
+		pack.setPackParentTopicId(topicId);
 		PackRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(PackRepositoryService.class);
 		service.add(pack);
@@ -215,8 +241,6 @@ public class PackServiceImpl implements IPackService {
 	private void addPackAttachment(Pack pack, String topicId,
 			PackAttachmentType type, String fileName, InputStream file)
 			throws PackPackException {
-		PackRepositoryService service = ServiceRegistry.INSTANCE
-				.findService(PackRepositoryService.class);
 		String home = (type == PackAttachmentType.IMAGE ? SystemPropertyUtil
 				.getImageHome() : SystemPropertyUtil.getVideoHome());
 		String location = home + File.separator + topicId;
@@ -241,8 +265,10 @@ public class PackServiceImpl implements IPackService {
 		packAttachment.setAttachmentThumbnailUrl(thumbnailFileLocation
 				.substring(home.length()));
 		packAttachment.setType(type);
-		pack.getPackAttachments().add(packAttachment);
-		service.update(pack);
+		packAttachment.setAttachmentParentPackId(pack.getId());
+		PackAttachmentRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(PackAttachmentRepositoryService.class);
+		service.add(packAttachment);
 	}
 
 	@Override
@@ -281,7 +307,11 @@ public class PackServiceImpl implements IPackService {
 		Pack pack = service.get(packId);
 		BroadcastPack bPack = new BroadcastPack();
 		FwdPack fwdPack = new FwdPack();
-		List<PackAttachment> packAttachments = pack.getPackAttachments();
+		PackAttachmentRepositoryService service2 = ServiceRegistry.INSTANCE
+				.findService(PackAttachmentRepositoryService.class);
+		Pagination<PackAttachment> page = service2.getAllPackAttachment(packId,
+				null);
+		List<PackAttachment> packAttachments = page.getResult();
 		if (packAttachments != null && !packAttachments.isEmpty()) {
 			for (PackAttachment packAttachment : packAttachments) {
 				JPackAttachment jPackAttachment = ModelConverter
@@ -289,7 +319,12 @@ public class PackServiceImpl implements IPackService {
 				fwdPack.getAttachments().add(jPackAttachment);
 			}
 		}
-		fwdPack.setComments(pack.getComments());
+		List<Comment> comments = pack.getComments();
+		if (comments != null && !comments.isEmpty()) {
+			for (Comment comment : comments) {
+				fwdPack.getComments().add(ModelConverter.convert(comment));
+			}
+		}
 		if (userId == null) {
 			fwdPack.setFromUserName("System");
 		} else {

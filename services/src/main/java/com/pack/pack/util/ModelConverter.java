@@ -51,11 +51,6 @@ public class ModelConverter {
 				.findService(UserRepositoryService.class);
 		User user = service.get(userId);
 		jPack.setCreatorName(user.getName());
-		List<PackAttachment> attachments = pack.getPackAttachments();
-		for (PackAttachment attachment : attachments) {
-			JPackAttachment jAttachment = convert(attachment);
-			jPack.getAttachments().add(jAttachment);
-		}
 		return jPack;
 	}
 
@@ -94,6 +89,17 @@ public class ModelConverter {
 		}
 		jAttachment.setAttachmentUrl(url);
 		jAttachment.setMimeType(attachment.getMimeType());
+		jAttachment.setTitle(attachment.getTitle());
+		jAttachment.setLikes(attachment.getLikes());
+		jAttachment.setViews(attachment.getViews());
+		jAttachment.setCreationTime(attachment.getCreationTime());
+		List<Comment> recentComments = attachment.getRecentComments();
+		if(recentComments != null && !recentComments.isEmpty()) {
+			for(Comment comment : recentComments) {
+				JComment jComment = ModelConverter.convert(comment);
+				jAttachment.getComments().add(jComment);
+			}
+		}
 		return jAttachment;
 	}
 
@@ -197,8 +203,22 @@ public class ModelConverter {
 		comment.setComment(jComment.getComment());
 		comment.setDateTime(jComment.getDateTime());
 		comment.setFromUser(jComment.getFromUserName());
-		comment.setPackId(jComment.getPackId());
 		return comment;
+	}
+	
+	public static JComment convert(Comment comment) {
+		JComment jComment = new JComment();
+		jComment.setComment(comment.getComment());
+		jComment.setDateTime(comment.getDateTime());
+		jComment.setFromUserId(comment.getFromUser());
+		List<Comment> replies = comment.getReplies();
+		if(replies != null) {
+			for(Comment reply : replies) {
+				JComment jReply = convert(reply);
+				jComment.getReplies().add(jReply);
+			}
+		}
+		return jComment;
 	}
 
 	public static JTopic convert(Topic topic) throws PackPackException {

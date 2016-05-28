@@ -5,20 +5,30 @@ package com.pack.pack.model.web.dto;
  * @author Saurav
  *
  */
-public class LikeDTO {
+public class CommentDTO {
 
-	private String userId;
+	private String comment;
+	
+	private String fromUserId;
 	
 	private String entityId;
 	
 	private String entityType;
 
-	public String getUserId() {
-		return userId;
+	public String getComment() {
+		return comment;
 	}
 
-	public void setUserId(String userId) {
-		this.userId = userId;
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
+	public String getFromUserId() {
+		return fromUserId;
+	}
+
+	public void setFromUserId(String fromUserId) {
+		this.fromUserId = fromUserId;
 	}
 
 	public String getEntityId() {

@@ -24,6 +24,7 @@ import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.dto.PackReceipent;
 import com.pack.pack.model.web.dto.PackReceipentType;
 import com.pack.pack.services.couchdb.EGiftRepositoryService;
+import com.pack.pack.services.couchdb.PackAttachmentRepositoryService;
 import com.pack.pack.services.couchdb.PackRepositoryService;
 import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.email.EmailSender;
@@ -108,7 +109,7 @@ public class EGiftServiceImpl implements IeGiftService {
 				.findService(EGiftRepositoryService.class);
 		EGift eGift = eGiftService.get(eGiftId);
 		String brandId = eGift.getBrandId();
-		if(brandId == null) {
+		if (brandId == null) {
 			brandId = CommonConstants.DEFAULT_EGIFT_TOPIC_ID;
 		}
 		brandId = "brand:" + brandId;
@@ -118,7 +119,11 @@ public class EGiftServiceImpl implements IeGiftService {
 				.findService(UserRepositoryService.class);
 
 		FwdPack fwdPack = new FwdPack();
-		List<PackAttachment> packAttachments = pack.getPackAttachments();
+		PackAttachmentRepositoryService packAttachmentRepositoryService = ServiceRegistry.INSTANCE
+				.findService(PackAttachmentRepositoryService.class);
+		Pagination<PackAttachment> page = packAttachmentRepositoryService
+				.getAllPackAttachment(pack.getId(), null);
+		List<PackAttachment> packAttachments = page.getResult();
 		for (PackAttachment packAttachment : packAttachments) {
 			JPackAttachment jPackAttachment = ModelConverter
 					.convert(packAttachment);
@@ -164,8 +169,9 @@ public class EGiftServiceImpl implements IeGiftService {
 			String message, String topicId) {
 		Pack pack = new Pack();
 		pack.setCreatorId(creatorId);
-		pack.setTopicId(topicId);
-		pack.setCreationTime(new DateTime(DateTimeZone.getDefault()).getMillis());
+		pack.setPackParentTopicId(topicId);
+		pack.setCreationTime(new DateTime(DateTimeZone.getDefault())
+				.getMillis());
 		pack.setTitle(title + "[" + eGift.getTitle() + "]");
 		pack.setStory(message);
 		PackRepositoryService service = ServiceRegistry.INSTANCE
@@ -175,8 +181,9 @@ public class EGiftServiceImpl implements IeGiftService {
 		packAttachment.setAttachmentThumbnailUrl(eGift.getImageThumbnailUrl());
 		packAttachment.setAttachmentUrl(eGift.getImageUrl());
 		packAttachment.setType(PackAttachmentType.IMAGE);
-		pack.getPackAttachments().add(packAttachment);
-		service.update(pack);
+		PackAttachmentRepositoryService service2 = ServiceRegistry.INSTANCE
+				.findService(PackAttachmentRepositoryService.class);
+		service2.add(packAttachment);
 		return pack;
 	}
 

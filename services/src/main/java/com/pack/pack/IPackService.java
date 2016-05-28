@@ -3,8 +3,8 @@ package com.pack.pack;
 import java.io.InputStream;
 
 import com.pack.pack.model.PackAttachmentType;
-import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPack;
+import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.dto.PackReceipent;
 import com.pack.pack.services.exception.PackPackException;
@@ -32,9 +32,9 @@ public interface IPackService {
 	 * @param receipents
 	 * @throws PackPackException
 	 */
-	public void forwardPack(String packId, String fromUserId, PackReceipent... receipents)
-			throws PackPackException;
-	
+	public void forwardPack(String packId, String fromUserId,
+			PackReceipent... receipents) throws PackPackException;
+
 	/**
 	 * 
 	 * @param userId
@@ -43,24 +43,21 @@ public interface IPackService {
 	 * @return
 	 * @throws PackPackException
 	 */
-	public Pagination<JPack> loadLatestPack(String userId, String topicId, String pageLink)
-			throws PackPackException;
-
-	/**
-	 * 
-	 * @param comment
-	 * @return
-	 * @throws PackPackException
-	 */
-	public JComment addComment(JComment comment) throws PackPackException;
+	public Pagination<JPack> loadLatestPack(String userId, String topicId,
+			String pageLink) throws PackPackException;
 
 	/**
 	 * 
 	 * @param userId
+	 * @param topicId
 	 * @param packId
+	 * @param pageLink
+	 * @return
 	 * @throws PackPackException
 	 */
-	public void addLike(String userId, String packId) throws PackPackException;
+	public Pagination<JPackAttachment> loadPackAttachments(String userId,
+			String topicId, String packId, String pageLink)
+			throws PackPackException;
 
 	/**
 	 * 

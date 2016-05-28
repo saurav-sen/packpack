@@ -1,8 +1,10 @@
 package com.pack.pack.message;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
+import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPackAttachment;
 
 /**
@@ -24,7 +26,7 @@ public class FwdPack {
 	
 	private int likes;
 	
-	private int comments;
+	private List<JComment> comments;
 	
 	private String message;
 	
@@ -97,11 +99,14 @@ public class FwdPack {
 		this.likes = likes;
 	}
 
-	public int getComments() {
+	public List<JComment> getComments() {
+		if(comments == null) {
+			comments = new LinkedList<JComment>();
+		}
 		return comments;
 	}
 
-	public void setComments(int comments) {
+	public void setComments(List<JComment> comments) {
 		this.comments = comments;
 	}
 }
