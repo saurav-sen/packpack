@@ -21,6 +21,8 @@ public enum COMMAND {
 			APIConstants.Pack.ID), GET_ALL_PACKS_IN_DEFAULT_TOPICS(
 			APIConstants.User.ID, APIConstants.PageInfo.PAGE_LINK), GET_ALL_PACKS_IN_TOPIC(
 			APIConstants.User.ID, APIConstants.Topic.ID,
+			APIConstants.PageInfo.PAGE_LINK), GET_ALL_ATTACHMENTS_IN_PACK(
+			APIConstants.Pack.ID, APIConstants.Topic.ID, APIConstants.User.ID,
 			APIConstants.PageInfo.PAGE_LINK), FORWARD_PACK(
 			APIConstants.Pack.ID, APIConstants.ForwardPack.FROM_USER_ID,
 			APIConstants.ForwardPack.TO_USER_ID), FORWARD_PACK_OVER_EMAIL(

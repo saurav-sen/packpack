@@ -36,7 +36,7 @@ import com.pack.pack.model.web.dto.PackReceipentType;
  *
  */
 public class PackApi extends AbstractAPI {
-	
+
 	private Invoker invoker = new Invoker();
 
 	@Override
@@ -76,8 +76,28 @@ public class PackApi extends AbstractAPI {
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
-		Pagination<JPack> page = JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				Pagination.class);
+		Pagination<JPack> page = JSONUtil.deserialize(
+				EntityUtils.toString(response.getEntity()), Pagination.class);
+		List<JPack> result = page.getResult();
+		String json = "{\"packs\": " + JSONUtil.serialize(result, false) + "}";
+		JPacks packs = JSONUtil.deserialize(json, JPacks.class);
+		result = packs.getPacks();
+		page.setResult(result);
+		return page;
+	}
+
+	@SuppressWarnings("unchecked")
+	private Pagination<JPack> getAllPackAttachments(String userId,
+			String topicId, String packId, String pageLink, String oAuthToken)
+			throws Exception {
+		DefaultHttpClient client = new DefaultHttpClient();
+		String url = BASE_URL + "pack/items/" + "usr/" + userId + "/topic/"
+				+ topicId + "/pack/" + packId + "/page/" + pageLink;
+		HttpGet GET = new HttpGet(url);
+		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		HttpResponse response = client.execute(GET);
+		Pagination<JPack> page = JSONUtil.deserialize(
+				EntityUtils.toString(response.getEntity()), Pagination.class);
 		List<JPack> result = page.getResult();
 		String json = "{\"packs\": " + JSONUtil.serialize(result, false) + "}";
 		JPacks packs = JSONUtil.deserialize(json, JPacks.class);
@@ -189,6 +209,17 @@ public class PackApi extends AbstractAPI {
 				}
 				result = getAllPacksInTopic(userId, topicId, pageLink,
 						oAuthToken);
+			} else if (COMMAND.GET_ALL_ATTACHMENTS_IN_PACK.equals(action)) {
+				String userId = (String) params.get(APIConstants.User.ID);
+				String topicId = (String) params.get(APIConstants.Topic.ID);
+				String packId = (String) params.get(APIConstants.Pack.ID);
+				String pageLink = (String) params
+						.get(APIConstants.PageInfo.PAGE_LINK);
+				if (pageLink == null || pageLink.trim().equals("")) {
+					pageLink = "FIRST_PAGE";
+				}
+				result = getAllPackAttachments(userId, topicId, packId,
+						pageLink, oAuthToken);
 			} else if (COMMAND.FORWARD_PACK.equals(action)) {
 				String packId = (String) params.get(APIConstants.Pack.ID);
 				String fromUserId = (String) params
@@ -217,7 +248,8 @@ public class PackApi extends AbstractAPI {
 				commentDTO.setEntityType("PACK");
 				result = addComment(commentDTO, oAuthToken);
 			} else if (COMMAND.ADD_COMMENT_TO_PACK.equals(action)) {
-				String packAttachmentId = (String) params.get(APIConstants.PackAttachment.ID);
+				String packAttachmentId = (String) params
+						.get(APIConstants.PackAttachment.ID);
 				String fromUserId = (String) params
 						.get(APIConstants.Comment.FROM_USER_ID);
 				String comment = (String) params
@@ -237,7 +269,8 @@ public class PackApi extends AbstractAPI {
 				dto.setEntityType("PACK");
 				result = addLikeToPack(dto, oAuthToken);
 			} else if (COMMAND.ADD_LIKE_TO_PACK.equals(action)) {
-				String packAttachmentId = (String) params.get(APIConstants.PackAttachment.ID);
+				String packAttachmentId = (String) params
+						.get(APIConstants.PackAttachment.ID);
 				String userId = (String) params.get(APIConstants.User.ID);
 				LikeDTO dto = new LikeDTO();
 				dto.setEntityId(packAttachmentId);

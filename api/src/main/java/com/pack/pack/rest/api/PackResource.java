@@ -19,6 +19,7 @@ import com.pack.pack.model.Pack;
 import com.pack.pack.model.User;
 import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPack;
+import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.StatusType;
@@ -68,6 +69,19 @@ public class PackResource {
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
 		return service.loadLatestPack(userId, topicId, pageLink);
+	}
+
+	@GET
+	@Path("items/usr/{userId}/topic/{topicId}/pack/{packId}/page/{pageLink}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Pagination<JPackAttachment> getAllAttachments(
+			@PathParam("userId") String userId,
+			@PathParam("topicId") String topicId,
+			@PathParam("packId") String packId,
+			@PathParam("pageLink") String pageLink) throws PackPackException {
+		IPackService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IPackService.class);
+		return service.loadPackAttachments(userId, topicId, packId, pageLink);
 	}
 
 	@PUT
