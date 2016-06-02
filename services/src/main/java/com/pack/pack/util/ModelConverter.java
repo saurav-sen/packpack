@@ -51,6 +51,7 @@ public class ModelConverter {
 				.findService(UserRepositoryService.class);
 		User user = service.get(userId);
 		jPack.setCreatorName(user.getName());
+		jPack.setParentTopicId(pack.getPackParentTopicId());
 		return jPack;
 	}
 

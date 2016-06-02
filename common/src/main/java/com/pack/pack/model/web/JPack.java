@@ -28,6 +28,8 @@ public class JPack {
 	
 	private List<JComment> recentComments;
 	
+	private String parentTopicId;
+	
 	public String getId() {
 		return id;
 	}
@@ -101,5 +103,13 @@ public class JPack {
 
 	public void setRecentComments(List<JComment> recentComments) {
 		this.recentComments = recentComments;
+	}
+
+	public String getParentTopicId() {
+		return parentTopicId;
+	}
+
+	public void setParentTopicId(String parentTopicId) {
+		this.parentTopicId = parentTopicId;
 	}
 }
