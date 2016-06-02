@@ -7,6 +7,7 @@ import com.pack.pack.client.api.APIBuilder;
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.model.web.JPack;
+import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.StatusType;
@@ -58,5 +59,18 @@ public class PackUploadTest extends UserFollowedTopicListTest {
 				.addApiParam(APIConstants.Attachment.FILE_ATTACHMENT, file)
 				.build();
 		return (JPack) api.execute();
+	}
+
+	@SuppressWarnings("unchecked")
+	public Pagination<JPackAttachment> getAllPackAttachments(String topicId,
+			String packId, String pageLink) throws Exception {
+		API api = APIBuilder.create()
+				.setAction(COMMAND.GET_ALL_ATTACHMENTS_IN_PACK)
+				.setOauthToken(oAuthToken)
+				.addApiParam(APIConstants.Pack.ID, packId)
+				.addApiParam(APIConstants.Topic.ID, topicId)
+				.addApiParam(APIConstants.User.ID, userId)
+				.addApiParam(APIConstants.PageInfo.PAGE_LINK, pageLink).build();
+		return (Pagination<JPackAttachment>) api.execute();
 	}
 }

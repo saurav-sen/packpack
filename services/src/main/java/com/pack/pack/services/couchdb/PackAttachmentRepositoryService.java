@@ -2,8 +2,11 @@ package com.pack.pack.services.couchdb;
 
 import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
 import static com.pack.pack.common.util.CommonConstants.STANDARD_PAGE_SIZE;
+import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
 
 import java.util.List;
+
+import javax.annotation.PostConstruct;
 
 import org.ektorp.CouchDbConnector;
 import org.ektorp.Page;
@@ -37,16 +40,24 @@ public class PackAttachmentRepositoryService extends
 		super(PackAttachment.class, db);
 	}
 
+	@PostConstruct
+	public void doInit() {
+		initStandardDesignDocument();
+	}
+
 	public Pagination<PackAttachment> getAllPackAttachment(String packId,
 			String pageLink) {
 		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink)) ? PageRequest
 				.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
 		ViewQuery query = createQuery("findPackAttachmentsByPackID").startKey(
-				packId).descending(true);
+				packId);// .descending(true);
 		Page<PackAttachment> page = db.queryForPage(query, pr,
 				PackAttachment.class);
-		return new Pagination<PackAttachment>(page.getPreviousLink(),
-				page.getNextLink(), page.getRows());
+		String previousLink = page.isHasPrevious() ? page.getPreviousLink()
+				: END_OF_PAGE;
+		String nextLink = page.isHasNext() ? page.getNextLink() : END_OF_PAGE;
+		return new Pagination<PackAttachment>(previousLink, nextLink,
+				page.getRows());
 	}
 
 	public List<PackAttachment> getAllListOfPackAttachments(String packId) {

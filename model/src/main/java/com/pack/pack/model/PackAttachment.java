@@ -16,7 +16,7 @@ public class PackAttachment extends CouchDbDocument {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 8631700744807725188L;
+	private static final long serialVersionUID = -7415670854730959021L;
 
 	private String attachmentUrl;
 	
@@ -28,7 +28,7 @@ public class PackAttachment extends CouchDbDocument {
 	
 	private String title;
 	
-	private Float avgRating;
+	private float avgRating;
 	
 	private long creationTime;
 	
@@ -82,11 +82,11 @@ public class PackAttachment extends CouchDbDocument {
 		this.title = title;
 	}
 
-	public Float getAvgRating() {
+	public float getAvgRating() {
 		return avgRating;
 	}
 
-	public void setAvgRating(Float avgRating) {
+	public void setAvgRating(float avgRating) {
 		this.avgRating = avgRating;
 	}
 

@@ -21,6 +21,8 @@ import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPack;
+import com.pack.pack.model.web.JPackAttachment;
+import com.pack.pack.model.web.JPackAttachments;
 import com.pack.pack.model.web.JPacks;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.Pagination;
@@ -87,7 +89,7 @@ public class PackApi extends AbstractAPI {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Pagination<JPack> getAllPackAttachments(String userId,
+	private Pagination<JPackAttachment> getAllPackAttachments(String userId,
 			String topicId, String packId, String pageLink, String oAuthToken)
 			throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
@@ -96,12 +98,12 @@ public class PackApi extends AbstractAPI {
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
-		Pagination<JPack> page = JSONUtil.deserialize(
+		Pagination<JPackAttachment> page = JSONUtil.deserialize(
 				EntityUtils.toString(response.getEntity()), Pagination.class);
-		List<JPack> result = page.getResult();
-		String json = "{\"packs\": " + JSONUtil.serialize(result, false) + "}";
-		JPacks packs = JSONUtil.deserialize(json, JPacks.class);
-		result = packs.getPacks();
+		List<JPackAttachment> result = page.getResult();
+		String json = "{\"attachments\": " + JSONUtil.serialize(result, false) + "}";
+		JPackAttachments attachments = JSONUtil.deserialize(json, JPackAttachments.class);
+		result = attachments.getAttachments();
 		page.setResult(result);
 		return page;
 	}

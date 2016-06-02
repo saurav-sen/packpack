@@ -4,13 +4,13 @@ import java.util.List;
 
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JPack;
+import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.Pagination;
 
 
 
 public class Main {
-	
 	
 	//private static final String ANDROID_APP_CLIENT_KEY = "53e8a1f2-7568-4ac8-ab26-45738ca02599";
 	//private static final String ANDROID_APP_CLIENT_SECRET = "b1f6d761-dcb7-482b-a695-ab17e4a29b25";
@@ -22,8 +22,8 @@ public class Main {
 		//new SignUpUserTest().signUp();
 		//addTopicTest();
 		//testUserFOllowedTopicList();
-		//uploadPackTest(false);
-		addImageToPack();
+		uploadPackTest(false);
+		//addImageToPack();
 	}
 	
 	private static void addImageToPack() throws Exception {
@@ -79,6 +79,15 @@ public class Main {
 				for(JPack pack : packs) {
 					String json = JSONUtil.serialize(pack);
 					System.out.println(json);
+					Pagination<JPackAttachment> page1 = test.getAllPackAttachments(topicId, pack.getId(), "FIRST_PAGE");
+					if(page1 != null) {
+						List<JPackAttachment> attachments = page1.getResult();
+						if(attachments == null || attachments.isEmpty())
+							continue;
+						for(JPackAttachment attachment : attachments) {
+							System.out.println(JSONUtil.serialize(attachment));
+						}
+					}
 				}
 				count++;
 			}

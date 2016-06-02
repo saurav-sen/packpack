@@ -2,6 +2,7 @@ package com.pack.pack.services.couchdb;
 
 import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
 import static com.pack.pack.common.util.CommonConstants.STANDARD_PAGE_SIZE;
+import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
 
 import javax.annotation.PostConstruct;
 
@@ -37,7 +38,7 @@ public class PackRepositoryService extends CouchDbRepositorySupport<Pack> {
 	public PackRepositoryService(@Qualifier("packDB") CouchDbConnector db) {
 		super(Pack.class, db);
 	}
-
+	
 	@PostConstruct
 	public void doInit() {
 		initStandardDesignDocument();
@@ -46,10 +47,12 @@ public class PackRepositoryService extends CouchDbRepositorySupport<Pack> {
 	public Pagination<Pack> getAllPacks(String topicId, String pageLink) {
 		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink)) ? PageRequest
 				.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
-		ViewQuery query = createQuery("findPacksByTopicID").startKey(topicId)
-				.descending(true);
+		ViewQuery query = createQuery("findPacksByTopicID").startKey(topicId);
+				//.descending(true);
 		Page<Pack> page = db.queryForPage(query, pr, Pack.class);
-		return new Pagination<Pack>(page.getPreviousLink(), page.getNextLink(),
+		String nextLink = page.isHasNext() ? page.getNextLink() : END_OF_PAGE;
+		String previousLink = page.isHasPrevious() ? page.getPreviousLink() : END_OF_PAGE;
+		return new Pagination<Pack>(previousLink, nextLink,
 				page.getRows());
 	}
 }
