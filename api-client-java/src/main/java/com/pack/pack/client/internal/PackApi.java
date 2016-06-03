@@ -88,6 +88,19 @@ public class PackApi extends AbstractAPI {
 		return page;
 	}
 
+	private JPackAttachment getPackAttachmentById(String id, String oAuthToken)
+			throws Exception {
+		DefaultHttpClient client = new DefaultHttpClient();
+		String url = BASE_URL + "pack/items/" + id;
+		HttpGet GET = new HttpGet(url);
+		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		HttpResponse response = client.execute(GET);
+		JPackAttachment attachment = JSONUtil.deserialize(
+				EntityUtils.toString(response.getEntity()),
+				JPackAttachment.class);
+		return attachment;
+	}
+
 	@SuppressWarnings("unchecked")
 	private Pagination<JPackAttachment> getAllPackAttachments(String userId,
 			String topicId, String packId, String pageLink, String oAuthToken)
@@ -101,8 +114,10 @@ public class PackApi extends AbstractAPI {
 		Pagination<JPackAttachment> page = JSONUtil.deserialize(
 				EntityUtils.toString(response.getEntity()), Pagination.class);
 		List<JPackAttachment> result = page.getResult();
-		String json = "{\"attachments\": " + JSONUtil.serialize(result, false) + "}";
-		JPackAttachments attachments = JSONUtil.deserialize(json, JPackAttachments.class);
+		String json = "{\"attachments\": " + JSONUtil.serialize(result, false)
+				+ "}";
+		JPackAttachments attachments = JSONUtil.deserialize(json,
+				JPackAttachments.class);
 		result = attachments.getAttachments();
 		page.setResult(result);
 		return page;
@@ -222,6 +237,9 @@ public class PackApi extends AbstractAPI {
 				}
 				result = getAllPackAttachments(userId, topicId, packId,
 						pageLink, oAuthToken);
+			} else if (COMMAND.GET_PACK_ATTACHMENT_BY_ID.equals(action)) {
+				String id = (String) params.get(APIConstants.PackAttachment.ID);
+				result = getPackAttachmentById(id, oAuthToken);
 			} else if (COMMAND.FORWARD_PACK.equals(action)) {
 				String packId = (String) params.get(APIConstants.Pack.ID);
 				String fromUserId = (String) params

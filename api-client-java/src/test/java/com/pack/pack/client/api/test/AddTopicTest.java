@@ -28,10 +28,10 @@ public class AddTopicTest extends UserFollowedTopicListTest {
 					.setAction(COMMAND.CREATE_NEW_TOPIC)
 					.setOauthToken(oAuthToken)
 					.addApiParam(APIConstants.Topic.OWNER_ID, userId)
-					.addApiParam(APIConstants.Topic.NAME, "Freedom of Thought")
+					.addApiParam(APIConstants.Topic.NAME, "Travel Share")
 					.addApiParam(APIConstants.Topic.DESCRIPTION,
-							"New way for Freedom of mind, thought & work.")
-					.addApiParam(APIConstants.Topic.CATEGORY, "Study")
+							"Some of our work from travel last year.")
+					.addApiParam(APIConstants.Topic.CATEGORY, "lifestyle")
 					.addApiParam(APIConstants.Topic.WALLPAPER,
 							new File(TOPIC_WALLPAPER)).build();
 			JTopic topic = (JTopic) api.execute();

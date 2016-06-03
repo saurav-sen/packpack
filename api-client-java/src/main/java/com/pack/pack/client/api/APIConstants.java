@@ -59,7 +59,7 @@ public interface APIConstants {
 	}
 	
 	public static interface PackAttachment {
-		public static final String ID = "packId";
+		public static final String ID = "packAttachmentId";
 	}
 	
 	public static interface ForwardPack {

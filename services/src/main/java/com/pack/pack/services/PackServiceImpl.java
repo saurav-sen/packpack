@@ -68,6 +68,24 @@ public class PackServiceImpl implements IPackService {
 	}
 
 	@Override
+	public JPackAttachment getPackAttachmentById(String id)
+			throws PackPackException {
+		PackAttachment attachment = findPackAttachmentById(id);
+		if (attachment == null)
+			return null;
+		return ModelConverter.convert(attachment);
+	}
+
+	private PackAttachment findPackAttachmentById(String id)
+			throws PackPackException {
+		if (id == null || id.trim().isEmpty())
+			return null;
+		PackAttachmentRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(PackAttachmentRepositoryService.class);
+		return service.get(id);
+	}
+
+	@Override
 	public void forwardPack(String packId, String fromUserId,
 			PackReceipent... receipents) throws PackPackException {
 		if (receipents == null || receipents.length == 0)
@@ -152,7 +170,7 @@ public class PackServiceImpl implements IPackService {
 		return new Pagination<JPack>(END_OF_PAGE, END_OF_PAGE,
 				Collections.emptyList());
 	}
-	
+
 	@Override
 	public Pagination<JPackAttachment> loadPackAttachments(String userId,
 			String topicId, String packId, String pageLink)
@@ -165,23 +183,26 @@ public class PackServiceImpl implements IPackService {
 				|| CommonConstants.DEFAULT_TOPIC_ID.equals(topicId)
 				|| CommonConstants.DEFAULT_EGIFT_TOPIC_ID.equals(topicId)) {
 			List<JPackAttachment> result = new LinkedList<JPackAttachment>();
-			PackAttachmentRepositoryService packAttachmentRepositoryService = ServiceRegistry.INSTANCE.findService(PackAttachmentRepositoryService.class);
-			Pagination<PackAttachment> page = packAttachmentRepositoryService.getAllPackAttachment(packId, pageLink);
-			if(page != null) {
+			PackAttachmentRepositoryService packAttachmentRepositoryService = ServiceRegistry.INSTANCE
+					.findService(PackAttachmentRepositoryService.class);
+			Pagination<PackAttachment> page = packAttachmentRepositoryService
+					.getAllPackAttachment(packId, pageLink);
+			if (page != null) {
 				List<PackAttachment> attachments = page.getResult();
-				if(attachments != null && !attachments.isEmpty()) {
+				if (attachments != null && !attachments.isEmpty()) {
 					result = new ArrayList<JPackAttachment>();
-					for(PackAttachment attachment : attachments) {
+					for (PackAttachment attachment : attachments) {
 						result.add(ModelConverter.convert(attachment));
 					}
 				}
-				return new Pagination<JPackAttachment>(page.getPreviousLink(), page.getNextLink(), result);
+				return new Pagination<JPackAttachment>(page.getPreviousLink(),
+						page.getNextLink(), result);
 			}
 		}
 		return new Pagination<JPackAttachment>(END_OF_PAGE, END_OF_PAGE,
 				Collections.emptyList());
 	}
-	
+
 	@Override
 	public JPack uploadPack(InputStream file, String fileName, String title,
 			String description, String story, String topicId, String userId,

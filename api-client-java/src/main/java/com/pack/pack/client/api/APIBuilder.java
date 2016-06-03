@@ -63,6 +63,7 @@ public class APIBuilder {
 			api = new APIWrapper(new TopicApi());
 			api.getInvoker().setConfiguration(config);
 		} else if (action == COMMAND.GET_PACK_BY_ID
+				|| action == COMMAND.GET_PACK_ATTACHMENT_BY_ID
 				|| action == COMMAND.GET_ALL_PACKS_IN_DEFAULT_TOPICS
 				|| action == COMMAND.GET_ALL_PACKS_IN_TOPIC
 				|| action == COMMAND.GET_ALL_ATTACHMENTS_IN_PACK

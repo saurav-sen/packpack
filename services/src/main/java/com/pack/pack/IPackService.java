@@ -24,6 +24,14 @@ public interface IPackService {
 	 * @throws PackPackException
 	 */
 	public JPack getPackById(String id) throws PackPackException;
+	
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 * @throws PackPackException
+	 */
+	public JPackAttachment getPackAttachmentById(String id) throws PackPackException;
 
 	/**
 	 * 

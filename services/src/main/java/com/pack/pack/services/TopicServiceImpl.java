@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.pack.pack.ITopicService;
+import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.Topic;
 import com.pack.pack.model.UserTopicMap;
@@ -48,10 +49,11 @@ public class TopicServiceImpl implements ITopicService {
 		TopicRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(TopicRepositoryService.class);
 		Pagination<Pack> pagination = service.getAllPacks(topicId, pageLink);
-		List<Pack> packs = pagination.getResult();
+		List<Pack> packs = pagination != null ? pagination.getResult() : Collections.emptyList();
 		List<JPack> jPacks = ModelConverter.convertAll(packs);
-		return new Pagination<JPack>(pagination.getPreviousLink(),
-				pagination.getNextLink(), jPacks);
+		String nextLink = pagination != null ? pagination.getNextLink() : END_OF_PAGE;
+		String previousLink = pagination != null ? pagination.getPreviousLink() : END_OF_PAGE;
+		return new Pagination<JPack>(previousLink, nextLink, jPacks);
 	}
 
 	@Override
@@ -123,8 +125,9 @@ public class TopicServiceImpl implements ITopicService {
 				userId, categoryName, pageLink);
 		List<Topic> topics = page != null ? page.getResult() : Collections.emptyList();
 		List<JTopic> jTopics = ModelConverter.convertTopicList(topics);
-		return new Pagination<JTopic>(page.getPreviousLink(),
-				page.getNextLink(), jTopics);
+		String previousLink = page != null ? page.getPreviousLink() : END_OF_PAGE;
+		String nextLink = page != null ? page.getNextLink() : END_OF_PAGE;
+		return new Pagination<JTopic>(previousLink, nextLink, jTopics);
 	}
 
 	@Override
@@ -138,8 +141,8 @@ public class TopicServiceImpl implements ITopicService {
 				.findService(UserTopicMapRepositoryService.class);
 		Pagination<Topic> page = mapService.getAllTopicsFollowedByUser(userId,
 				pageLink);
-		String nextLink = page != null ? page.getNextLink() : null;
-		String previousLink = page != null ? page.getPreviousLink() : null;
+		String nextLink = page != null ? page.getNextLink() : END_OF_PAGE;
+		String previousLink = page != null ? page.getPreviousLink() : END_OF_PAGE;
 		List<Topic> topics = page != null ? page.getResult() : Collections
 				.emptyList();
 		List<JTopic> jTopics = ModelConverter.convertTopicList(topics);

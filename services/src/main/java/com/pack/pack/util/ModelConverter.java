@@ -88,6 +88,7 @@ public class ModelConverter {
 		} else {
 			url = baseURL + url;
 		}
+		jAttachment.setId(attachment.getId());
 		jAttachment.setAttachmentUrl(url);
 		jAttachment.setMimeType(attachment.getMimeType());
 		jAttachment.setTitle(attachment.getTitle());

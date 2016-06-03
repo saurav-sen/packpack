@@ -84,6 +84,16 @@ public class PackResource {
 		return service.loadPackAttachments(userId, topicId, packId, pageLink);
 	}
 
+	@GET
+	@Path("items/{id}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public JPackAttachment getPackAttachmentById(@PathParam("id") String id)
+			throws PackPackException {
+		IPackService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IPackService.class);
+		return service.getPackAttachmentById(id);
+	}
+
 	@PUT
 	@Path("{id}")
 	@Produces(MediaType.APPLICATION_JSON)

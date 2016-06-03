@@ -3,19 +3,12 @@ package com.pack.pack.model;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.ektorp.support.CouchDbDocument;
-
 /**
  * 
  * @author Saurav
  *
  */
-public class Comment extends CouchDbDocument {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1839844005905686366L;
+public class Comment {
 
 	private String fromUser;
 	
