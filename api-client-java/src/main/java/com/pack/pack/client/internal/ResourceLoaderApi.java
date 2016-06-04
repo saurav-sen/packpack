@@ -11,6 +11,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
+import com.pack.pack.client.api.MultipartRequestProgressListener;
 
 import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
 
@@ -46,9 +47,14 @@ public class ResourceLoaderApi extends AbstractAPI {
 			params = configuration.getApiParams();
 			oAuthToken = configuration.getOAuthToken();
 		}
-
+		
 		@Override
 		public Object invoke() throws Exception {
+			return invoke(null);
+		}
+
+		@Override
+		public Object invoke(MultipartRequestProgressListener listener) throws Exception {
 			if (COMMAND.LOAD_RESOURCE.equals(action)) {
 				String url = (String) params
 						.get(APIConstants.ProtectedResource.RESOURCE_URL);

@@ -18,6 +18,7 @@ import org.apache.http.util.EntityUtils;
 
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
+import com.pack.pack.client.api.MultipartRequestProgressListener;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPack;
@@ -200,9 +201,14 @@ public class PackApi extends AbstractAPI {
 			params = configuration.getApiParams();
 			oAuthToken = configuration.getOAuthToken();
 		}
-
+		
 		@Override
 		public Object invoke() throws Exception {
+			return invoke(null);
+		}
+
+		@Override
+		public Object invoke(MultipartRequestProgressListener listener) throws Exception {
 			Object result = null;
 			if (COMMAND.GET_PACK_BY_ID.equals(action)) {
 				String packId = (String) params.get(APIConstants.Pack.ID);
@@ -288,7 +294,7 @@ public class PackApi extends AbstractAPI {
 				dto.setUserId(userId);
 				dto.setEntityType("PACK");
 				result = addLikeToPack(dto, oAuthToken);
-			} else if (COMMAND.ADD_LIKE_TO_PACK.equals(action)) {
+			} else if (COMMAND.ADD_LIKE_TO_PACK_ATTACHMENT.equals(action)) {
 				String packAttachmentId = (String) params
 						.get(APIConstants.PackAttachment.ID);
 				String userId = (String) params.get(APIConstants.User.ID);

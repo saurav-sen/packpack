@@ -1,6 +1,7 @@
 package com.pack.pack.client.internal;
 
 import com.pack.pack.client.api.API;
+import com.pack.pack.client.api.MultipartRequestProgressListener;
 
 /**
  * 
@@ -14,5 +15,11 @@ public abstract class AbstractAPI implements API {
 	@Override
 	public Object execute() throws Exception {
 		return getInvoker().invoke();
+	}
+	
+	@Override
+	public Object execute(MultipartRequestProgressListener listener)
+			throws Exception {
+		return getInvoker().invoke(listener);
 	}
 }

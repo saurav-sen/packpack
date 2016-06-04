@@ -2,7 +2,6 @@ package com.pack.pack.client.internal;
 
 import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
 import static com.pack.pack.client.api.APIConstants.BASE_URL;
-import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +23,8 @@ import org.apache.http.util.EntityUtils;
 
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
+import com.pack.pack.client.api.MultipartRequestProgressListener;
+import com.pack.pack.client.internal.multipart.ProgressTrackedMultipartEntity;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JStatus;
@@ -37,7 +38,7 @@ import com.pack.pack.services.exception.PackPackException;
 public class AttachmentsApi extends AbstractAPI {
 
 	private static final String ATTACHMENT = "attachment/";
-	
+
 	private Invoker invoker = new Invoker();
 
 	@Override
@@ -101,32 +102,37 @@ public class AttachmentsApi extends AbstractAPI {
 	}
 
 	private JStatus uploadImagePack(Map<String, Object> params,
-			String oAuthToken) throws ClientProtocolException, IOException,
-			ParseException, PackPackException {
+			String oAuthToken, MultipartRequestProgressListener listener)
+			throws ClientProtocolException, IOException, ParseException,
+			PackPackException {
 		String topicId = (String) params.get(APIConstants.Topic.ID);
 		String userId = (String) params.get(APIConstants.User.ID);
 		String url = BASE_URL + ATTACHMENT + "image/topic/" + topicId + "/usr/"
 				+ userId;
-		return uploadPack(params, url, oAuthToken);
+		return uploadPack(params, url, oAuthToken, listener);
 	}
 
 	private JStatus uploadVideoPack(Map<String, Object> params,
-			String oAuthToken) throws ClientProtocolException, IOException,
-			ParseException, PackPackException {
+			String oAuthToken, MultipartRequestProgressListener listener)
+			throws ClientProtocolException, IOException, ParseException,
+			PackPackException {
 		String topicId = (String) params.get(APIConstants.Topic.ID);
 		String userId = (String) params.get(APIConstants.User.ID);
 		String url = BASE_URL + ATTACHMENT + "video/topic/" + topicId + "/usr/"
 				+ userId;
-		return uploadPack(params, url, oAuthToken);
+		return uploadPack(params, url, oAuthToken, listener);
 	}
 
 	private JStatus uploadPack(Map<String, Object> params, String url,
-			String oAuthToken) throws ClientProtocolException, IOException,
-			ParseException, PackPackException {
-		DefaultHttpClient client = new DefaultHttpClient();//new DefaultHttpClient();
+			String oAuthToken, MultipartRequestProgressListener listener)
+			throws ClientProtocolException, IOException, ParseException,
+			PackPackException {
+		DefaultHttpClient client = new DefaultHttpClient();// new
+															// DefaultHttpClient();
 		HttpPost POST = new HttpPost(url);
-		//MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-		MultipartEntity multipartEntity = new MultipartEntity();
+		// MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+		MultipartEntity multipartEntity = new ProgressTrackedMultipartEntity(
+				listener);
 		Iterator<String> itr = params.keySet().iterator();
 		while (itr.hasNext()) {
 			String key = itr.next();
@@ -138,29 +144,35 @@ public class AttachmentsApi extends AbstractAPI {
 				FileBody fileBody = new FileBody(file, file.getName(),
 						HTTP.OCTET_STREAM_TYPE, null);
 				multipartEntity.addPart(key, fileBody);
-				/*builder.addBinaryBody(key, file,
-						HTTP.OCTET_STREAM_TYPE, file.getName());*/
+				/*
+				 * builder.addBinaryBody(key, file, HTTP.OCTET_STREAM_TYPE,
+				 * file.getName());
+				 */
 			} else {
 				String text = (String) params.get(key);
 				StringBody textBody = new StringBody(text);
 				multipartEntity.addPart(key, textBody);
-				//builder.addTextBody(key, text);
+				// builder.addTextBody(key, text);
 			}
 		}
 		POST.setEntity(multipartEntity);
-		//HttpEntity entity = builder.build();
-		//POST.setEntity(entity);
+		// HttpEntity entity = builder.build();
+		// POST.setEntity(entity);
 		POST.addHeader(AUTHORIZATION_HEADER, oAuthToken);
-		/*POST.addHeader(CONTENT_TYPE_HEADER,
-				ContentType.MULTIPART_FORM_DATA.getMimeType());*/
-		/*POST.addHeader(CONTENT_TYPE_HEADER,
-				"multipart/form-data");*/
+		/*
+		 * POST.addHeader(CONTENT_TYPE_HEADER,
+		 * ContentType.MULTIPART_FORM_DATA.getMimeType());
+		 */
+		/*
+		 * POST.addHeader(CONTENT_TYPE_HEADER, "multipart/form-data");
+		 */
 		HttpResponse response = client.execute(POST);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JStatus.class);
 	}
 
-	private JPack addImageToPack(Map<String, Object> params, String oAuthToken)
+	private JPack addImageToPack(Map<String, Object> params, String oAuthToken,
+			MultipartRequestProgressListener listener)
 			throws ClientProtocolException, IOException, ParseException,
 			PackPackException {
 		String topicId = (String) params.get(APIConstants.Topic.ID);
@@ -168,10 +180,11 @@ public class AttachmentsApi extends AbstractAPI {
 		String userId = (String) params.get(APIConstants.User.ID);
 		String url = BASE_URL + ATTACHMENT + "image/topic/" + topicId
 				+ "/pack/" + packId + "/usr/" + userId;
-		return editPack(params, url, oAuthToken);
+		return editPack(params, url, oAuthToken, listener);
 	}
 
-	private JPack addVideoToPack(Map<String, Object> params, String oAuthToken)
+	private JPack addVideoToPack(Map<String, Object> params, String oAuthToken,
+			MultipartRequestProgressListener listener)
 			throws ClientProtocolException, IOException, ParseException,
 			PackPackException {
 		String topicId = (String) params.get(APIConstants.Topic.ID);
@@ -179,16 +192,18 @@ public class AttachmentsApi extends AbstractAPI {
 		String userId = (String) params.get(APIConstants.User.ID);
 		String url = BASE_URL + ATTACHMENT + "video/topic/" + topicId
 				+ "/pack/" + packId + "/usr/" + userId;
-		return editPack(params, url, oAuthToken);
+		return editPack(params, url, oAuthToken, listener);
 	}
 
 	private JPack editPack(Map<String, Object> params, String url,
-			String oAuthToken) throws ClientProtocolException, IOException,
-			ParseException, PackPackException {
+			String oAuthToken, MultipartRequestProgressListener listener)
+			throws ClientProtocolException, IOException, ParseException,
+			PackPackException {
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpPut PUT = new HttpPut(url);
-		MultipartEntity multipartEntity = new MultipartEntity();
-		//MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+		MultipartEntity multipartEntity = new ProgressTrackedMultipartEntity(
+				listener);
+		// MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 		Iterator<String> itr = params.keySet().iterator();
 		while (itr.hasNext()) {
 			String key = itr.next();
@@ -201,23 +216,28 @@ public class AttachmentsApi extends AbstractAPI {
 				FileBody fileBody = new FileBody(file, file.getName(),
 						HTTP.OCTET_STREAM_TYPE, null);
 				multipartEntity.addPart(key, fileBody);
-				/*builder.addBinaryBody(key, file,
-						ContentType.APPLICATION_OCTET_STREAM, file.getName());*/
+				/*
+				 * builder.addBinaryBody(key, file,
+				 * ContentType.APPLICATION_OCTET_STREAM, file.getName());
+				 */
 			} else {
 				String text = (String) params.get(key);
 				StringBody textBody = new StringBody(text);
 				multipartEntity.addPart(key, textBody);
-				//builder.addTextBody(key, text);
+				// builder.addTextBody(key, text);
 			}
 		}
 		PUT.setEntity(multipartEntity);
-		//HttpEntity entity = builder.build();
-		//PUT.setEntity(entity);
+		// HttpEntity entity = builder.build();
+		// PUT.setEntity(entity);
 		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
-		/*PUT.addHeader(CONTENT_TYPE_HEADER,
-				"multipart/form-data");*/
-		/*PUT.addHeader(CONTENT_TYPE_HEADER,
-				ContentType.MULTIPART_FORM_DATA.getMimeType());*/
+		/*
+		 * PUT.addHeader(CONTENT_TYPE_HEADER, "multipart/form-data");
+		 */
+		/*
+		 * PUT.addHeader(CONTENT_TYPE_HEADER,
+		 * ContentType.MULTIPART_FORM_DATA.getMimeType());
+		 */
 		HttpResponse response = client.execute(PUT);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JPack.class);
@@ -240,6 +260,12 @@ public class AttachmentsApi extends AbstractAPI {
 
 		@Override
 		public Object invoke() throws Exception {
+			return invoke(null);
+		}
+
+		@Override
+		public Object invoke(MultipartRequestProgressListener listener)
+				throws Exception {
 			Object result = null;
 			if (COMMAND.GET_PROFILE_PICTURE.equals(action)) {
 				String userId = (String) params.get(APIConstants.User.ID);
@@ -271,13 +297,13 @@ public class AttachmentsApi extends AbstractAPI {
 						.get(APIConstants.Attachment.FILE_NAME);
 				result = getOriginalVideo(topicId, packId, fileName, oAuthToken);
 			} else if (COMMAND.UPLOAD_IMAGE_PACK.equals(action)) {
-				result = uploadImagePack(params, oAuthToken);
+				result = uploadImagePack(params, oAuthToken, listener);
 			} else if (COMMAND.ADD_IMAGE_TO_PACK.equals(action)) {
-				result = addImageToPack(params, oAuthToken);
+				result = addImageToPack(params, oAuthToken, listener);
 			} else if (COMMAND.UPLOAD_VIDEO_PACK.equals(action)) {
-				result = uploadVideoPack(params, oAuthToken);
+				result = uploadVideoPack(params, oAuthToken, listener);
 			} else if (COMMAND.ADD_VIDEO_TO_PACK.equals(action)) {
-				result = addVideoToPack(params, oAuthToken);
+				result = addVideoToPack(params, oAuthToken, listener);
 			}
 			return result;
 		}

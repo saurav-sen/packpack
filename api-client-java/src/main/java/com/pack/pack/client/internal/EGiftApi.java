@@ -17,6 +17,7 @@ import org.apache.http.util.EntityUtils;
 
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
+import com.pack.pack.client.api.MultipartRequestProgressListener;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JeGift;
@@ -107,9 +108,14 @@ public class EGiftApi extends AbstractAPI {
 			params = configuration.getApiParams();
 			oAuthToken = configuration.getOAuthToken();
 		}
-
+		
 		@Override
 		public Object invoke() throws Exception {
+			return invoke(null);
+		}
+
+		@Override
+		public Object invoke(MultipartRequestProgressListener listener) throws Exception {
 			Object result = null;
 			if (COMMAND.GET_EGIFT_BY_ID.equals(action)) {
 				String egiftId = (String) params.get(APIConstants.EGift.ID);

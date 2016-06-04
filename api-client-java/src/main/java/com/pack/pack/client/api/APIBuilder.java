@@ -70,7 +70,8 @@ public class APIBuilder {
 				|| action == COMMAND.FORWARD_PACK
 				|| action == COMMAND.FORWARD_PACK_OVER_EMAIL
 				|| action == COMMAND.ADD_COMMENT_TO_PACK
-				|| action == COMMAND.ADD_LIKE_TO_PACK) {
+				|| action == COMMAND.ADD_LIKE_TO_PACK
+				|| action == COMMAND.ADD_LIKE_TO_PACK_ATTACHMENT) {
 			api = new APIWrapper(new PackApi());
 			api.getInvoker().setConfiguration(config);
 		} else if (action == COMMAND.GET_EGIFT_BY_ID

@@ -12,6 +12,7 @@ import org.apache.http.util.EntityUtils;
 
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
+import com.pack.pack.client.api.MultipartRequestProgressListener;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JBrands;
 
@@ -56,9 +57,14 @@ public class BrandsApi extends AbstractAPI {
 			params = configuration.getApiParams();
 			oAuthToken = configuration.getOAuthToken();
 		}
-
+		
 		@Override
 		public Object invoke() throws Exception {
+			return invoke(null);
+		}
+
+		@Override
+		public Object invoke(MultipartRequestProgressListener listener) throws Exception {
 			Object result = null;
 			if (COMMAND.SEARCH_BRANDS_INFO.equals(action)) {
 				String companyName = (String) params
