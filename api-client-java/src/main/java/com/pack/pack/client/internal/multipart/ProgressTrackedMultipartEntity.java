@@ -23,6 +23,6 @@ public class ProgressTrackedMultipartEntity extends MultipartEntity {
 	
 	@Override
 	public void writeTo(OutputStream outstream) throws IOException {
-		super.writeTo(new CountingOutputStream(outstream, listener));
+		super.writeTo(new CountingOutputStream(outstream, listener, getContentLength()));
 	}
 }

@@ -7,5 +7,5 @@ package com.pack.pack.client.api;
  */
 public interface MultipartRequestProgressListener {
 
-	public void countTransferProgress(long progress);
+	public void countTransferProgress(long progress, long total);
 }

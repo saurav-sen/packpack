@@ -16,10 +16,14 @@ public class CountingOutputStream extends FilterOutputStream {
 	private MultipartRequestProgressListener listener;
 	
 	private long transferred = 0;
+	
+	private long totalLength = 0;
 
-	public CountingOutputStream(OutputStream out, MultipartRequestProgressListener listener) {
+	public CountingOutputStream(OutputStream out, MultipartRequestProgressListener listener, 
+			long totalLength) {
 		super(out);
 		this.listener = listener;
+		this.totalLength = totalLength;
 	}
 	
 	@Override
@@ -27,7 +31,7 @@ public class CountingOutputStream extends FilterOutputStream {
 		super.write(b, off, len);
 		if(listener != null) {
 			transferred += len;
-			listener.countTransferProgress(transferred);
+			listener.countTransferProgress(transferred, totalLength);
 		}
 	}
 	
@@ -36,7 +40,7 @@ public class CountingOutputStream extends FilterOutputStream {
 		super.write(b);
 		if(listener != null) {
 			transferred += b.length;
-			listener.countTransferProgress(transferred);
+			listener.countTransferProgress(transferred, totalLength);
 		}
 	}
 	
@@ -45,7 +49,7 @@ public class CountingOutputStream extends FilterOutputStream {
 		super.write(b);
 		if(listener != null) {
 			transferred++;
-			listener.countTransferProgress(transferred);
+			listener.countTransferProgress(transferred, totalLength);
 		}
 	}
 }
