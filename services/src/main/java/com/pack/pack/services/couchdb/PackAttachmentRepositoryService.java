@@ -4,6 +4,8 @@ import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
 import static com.pack.pack.common.util.CommonConstants.STANDARD_PAGE_SIZE;
 import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -55,14 +57,40 @@ public class PackAttachmentRepositoryService extends
 				PackAttachment.class);
 		String previousLink = page.isHasPrevious() ? page.getPreviousLink()
 				: END_OF_PAGE;
+		List<PackAttachment> rows = page.getRows();
+		if (rows != null && !rows.isEmpty()) {
+			Collections.sort(rows, new Comparator<PackAttachment>() {
+				@Override
+				public int compare(PackAttachment o1, PackAttachment o2) {
+					long l = o1.getCreationTime() - o2.getCreationTime();
+					if (l >= 0) {
+						return 1;
+					}
+					return -1;
+				}
+			});
+		}
 		String nextLink = page.isHasNext() ? page.getNextLink() : END_OF_PAGE;
 		return new Pagination<PackAttachment>(previousLink, nextLink,
-				page.getRows());
+				rows);
 	}
 
 	public List<PackAttachment> getAllListOfPackAttachments(String packId) {
 		ViewQuery query = createQuery("findPackAttachmentsByPackID").startKey(
-				packId).descending(true);
-		return db.queryView(query, PackAttachment.class);
+				packId);
+		List<PackAttachment> rows = db.queryView(query, PackAttachment.class);
+		if (rows != null && !rows.isEmpty()) {
+			Collections.sort(rows, new Comparator<PackAttachment>() {
+				@Override
+				public int compare(PackAttachment o1, PackAttachment o2) {
+					long l = o1.getCreationTime() - o2.getCreationTime();
+					if (l >= 0) {
+						return 1;
+					}
+					return -1;
+				}
+			});
+		}
+		return rows;
 	}
 }
