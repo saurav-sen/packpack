@@ -3,6 +3,7 @@ package com.pack.pack.services.couchdb;
 import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
 import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
 import static com.pack.pack.common.util.CommonConstants.STANDARD_PAGE_SIZE;
+import static com.pack.pack.util.SystemPropertyUtil.HIGH_UNICODE_CHARACTER;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,7 +33,7 @@ import com.pack.pack.model.web.Pagination;
  */
 @Component
 @Scope("singleton")
-@Views({ @View(name = "findPacksByTopicID", map = "function(doc) { if(doc.packParentTopicId) { emit([doc.packParentTopicId, doc.creationTime], doc); } }") })
+@Views({ @View(name = "findPacksByTopicID", map = "function(doc) { if(doc.packParentTopicId) { emit(doc.packParentTopicId + doc.creationTime); } }") })
 public class PackRepositoryService extends CouchDbRepositorySupport<Pack> {
 
 	@Autowired
@@ -51,8 +52,9 @@ public class PackRepositoryService extends CouchDbRepositorySupport<Pack> {
 	public Pagination<Pack> getAllPacks(String topicId, String pageLink) {
 		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink)) ? PageRequest
 				.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
-		ViewQuery query = createQuery("findPacksByTopicID").startKey(topicId);
-				//.descending(true);
+		ViewQuery query = createQuery("findPacksByTopicID").startKey(topicId)
+				.endKey(topicId + HIGH_UNICODE_CHARACTER).descending(false)
+				.includeDocs(true);
 		Page<Pack> page = db.queryForPage(query, pr, Pack.class);
 		List<Pack> rows = page.getRows();
 		if (rows != null && !rows.isEmpty()) {

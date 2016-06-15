@@ -32,7 +32,7 @@ import com.pack.pack.model.User;
 	@View(name="basedOnLocation", map="function(doc) { if(doc.address && doc.address.city && doc.address.state "
 			+ "&& doc.address.country) { emit([doc.address.city, doc.address.state, doc.address.country], doc); } }"),
 	@View(name="basedOnAddress", map="function(doc) { if(doc.address) { emit([doc.address.city, doc.address.state, doc.address.country], doc); } }"),
-	@View(name="basedOnUsername", map="function(doc) { if(doc.username) { emit(doc.username, doc); } }")
+	@View(name="basedOnUsername", map="function(doc) { if(doc.username) { emit(doc.username); } }")
 })
 public class UserRepositoryService extends CouchDbRepositorySupport<User> {
 	
@@ -71,13 +71,15 @@ public class UserRepositoryService extends CouchDbRepositorySupport<User> {
 	
 	public List<User> getBasedOnUsername(String username) {
 		logger.debug("getBasedOnUsername(username=" + username);
-		ViewQuery query = createQuery("basedOnUsername").key(username);
+		ViewQuery query = createQuery("basedOnUsername").key(username)
+				.includeDocs(true);
 		return db.queryView(query, User.class);
 	}
 	
 	public boolean validateCredential(String username, String password) {
 		logger.debug("validateCredential(username=" + username);
-		ViewQuery query = createQuery("basedOnUsername").key(username);
+		ViewQuery query = createQuery("basedOnUsername").key(username)
+				.includeDocs(true);
 		List<User> list = db.queryView(query, User.class);
 		if(list == null || list.isEmpty()) {
 			logger.debug("Not valid credential");

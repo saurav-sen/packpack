@@ -35,9 +35,9 @@ import com.pack.pack.model.web.Pagination;
 @Component
 @Scope("singleton")
 @Views({
-		@View(name = "findTopicByOwner", map = "function(doc) {if(doc.ownerId && doc._id) { emit(doc.ownerId, doc); }}"),
-		@View(name = "findTopicByID", map = "function(doc) {if(doc.ownerId && doc._id) { emit(doc._id, doc); }}"),
-		@View(name = "findTopicByCategoryName", map = "function(doc) { if(doc.ownerId && doc.id && doc.category) { emit(doc.category, doc);}}") })
+		@View(name = "findTopicByOwner", map = "function(doc) {if(doc.ownerId && doc._id) { emit(doc.ownerId); }}"),
+		@View(name = "findTopicByID", map = "function(doc) {if(doc.ownerId && doc._id && doc.category) { emit(doc._id); }}"),
+		@View(name = "findTopicByCategoryName", map = "function(doc) { if(doc.ownerId && doc._id && doc.category) { emit(doc.category); }}") })
 public class TopicRepositoryService extends CouchDbRepositorySupport<Topic> {
 
 	private static Logger logger = LoggerFactory
@@ -74,7 +74,8 @@ public class TopicRepositoryService extends CouchDbRepositorySupport<Topic> {
 	public Topic getTopicById(String topicId) {
 		logger.debug("getTopicById(...)");
 		logger.debug("TopicID = " + topicId);
-		ViewQuery query = createQuery("findTopicByID").key(topicId);
+		ViewQuery query = createQuery("findTopicByID").key(topicId)
+				.includeDocs(true);
 		List<Topic> topics = db.queryView(query, Topic.class);
 		if (topics == null || topics.isEmpty()) {
 			return null;
@@ -84,13 +85,15 @@ public class TopicRepositoryService extends CouchDbRepositorySupport<Topic> {
 
 	public List<Topic> getAllTopicsById(List<String> topicIds) {
 		logger.debug("getAllTopicsById(...) for a specified range of topicIDs");
-		ViewQuery query = createQuery("findTopicByID").keys(topicIds);
+		ViewQuery query = createQuery("findTopicByID").keys(topicIds)
+				.includeDocs(true);
 		return db.queryView(query, Topic.class);
 	}
 
 	public Pagination<Topic> getAllTopics(String userId, String pageLink) {
 		logger.debug("getAllTopics(userId=" + userId + ", pageLink=" + pageLink);
-		ViewQuery query = createQuery("findTopicByOwner").key(userId);
+		ViewQuery query = createQuery("findTopicByOwner").key(userId)
+				.includeDocs(true);
 		if (END_OF_PAGE.equals(pageLink)) {
 			return new Pagination<Topic>(END_OF_PAGE, END_OF_PAGE,
 					Collections.emptyList());
@@ -109,7 +112,8 @@ public class TopicRepositoryService extends CouchDbRepositorySupport<Topic> {
 			String pageLink) {
 		logger.debug("getAllTopicsByCategoryName(categoryName=" + categoryName
 				+ ", pageLink=" + pageLink);
-		ViewQuery query = createQuery("findTopicByCategoryName").key(categoryName);
+		ViewQuery query = createQuery("findTopicByCategoryName").key(categoryName)
+				.includeDocs(true);
 		if (END_OF_PAGE.equals(pageLink)) {
 			return new Pagination<Topic>(END_OF_PAGE, END_OF_PAGE,
 					Collections.emptyList());

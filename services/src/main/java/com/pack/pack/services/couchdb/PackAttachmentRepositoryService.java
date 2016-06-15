@@ -1,8 +1,9 @@
 package com.pack.pack.services.couchdb;
 
+import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
 import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
 import static com.pack.pack.common.util.CommonConstants.STANDARD_PAGE_SIZE;
-import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
+import static com.pack.pack.util.SystemPropertyUtil.HIGH_UNICODE_CHARACTER;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,7 +33,7 @@ import com.pack.pack.model.web.Pagination;
  */
 @Component
 @Scope("singleton")
-@Views({ @View(name = "findPackAttachmentsByPackID", map = "function(doc) { if(doc.attachmentParentPackId) { emit([doc.attachmentParentPackId, doc.creationTime], doc); } }") })
+@Views({ @View(name = "findPackAttachmentsByPackID", map = "function(doc) { if(doc.attachmentParentPackId) { emit(doc.attachmentParentPackId + doc.creationTime); } }") })
 public class PackAttachmentRepositoryService extends
 		CouchDbRepositorySupport<PackAttachment> {
 
@@ -52,7 +53,8 @@ public class PackAttachmentRepositoryService extends
 		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink)) ? PageRequest
 				.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
 		ViewQuery query = createQuery("findPackAttachmentsByPackID").startKey(
-				packId);// .descending(true);
+				packId).endKey(packId + HIGH_UNICODE_CHARACTER).descending(false)
+				.includeDocs(true);
 		Page<PackAttachment> page = db.queryForPage(query, pr,
 				PackAttachment.class);
 		String previousLink = page.isHasPrevious() ? page.getPreviousLink()
@@ -77,7 +79,8 @@ public class PackAttachmentRepositoryService extends
 
 	public List<PackAttachment> getAllListOfPackAttachments(String packId) {
 		ViewQuery query = createQuery("findPackAttachmentsByPackID").startKey(
-				packId);
+				packId).endKey(packId + HIGH_UNICODE_CHARACTER).descending(false)
+				.includeDocs(true);
 		List<PackAttachment> rows = db.queryView(query, PackAttachment.class);
 		if (rows != null && !rows.isEmpty()) {
 			Collections.sort(rows, new Comparator<PackAttachment>() {

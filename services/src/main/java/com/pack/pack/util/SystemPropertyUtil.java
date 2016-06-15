@@ -57,6 +57,8 @@ public class SystemPropertyUtil {
 	private static final String CONFIG_FILE = "../conf/system_internal.properties";
 
 	private static final String DEFAULT_TOPIC_ID_VALUE = "home.topic";
+	
+	public static final String HIGH_UNICODE_CHARACTER = "\ufff0";
 
 	public static void init() {
 		try {

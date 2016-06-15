@@ -26,7 +26,7 @@ import com.pack.pack.model.PersistedUserToken;
 @Component
 @Scope("singleton")
 @Views({
-	@View(name="findByRefreshToken", map="function(doc) { if(doc.refreshToken) { emit(doc.refreshToken, doc); } }")
+	@View(name="findByRefreshToken", map="function(doc) { if(doc.refreshToken) { emit(doc.refreshToken); } }")
 })
 public class PersistedUserTokenRepositoryService extends
 		CouchDbRepositorySupport<PersistedUserToken> {
@@ -46,7 +46,8 @@ public class PersistedUserTokenRepositoryService extends
 	
 	public PersistedUserToken findByRefreshToken(String refreshToken) {
 		logger.info("Querying based upon refresh token: " + refreshToken);
-		ViewQuery query = createQuery("findByRefreshToken").key(refreshToken);
+		ViewQuery query = createQuery("findByRefreshToken").key(refreshToken)
+				.includeDocs(true);
 		List<PersistedUserToken> list = db.queryView(query, PersistedUserToken.class);
 		if(list == null || list.isEmpty())
 			return null;

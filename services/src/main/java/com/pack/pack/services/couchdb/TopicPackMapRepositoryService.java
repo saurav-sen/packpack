@@ -2,6 +2,7 @@ package com.pack.pack.services.couchdb;
 
 import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
 import static com.pack.pack.common.util.CommonConstants.STANDARD_PAGE_SIZE;
+import static com.pack.pack.util.SystemPropertyUtil.HIGH_UNICODE_CHARACTER;
 
 import java.util.List;
 
@@ -29,7 +30,7 @@ import com.pack.pack.model.web.Pagination;
  */
 @Component
 @Scope("singleton")
-@Views({ @View(name = "topicVsPackId", map = "function(doc) { if(doc.topicId && doc.dateTime && doc._id) { emit([doc.topicId, doc.dateTime], doc.packId); } }") })
+@Views({ @View(name = "topicVsPackId", map = "function(doc) { if(doc.topicId && doc.dateTime && doc._id) { emit(doc.topicId + doc.dateTime, doc.packId); } }") })
 public class TopicPackMapRepositoryService extends
 		CouchDbRepositorySupport<TopicPackMap> {
 
@@ -45,7 +46,8 @@ public class TopicPackMapRepositoryService extends
 	}
 
 	public Pagination<String> getAllTopicPackMap(String topicId, String pageLink) {
-		ViewQuery query = createQuery("topicVsPackId").startKey(topicId);
+		ViewQuery query = createQuery("topicVsPackId").startKey(topicId)
+				.endKey(topicId + HIGH_UNICODE_CHARACTER).descending(true);
 		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink)) ? PageRequest
 				.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
 		Page<String> page = db.queryForPage(query, pr, String.class);

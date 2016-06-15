@@ -3,13 +3,12 @@ package com.pack.pack.services.couchdb;
 import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
 import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
 import static com.pack.pack.common.util.CommonConstants.STANDARD_PAGE_SIZE;
+import static com.pack.pack.util.SystemPropertyUtil.HIGH_UNICODE_CHARACTER;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 
-import org.ektorp.ComplexKey;
 import org.ektorp.CouchDbConnector;
 import org.ektorp.Page;
 import org.ektorp.PageRequest;
@@ -36,9 +35,9 @@ import com.pack.pack.model.web.Pagination;
 @Component
 @Scope("singleton")
 @Views({
-	@View(name="allForUser", map="function(doc) { if(doc.userId && doc._id && doc.topicId && doc.topicCategory) { emit([doc.userId, doc.topicCategory], doc.topicId); }}"),
+	@View(name="allForUser", map="function(doc) { if(doc.userId && doc._id && doc.topicId && doc.topicCategory) { emit(doc.userId + doc.topicCategory, doc.topicId); }}"),
 	@View(name="allUserForTopic", map="function(doc) { if(doc.userId && doc._id && doc.topicId) { emit(doc.topicId, doc.userId); }}"),
-	@View(name="usrVsTopicMap", map="function(doc) { if(doc.userId && doc._id && doc.topicId) { emit([doc.topicId, doc.userId], doc); }}")
+	@View(name="usrVsTopicMap", map="function(doc) { if(doc.userId && doc._id && doc.topicId) { emit(doc.topicId + doc.userId); }}")
 	
 })
 public class UserTopicMapRepositoryService extends CouchDbRepositorySupport<UserTopicMap> {
@@ -61,10 +60,13 @@ public class UserTopicMapRepositoryService extends CouchDbRepositorySupport<User
 	public Pagination<Topic> getAllTopicsFollowedByUser(String userId, String pageLink) {
 		logger.debug("Loading All Topic information followed by user having userId="
 				+ userId + " in paginated API with page-link=" + pageLink);
-		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink))? PageRequest.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
-		List<String> keys = new ArrayList<String>();
+		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink))? 
+				PageRequest.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
+		/*List<String> keys = new ArrayList<String>();
 		keys.add(userId);
-		ViewQuery query = createQuery("allForUser").keys(keys);
+		ViewQuery query = createQuery("allForUser").keys(keys);*/
+		ViewQuery query = createQuery("allForUser").startKey(userId).endKey(
+				userId + HIGH_UNICODE_CHARACTER);
 		Page<String> page = db.queryForPage(query, pr, String.class);
 		if(page == null) {
 			return null;
@@ -82,8 +84,10 @@ public class UserTopicMapRepositoryService extends CouchDbRepositorySupport<User
 	public Pagination<Topic> getAllTopicsFollowedByUserAndCategory(String userId, String topicCategory, String pageLink) {
 		logger.debug("Loading All Topic information followed by user having userId="
 				+ userId + " in paginated API with page-link=" + pageLink);
-		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink))? PageRequest.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
-		ComplexKey key = ComplexKey.of(userId, topicCategory);
+		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink))? 
+				PageRequest.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
+		//ComplexKey key = ComplexKey.of(userId, topicCategory);
+		String key = userId + topicCategory;
 		ViewQuery query = createQuery("allForUser").key(key);
 		Page<String> page = db.queryForPage(query, pr, String.class);
 		if(page == null) {
@@ -100,7 +104,9 @@ public class UserTopicMapRepositoryService extends CouchDbRepositorySupport<User
 	}
 	
 	public UserTopicMap findUserTopicMapById(String userId, String topicId) {
-		ViewQuery query = createQuery("usrVsTopicMap").key(userId).key(topicId);
+		//ViewQuery query = createQuery("usrVsTopicMap").key(userId).key(topicId);
+		ViewQuery query = createQuery("usrVsTopicMap").key(topicId + userId)
+				.includeDocs(true);
 		List<UserTopicMap> list = db.queryView(query, UserTopicMap.class);
 		if(list == null || list.isEmpty()) {
 			return null;
@@ -109,7 +115,8 @@ public class UserTopicMapRepositoryService extends CouchDbRepositorySupport<User
 	}
 	
 	public List<String> getAllTopicIDsFollowedByUser(String userId) {
-		ViewQuery query = createQuery("allForUser").startKey(userId);
+		ViewQuery query = createQuery("allForUser").startKey(userId)
+				.endKey(userId + HIGH_UNICODE_CHARACTER);
 		List<String> IDs = db.queryView(query, String.class);
 		return IDs;
 	}
