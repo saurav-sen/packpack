@@ -58,13 +58,14 @@ public class AttachmentResource {
 			+ URL_SEPARATOR + "{fileName}")
 	@Produces({ "image/png", "image/jpg" })
 	public Response getTopicWallpaperImage(@PathParam("topicId") String topicId,
-			@PathParam("fileName") String fileName, @QueryParam("thumbnail") String thumnail) throws PackPackException {
-		boolean isThumbnail = false;
+			@PathParam("fileName") String fileName, @QueryParam("thumbnail") String thumnail,
+			@QueryParam("w") int width, @QueryParam("h") int height) throws PackPackException {
+		/*boolean isThumbnail = false;
 		try {
 			isThumbnail = thumnail != null ? Boolean.parseBoolean(thumnail.trim()) : false;
 		} catch (Exception e) {
 			// ignore
-		}
+		}*/
 		try {
 			String topicWallpaperHome = SystemPropertyUtil.getTopicWallpaperHome();
 			StringBuilder path = new StringBuilder(topicWallpaperHome);
@@ -73,14 +74,23 @@ public class AttachmentResource {
 			}
 			path.append(topicId);
 			path.append(File.separator);
-			if(isThumbnail) {
+			/*if(isThumbnail) {
 				path.append("thumbnail");
 				path.append(File.separator);
-			}
+			}*/
 			path.append(fileName);
 			File imageFile = new File(path.toString());
-			return ImageUtil.buildResponse(imageFile);
-		} catch (FileNotFoundException e) {
+			if(width > 0 && height > 0) {
+				BufferedImage image = ImageIO.read(imageFile);
+				image = Scalr.resize(image, Method.QUALITY,
+						Mode.AUTOMATIC, width, height,
+						Scalr.OP_ANTIALIAS);
+				return ImageUtil.buildResponse(image);
+			}
+			else {
+				return ImageUtil.buildResponse(imageFile);
+			}
+		} catch (IOException e) {
 			logger.info(e.getMessage(), e);
 			throw new PackPackException("TODO", e.getMessage(), e);
 		}
@@ -110,28 +120,29 @@ public class AttachmentResource {
 		}
 	}
 	
-	@GET
+	/*@GET
 	@Path(IMAGE + URL_SEPARATOR + "{topicId}" + URL_SEPARATOR + "{packId}"
 			+ URL_SEPARATOR + "thumbnail" + URL_SEPARATOR + "{fileName}")
 	@Produces({ "image/png", "image/jpg" })
 	public Response getThumbnailImageAttachment(@PathParam("topicId") String topicId,
 			@PathParam("packId") String packId,
-			@PathParam("fileName") String fileName) throws PackPackException {
-		return getImageAttachment(topicId, packId, fileName, true);
-	}
+			@PathParam("fileName") String fileName, @QueryParam("w") int width, 
+			@QueryParam("h") int height) throws PackPackException {
+		return getImageAttachment(topicId, packId, fileName, width, height);
+	}*/
 
 	@GET
 	@Path(IMAGE + URL_SEPARATOR + "{topicId}" + URL_SEPARATOR + "{packId}"
 			+ URL_SEPARATOR + "{fileName}")
 	@Produces({ "image/png", "image/jpg" })
 	public Response getOriginalImageAttachment(@PathParam("topicId") String topicId,
-			@PathParam("packId") String packId,
-			@PathParam("fileName") String fileName) throws PackPackException {
-		return getImageAttachment(topicId, packId, fileName, false);
+			@PathParam("packId") String packId, @PathParam("fileName") String fileName, 
+			@QueryParam("w") int width, @QueryParam("h") int height) throws PackPackException {
+		return getImageAttachment(topicId, packId, fileName, width, height);
 	}
 	
 	private Response getImageAttachment(String topicId,
-			String packId, String fileName, boolean isThumbnail) throws PackPackException {
+			String packId, String fileName, int width, int height) throws PackPackException {
 		try {
 			String imageHome = SystemPropertyUtil.getImageHome();
 			StringBuilder path = new StringBuilder(imageHome);
@@ -142,16 +153,16 @@ public class AttachmentResource {
 			path.append(File.separator);
 			path.append(packId);
 			path.append(File.separator);
-			if(isThumbnail) {
+			/*if(isThumbnail) {
 				path.append("thumbnail");
 				path.append(File.separator);
-			}
+			}*/
 			path.append(fileName);
 			File imageFile = new File(path.toString());
-			if(!isThumbnail) {
+			if(width > 0 && height > 0) {
 				BufferedImage image = ImageIO.read(imageFile);
 				image = Scalr.resize(image, Method.QUALITY,
-						Mode.AUTOMATIC, 600, 600,
+						Mode.AUTOMATIC, width, height,
 						Scalr.OP_ANTIALIAS);
 				return ImageUtil.buildResponse(image);
 			}

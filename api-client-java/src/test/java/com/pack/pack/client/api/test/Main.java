@@ -2,6 +2,12 @@ package com.pack.pack.client.api.test;
 
 import java.util.List;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPackAttachment;
@@ -12,16 +18,25 @@ import com.pack.pack.model.web.Pagination;
 
 public class Main {
 	
-	//private static final String ANDROID_APP_CLIENT_KEY = "53e8a1f2-7568-4ac8-ab26-45738ca02599";
+	//private static final String ANDROID_APP_CLIENT_KEY = "53e8a1f2-7568-4ac8-ab26-45738ca02599t";
 	//private static final String ANDROID_APP_CLIENT_SECRET = "b1f6d761-dcb7-482b-a695-ab17e4a29b25";
 	
 	public static final String USERNAME = "sourabhnits@gmail.com";
 	public static final String PASSWORD = "P@ckp@K#123";
 	
+	public static void main2(String[] args) throws Exception {
+		HttpClient c = new DefaultHttpClient();
+		//HttpGet get = new HttpGet("http://192.168.35.12:5984/packpack/_design/UserTopicMap/_view/allForUser?startkey=%2220fd9f6a6890eb26e07ae4318a0047a3%22&endkey=%2220fd9f6a6890eb26e07ae4318a0047a3%5Cufff0%22");
+		HttpGet get = new HttpGet("http://192.168.35.12:5984/packpack/_design/Pack/_view/findPacksByTopicID?startkey=%22805691e095873131442c1ea9e30005d1%22&endkey=%22805691e095873131442c1ea9e30005d1%EF%BF%B0%22&limit=21&include_docs=true&descending=false");
+		
+		HttpResponse response = c.execute(get);
+		System.out.println(EntityUtils.toString(response.getEntity()));
+	}
+	
 	public static void main(String[] args) throws Exception {
 		//new SignUpUserTest().signUp();
 		//addTopicTest();
-		//testUserFOllowedTopicList();
+		testUserFOllowedTopicList();
 		uploadPackTest(false);
 		//addImageToPack();
 	}
@@ -64,8 +79,8 @@ public class Main {
 				return;
 			int count = 0;
 			for(JTopic r : result) {
-				if(count > 1)
-					break;
+				/*if(count > 1)
+					break;*/
 				String topicId = r.getId();
 				if(uploadNew) {
 					test.uploadIMagePackTest(topicId, files[count]);

@@ -42,11 +42,10 @@ public enum COMMAND {
 			APIConstants.ForwardEGift.TO_USER_ID,
 			APIConstants.ForwardEGift.TITLE, APIConstants.ForwardEGift.MESSAGE), SEARCH_BRANDS_INFO(
 			APIConstants.Brand.COMPANY_NAME), GET_PROFILE_PICTURE(
-			APIConstants.User.ID, APIConstants.Attachment.FILE_NAME), GET_THUMBNAIL_IMAGE_ATTACHMENT(
+			APIConstants.User.ID, APIConstants.Attachment.FILE_NAME), GET_ORIGINAL_IMAGE_ATTACHMENT(
 			APIConstants.Topic.ID, APIConstants.Pack.ID,
-			APIConstants.Attachment.FILE_NAME), GET_ORIGINAL_IMAGE_ATTACHMENT(
-			APIConstants.Topic.ID, APIConstants.Pack.ID,
-			APIConstants.Attachment.FILE_NAME), GET_THUMBNAIL_VIDEO_ATTACHMENT(
+			APIConstants.Attachment.FILE_NAME, APIConstants.Image.WIDTH,
+			APIConstants.Image.HEIGHT), GET_THUMBNAIL_VIDEO_ATTACHMENT(
 			APIConstants.Topic.ID, APIConstants.Pack.ID,
 			APIConstants.Attachment.FILE_NAME), GET_ORIGINAL_VIDEO_ATTACHMENT(
 			APIConstants.Topic.ID, APIConstants.Pack.ID,

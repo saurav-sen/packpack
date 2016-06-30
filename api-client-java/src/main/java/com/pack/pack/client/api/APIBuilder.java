@@ -87,7 +87,6 @@ public class APIBuilder {
 			api = new APIWrapper(new BrandsApi());
 			api.getInvoker().setConfiguration(config);
 		} else if(action == COMMAND.GET_PROFILE_PICTURE
-				|| action == COMMAND.GET_THUMBNAIL_IMAGE_ATTACHMENT
 				|| action == COMMAND.GET_ORIGINAL_IMAGE_ATTACHMENT
 				|| action == COMMAND.GET_THUMBNAIL_VIDEO_ATTACHMENT
 				|| action == COMMAND.GET_ORIGINAL_VIDEO_ATTACHMENT

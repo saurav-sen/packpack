@@ -277,14 +277,15 @@ public class PackServiceImpl implements IPackService {
 		location = location + File.separator + fileName;
 		File originalFile = AttachmentUtil.storeUploadedAttachment(file,
 				location);
-		File thumbnailFile = (type == PackAttachmentType.IMAGE ? AttachmentUtil
-				.createThumnailForImage(originalFile) : AttachmentUtil
-				.createThumnailForVideo(originalFile));
-		String thumbnailFileLocation = thumbnailFile.getAbsolutePath();
 		PackAttachment packAttachment = new PackAttachment();
+		File thumbnailFile = (type == PackAttachmentType.IMAGE ? null : AttachmentUtil
+				.createThumnailForVideo(originalFile));
+		if(thumbnailFile != null) {
+			String thumbnailFileLocation = thumbnailFile.getAbsolutePath();
+			packAttachment.setAttachmentThumbnailUrl(thumbnailFileLocation
+					.substring(home.length()));
+		}
 		packAttachment.setAttachmentUrl(location.substring(home.length()));
-		packAttachment.setAttachmentThumbnailUrl(thumbnailFileLocation
-				.substring(home.length()));
 		packAttachment.setType(type);
 		packAttachment.setAttachmentParentPackId(pack.getId());
 		PackAttachmentRepositoryService service = ServiceRegistry.INSTANCE

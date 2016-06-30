@@ -32,7 +32,6 @@ import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.rabbitmq.MessagePublisher;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.services.sms.SMSSender;
-import com.pack.pack.util.AttachmentUtil;
 import com.pack.pack.util.ModelConverter;
 import com.pack.pack.util.SystemPropertyUtil;
 
@@ -71,14 +70,14 @@ public class EGiftServiceImpl implements IeGiftService {
 			f.mkdir();
 		}
 		location = location + fileName;
-		File originalFile = AttachmentUtil.storeUploadedAttachment(file,
+		/*File originalFile = AttachmentUtil.storeUploadedAttachment(file,
 				location);
 		File thumbnailFile = AttachmentUtil
 				.createThumnailForImage(originalFile);
-		String thumbnailFileLocation = thumbnailFile.getAbsolutePath();
+		String thumbnailFileLocation = thumbnailFile.getAbsolutePath();*/
 		eGift.setImageUrl(location.substring(home.length()));
-		eGift.setImageThumbnailUrl(thumbnailFileLocation.substring(home
-				.length()));
+		/*eGift.setImageThumbnailUrl(thumbnailFileLocation.substring(home
+				.length()));*/
 		EGiftRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(EGiftRepositoryService.class);
 		service.update(eGift);
@@ -178,7 +177,7 @@ public class EGiftServiceImpl implements IeGiftService {
 				.findService(PackRepositoryService.class);
 		service.add(pack);
 		PackAttachment packAttachment = new PackAttachment();
-		packAttachment.setAttachmentThumbnailUrl(eGift.getImageThumbnailUrl());
+		//packAttachment.setAttachmentThumbnailUrl(eGift.getImageThumbnailUrl());
 		packAttachment.setAttachmentUrl(eGift.getImageUrl());
 		packAttachment.setType(PackAttachmentType.IMAGE);
 		PackAttachmentRepositoryService service2 = ServiceRegistry.INSTANCE

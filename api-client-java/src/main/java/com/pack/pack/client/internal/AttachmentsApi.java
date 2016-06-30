@@ -57,7 +57,7 @@ public class AttachmentsApi extends AbstractAPI {
 		return response;
 	}
 
-	private HttpResponse getThumnailImage(String topicId, String packId,
+	/*private HttpResponse getThumnailImage(String topicId, String packId,
 			String fileName, String oAuthToken) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
 		String url = BASE_URL + ATTACHMENT + "image/" + topicId + "/" + packId
@@ -66,13 +66,13 @@ public class AttachmentsApi extends AbstractAPI {
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
 		return response;
-	}
+	}*/
 
 	private HttpResponse getOriginalImage(String topicId, String packId,
-			String fileName, String oAuthToken) throws Exception {
+			String fileName, String oAuthToken, int width, int height) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
 		String url = BASE_URL + ATTACHMENT + "image/" + topicId + "/" + packId
-				+ "/" + fileName;
+				+ "/" + fileName + "?w=" + width + "&h=" + height;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
@@ -272,18 +272,20 @@ public class AttachmentsApi extends AbstractAPI {
 				String fileName = (String) params
 						.get(APIConstants.Attachment.FILE_NAME);
 				result = getProfilePicture(userId, fileName, oAuthToken);
-			} else if (COMMAND.GET_THUMBNAIL_IMAGE_ATTACHMENT.equals(action)) {
-				String topicId = (String) params.get(APIConstants.Topic.ID);
-				String packId = (String) params.get(APIConstants.Pack.ID);
-				String fileName = (String) params
-						.get(APIConstants.Attachment.FILE_NAME);
-				result = getThumnailImage(topicId, packId, fileName, oAuthToken);
 			} else if (COMMAND.GET_ORIGINAL_IMAGE_ATTACHMENT.equals(action)) {
 				String topicId = (String) params.get(APIConstants.Topic.ID);
 				String packId = (String) params.get(APIConstants.Pack.ID);
 				String fileName = (String) params
 						.get(APIConstants.Attachment.FILE_NAME);
-				result = getOriginalImage(topicId, packId, fileName, oAuthToken);
+				Integer widht = (Integer) params.get(APIConstants.Image.WIDTH);
+				if(widht == null) {
+					widht = -1;
+				}
+				Integer height = (Integer) params.get(APIConstants.Image.HEIGHT);
+				if(height == null) {
+					height = -1;
+				}
+				result = getOriginalImage(topicId, packId, fileName, oAuthToken, widht, height);
 			} else if (COMMAND.GET_THUMBNAIL_VIDEO_ATTACHMENT.equals(action)) {
 				String topicId = (String) params.get(APIConstants.Topic.ID);
 				String packId = (String) params.get(APIConstants.Pack.ID);

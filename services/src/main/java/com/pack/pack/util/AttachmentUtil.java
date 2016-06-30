@@ -68,10 +68,10 @@ public class AttachmentUtil {
 		return attachmentFile;
 	}
 	
-	public static File createThumnailForImage(File imageFile)
+	/*public static File createThumnailForImage(File imageFile)
 			throws PackPackException {
 		return createThumnailForImage(imageFile, THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT);
-	}
+	}*/
 
 	private static File createThumnailForImage(File imageFile, int width, int height)
 			throws PackPackException {

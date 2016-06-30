@@ -101,6 +101,11 @@ public interface APIConstants {
 		public static final String STORY = "story";
 	}
 	
+	public static interface Image {
+		public static final String WIDTH = "w";
+		public static final String HEIGHT = "h";
+	}
+	
 	public static interface ProtectedResource {
 		public static final String RESOURCE_URL = "url";
 	}
