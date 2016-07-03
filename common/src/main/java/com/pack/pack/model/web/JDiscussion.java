@@ -30,6 +30,8 @@ public class JDiscussion {
 	private String parentType;
 	
 	private String tag;
+	
+	private JUser fromUser;
 
 	public String getParentId() {
 		return parentId;
@@ -112,5 +114,13 @@ public class JDiscussion {
 
 	public void setTag(String tag) {
 		this.tag = tag;
+	}
+
+	public JUser getFromUser() {
+		return fromUser;
+	}
+
+	public void setFromUser(JUser fromUser) {
+		this.fromUser = fromUser;
 	}
 }

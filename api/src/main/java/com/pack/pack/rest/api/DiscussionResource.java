@@ -5,6 +5,8 @@ import static com.pack.pack.model.web.Constants.TOPIC_DISCUSSION;
 import static com.pack.pack.util.SystemPropertyUtil.TOPIC;
 import static com.pack.pack.util.SystemPropertyUtil.URL_SEPARATOR;
 
+import java.util.List;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -16,10 +18,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
 import com.pack.pack.IMiscService;
+import com.pack.pack.IUserService;
 import com.pack.pack.model.web.EntityType;
 import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JDiscussion;
 import com.pack.pack.model.web.JStatus;
+import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.StatusType;
 import com.pack.pack.model.web.dto.CommentDTO;
@@ -45,7 +49,11 @@ public class DiscussionResource {
 			throws PackPackException {
 		IMiscService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IMiscService.class);
-		return service.getDiscussionBasedOnId(id);
+		JDiscussion jDiscussion = service.getDiscussionBasedOnId(id);
+		IUserService userService = ServiceRegistry.INSTANCE.findService(IUserService.class);
+		JUser user = userService.findUserById(jDiscussion.getFromUserId());
+		jDiscussion.setFromUser(user);
+		return jDiscussion;
 	}
 
 	@POST
@@ -134,8 +142,19 @@ public class DiscussionResource {
 			@PathParam("pageLink") String pageLink) throws PackPackException {
 		IMiscService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IMiscService.class);
-		return service.loadDiscussions(userId, topicId, TOPIC_DISCUSSION,
+		Pagination<JDiscussion> page = service.loadDiscussions(userId, topicId, TOPIC_DISCUSSION,
 				pageLink);
+		IUserService userService = ServiceRegistry.INSTANCE.findService(IUserService.class);
+		List<JDiscussion> result = page.getResult();
+		for(JDiscussion r : result) {
+			JUser user = userService.findUserById(r.getFromUserId());
+			r.setFromUser(user);
+		}
+		Pagination<JDiscussion> pr = new Pagination<JDiscussion>();
+		pr.setNextLink(page.getNextLink());
+		pr.setPreviousLink(page.getPreviousLink());
+		pr.setResult(result);
+		return pr;
 	}
 
 	@GET
@@ -147,8 +166,19 @@ public class DiscussionResource {
 			@PathParam("pageLink") String pageLink) throws PackPackException {
 		IMiscService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IMiscService.class);
-		return service.loadDiscussions(userId, packId, PACK_DISCUSSION,
+		Pagination<JDiscussion> page = service.loadDiscussions(userId, packId, PACK_DISCUSSION,
 				pageLink);
+		IUserService userService = ServiceRegistry.INSTANCE.findService(IUserService.class);
+		List<JDiscussion> result = page.getResult();
+		for(JDiscussion r : result) {
+			JUser user = userService.findUserById(r.getFromUserId());
+			r.setFromUser(user);
+		}
+		Pagination<JDiscussion> pr = new Pagination<JDiscussion>();
+		pr.setNextLink(page.getNextLink());
+		pr.setPreviousLink(page.getPreviousLink());
+		pr.setResult(result);
+		return pr;
 	}
 
 	@PUT
@@ -168,7 +198,11 @@ public class DiscussionResource {
 		discussion.setParentType(EntityType.TOPIC.name());
 		IMiscService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IMiscService.class);
-		return service.startDiscussion(discussion);
+		JDiscussion result = service.startDiscussion(discussion);
+		IUserService userService = ServiceRegistry.INSTANCE.findService(IUserService.class);
+		JUser user = userService.findUserById(result.getFromUserId());
+		result.setFromUser(user);
+		return result;
 	}
 
 	@PUT
@@ -188,6 +222,10 @@ public class DiscussionResource {
 		discussion.setParentType(EntityType.PACK.name());
 		IMiscService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IMiscService.class);
-		return service.startDiscussion(discussion);
+		JDiscussion result = service.startDiscussion(discussion);	
+		IUserService userService = ServiceRegistry.INSTANCE.findService(IUserService.class);
+		JUser user = userService.findUserById(result.getFromUserId());
+		result.setFromUser(user);
+		return result;
 	}
 }
