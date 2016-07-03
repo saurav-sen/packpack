@@ -12,11 +12,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
 import com.pack.pack.IMiscService;
-import com.pack.pack.IMiscService.EntityType;
 import com.pack.pack.IPackService;
 import com.pack.pack.common.util.CommonConstants;
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.User;
+import com.pack.pack.model.web.EntityType;
 import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPackAttachment;

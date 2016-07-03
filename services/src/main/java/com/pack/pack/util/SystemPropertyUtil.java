@@ -59,7 +59,7 @@ public class SystemPropertyUtil {
 	private static final String DEFAULT_TOPIC_ID_VALUE = "home.topic";
 	
 	public static final String HIGH_UNICODE_CHARACTER = "\ufff0";
-
+	
 	public static void init() {
 		try {
 			properties = new Properties();

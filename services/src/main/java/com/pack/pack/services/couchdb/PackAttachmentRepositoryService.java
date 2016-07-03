@@ -52,9 +52,9 @@ public class PackAttachmentRepositoryService extends
 			String pageLink) {
 		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink)) ? PageRequest
 				.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
-		ViewQuery query = createQuery("findPackAttachmentsByPackID").startKey(
-				packId).endKey(packId + HIGH_UNICODE_CHARACTER).descending(false)
-				.includeDocs(true);
+		ViewQuery query = createQuery("findPackAttachmentsByPackID")
+				.startKey(packId).endKey(packId + HIGH_UNICODE_CHARACTER)
+				.descending(false).includeDocs(true);
 		Page<PackAttachment> page = db.queryForPage(query, pr,
 				PackAttachment.class);
 		String previousLink = page.isHasPrevious() ? page.getPreviousLink()
@@ -73,14 +73,13 @@ public class PackAttachmentRepositoryService extends
 			});
 		}
 		String nextLink = page.isHasNext() ? page.getNextLink() : END_OF_PAGE;
-		return new Pagination<PackAttachment>(previousLink, nextLink,
-				rows);
+		return new Pagination<PackAttachment>(previousLink, nextLink, rows);
 	}
 
 	public List<PackAttachment> getAllListOfPackAttachments(String packId) {
-		ViewQuery query = createQuery("findPackAttachmentsByPackID").startKey(
-				packId).endKey(packId + HIGH_UNICODE_CHARACTER).descending(false)
-				.includeDocs(true);
+		ViewQuery query = createQuery("findPackAttachmentsByPackID")
+				.startKey(packId).endKey(packId + HIGH_UNICODE_CHARACTER)
+				.descending(false).includeDocs(true);
 		List<PackAttachment> rows = db.queryView(query, PackAttachment.class);
 		if (rows != null && !rows.isEmpty()) {
 			Collections.sort(rows, new Comparator<PackAttachment>() {

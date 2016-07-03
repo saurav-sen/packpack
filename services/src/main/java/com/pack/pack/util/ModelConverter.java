@@ -3,6 +3,7 @@ package com.pack.pack.util;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.pack.pack.IUserService;
 import com.pack.pack.model.Comment;
+import com.pack.pack.model.Discussion;
 import com.pack.pack.model.EGift;
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.PackAttachment;
@@ -18,6 +20,7 @@ import com.pack.pack.model.Topic;
 import com.pack.pack.model.User;
 import com.pack.pack.model.es.UserDetail;
 import com.pack.pack.model.web.JComment;
+import com.pack.pack.model.web.JDiscussion;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JPacks;
@@ -222,6 +225,19 @@ public class ModelConverter {
 		}
 		return jComment;
 	}
+	
+	public static List<JComment> convertComments(List<Comment> comments) {
+		List<JComment> jComments = new LinkedList<JComment>();
+		if(comments == null)
+			return jComments;
+		for(Comment comment : comments) {
+			JComment jComment = convert(comment);
+			if(jComment == null)
+				continue;
+			jComments.add(jComment);
+		}
+		return jComments;
+	}
 
 	public static JTopic convert(Topic topic) throws PackPackException {
 		JTopic jTopic = new JTopic();
@@ -291,5 +307,95 @@ public class ModelConverter {
 			resolvedUrl = baseURL + resolvedUrl;
 		}
 		return resolvedUrl;
+	}
+	
+	public static JDiscussion convert(Discussion discussion) {
+		if(discussion == null)
+			return null;
+		JDiscussion jDiscussion = new JDiscussion();
+		jDiscussion.setId(discussion.getId());
+		jDiscussion.setContent(discussion.getContent());
+		jDiscussion.setParentId(discussion.getParentEntityId());
+		jDiscussion.setParentType(discussion.getParentEntityType());
+		jDiscussion.setFromUserId(discussion.getStartedByUserId());
+		jDiscussion.setTitle(discussion.getDiscussionTitle());
+		jDiscussion.setLikes(discussion.getLikes());
+		jDiscussion.setLikeUsers(discussion.getLikeUsers());
+		return jDiscussion;
+	}
+	
+	/*public static List<JReply> convertReplies(List<Reply> replies) {
+		List<JReply> jReplies = new LinkedList<JReply>();
+		if(replies != null && !replies.isEmpty()) {
+			for(Reply reply : replies) {
+				JReply jReply = convert(reply);
+				if(jReply != null) {
+					jReplies.add(jReply);
+				}
+			}
+		}
+		return jReplies;
+	}
+	
+	public static JReply convert(Reply reply) {
+		if(reply == null)
+			return null;
+		JReply jReply = new JReply();
+		jReply.setId(reply.getId());
+		jReply.setContent(reply.getReply());
+		jReply.setFromUserId(reply.getFromUserId());
+		jReply.setDateTime(reply.getDateTime());
+		jReply.setLikes(reply.getLikes());
+		jReply.setLikeUsers(reply.getLikeUsers());
+		return jReply;
+	}
+	
+	public static List<Reply> convertJReplies(List<JReply> jReplies) {
+		if(jReplies == null)
+			return null;
+		List<Reply> replies = new LinkedList<Reply>();
+		for(JReply jReply : jReplies) {
+			Reply reply = convert(jReply);
+			if(reply != null) {
+				replies.add(reply);
+			}
+		}
+		return replies;
+	}*/
+	
+	/*public static Reply convert(JReply jReply) {
+		if(jReply == null)
+			return null;
+		Reply reply = new Reply();
+		reply.setReply(jReply.getContent());
+		reply.setFromUserId(jReply.getFromUserId());
+		reply.setLikes(jReply.getLikes());
+		reply.setDateTime(jReply.getDateTime());
+		reply.setLikeUsers(jReply.getLikeUsers());
+		List<JReply> jReplies = jReply.getReplies();
+		if(jReplies != null && !jReplies.isEmpty()) {
+			List<Reply> replies = convertJReplies(jReplies);
+			reply.setReplies(replies);
+		}
+		return reply;
+	}*/
+	
+	public static Discussion convert(JDiscussion jDiscussion) {
+		Discussion discussion = new Discussion();
+		discussion.setContent(jDiscussion.getContent());
+		discussion.setDiscussionTitle(jDiscussion.getTitle());
+		discussion.setStartedByUserId(jDiscussion.getFromUserId());
+		discussion.setLikes(jDiscussion.getLikes());
+		discussion.setParentEntityId(jDiscussion.getParentId());
+		discussion.setParentEntityType(jDiscussion.getParentType());
+		discussion.setLikeUsers(jDiscussion.getLikeUsers());
+		/*List<JReply> jReplies = jDiscussion.getReplies();
+		if(jReplies != null && !jReplies.isEmpty()) {
+			for(JReply jReply : jReplies) {
+				Reply reply = convert(jReply);
+				discussion.getReplies().add(reply);
+			}
+		}*/
+		return discussion;
 	}
 }

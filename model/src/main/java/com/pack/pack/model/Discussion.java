@@ -1,7 +1,7 @@
 package com.pack.pack.model;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.ektorp.support.CouchDbDocument;
 
@@ -16,27 +16,24 @@ public class Discussion extends CouchDbDocument {
 	 * 
 	 */
 	private static final long serialVersionUID = -2676650559707603068L;
-
+	
 	private String startedByUserId;
 	
 	private String discussionTitle;
 	
 	private String content;
 	
-	private List<Reply> replies;
+	private String parentEntityId;
 	
-	private String discussionParentTopicId;
-
-	public List<Reply> getReplies() {
-		if(replies == null) {
-			replies = new LinkedList<Reply>();
-		}
-		return replies;
-	}
-
-	public void setReplies(List<Reply> replies) {
-		this.replies = replies;
-	}
+	private String parentEntityType;
+	
+	private int likes;
+	
+	private Set<String> likeUsers;
+	
+	private long dateTime;
+	
+	private String tag;
 
 	public String getStartedByUserId() {
 		return startedByUserId;
@@ -62,11 +59,54 @@ public class Discussion extends CouchDbDocument {
 		this.content = content;
 	}
 
-	public String getDiscussionParentTopicId() {
-		return discussionParentTopicId;
+	public String getParentEntityId() {
+		return parentEntityId;
 	}
 
-	public void setDiscussionParentTopicId(String discussionParentTopicId) {
-		this.discussionParentTopicId = discussionParentTopicId;
+	public void setParentEntityId(String parentEntityId) {
+		this.parentEntityId = parentEntityId;
+	}
+
+	public String getParentEntityType() {
+		return parentEntityType;
+	}
+
+	public void setParentEntityType(String parentEntityType) {
+		this.parentEntityType = parentEntityType;
+	}
+
+	public int getLikes() {
+		return likes;
+	}
+
+	public void setLikes(int likes) {
+		this.likes = likes;
+	}
+
+	public Set<String> getLikeUsers() {
+		if(likeUsers == null) {
+			likeUsers = new HashSet<String>();
+		}
+		return likeUsers;
+	}
+
+	public void setLikeUsers(Set<String> likeUsers) {
+		this.likeUsers = likeUsers;
+	}
+
+	public long getDateTime() {
+		return dateTime;
+	}
+
+	public void setDateTime(long dateTime) {
+		this.dateTime = dateTime;
+	}
+
+	public String getTag() {
+		return tag;
+	}
+
+	public void setTag(String tag) {
+		this.tag = tag;
 	}
 }
