@@ -62,7 +62,20 @@ public enum COMMAND {
 			APIConstants.User.ID), ADD_VIDEO_TO_PACK(
 			APIConstants.Attachment.FILE_ATTACHMENT, APIConstants.Topic.ID,
 			APIConstants.Pack.ID, APIConstants.User.ID), LOAD_RESOURCE(
-			APIConstants.ProtectedResource.RESOURCE_URL);
+			APIConstants.ProtectedResource.RESOURCE_URL), GET_ALL_DISCUSSIONS_FOR_TOPIC(
+			APIConstants.Topic.ID, APIConstants.User.ID,
+			APIConstants.PageInfo.PAGE_LINK), GET_ALL_DISCUSSIONS_FOR_PACK(
+			APIConstants.Pack.ID, APIConstants.User.ID,
+			APIConstants.PageInfo.PAGE_LINK), START_DISCUSSION_ON_TOPIC(
+			APIConstants.Topic.ID, APIConstants.User.ID,
+			APIConstants.Discussion.TITLE, APIConstants.Discussion.CONTENT), START_DISCUSSION_ON_PACK(
+			APIConstants.Pack.ID, APIConstants.User.ID,
+			APIConstants.Discussion.TITLE, APIConstants.Discussion.CONTENT), ADD_REPLY_TO_DISCUSSION(
+			APIConstants.Discussion.ID, APIConstants.User.ID,
+			APIConstants.Discussion.CONTENT, APIConstants.Discussion.TYPE), GET_DISCUSSION_BY_ID(
+			APIConstants.Discussion.ID, APIConstants.User.ID), ADD_LIKE_TO_DISCUSSION(
+			APIConstants.Discussion.ID, APIConstants.User.ID,
+			APIConstants.Discussion.TYPE);
 
 	private String[] paramNames;
 

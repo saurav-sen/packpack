@@ -7,6 +7,7 @@ import com.pack.pack.client.internal.APIWrapper;
 import com.pack.pack.client.internal.AttachmentsApi;
 import com.pack.pack.client.internal.BrandsApi;
 import com.pack.pack.client.internal.Configuration;
+import com.pack.pack.client.internal.DiscussionApi;
 import com.pack.pack.client.internal.EGiftApi;
 import com.pack.pack.client.internal.PackApi;
 import com.pack.pack.client.internal.ResourceLoaderApi;
@@ -86,7 +87,7 @@ public class APIBuilder {
 		} else if (action == COMMAND.SEARCH_BRANDS_INFO) {
 			api = new APIWrapper(new BrandsApi());
 			api.getInvoker().setConfiguration(config);
-		} else if(action == COMMAND.GET_PROFILE_PICTURE
+		} else if (action == COMMAND.GET_PROFILE_PICTURE
 				|| action == COMMAND.GET_ORIGINAL_IMAGE_ATTACHMENT
 				|| action == COMMAND.GET_THUMBNAIL_VIDEO_ATTACHMENT
 				|| action == COMMAND.GET_ORIGINAL_VIDEO_ATTACHMENT
@@ -96,8 +97,17 @@ public class APIBuilder {
 				|| action == COMMAND.ADD_VIDEO_TO_PACK) {
 			api = new APIWrapper(new AttachmentsApi());
 			api.getInvoker().setConfiguration(config);
-		} else if(action == COMMAND.LOAD_RESOURCE) {
+		} else if (action == COMMAND.LOAD_RESOURCE) {
 			api = new APIWrapper(new ResourceLoaderApi());
+			api.getInvoker().setConfiguration(config);
+		} else if (action == COMMAND.GET_ALL_DISCUSSIONS_FOR_TOPIC
+				|| action == COMMAND.GET_ALL_DISCUSSIONS_FOR_PACK
+				|| action == COMMAND.START_DISCUSSION_ON_TOPIC
+				|| action == COMMAND.START_DISCUSSION_ON_PACK
+				|| action == COMMAND.ADD_REPLY_TO_DISCUSSION
+				|| action == COMMAND.GET_DISCUSSION_BY_ID
+				|| action == COMMAND.ADD_LIKE_TO_DISCUSSION) {
+			api = new APIWrapper(new DiscussionApi());
 			api.getInvoker().setConfiguration(config);
 		}
 		return api;

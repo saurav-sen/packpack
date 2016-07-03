@@ -49,16 +49,39 @@ public class DiscussionResource {
 	}
 
 	@POST
-	@Path("{id}")
+	@Path("favourite/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public JStatus addLikeToDiscussion(@PathParam("id") String id, LikeDTO dto) throws PackPackException {
+	public JStatus addLikeToDiscussion(@PathParam("id") String id, LikeDTO dto)
+			throws PackPackException {
 		JStatus status = new JStatus();
 		try {
 			IMiscService service = ServiceRegistry.INSTANCE
 					.findCompositeService(IMiscService.class);
-			service.addLike(dto.getUserId(), dto.getEntityId(),
-					EntityType.DISCUSSION);
+			service.addLike(dto.getUserId(), id, EntityType.DISCUSSION);
+		} catch (PackPackException e) {
+			status.setStatus(StatusType.ERROR);
+			status.setInfo("Failed submitted reply to discussion");
+			throw e;
+		} catch (Exception e) {
+			status.setStatus(StatusType.ERROR);
+			status.setInfo("Failed submitted reply to discussion");
+			throw new PackPackException(ErrorCodes.PACK_ERR_61, e.getMessage());
+		}
+		return status;
+	}
+
+	@POST
+	@Path("favourite/reply/{id}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public JStatus addLikeToReply(@PathParam("id") String id, LikeDTO dto)
+			throws PackPackException {
+		JStatus status = new JStatus();
+		try {
+			IMiscService service = ServiceRegistry.INSTANCE
+					.findCompositeService(IMiscService.class);
+			service.addLike(dto.getUserId(), id, EntityType.REPLY);
 		} catch (PackPackException e) {
 			status.setStatus(StatusType.ERROR);
 			status.setInfo("Failed submitted reply to discussion");

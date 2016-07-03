@@ -109,4 +109,11 @@ public interface APIConstants {
 	public static interface ProtectedResource {
 		public static final String RESOURCE_URL = "url";
 	}
+	
+	public static interface Discussion {
+		public static final String ID = "discussionId";
+		public static final String TITLE = "title";
+		public static final String CONTENT = "content";
+		public static final String TYPE = "type";
+	}
 }
