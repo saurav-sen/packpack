@@ -5,6 +5,7 @@ import static com.pack.pack.model.web.Constants.TOPIC_DISCUSSION;
 import static com.pack.pack.util.SystemPropertyUtil.TOPIC;
 import static com.pack.pack.util.SystemPropertyUtil.URL_SEPARATOR;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -19,6 +20,8 @@ import javax.ws.rs.ext.Provider;
 
 import com.pack.pack.IMiscService;
 import com.pack.pack.IUserService;
+import com.pack.pack.common.util.CommonConstants;
+import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.EntityType;
 import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JDiscussion;
@@ -60,10 +63,11 @@ public class DiscussionResource {
 	@Path("favourite/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public JStatus addLikeToDiscussion(@PathParam("id") String id, LikeDTO dto)
+	public JStatus addLikeToDiscussion(@PathParam("id") String id, String json)
 			throws PackPackException {
 		JStatus status = new JStatus();
 		try {
+			LikeDTO dto = JSONUtil.deserialize(json, LikeDTO.class, true);
 			IMiscService service = ServiceRegistry.INSTANCE
 					.findCompositeService(IMiscService.class);
 			service.addLike(dto.getUserId(), id, EntityType.DISCUSSION);
@@ -83,10 +87,11 @@ public class DiscussionResource {
 	@Path("favourite/reply/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public JStatus addLikeToReply(@PathParam("id") String id, LikeDTO dto)
+	public JStatus addLikeToReply(@PathParam("id") String id, String json)
 			throws PackPackException {
 		JStatus status = new JStatus();
 		try {
+			LikeDTO dto = JSONUtil.deserialize(json, LikeDTO.class, true);
 			IMiscService service = ServiceRegistry.INSTANCE
 					.findCompositeService(IMiscService.class);
 			service.addLike(dto.getUserId(), id, EntityType.REPLY);
@@ -103,13 +108,14 @@ public class DiscussionResource {
 	}
 
 	@PUT
-	@PathParam("{id}")
+	@Path("{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public JStatus addReplyToDiscussion(@PathParam("id") String id,
-			CommentDTO dto) throws PackPackException {
+			String json) throws PackPackException {
 		JStatus status = new JStatus();
 		try {
+			CommentDTO dto = JSONUtil.deserialize(json, CommentDTO.class, true);
 			JComment jComment = new JComment();
 			jComment.setFromUserId(dto.getFromUserId());
 			jComment.setDateTime(System.currentTimeMillis());
@@ -142,17 +148,17 @@ public class DiscussionResource {
 			@PathParam("pageLink") String pageLink) throws PackPackException {
 		IMiscService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IMiscService.class);
-		Pagination<JDiscussion> page = service.loadDiscussions(userId, topicId, TOPIC_DISCUSSION,
+		Pagination<JDiscussion> page = service.loadDiscussions(userId, topicId, EntityType.TOPIC.name(),
 				pageLink);
 		IUserService userService = ServiceRegistry.INSTANCE.findService(IUserService.class);
-		List<JDiscussion> result = page.getResult();
+		List<JDiscussion> result = page != null ? page.getResult() : Collections.emptyList();
 		for(JDiscussion r : result) {
 			JUser user = userService.findUserById(r.getFromUserId());
 			r.setFromUser(user);
 		}
 		Pagination<JDiscussion> pr = new Pagination<JDiscussion>();
-		pr.setNextLink(page.getNextLink());
-		pr.setPreviousLink(page.getPreviousLink());
+		pr.setNextLink(page != null ? page.getNextLink() : CommonConstants.END_OF_PAGE);
+		pr.setPreviousLink(page != null ? page.getPreviousLink() : CommonConstants.END_OF_PAGE);
 		pr.setResult(result);
 		return pr;
 	}
@@ -166,29 +172,30 @@ public class DiscussionResource {
 			@PathParam("pageLink") String pageLink) throws PackPackException {
 		IMiscService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IMiscService.class);
-		Pagination<JDiscussion> page = service.loadDiscussions(userId, packId, PACK_DISCUSSION,
+		Pagination<JDiscussion> page = service.loadDiscussions(userId, packId, EntityType.PACK.name(),
 				pageLink);
 		IUserService userService = ServiceRegistry.INSTANCE.findService(IUserService.class);
-		List<JDiscussion> result = page.getResult();
+		List<JDiscussion> result = page != null ? page.getResult() : Collections.emptyList();
 		for(JDiscussion r : result) {
 			JUser user = userService.findUserById(r.getFromUserId());
 			r.setFromUser(user);
 		}
 		Pagination<JDiscussion> pr = new Pagination<JDiscussion>();
-		pr.setNextLink(page.getNextLink());
-		pr.setPreviousLink(page.getPreviousLink());
+		pr.setNextLink(page != null ? page.getNextLink() : CommonConstants.END_OF_PAGE);
+		pr.setPreviousLink(page != null ? page.getPreviousLink() : CommonConstants.END_OF_PAGE);
 		pr.setResult(result);
 		return pr;
 	}
 
 	@PUT
-	@Path("topic/{topicId}/user/{userId}")
+	@Path("topic/{topicId}/usr/{userId}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public JDiscussion startDiscussionOnTopic(
 			@PathParam("topicId") String topicId,
-			@PathParam("userId") String userId, DiscussionDTO dto)
+			@PathParam("userId") String userId, String json)
 			throws PackPackException {
+		DiscussionDTO dto = JSONUtil.deserialize(json, DiscussionDTO.class, true);
 		JDiscussion discussion = new JDiscussion();
 		discussion.setDateTime(System.currentTimeMillis());
 		discussion.setContent(dto.getContent());
@@ -211,8 +218,9 @@ public class DiscussionResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public JDiscussion startDiscussionOnPack(
 			@PathParam("packId") String packId,
-			@PathParam("userId") String userId, DiscussionDTO dto)
+			@PathParam("userId") String userId, String json)
 			throws PackPackException {
+		DiscussionDTO dto = JSONUtil.deserialize(json, DiscussionDTO.class, true);
 		JDiscussion discussion = new JDiscussion();
 		discussion.setDateTime(System.currentTimeMillis());
 		discussion.setContent(dto.getContent());

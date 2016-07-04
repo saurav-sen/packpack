@@ -22,18 +22,19 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.pack.pack.model.Discussion;
+import com.pack.pack.model.web.EntityType;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.services.exception.PackPackException;
 
 @Component
 @Scope("singleton")
 @Views({
-		@View(name = "findDiscussions", map = "function(doc){if(doc.discussionTitle && doc.startedByUserId && doc.content && doc.parentEntityId && doc.parentEntityType && doc.tag == 'DISCUSSION') { emit(doc.tag + \"::\" + doc.parentEntityId + doc.parentEntityType); }}"),
-		@View(name = "findReplies", map = "function(doc){if(doc.discussionTitle && doc.startedByUserId && doc.content && doc.parentEntityId && doc.parentEntityType && doc.tag == 'REPLY' && doc.dateTime) { emit(doc.parentEntityId + doc.dateTime); }}") })
+		@View(name = "findDiscussions", map = "function(doc){if(doc.startedByUserId && doc.content && doc.parentEntityId && doc.parentEntityType && doc.tag == 'DISCUSSION') { emit(doc.tag + \"::\" + doc.parentEntityId + doc.parentEntityType); }}"),
+		@View(name = "findReplies", map = "function(doc){if(doc.startedByUserId && doc.content && doc.parentEntityId && doc.parentEntityType && doc.tag == 'REPLY' && doc.dateTime) { emit(doc.parentEntityId + doc.dateTime); }}") })
 public class DiscussionRepositoryService extends
 		CouchDbRepositorySupport<Discussion> {
 
-	private static final String DISCUSSION_VIEW_KEY_PREFIX = "Discussion::";
+	private static final String DISCUSSION_VIEW_KEY_PREFIX = EntityType.DISCUSSION + "::";
 
 	@Autowired
 	public DiscussionRepositoryService(@Qualifier("packDB") CouchDbConnector db) {

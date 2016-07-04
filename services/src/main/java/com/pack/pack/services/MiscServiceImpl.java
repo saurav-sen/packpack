@@ -3,6 +3,9 @@ package com.pack.pack.services;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import com.pack.pack.IMiscService;
 import com.pack.pack.model.Comment;
 import com.pack.pack.model.Discussion;
@@ -25,6 +28,8 @@ import com.pack.pack.util.ModelConverter;
  * @author Saurav
  *
  */
+@Component
+@Scope("singleton")
 public class MiscServiceImpl implements IMiscService {
 
 	@Override
