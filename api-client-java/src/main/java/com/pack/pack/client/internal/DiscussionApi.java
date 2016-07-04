@@ -5,6 +5,7 @@ import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
 import static com.pack.pack.client.api.APIConstants.BASE_URL;
 import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.http.HttpEntity;
@@ -22,6 +23,7 @@ import com.pack.pack.client.api.MultipartRequestProgressListener;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.EntityType;
 import com.pack.pack.model.web.JDiscussion;
+import com.pack.pack.model.web.JDiscussions;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.dto.CommentDTO;
@@ -51,8 +53,16 @@ public class DiscussionApi extends AbstractAPI {
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
+		Pagination<JDiscussion> page = JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				Pagination.class);
+		if(page == null)
+			return page;
+		List<JDiscussion> result = page.getResult();
+		String json = "{\"discussions\": " + JSONUtil.serialize(result, false) + "}";
+		JDiscussions discussions = JSONUtil.deserialize(json, JDiscussions.class);
+		result = discussions.getDiscussions();
+		page.setResult(result);
+		return page;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -64,8 +74,16 @@ public class DiscussionApi extends AbstractAPI {
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
+		Pagination<JDiscussion> page = JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				Pagination.class);
+		if(page == null)
+			return page;
+		List<JDiscussion> result = page.getResult();
+		String json = "{\"discussions\": " + JSONUtil.serialize(result, false) + "}";
+		JDiscussions discussions = JSONUtil.deserialize(json, JDiscussions.class);
+		result = discussions.getDiscussions();
+		page.setResult(result);
+		return page;
 	}
 
 	private JDiscussion startDiscussionOnTopic(String topicId, String userId,
