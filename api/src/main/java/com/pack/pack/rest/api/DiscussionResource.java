@@ -1,7 +1,5 @@
 package com.pack.pack.rest.api;
 
-import static com.pack.pack.model.web.Constants.PACK_DISCUSSION;
-import static com.pack.pack.model.web.Constants.TOPIC_DISCUSSION;
 import static com.pack.pack.util.SystemPropertyUtil.TOPIC;
 import static com.pack.pack.util.SystemPropertyUtil.URL_SEPARATOR;
 

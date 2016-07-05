@@ -11,6 +11,7 @@ import java.util.Map;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -30,6 +31,7 @@ import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.dto.CommentDTO;
 import com.pack.pack.model.web.dto.ForwardDTO;
 import com.pack.pack.model.web.dto.LikeDTO;
+import com.pack.pack.model.web.dto.PackDTO;
 import com.pack.pack.model.web.dto.PackReceipent;
 import com.pack.pack.model.web.dto.PackReceipentType;
 
@@ -54,6 +56,18 @@ public class PackApi extends AbstractAPI {
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
+		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
+				JPack.class);
+	}
+	
+	private JPack createNewPack(PackDTO dto, String oAuthToken) throws Exception {
+		DefaultHttpClient client = new DefaultHttpClient();
+		String url = BASE_URL + "pack/";
+		HttpPost POST = new HttpPost(url);
+		POST.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		HttpEntity payload = new StringEntity(JSONUtil.serialize(dto));
+		POST.setEntity(payload);
+		HttpResponse response = client.execute(POST);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JPack.class);
 	}
@@ -303,6 +317,17 @@ public class PackApi extends AbstractAPI {
 				dto.setUserId(userId);
 				dto.setEntityType("PACK_ATTACHMENT");
 				result = addLikeToPack(dto, oAuthToken);
+			} else if(COMMAND.CREATE_NEW_PACK.equals(action)) {
+				String story = (String) params.get(APIConstants.Pack.STORY);
+				String title = (String) params.get(APIConstants.Pack.TITLE);
+				String topicId = (String) params.get(APIConstants.Topic.ID);
+				String userId = (String) params.get(APIConstants.User.ID);
+				PackDTO dto = new PackDTO();
+				dto.setStory(story);
+				dto.setTitle(title);
+				dto.setTopicId(topicId);
+				dto.setUserId(userId);
+				result = createNewPack(dto, oAuthToken);
 			}
 			return result;
 		}

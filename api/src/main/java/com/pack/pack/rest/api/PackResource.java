@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -26,6 +27,7 @@ import com.pack.pack.model.web.StatusType;
 import com.pack.pack.model.web.dto.CommentDTO;
 import com.pack.pack.model.web.dto.ForwardDTO;
 import com.pack.pack.model.web.dto.LikeDTO;
+import com.pack.pack.model.web.dto.PackDTO;
 import com.pack.pack.model.web.dto.PackReceipent;
 import com.pack.pack.model.web.dto.PackReceipentType;
 import com.pack.pack.services.couchdb.PackRepositoryService;
@@ -50,6 +52,20 @@ public class PackResource {
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
 		return service.getPackById(id);
+	}
+
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public JPack createNewPack(PackDTO dto) throws PackPackException {
+		Pack pack = new Pack();
+		pack.setCreatorId(dto.getUserId());
+		pack.setTitle(dto.getTitle());
+		pack.setStory(dto.getStory());
+		pack.setPackParentTopicId(dto.getTopicId());
+		IPackService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IPackService.class);
+		return service.createNewPack(pack);
 	}
 
 	@GET

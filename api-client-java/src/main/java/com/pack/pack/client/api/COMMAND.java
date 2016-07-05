@@ -49,7 +49,9 @@ public enum COMMAND {
 			APIConstants.Topic.ID, APIConstants.Pack.ID,
 			APIConstants.Attachment.FILE_NAME), GET_ORIGINAL_VIDEO_ATTACHMENT(
 			APIConstants.Topic.ID, APIConstants.Pack.ID,
-			APIConstants.Attachment.FILE_NAME), UPLOAD_IMAGE_PACK(
+			APIConstants.Attachment.FILE_NAME), CREATE_NEW_PACK(
+			APIConstants.User.ID, APIConstants.Topic.ID,
+			APIConstants.Pack.TITLE, APIConstants.Pack.STORY), UPLOAD_IMAGE_PACK(
 			APIConstants.Attachment.FILE_ATTACHMENT,
 			APIConstants.Attachment.TITLE, APIConstants.Attachment.DESCRIPTION,
 			APIConstants.Attachment.STORY, APIConstants.Topic.ID,

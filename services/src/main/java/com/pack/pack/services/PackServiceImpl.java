@@ -278,9 +278,9 @@ public class PackServiceImpl implements IPackService {
 		File originalFile = AttachmentUtil.storeUploadedAttachment(file,
 				location);
 		PackAttachment packAttachment = new PackAttachment();
-		File thumbnailFile = (type == PackAttachmentType.IMAGE ? null : AttachmentUtil
-				.createThumnailForVideo(originalFile));
-		if(thumbnailFile != null) {
+		File thumbnailFile = (type == PackAttachmentType.IMAGE ? null
+				: AttachmentUtil.createThumnailForVideo(originalFile));
+		if (thumbnailFile != null) {
 			String thumbnailFileLocation = thumbnailFile.getAbsolutePath();
 			packAttachment.setAttachmentThumbnailUrl(thumbnailFileLocation
 					.substring(home.length()));
@@ -369,5 +369,13 @@ public class PackServiceImpl implements IPackService {
 	public void broadcastSystemPack(BroadcastCriteria criteria, String packId)
 			throws PackPackException {
 		broadcastPack(criteria, packId, null);
+	}
+
+	@Override
+	public JPack createNewPack(Pack pack) throws PackPackException {
+		PackRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(PackRepositoryService.class);
+		service.add(pack);
+		return ModelConverter.convert(pack);
 	}
 }

@@ -2,6 +2,7 @@ package com.pack.pack;
 
 import java.io.InputStream;
 
+import com.pack.pack.model.Pack;
 import com.pack.pack.model.PackAttachmentType;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPackAttachment;
@@ -120,4 +121,12 @@ public interface IPackService {
 	 */
 	public void broadcastSystemPack(BroadcastCriteria criteria, String packId)
 			throws PackPackException;
+	
+	/**
+	 * 
+	 * @param pack
+	 * @return
+	 * @throws PackPackException
+	 */
+	public JPack createNewPack(Pack pack) throws PackPackException;
 }

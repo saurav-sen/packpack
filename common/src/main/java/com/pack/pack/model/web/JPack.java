@@ -30,6 +30,8 @@ public class JPack {
 	
 	private String parentTopicId;
 	
+	private JUser creator;
+	
 	public String getId() {
 		return id;
 	}
@@ -111,5 +113,13 @@ public class JPack {
 
 	public void setParentTopicId(String parentTopicId) {
 		this.parentTopicId = parentTopicId;
+	}
+
+	public JUser getCreator() {
+		return creator;
+	}
+
+	public void setCreator(JUser creator) {
+		this.creator = creator;
 	}
 }
