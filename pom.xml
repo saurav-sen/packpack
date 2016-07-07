@@ -75,6 +75,7 @@
 		<module>api</module>
 		<module>api-client-java</module>
 		<module>load-master</module>
+		<module>ogcrawler</module>
 	</modules>
 	<profiles>
 		<!--profile>

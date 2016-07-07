@@ -1,0 +1,101 @@
+package com.squill.og.crawler.internal;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.script.Invocable;
+import javax.script.ScriptException;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+import com.squill.og.crawler.DefaultNonAjaxLinkResolver;
+import com.squill.og.crawler.IContentFilter;
+import com.squill.og.crawler.ILinkResolver;
+import com.squill.og.crawler.internal.utils.CoreConstants;
+
+/**
+ * 
+ * @author Saurav
+ * 
+ */
+public class PageLinkExtractor {
+
+	private PageLinkFilter linkFilter;
+	private ILinkResolver linkResolver;
+	
+	public PageLinkExtractor() {
+		this(null, null);
+	}
+
+	public PageLinkExtractor(IContentFilter contentFilter, ILinkResolver linkResolver) {
+		linkFilter = new PageLinkFilter(contentFilter);
+		this.linkResolver = linkResolver;
+	}
+
+	/**
+	 * Retrieves all page link for crawling from HTML content
+	 * 
+	 * @param html
+	 *            html content for validation
+	 * @return List links and link text
+	 * @throws ScriptException 
+	 * @throws NoSuchMethodException 
+	 */
+	public List<PageLink> extractAllPageLinks(HtmlPage htmlPage, CrawlContext ctx) throws NoSuchMethodException, ScriptException {
+		List<PageLink> result = new ArrayList<PageLink>();
+		String html = htmlPage.getHtmlContent();
+		Invocable jsEngine = htmlPage.getJsEngine();
+		Document document = Jsoup.parse(html);
+		/*Elements linkElements = document.body().getElementsByTag(
+				CoreConstants.HYPERLINK_ELEMENT_TAG_NAME);*/
+		if(linkResolver == null) {
+			linkResolver = new DefaultNonAjaxLinkResolver();
+		}
+		//Iterator<Element> itr = linkElements.iterator();
+		Iterator<Element> itr = linkResolver.resolveCrawlableElements(document, htmlPage);
+		while (itr.hasNext()) {
+			Element linkElement = itr.next();
+			String link = linkElement.attr(CoreConstants.HREF);
+			if (link == null)
+				continue;
+			if(jsEngine != null) {
+				if (link.startsWith(CoreConstants.JAVA_SCRIPT + CoreConstants.COLON)) {
+					int index = link.indexOf(CoreConstants.JAVA_SCRIPT
+							+ CoreConstants.COLON);
+					link = link.substring(index + 1);
+					link = linkResolver.resolveLink(link, jsEngine, linkElement, document);
+				} else if (link.startsWith(CoreConstants.JAVA_SCRIPT
+						+ CoreConstants.SEMICOLON)) {
+					int index = link.indexOf(CoreConstants.JAVA_SCRIPT
+							+ CoreConstants.SEMICOLON);
+					link = link.substring(index + 1);
+					link = linkResolver.resolveLink(link, jsEngine, linkElement, document);
+				}
+				if(link == null)
+					continue;
+			}
+			String text = linkElement.text();
+			PageLink pageLink = new PageLink(link, text);
+			pageLink.setContext(ctx);
+			pageLink.setParent(htmlPage);
+			if (linkFilter.isCrawlable(pageLink)) {
+				result.add(pageLink);
+			}
+		}
+		List<String> computeNonHrefLinks = linkResolver.computeNonHrefLinks(document);
+		if(computeNonHrefLinks != null && !computeNonHrefLinks.isEmpty()) {
+			for(String computedNonHrefLink : computeNonHrefLinks) {
+				PageLink pageLink = new PageLink(computedNonHrefLink, null);
+				pageLink.setContext(ctx);
+				pageLink.setParent(htmlPage);
+				if (linkFilter.isCrawlable(pageLink)) {
+					result.add(pageLink);
+				}
+			}
+		}
+		return result;
+	}
+}
