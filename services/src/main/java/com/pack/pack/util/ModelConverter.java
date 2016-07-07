@@ -16,6 +16,7 @@ import com.pack.pack.model.EGift;
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.PackAttachment;
 import com.pack.pack.model.PackAttachmentType;
+import com.pack.pack.model.RSSFeed;
 import com.pack.pack.model.Topic;
 import com.pack.pack.model.User;
 import com.pack.pack.model.es.UserDetail;
@@ -24,6 +25,7 @@ import com.pack.pack.model.web.JDiscussion;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JPacks;
+import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.JeGift;
@@ -40,6 +42,32 @@ public class ModelConverter {
 
 	private static Logger logger = LoggerFactory
 			.getLogger(ModelConverter.class);
+
+	public static List<JRssFeed> convertAllRssFeeds(List<RSSFeed> feeds) {
+		if (feeds == null || feeds.isEmpty())
+			return Collections.emptyList();
+		List<JRssFeed> results = new LinkedList<JRssFeed>();
+		for (RSSFeed feed : feeds) {
+			JRssFeed result = convert(feed);
+			if (result == null)
+				continue;
+			results.add(result);
+		}
+		return results;
+	}
+
+	public static JRssFeed convert(RSSFeed feed) {
+		if (feed == null)
+			return null;
+		JRssFeed rFeed = new JRssFeed();
+		rFeed.setHrefSource(feed.getHrefSource());
+		rFeed.setOgDescription(feed.getOgDescription());
+		rFeed.setOgImage(feed.getOgImage());
+		rFeed.setOgTitle(feed.getOgTitle());
+		rFeed.setOgType(feed.getOgType());
+		rFeed.setOgUrl(feed.getOgUrl());
+		return rFeed;
+	}
 
 	public static JPack convert(Pack pack) {
 		JPack jPack = new JPack();
@@ -100,8 +128,8 @@ public class ModelConverter {
 		jAttachment.setViews(attachment.getViews());
 		jAttachment.setCreationTime(attachment.getCreationTime());
 		List<Comment> recentComments = attachment.getRecentComments();
-		if(recentComments != null && !recentComments.isEmpty()) {
-			for(Comment comment : recentComments) {
+		if (recentComments != null && !recentComments.isEmpty()) {
+			for (Comment comment : recentComments) {
 				JComment jComment = ModelConverter.convert(comment);
 				jAttachment.getComments().add(jComment);
 			}
@@ -121,7 +149,7 @@ public class ModelConverter {
 		}
 		return jPacks;
 	}
-	
+
 	public static List<JPack> convertAll(List<Pack> packs) {
 		if (packs == null)
 			return Collections.emptyList();
@@ -145,14 +173,15 @@ public class ModelConverter {
 				.getProfilePicture()));
 		return jUser;
 	}
-	
+
 	public static JUser convert(UserDetail user) {
 		JUser jUser = new JUser();
 		jUser.setId(user.getUserId());
-		//jUser.setDob(user.getDob());
+		// jUser.setDob(user.getDob());
 		jUser.setName(user.getName());
 		jUser.setUsername(user.getUserName());
-		jUser.setProfilePictureUrl(resolveProfilePictureUrl(user.getProfilePictureUrl()));
+		jUser.setProfilePictureUrl(resolveProfilePictureUrl(user
+				.getProfilePictureUrl()));
 		return jUser;
 	}
 
@@ -179,7 +208,7 @@ public class ModelConverter {
 		logger.trace("Resolved URL for profile picture = " + profilePictureUrl);
 		return profilePictureUrl;
 	}
-	
+
 	public static String resolveTopicWallpaperUrl(String wallpaperLocation) {
 		if (wallpaperLocation == null) {
 			return null;
@@ -211,29 +240,29 @@ public class ModelConverter {
 		comment.setFromUser(jComment.getFromUserName());
 		return comment;
 	}
-	
+
 	public static JComment convert(Comment comment) {
 		JComment jComment = new JComment();
 		jComment.setComment(comment.getComment());
 		jComment.setDateTime(comment.getDateTime());
 		jComment.setFromUserId(comment.getFromUser());
 		List<Comment> replies = comment.getReplies();
-		if(replies != null) {
-			for(Comment reply : replies) {
+		if (replies != null) {
+			for (Comment reply : replies) {
 				JComment jReply = convert(reply);
 				jComment.getReplies().add(jReply);
 			}
 		}
 		return jComment;
 	}
-	
+
 	public static List<JComment> convertComments(List<Comment> comments) {
 		List<JComment> jComments = new LinkedList<JComment>();
-		if(comments == null)
+		if (comments == null)
 			return jComments;
-		for(Comment comment : comments) {
+		for (Comment comment : comments) {
 			JComment jComment = convert(comment);
-			if(jComment == null)
+			if (jComment == null)
 				continue;
 			jComments.add(jComment);
 		}
@@ -254,12 +283,13 @@ public class ModelConverter {
 		if (user != null) {
 			jTopic.setOwnerName(user.getName());
 			jTopic.setOwnerProfilePicture(user.getProfilePictureUrl());
-			
+
 		}
 		return jTopic;
 	}
 
-	public static List<JTopic> convertTopicList(List<Topic> topics) throws PackPackException {
+	public static List<JTopic> convertTopicList(List<Topic> topics)
+			throws PackPackException {
 		List<JTopic> jTopics = new ArrayList<JTopic>();
 		for (Topic topic : topics) {
 			JTopic jTopic = convert(topic);
@@ -309,9 +339,9 @@ public class ModelConverter {
 		}
 		return resolvedUrl;
 	}
-	
+
 	public static JDiscussion convert(Discussion discussion) {
-		if(discussion == null)
+		if (discussion == null)
 			return null;
 		JDiscussion jDiscussion = new JDiscussion();
 		jDiscussion.setId(discussion.getId());
@@ -324,63 +354,41 @@ public class ModelConverter {
 		jDiscussion.setLikeUsers(discussion.getLikeUsers());
 		return jDiscussion;
 	}
-	
-	/*public static List<JReply> convertReplies(List<Reply> replies) {
-		List<JReply> jReplies = new LinkedList<JReply>();
-		if(replies != null && !replies.isEmpty()) {
-			for(Reply reply : replies) {
-				JReply jReply = convert(reply);
-				if(jReply != null) {
-					jReplies.add(jReply);
-				}
-			}
-		}
-		return jReplies;
-	}
-	
-	public static JReply convert(Reply reply) {
-		if(reply == null)
-			return null;
-		JReply jReply = new JReply();
-		jReply.setId(reply.getId());
-		jReply.setContent(reply.getReply());
-		jReply.setFromUserId(reply.getFromUserId());
-		jReply.setDateTime(reply.getDateTime());
-		jReply.setLikes(reply.getLikes());
-		jReply.setLikeUsers(reply.getLikeUsers());
-		return jReply;
-	}
-	
-	public static List<Reply> convertJReplies(List<JReply> jReplies) {
-		if(jReplies == null)
-			return null;
-		List<Reply> replies = new LinkedList<Reply>();
-		for(JReply jReply : jReplies) {
-			Reply reply = convert(jReply);
-			if(reply != null) {
-				replies.add(reply);
-			}
-		}
-		return replies;
-	}*/
-	
-	/*public static Reply convert(JReply jReply) {
-		if(jReply == null)
-			return null;
-		Reply reply = new Reply();
-		reply.setReply(jReply.getContent());
-		reply.setFromUserId(jReply.getFromUserId());
-		reply.setLikes(jReply.getLikes());
-		reply.setDateTime(jReply.getDateTime());
-		reply.setLikeUsers(jReply.getLikeUsers());
-		List<JReply> jReplies = jReply.getReplies();
-		if(jReplies != null && !jReplies.isEmpty()) {
-			List<Reply> replies = convertJReplies(jReplies);
-			reply.setReplies(replies);
-		}
-		return reply;
-	}*/
-	
+
+	/*
+	 * public static List<JReply> convertReplies(List<Reply> replies) {
+	 * List<JReply> jReplies = new LinkedList<JReply>(); if(replies != null &&
+	 * !replies.isEmpty()) { for(Reply reply : replies) { JReply jReply =
+	 * convert(reply); if(jReply != null) { jReplies.add(jReply); } } } return
+	 * jReplies; }
+	 * 
+	 * public static JReply convert(Reply reply) { if(reply == null) return
+	 * null; JReply jReply = new JReply(); jReply.setId(reply.getId());
+	 * jReply.setContent(reply.getReply());
+	 * jReply.setFromUserId(reply.getFromUserId());
+	 * jReply.setDateTime(reply.getDateTime());
+	 * jReply.setLikes(reply.getLikes());
+	 * jReply.setLikeUsers(reply.getLikeUsers()); return jReply; }
+	 * 
+	 * public static List<Reply> convertJReplies(List<JReply> jReplies) {
+	 * if(jReplies == null) return null; List<Reply> replies = new
+	 * LinkedList<Reply>(); for(JReply jReply : jReplies) { Reply reply =
+	 * convert(jReply); if(reply != null) { replies.add(reply); } } return
+	 * replies; }
+	 */
+
+	/*
+	 * public static Reply convert(JReply jReply) { if(jReply == null) return
+	 * null; Reply reply = new Reply(); reply.setReply(jReply.getContent());
+	 * reply.setFromUserId(jReply.getFromUserId());
+	 * reply.setLikes(jReply.getLikes());
+	 * reply.setDateTime(jReply.getDateTime());
+	 * reply.setLikeUsers(jReply.getLikeUsers()); List<JReply> jReplies =
+	 * jReply.getReplies(); if(jReplies != null && !jReplies.isEmpty()) {
+	 * List<Reply> replies = convertJReplies(jReplies);
+	 * reply.setReplies(replies); } return reply; }
+	 */
+
 	public static Discussion convert(JDiscussion jDiscussion) {
 		Discussion discussion = new Discussion();
 		discussion.setContent(jDiscussion.getContent());
@@ -390,13 +398,11 @@ public class ModelConverter {
 		discussion.setParentEntityId(jDiscussion.getParentId());
 		discussion.setParentEntityType(jDiscussion.getParentType());
 		discussion.setLikeUsers(jDiscussion.getLikeUsers());
-		/*List<JReply> jReplies = jDiscussion.getReplies();
-		if(jReplies != null && !jReplies.isEmpty()) {
-			for(JReply jReply : jReplies) {
-				Reply reply = convert(jReply);
-				discussion.getReplies().add(reply);
-			}
-		}*/
+		/*
+		 * List<JReply> jReplies = jDiscussion.getReplies(); if(jReplies != null
+		 * && !jReplies.isEmpty()) { for(JReply jReply : jReplies) { Reply reply
+		 * = convert(jReply); discussion.getReplies().add(reply); } }
+		 */
 		return discussion;
 	}
 }
