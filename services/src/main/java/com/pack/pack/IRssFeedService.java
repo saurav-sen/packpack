@@ -14,9 +14,10 @@ public interface IRssFeedService {
 	/**
 	 * 
 	 * @param userId
+	 * @param pageLink
 	 * @return
 	 * @throws PackPackException
 	 */
-	public Pagination<JRssFeed> getAllRssFeeds(String userId)
+	public Pagination<JRssFeed> getAllRssFeeds(String userId, String pageLink)
 			throws PackPackException;
 }

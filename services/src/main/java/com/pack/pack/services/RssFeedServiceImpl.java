@@ -1,5 +1,6 @@
 package com.pack.pack.services;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.context.annotation.Scope;
@@ -16,6 +17,9 @@ import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.ModelConverter;
 
+import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
+import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
+
 /**
  * 
  * @author Saurav
@@ -26,8 +30,15 @@ import com.pack.pack.util.ModelConverter;
 public class RssFeedServiceImpl implements IRssFeedService {
 
 	@Override
-	public Pagination<JRssFeed> getAllRssFeeds(String userId)
+	public Pagination<JRssFeed> getAllRssFeeds(String userId, String pageLink)
 			throws PackPackException {
+		if(pageLink == null || END_OF_PAGE.equals(pageLink.trim())) {
+			Pagination<JRssFeed> page = new Pagination<JRssFeed>();
+			page.setNextLink(END_OF_PAGE);
+			page.setPreviousLink(END_OF_PAGE);
+			page.setResult(Collections.emptyList());
+			return page;
+		}
 		UserLocationRepositoryService locationService = ServiceRegistry.INSTANCE
 				.findService(UserLocationRepositoryService.class);
 		UserLocation location = locationService.findUserLocationById(userId);
@@ -52,8 +63,8 @@ public class RssFeedServiceImpl implements IRssFeedService {
 		List<RSSFeed> result = feeds;
 		List<JRssFeed> rows = ModelConverter.convertAllRssFeeds(result);
 		Pagination<JRssFeed> page = new Pagination<JRssFeed>();
-		page.setNextLink(null);
-		page.setPreviousLink(null);
+		page.setNextLink(END_OF_PAGE);
+		page.setPreviousLink(NULL_PAGE_LINK);
 		page.setResult(rows);
 		return page;
 	}

@@ -77,7 +77,8 @@ public enum COMMAND {
 			APIConstants.Discussion.CONTENT, APIConstants.Discussion.TYPE), GET_DISCUSSION_BY_ID(
 			APIConstants.Discussion.ID, APIConstants.User.ID), ADD_LIKE_TO_DISCUSSION(
 			APIConstants.Discussion.ID, APIConstants.User.ID,
-			APIConstants.Discussion.TYPE);
+			APIConstants.Discussion.TYPE), GET_ALL_PROMOTIONAL_FEEDS(
+			APIConstants.User.ID, APIConstants.PageInfo.PAGE_LINK);
 
 	private String[] paramNames;
 

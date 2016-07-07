@@ -9,6 +9,7 @@ import com.pack.pack.client.internal.BrandsApi;
 import com.pack.pack.client.internal.Configuration;
 import com.pack.pack.client.internal.DiscussionApi;
 import com.pack.pack.client.internal.EGiftApi;
+import com.pack.pack.client.internal.HomeApi;
 import com.pack.pack.client.internal.PackApi;
 import com.pack.pack.client.internal.ResourceLoaderApi;
 import com.pack.pack.client.internal.TopicApi;
@@ -109,6 +110,9 @@ public class APIBuilder {
 				|| action == COMMAND.GET_DISCUSSION_BY_ID
 				|| action == COMMAND.ADD_LIKE_TO_DISCUSSION) {
 			api = new APIWrapper(new DiscussionApi());
+			api.getInvoker().setConfiguration(config);
+		} else if(action == COMMAND.GET_ALL_PROMOTIONAL_FEEDS) {
+			api = new APIWrapper(new HomeApi());
 			api.getInvoker().setConfiguration(config);
 		}
 		return api;
