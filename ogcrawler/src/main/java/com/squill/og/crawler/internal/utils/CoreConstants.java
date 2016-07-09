@@ -48,8 +48,8 @@ public interface CoreConstants {
 	
 	public static final String JAVA_SCRIPT = "javascript"; //$NON-NLS-1$
 	
-	public static final UserAgent TROVE_ROBOT = new UserAgent("TroveBots", //$NON-NLS-1$
-			"inbox@mymedicalfiles.in", "http://www.mymedicalfiles.in"); //$NON-NLS-1$ //$NON-NLS-2$
+	public static final UserAgent SQUILL_ROBOT = new UserAgent("SquillBot", //$NON-NLS-1$
+			"squill@gmail.com", "http://www.squill.co.in"); //$NON-NLS-1$ //$NON-NLS-2$
 	
-	public static final String TROVE_ROBOT_USER_AGENT_STRING = "TroveBots; +http://www.mymedicalfiles.in; email: inbox@mymedicalfiles.in"; //$NON-NLS-1$
+	public static final String SQUILL_ROBOT_USER_AGENT_STRING = "SquillBot; +http://www.squill.co.in; email: squill@gmail.com"; //$NON-NLS-1$
 }

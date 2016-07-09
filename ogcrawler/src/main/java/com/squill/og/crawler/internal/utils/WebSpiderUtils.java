@@ -1,6 +1,7 @@
 package com.squill.og.crawler.internal.utils;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
@@ -46,7 +47,7 @@ public class WebSpiderUtils {
 	public static List<? extends ILink> parseCrawlableURLs(IWebSite webSite) throws Exception {
 		String domainUrl = webSite.getDomainUrl();
 		if(webSite.shouldCheckRobotRules()) {
-			BaseHttpFetcher fetcher = RobotUtils.createFetcher(CoreConstants.TROVE_ROBOT, 1);
+			BaseHttpFetcher fetcher = RobotUtils.createFetcher(CoreConstants.SQUILL_ROBOT, 1);
 			SimpleRobotRulesParser parser = new SimpleRobotRulesParser();
 			URL robotsUrl = new URL(domainUrl + "/" + "robots.txt");
 			BaseRobotRules rules = RobotUtils.getRobotRules(fetcher, parser, robotsUrl);
@@ -55,7 +56,9 @@ public class WebSpiderUtils {
 				//System.out.println();
 				return parseSiteMap(sitemaps, new URL(domainUrl + "/"), webSite);
 			}
-			return Collections.emptyList();
+			if(!rules.isAllowAll()) {
+				return Collections.emptyList();
+			}
 		}
 		HttpRequestExecutor executor = new HttpRequestExecutor();
 		String html = executor.GET(domainUrl, "");
@@ -80,7 +83,7 @@ public class WebSpiderUtils {
 		HttpGet GET = new HttpGet(siteMap);
 		HttpContext HTTP_CONTEXT = new BasicHttpContext();
 		HTTP_CONTEXT.setAttribute(CoreProtocolPNames.USER_AGENT, 
-				CoreConstants.TROVE_ROBOT_USER_AGENT_STRING);
+				CoreConstants.SQUILL_ROBOT_USER_AGENT_STRING);
 		HttpResponse response = client.execute(GET, HTTP_CONTEXT);
 		if(response.getStatusLine().getStatusCode() == 200) {
 			String content = EntityUtils.toString(response.getEntity());
@@ -102,8 +105,14 @@ public class WebSpiderUtils {
 							GET = new HttpGet(url2.toURI());
 							response = client2.execute(GET);
 							if(response.getStatusLine().getStatusCode() == 200) {
-								GZIPInputStream gzipStream = new GZIPInputStream(response.getEntity().getContent());
-								BufferedReader reader = new BufferedReader(new InputStreamReader(gzipStream));
+								InputStream inStream = null;
+								if(response.getEntity().getContentType().getValue().equals("text/xml")) {
+									inStream = response.getEntity().getContent();
+								} else {
+									GZIPInputStream gzipStream = new GZIPInputStream(response.getEntity().getContent());
+									inStream = gzipStream;
+								}
+								BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
 								StringBuilder gzipContent = new StringBuilder();
 								String c = null;
 								while((c = reader.readLine()) != null) {
@@ -144,7 +153,7 @@ public class WebSpiderUtils {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		System.out.println(CoreConstants.TROVE_ROBOT.getUserAgentString());
+		System.out.println(CoreConstants.SQUILL_ROBOT.getUserAgentString());
 		/*List<String> urls = WebSpiderUtils.parseCrawlableURLs("http://www.medindia.net");
 		if(!urls.isEmpty()) {
 			for(String url : urls) {

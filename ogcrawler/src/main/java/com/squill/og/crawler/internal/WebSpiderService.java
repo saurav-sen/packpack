@@ -1,9 +1,13 @@
 package com.squill.og.crawler.internal;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import javax.annotation.PostConstruct;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -22,6 +26,7 @@ public class WebSpiderService {
 	/*@Autowired
 	private WebSpiderTrackingService tracker;*/
 
+	@PostConstruct
 	public void startup() throws PackPackException {
 		pool = Executors.newScheduledThreadPool(1, new ControlledInstantiator());
 	}
@@ -35,7 +40,7 @@ public class WebSpiderService {
 	public void crawlWebSites(List<IWebSite> webSites) {
 		if(webSites == null || webSites.isEmpty())
 			return;
-		//List<Future<?>> list = new ArrayList<Future<?>>();
+		List<Future<?>> list = new ArrayList<Future<?>>();
 		for(IWebSite webSite : webSites) {
 			WebSiteSpider spider = new WebSiteSpider(webSite);//, tracker);
 			ICrawlSchedule schedule = webSite.getSchedule();
@@ -48,10 +53,10 @@ public class WebSpiderService {
 					timeUnit = TimeUnit.SECONDS;
 				}
 			}
-			/*Future<?> future = */pool.scheduleAtFixedRate(spider, schedule.getInitialDelay(), period, timeUnit);
-			//list.add(future);
+			Future<?> future = pool.scheduleAtFixedRate(spider, schedule.getInitialDelay(), period, timeUnit);
+			list.add(future);
 		}
-		/*for(Future<?> future : list) {
+		for(Future<?> future : list) {
 			while(!future.isDone()) {
 				try {
 					Thread.sleep(1000);
@@ -59,7 +64,7 @@ public class WebSpiderService {
 					e.printStackTrace();
 				}
 			}
-		}*/
+		}
 	}
 
 	/*public WebSpiderTrackingService getTracker() {

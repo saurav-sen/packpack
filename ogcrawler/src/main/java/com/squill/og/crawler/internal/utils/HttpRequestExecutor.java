@@ -83,7 +83,7 @@ public class HttpRequestExecutor {
 		HttpGet GET = new HttpGet(link);
 		HttpContext HTTP_CONTEXT = new BasicHttpContext();
 		HTTP_CONTEXT.setAttribute(CoreProtocolPNames.USER_AGENT, 
-				CoreConstants.TROVE_ROBOT_USER_AGENT_STRING);
+				CoreConstants.SQUILL_ROBOT_USER_AGENT_STRING);
 		HttpResponse response = client.execute(GET, HTTP_CONTEXT);
 		if(response.getStatusLine().getStatusCode() == 200) {
 			return EntityUtils.toString(response.getEntity());

@@ -2,6 +2,7 @@ package com.pack.pack;
 
 import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.Pagination;
+import com.pack.pack.model.web.TTL;
 import com.pack.pack.services.exception.PackPackException;
 
 /**
@@ -20,4 +21,12 @@ public interface IRssFeedService {
 	 */
 	public Pagination<JRssFeed> getAllRssFeeds(String userId, String pageLink)
 			throws PackPackException;
+	
+	/**
+	 * 
+	 * @param feed
+	 * @param ttl
+	 * @return
+	 */
+	public JRssFeed upload(JRssFeed feed, TTL ttl);
 }

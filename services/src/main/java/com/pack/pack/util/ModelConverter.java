@@ -66,7 +66,21 @@ public class ModelConverter {
 		rFeed.setOgTitle(feed.getOgTitle());
 		rFeed.setOgType(feed.getOgType());
 		rFeed.setOgUrl(feed.getOgUrl());
+		rFeed.setId(feed.getId());
 		return rFeed;
+	}
+	
+	public static RSSFeed convert(JRssFeed rFeed) {
+		if (rFeed == null)
+			return null;
+		RSSFeed feed = new RSSFeed();
+		feed.setHrefSource(rFeed.getHrefSource());
+		feed.setOgDescription(rFeed.getOgDescription());
+		feed.setOgImage(rFeed.getOgImage());
+		feed.setOgTitle(rFeed.getOgTitle());
+		feed.setOgType(rFeed.getOgType());
+		feed.setOgUrl(rFeed.getOgUrl());
+		return feed;
 	}
 
 	public static JPack convert(Pack pack) {

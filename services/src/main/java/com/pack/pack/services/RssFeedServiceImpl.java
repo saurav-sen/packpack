@@ -1,7 +1,11 @@
 package com.pack.pack.services;
 
+import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
+import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
+
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -11,14 +15,12 @@ import com.pack.pack.model.RSSFeed;
 import com.pack.pack.model.UserLocation;
 import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.Pagination;
+import com.pack.pack.model.web.TTL;
 import com.pack.pack.services.couchdb.RssFeedRepositoryService;
 import com.pack.pack.services.couchdb.UserLocationRepositoryService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.ModelConverter;
-
-import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
-import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
 
 /**
  * 
@@ -32,7 +34,7 @@ public class RssFeedServiceImpl implements IRssFeedService {
 	@Override
 	public Pagination<JRssFeed> getAllRssFeeds(String userId, String pageLink)
 			throws PackPackException {
-		if(pageLink == null || END_OF_PAGE.equals(pageLink.trim())) {
+		if (pageLink == null || END_OF_PAGE.equals(pageLink.trim())) {
 			Pagination<JRssFeed> page = new Pagination<JRssFeed>();
 			page.setNextLink(END_OF_PAGE);
 			page.setPreviousLink(END_OF_PAGE);
@@ -67,5 +69,42 @@ public class RssFeedServiceImpl implements IRssFeedService {
 		page.setPreviousLink(NULL_PAGE_LINK);
 		page.setResult(rows);
 		return page;
+	}
+
+	@Override
+	public JRssFeed upload(JRssFeed feed, TTL ttl) {
+		RSSFeed rssFeed = ModelConverter.convert(feed);
+		long now = System.currentTimeMillis();
+		rssFeed.setPromoStartTimestamp(String.valueOf(now));
+		long expiry = ttl.getTime();
+		TimeUnit unit = ttl.getUnit();
+		switch(unit) {
+		case NANOSECONDS:
+			expiry = expiry / (1000*1000);
+			break;
+		case MICROSECONDS:
+			expiry = expiry / 1000;
+			break;
+		case MILLISECONDS:
+			break;
+		case SECONDS:
+			expiry = expiry * 1000;
+			break;
+		case MINUTES:
+			expiry = expiry * 60 * 1000;
+			break;
+		case HOURS:
+			expiry = expiry * 60 * 60 * 1000;
+			break;
+		case DAYS:
+			expiry = expiry * 24 * 60 * 60 * 1000;
+			break;
+		}
+		expiry = now + expiry;
+		rssFeed.setPromoExpiryTimestamp(String.valueOf(expiry));
+		RssFeedRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(RssFeedRepositoryService.class);
+		service.add(rssFeed);
+		return ModelConverter.convert(rssFeed);
 	}
 }

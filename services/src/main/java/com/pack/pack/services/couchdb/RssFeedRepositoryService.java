@@ -2,6 +2,8 @@ package com.pack.pack.services.couchdb;
 
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.ektorp.CouchDbConnector;
 import org.ektorp.ViewQuery;
 import org.ektorp.support.CouchDbRepositorySupport;
@@ -28,6 +30,11 @@ public class RssFeedRepositoryService extends CouchDbRepositorySupport<RSSFeed> 
 	@Autowired
 	public RssFeedRepositoryService(@Qualifier("packDB") CouchDbConnector db) {
 		super(RSSFeed.class, db);
+	}
+	
+	@PostConstruct
+	public void doInit() {
+		initStandardDesignDocument();
 	}
 
 	public List<RSSFeed> getAllPromotionalFeeds(long startTime, long expiryTime)

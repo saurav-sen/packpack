@@ -18,6 +18,8 @@ public class JRssFeed {
 	private String ogUrl;
 	
 	private String hrefSource;
+	
+	private String id;
 
 	public String getOgTitle() {
 		return ogTitle;
@@ -65,5 +67,13 @@ public class JRssFeed {
 
 	public void setHrefSource(String hrefSource) {
 		this.hrefSource = hrefSource;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 }
