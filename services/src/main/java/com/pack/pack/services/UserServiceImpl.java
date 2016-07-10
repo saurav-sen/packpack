@@ -1,5 +1,7 @@
 package com.pack.pack.services;
 
+import static com.pack.pack.util.AttachmentUtil.resizeAndStoreUploadedAttachment;
+
 import java.io.File;
 import java.io.InputStream;
 import java.util.List;
@@ -8,7 +10,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.pack.pack.IUserService;
-import com.pack.pack.model.Address;
 import com.pack.pack.model.User;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JUser;
@@ -17,7 +18,6 @@ import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.es.ESUploadService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
-import static com.pack.pack.util.AttachmentUtil.*;
 import com.pack.pack.util.ModelConverter;
 import com.pack.pack.util.SystemPropertyUtil;
 
@@ -32,8 +32,7 @@ public class UserServiceImpl implements IUserService {
 
 	@Override
 	public JStatus registerNewUser(String name, String email, String password,
-			String city, String country, String state, String locality,
-			String dob, InputStream profilePicture,
+			String city, String dob, InputStream profilePicture,
 			String profilePictureFileName) throws PackPackException {
 		UserRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(UserRepositoryService.class);
@@ -41,12 +40,7 @@ public class UserServiceImpl implements IUserService {
 		user.setName(name);
 		user.setUsername(email);
 		user.setPassword(password);
-		Address address = new Address();
-		address.setCity(city);
-		address.setCountry(country);
-		address.setLocality(locality);
-		address.setState(state);
-		user.setAddress(address);
+		user.setCity(city);
 		user.setDob(dob);
 		service.add(user);
 		JStatus status = new JStatus();
@@ -58,9 +52,11 @@ public class UserServiceImpl implements IUserService {
 			return status;
 		}
 		user = users.get(0);
-		String profilePictureUrl = storeProfilePicture(user.getId(),
-				profilePicture, profilePictureFileName);
-		user.setProfilePicture(profilePictureUrl);
+		if(profilePicture != null) {
+			String profilePictureUrl = storeProfilePicture(user.getId(),
+					profilePicture, profilePictureFileName);
+			user.setProfilePicture(profilePictureUrl);
+		}
 		service.update(user);
 		status.setStatus(StatusType.OK);
 		status.setInfo("Successfully registered the user " + email);

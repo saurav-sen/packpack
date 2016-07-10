@@ -1,6 +1,5 @@
 package com.pack.pack.rest.api;
 
-import java.io.InputStream;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -12,15 +11,15 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-import org.glassfish.jersey.media.multipart.FormDataParam;
-
 import com.pack.pack.IUserService;
+import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.User;
 import com.pack.pack.model.es.UserDetail;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.JUsers;
+import com.pack.pack.model.web.dto.SignupDTO;
+import com.pack.pack.security.util.EncryptionUtil;
 import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.es.SearchService;
 import com.pack.pack.services.exception.PackPackException;
@@ -80,7 +79,8 @@ public class UserResource {
 		return jUsers;
 	}
 
-	@POST
+	/*@POST
+	@Path("register")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
 	public JStatus registerUser(
@@ -88,9 +88,6 @@ public class UserResource {
 			@FormDataParam("email") String email,
 			@FormDataParam("password") String password,
 			@FormDataParam("city") String city,
-			@FormDataParam("country") String country,
-			@FormDataParam("state") String state,
-			@FormDataParam("locality") String locality,
 			@FormDataParam("dob") String dob,
 			@FormDataParam("profilePicture") InputStream profilePicture,
 			@FormDataParam("profilePicture") FormDataContentDisposition aboutProfilePicture)
@@ -101,12 +98,45 @@ public class UserResource {
 		UserRepositoryService repoService = ServiceRegistry.INSTANCE
 				.findService(UserRepositoryService.class);
 		List<User> users = repoService.getBasedOnUsername(email);
-		if(users != null && !users.isEmpty()) {
+		if (users != null && !users.isEmpty()) {
 			throw new PackPackException("TODO",
 					"Duplicate user. User with username = " + email
 							+ " already registered");
 		}
-		return service.registerNewUser(name, email, password, city, country,
-				state, locality, dob, profilePicture, profilePictureFileName);
+		password = EncryptionUtil.encryptPassword(password);
+		return service.registerNewUser(name, email, password, city, dob,
+				profilePicture, profilePictureFileName);
+	}*/
+	
+	private JStatus doRegisterUser(String name, String email,
+			String password, String city, String dob)
+			throws PackPackException {
+		String profilePictureFileName = null;
+		IUserService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IUserService.class);
+		UserRepositoryService repoService = ServiceRegistry.INSTANCE
+				.findService(UserRepositoryService.class);
+		List<User> users = repoService.getBasedOnUsername(email);
+		if (users != null && !users.isEmpty()) {
+			throw new PackPackException("TODO",
+					"Duplicate user. User with username = " + email
+							+ " already registered");
+		}
+		password = EncryptionUtil.encryptPassword(password);
+		return service.registerNewUser(name, email, password, city, dob,
+				null, profilePictureFileName);
+	}
+
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public JStatus registerUser(String json) throws PackPackException {
+		SignupDTO dto = JSONUtil.deserialize(json, SignupDTO.class, true);
+		String name = dto.getName();
+		String email = dto.getEmail();
+		String password = dto.getPassword();
+		String dob = dto.getDob();
+		String city = dto.getCity();
+		return doRegisterUser(name, email, password, city, dob);
 	}
 }

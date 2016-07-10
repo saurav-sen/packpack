@@ -14,8 +14,7 @@ import com.pack.pack.services.exception.PackPackException;
 public interface IUserService {
 
 	public JStatus registerNewUser(String name, String email, String password,
-			String city, String country, String state, String locality,
-			String dob, InputStream profilePicture,
+			String city, String dob, InputStream profilePicture,
 			String profilePictureFileName) throws PackPackException;
 
 	public JUser uploadProfilePicture(String userId,

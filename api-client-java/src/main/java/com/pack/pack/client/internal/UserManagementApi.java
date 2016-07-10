@@ -1,7 +1,9 @@
 package com.pack.pack.client.internal;
 
+import static com.pack.pack.client.api.APIConstants.APPLICATION_JSON;
 import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
 import static com.pack.pack.client.api.APIConstants.BASE_URL;
+import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,12 +11,14 @@ import java.net.URI;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
@@ -28,6 +32,7 @@ import com.pack.pack.client.api.MultipartRequestProgressListener;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JUser;
+import com.pack.pack.model.web.dto.SignupDTO;
 import com.pack.pack.oauth1.client.AccessToken;
 import com.pack.pack.oauth1.client.OAuth1ClientCredentials;
 import com.pack.pack.oauth1.client.OAuth1RequestFlow;
@@ -144,28 +149,51 @@ public class UserManagementApi extends AbstractAPI {
 			PackPackException {
 		String url = BASE_URL + "user";
 		DefaultHttpClient client = new DefaultHttpClient();
-		HttpPost POST = new HttpPost(url);
-		MultipartEntity multipartEntity = new MultipartEntity();
-		//MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-		Iterator<String> itr = params.keySet().iterator();
-		while (itr.hasNext()) {
-			String key = itr.next();
-			if (APIConstants.User.Register.PROFILE_PICTURE.equals(key)) {
-				File file = (File) params.get(key);
-				FileBody fileBody = new FileBody(file, file.getName(),
-						HTTP.OCTET_STREAM_TYPE, null);
-				multipartEntity.addPart(key, fileBody);
-				//builder.addBinaryBody(key, file, HTTP.OCTET_STREAM_TYPE, file.getName());
-			} else {
-				String text = (String) params.get(key);
-				//builder.addTextBody(key, text);
-				StringBody contentBody = new StringBody(text);
-				multipartEntity.addPart(key, contentBody);
-			}
+		Object attachment = params.get(APIConstants.User.Register.PROFILE_PICTURE);
+		if(attachment != null) {
+			url = url + "/register";
 		}
-		//HttpEntity entity = builder.build();
-		//POST.setEntity(entity);
-		POST.setEntity(multipartEntity);
+		HttpPost POST = new HttpPost(url);
+		if(attachment != null) {
+			MultipartEntity multipartEntity = new MultipartEntity();
+			//MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+			Iterator<String> itr = params.keySet().iterator();
+			while (itr.hasNext()) {
+				String key = itr.next();
+				if (APIConstants.User.Register.PROFILE_PICTURE.equals(key)) {
+					File file = (File) params.get(key);
+					FileBody fileBody = new FileBody(file, file.getName(),
+							HTTP.OCTET_STREAM_TYPE, null);
+					multipartEntity.addPart(key, fileBody);
+					//builder.addBinaryBody(key, file, HTTP.OCTET_STREAM_TYPE, file.getName());
+				} else {
+					String text = (String) params.get(key);
+					//builder.addTextBody(key, text);
+					StringBody contentBody = new StringBody(text);
+					multipartEntity.addPart(key, contentBody);
+				}
+			}
+			//HttpEntity entity = builder.build();
+			//POST.setEntity(entity);
+			POST.setEntity(multipartEntity);
+		} else {
+			POST.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
+			SignupDTO dto = new SignupDTO();
+			String name = (String) params.get(APIConstants.User.Register.NAME);
+			String email = (String) params.get(APIConstants.User.Register.EMAIL);
+			String password = (String) params.get(APIConstants.User.Register.PASSWORD);
+			String city = (String) params.get(APIConstants.User.Register.CITY);
+			String dob = (String) params.get(APIConstants.User.Register.DOB);
+			dto.setCity(city);
+			dto.setDob(dob);
+			dto.setEmail(email);
+			dto.setName(name);
+			dto.setPassword(password);
+			String json = JSONUtil.serialize(dto);
+			HttpEntity jsonBody = new StringEntity(json);
+			POST.setEntity(jsonBody);
+		}
+		
 		/*POST.addHeader("Content-Type",
 				ContentType.MULTIPART_FORM_DATA.getMimeType());*/
 		HttpResponse response = client.execute(POST);

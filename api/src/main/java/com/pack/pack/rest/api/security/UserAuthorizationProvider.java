@@ -27,6 +27,7 @@ import com.pack.pack.oauth.registry.TokenRegistry;
 import com.pack.pack.oauth.token.AccessToken;
 import com.pack.pack.oauth.token.Token;
 import com.pack.pack.rest.api.oauth.provider.jersey.OAuth10SecurityProvider;
+import com.pack.pack.security.util.EncryptionUtil;
 import com.pack.pack.services.exception.PackPackException;
 
 /**
@@ -48,11 +49,15 @@ public class UserAuthorizationProvider {
 			@HeaderParam(OAuthConstants.AUTHORIZATION_HEADER) String requestToken,
 			final LoginDTO dto) throws PackPackException {
 		try {
+			String password = dto.getPassword();
+			if(password != null) {
+				password = EncryptionUtil.encryptPassword(password);
+			}
 			Token token = ((OAuth10SecurityProvider) oauthProvider)
 					.getRequestToken(requestToken);
 			if (token != null
 					&& UserAuthenticator.INSTANCE.authenticateUser(
-							dto.getUsername(), dto.getPassword())) {
+							dto.getUsername(), password)) {
 				Principal p = new Principal() {
 
 					@Override

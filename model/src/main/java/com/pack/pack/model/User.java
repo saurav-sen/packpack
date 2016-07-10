@@ -27,11 +27,19 @@ public class User extends CouchDbDocument {
 
 	private String password;
 	
-	private Address address;
-	
 	private String dob;
 	
 	private List<UserInfo> extraInfoMap;
+	
+	private String city;
+	
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
 	
 	public String getName() {
 		return name;
@@ -71,14 +79,6 @@ public class User extends CouchDbDocument {
 
 	public void setPassword(String password) {
 		this.password = password;
-	}
-
-	public Address getAddress() {
-		return address;
-	}
-
-	public void setAddress(Address address) {
-		this.address = address;
 	}
 
 	public String getDob() {

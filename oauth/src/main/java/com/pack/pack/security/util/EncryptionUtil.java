@@ -5,6 +5,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
+import java.util.Base64;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -13,8 +14,6 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
-
-import sun.misc.BASE64Encoder;
 
 /**
  * 
@@ -29,11 +28,16 @@ public class EncryptionUtil {
 	public static String encryptPassword(String plainTextPassword) {
 		try {
 			String encryptedText = generateMD5HashKey(plainTextPassword, false, false);
-			return new BASE64Encoder().encode(encryptedText.getBytes());
+			return new String(Base64.getEncoder().encode(encryptedText.getBytes()));
 		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	/*public static void main(String[] args) {
+		System.out.println(encryptPassword("password"));
+		System.out.println(encryptPassword("password"));
+	}*/
 	
 	public static String encryptPasswordUsingSystemKey(String plainTextPassword) {
 		return encryptDecryptPassword(SYSTEM_KEY, plainTextPassword,
@@ -56,8 +60,8 @@ public class EncryptionUtil {
 			SecretKey secretKey = keyFactory.generateSecret(keySpec);
 			cipher.init(mode, secretKey);
 			if (mode == Cipher.ENCRYPT_MODE) {
-				return new BASE64Encoder().encode(cipher
-						.doFinal(plainTextPassword.getBytes()));
+				return new String(Base64.getEncoder().encode(cipher
+						.doFinal(plainTextPassword.getBytes())));
 			} else {
 				throw new UnsupportedOperationException("Decrypt password is not supported");
 			}
@@ -126,10 +130,10 @@ public class EncryptionUtil {
 		System.out.println(password.equals(decryptedPassword));
 	}*/
 	
-	public static void main1(String[] args) throws Exception {
-		String str = "healthOrganizationMasterService";
+	/*public static void main(String[] args) throws Exception {
+		String str = "SquillServices to provide";
 		System.out.println(generateMD5HashKey(str, true, false));
-		str = "findNewCityName";
+		str = " a whole new perception to see the world";
 		System.out.println(generateMD5HashKey(str, true, false));
-	}
+	}*/
 }

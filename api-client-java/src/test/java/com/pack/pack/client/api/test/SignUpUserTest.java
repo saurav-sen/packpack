@@ -15,10 +15,10 @@ import com.pack.pack.client.api.COMMAND;
 public class SignUpUserTest {
 
 	private static final String NAME = "Saurav Sen";
-	private static final String LOCALITY = "Sanath Nagar";
+	//private static final String LOCALITY = "Sanath Nagar";
 	private static final String CITY = "Hyderabad";
-	private static final String STATE = "Telangana";
-	private static final String COUNTRY = "India";
+	//private static final String STATE = "Telangana";
+	//private static final String COUNTRY = "India";
 	private static final String DOB = "27/12/1981";
 	private static final String PROFILE_PICTURE = "D:/Saurav/myphoto.jpg";
 
@@ -30,16 +30,21 @@ public class SignUpUserTest {
 					.addApiParam(APIConstants.User.Register.NAME, NAME)
 					.addApiParam(APIConstants.User.Register.EMAIL, SignInUtil.USERNAME)
 					.addApiParam(APIConstants.User.Register.PASSWORD, SignInUtil.PASSWORD)
-					.addApiParam(APIConstants.User.Register.LOCALITY, LOCALITY)
+					//.addApiParam(APIConstants.User.Register.LOCALITY, LOCALITY)
 					.addApiParam(APIConstants.User.Register.CITY, CITY)
-					.addApiParam(APIConstants.User.Register.STATE, STATE)
-					.addApiParam(APIConstants.User.Register.COUNTRY, COUNTRY)
+					//.addApiParam(APIConstants.User.Register.STATE, STATE)
+					//.addApiParam(APIConstants.User.Register.COUNTRY, COUNTRY)
 					.addApiParam(APIConstants.User.Register.DOB, DOB)
-					.addApiParam(APIConstants.User.Register.PROFILE_PICTURE,
-							new File(PROFILE_PICTURE)).build();
+					//.addApiParam(APIConstants.User.Register.PROFILE_PICTURE, null)
+					/*.addApiParam(APIConstants.User.Register.PROFILE_PICTURE,
+							new File(PROFILE_PICTURE))*/.build();
 			api.execute();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static void main(String[] args) {
+		new SignUpUserTest().signUp();
 	}
 }

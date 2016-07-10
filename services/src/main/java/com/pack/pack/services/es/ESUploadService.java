@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.pack.pack.model.Address;
 import com.pack.pack.model.Topic;
 import com.pack.pack.model.User;
 import com.pack.pack.model.es.TopicDetail;
@@ -38,15 +37,15 @@ public class ESUploadService {
 
 	private boolean stopSignal = false;
 
-	@PostConstruct
-	private void start() {
+	//@PostConstruct
+	public void start() {
 		pool = Executors.newFixedThreadPool(1);
 		ConsumerTask consumerTask = new ConsumerTask();
 		pool.submit(consumerTask);
 	}
 
-	@PreDestroy
-	private void stop() {
+	//@PreDestroy
+	public void stop() {
 		stopSignal = true;
 		if (producerQueue != null && !producerQueue.isEmpty()) {
 			producerQueue.clear();
@@ -125,13 +124,7 @@ public class ESUploadService {
 			userDetail.setName(newUser.getName());
 			userDetail.setUserName(newUser.getUsername());
 			userDetail.setProfilePictureUrl(newUser.getProfilePicture());
-			Address address = newUser.getAddress();
-			if (address != null) {
-				userDetail.setLocality(address.getLocality());
-				userDetail.setCity(address.getCity());
-				userDetail.setState(address.getState());
-				userDetail.setCountry(address.getCountry());
-			}
+			userDetail.setCity(newUser.getCity());
 			return userDetail;
 		}
 	}
