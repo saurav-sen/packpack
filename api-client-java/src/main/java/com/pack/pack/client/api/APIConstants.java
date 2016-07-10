@@ -110,6 +110,10 @@ public interface APIConstants {
 		public static final String RESOURCE_URL = "url";
 	}
 	
+	public static interface ExternalResource {
+		public static final String RESOURCE_URL = "external_url";
+	}
+	
 	public static interface Discussion {
 		public static final String ID = "discussionId";
 		public static final String TITLE = "title";

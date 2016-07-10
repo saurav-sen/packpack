@@ -64,7 +64,9 @@ public enum COMMAND {
 			APIConstants.User.ID), ADD_VIDEO_TO_PACK(
 			APIConstants.Attachment.FILE_ATTACHMENT, APIConstants.Topic.ID,
 			APIConstants.Pack.ID, APIConstants.User.ID), LOAD_RESOURCE(
-			APIConstants.ProtectedResource.RESOURCE_URL), GET_ALL_DISCUSSIONS_FOR_TOPIC(
+			APIConstants.ProtectedResource.RESOURCE_URL,
+			APIConstants.Image.WIDTH, APIConstants.Image.HEIGHT), LOAD_EXTERNAL_RESOURCE(
+			APIConstants.ExternalResource.RESOURCE_URL), GET_ALL_DISCUSSIONS_FOR_TOPIC(
 			APIConstants.Topic.ID, APIConstants.User.ID,
 			APIConstants.PageInfo.PAGE_LINK), GET_ALL_DISCUSSIONS_FOR_PACK(
 			APIConstants.Pack.ID, APIConstants.User.ID,

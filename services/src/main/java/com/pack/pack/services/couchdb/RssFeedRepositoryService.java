@@ -39,10 +39,9 @@ public class RssFeedRepositoryService extends CouchDbRepositorySupport<RSSFeed> 
 
 	public List<RSSFeed> getAllPromotionalFeeds(long startTime, long expiryTime)
 			throws PackPackException {
-		String startKey = String.valueOf(startTime);
-		String endKey = startKey + String.valueOf(expiryTime);
-		ViewQuery query = createQuery("findFeedPromotions").startKey(startKey)
-				.endKey(endKey);
+		//String startKey = String.valueOf(startTime);
+		//String endKey = startKey + String.valueOf(expiryTime);
+		ViewQuery query = createQuery("findFeedPromotions").includeDocs(true);//.startKey(startKey).endKey(endKey);
 		return db.queryView(query, RSSFeed.class);
 	}
 }

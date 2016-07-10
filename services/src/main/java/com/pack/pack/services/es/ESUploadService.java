@@ -97,13 +97,15 @@ public class ESUploadService {
 
 		private void uploadNewTopcDetails(Topic topic) throws Exception {
 			TopicDetail topicDetail = convert(topic);
-			IndexUploadService.INSTANCE.uploadNewTopcDetails(topicDetail);
+			// TODO -- call an check this once we add ES infrastructure
+			// IndexUploadService.INSTANCE.uploadNewTopcDetails(topicDetail);
 			logger.info("Successfully uploaded newly created topic details to ES");
 		}
 
 		private void uploadNewUserDetails(User newUser) throws Exception {
 			UserDetail userDetail = convert(newUser);
-			IndexUploadService.INSTANCE.uploadNewUserDetails(userDetail);
+			// TODO -- call an check this once we add ES infrastructure
+			// IndexUploadService.INSTANCE.uploadNewUserDetails(userDetail);
 			logger.info("Successfully uploaded new user details to ES");
 		}
 

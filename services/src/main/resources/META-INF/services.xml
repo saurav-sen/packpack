@@ -32,7 +32,7 @@
      </bean-->
      
       <bean id="packDB" class="org.ektorp.impl.StdCouchDbConnector">
-             <constructor-arg value="packpack" />
+             <constructor-arg value="squill" />
              <constructor-arg ref="couchDbInstance" />
      </bean>
      

@@ -9,7 +9,8 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.pack.pack.services.es.Constants;
+//TODO -- call an check this once we add ES infrastructure
+//import com.pack.pack.services.es.Constants;
 
 /**
  * 
@@ -64,8 +65,9 @@ public class SystemPropertyUtil {
 		try {
 			properties = new Properties();
 			properties.load(new FileInputStream(new File(CONFIG_FILE)));
-			String esBaseUrl = properties.getProperty(Constants.ES_BASE_URL);
-			System.setProperty(Constants.ES_BASE_URL, esBaseUrl);
+			// TODO -- call an check this once we add ES infrastructure
+			//String esBaseUrl = properties.getProperty(Constants.ES_BASE_URL);
+			//System.setProperty(Constants.ES_BASE_URL, esBaseUrl);
 		} catch (FileNotFoundException e) {
 			logger.info(e.getMessage(), e);
 			throw new RuntimeException(e);

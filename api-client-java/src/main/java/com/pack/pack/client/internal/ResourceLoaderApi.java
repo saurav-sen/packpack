@@ -16,7 +16,7 @@ import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.client.api.MultipartRequestProgressListener;
 
 public class ResourceLoaderApi extends AbstractAPI {
-	
+
 	private Invoker invoker = new Invoker();
 
 	@Override
@@ -24,10 +24,10 @@ public class ResourceLoaderApi extends AbstractAPI {
 		return invoker;
 	}
 
-	private InputStream loadResource(String url, int width, int height, String oAuthToken)
-			throws ClientProtocolException, IOException {
+	private InputStream loadResource(String url, int width, int height,
+			String oAuthToken) throws ClientProtocolException, IOException {
 		DefaultHttpClient client = new DefaultHttpClient();
-		if(url.contains("?")) {
+		if (url.contains("?")) {
 			url = url + "&" + APIConstants.Image.WIDTH + "=" + width + "&"
 					+ APIConstants.Image.HEIGHT + "=" + height;
 		} else {
@@ -35,11 +35,15 @@ public class ResourceLoaderApi extends AbstractAPI {
 					+ APIConstants.Image.HEIGHT + "=" + height;
 		}
 		HttpGet GET = new HttpGet(url);
-		/*HttpParams params = new BasicHttpParams();
-		params.setIntParameter(APIConstants.Image.WIDTH, width);
-		params.setIntParameter(APIConstants.Image.HEIGHT, height);
-		GET.setParams(params);*/
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		HttpResponse response = client.execute(GET);
+		return response.getEntity().getContent();
+	}
+
+	private InputStream loadExternalResource(String url)
+			throws ClientProtocolException, IOException {
+		DefaultHttpClient client = new DefaultHttpClient();
+		HttpGet GET = new HttpGet(url);
 		HttpResponse response = client.execute(GET);
 		return response.getEntity().getContent();
 	}
@@ -58,26 +62,32 @@ public class ResourceLoaderApi extends AbstractAPI {
 			params = configuration.getApiParams();
 			oAuthToken = configuration.getOAuthToken();
 		}
-		
+
 		@Override
 		public Object invoke() throws Exception {
 			return invoke(null);
 		}
 
 		@Override
-		public Object invoke(MultipartRequestProgressListener listener) throws Exception {
+		public Object invoke(MultipartRequestProgressListener listener)
+				throws Exception {
 			if (COMMAND.LOAD_RESOURCE.equals(action)) {
 				String url = (String) params
 						.get(APIConstants.ProtectedResource.RESOURCE_URL);
 				Integer width = (Integer) params.get(APIConstants.Image.WIDTH);
-				if(width == null) {
+				if (width == null) {
 					width = -1;
 				}
-				Integer height = (Integer) params.get(APIConstants.Image.HEIGHT);
-				if(height == null) {
+				Integer height = (Integer) params
+						.get(APIConstants.Image.HEIGHT);
+				if (height == null) {
 					height = -1;
 				}
 				return loadResource(url, width, height, oAuthToken);
+			} else if (COMMAND.LOAD_EXTERNAL_RESOURCE.equals(action)) {
+				String url = (String) params
+						.get(APIConstants.ExternalResource.RESOURCE_URL);
+				return loadExternalResource(url);
 			}
 			return null;
 		}

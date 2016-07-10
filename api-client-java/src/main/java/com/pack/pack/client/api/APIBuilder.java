@@ -99,7 +99,8 @@ public class APIBuilder {
 				|| action == COMMAND.ADD_VIDEO_TO_PACK) {
 			api = new APIWrapper(new AttachmentsApi());
 			api.getInvoker().setConfiguration(config);
-		} else if (action == COMMAND.LOAD_RESOURCE) {
+		} else if (action == COMMAND.LOAD_RESOURCE
+				|| action == COMMAND.LOAD_EXTERNAL_RESOURCE) {
 			api = new APIWrapper(new ResourceLoaderApi());
 			api.getInvoker().setConfiguration(config);
 		} else if (action == COMMAND.GET_ALL_DISCUSSIONS_FOR_TOPIC

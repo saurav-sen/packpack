@@ -1,5 +1,6 @@
 package com.pack.pack.services.es;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.context.annotation.Scope;
@@ -21,16 +22,22 @@ public class SearchService {
 
 	public List<CityLocation> searchCityByName(String pattern)
 			throws PackPackException {
-		return IndexSearchService.INSTANCE.searchCityByName(pattern);
+		// TODO -- call an check this once we add ES infrastructure
+		//return IndexSearchService.INSTANCE.searchCityByName(pattern);
+		return Collections.emptyList();
 	}
 
 	public List<UserDetail> searchUserByName(String pattern)
 			throws PackPackException {
-		return IndexSearchService.INSTANCE.searchUserByName(pattern);
+		// TODO -- call an check this once we add ES infrastructure
+		//return IndexSearchService.INSTANCE.searchUserByName(pattern);
+		return Collections.emptyList();
 	}
 
 	public List<TopicDetail> searchTopic(String pattern)
 			throws PackPackException {
-		return IndexSearchService.INSTANCE.searchTopic(pattern);
+		// TODO -- call an check this once we add ES infrastructure
+		//return IndexSearchService.INSTANCE.searchTopic(pattern);
+		return Collections.emptyList();
 	}
 }

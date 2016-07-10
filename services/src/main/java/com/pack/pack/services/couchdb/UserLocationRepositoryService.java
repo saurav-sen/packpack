@@ -2,6 +2,8 @@ package com.pack.pack.services.couchdb;
 
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.ektorp.CouchDbConnector;
 import org.ektorp.ViewQuery;
 import org.ektorp.support.CouchDbRepositorySupport;
@@ -30,6 +32,11 @@ public class UserLocationRepositoryService extends
 	public UserLocationRepositoryService(
 			@Qualifier("packDB") CouchDbConnector db) {
 		super(UserLocation.class, db);
+	}
+	
+	@PostConstruct
+	public void doInit() {
+		initStandardDesignDocument();
 	}
 
 	public UserLocation findUserLocationById(String userId)
