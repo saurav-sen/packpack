@@ -15,6 +15,7 @@ import javax.ws.rs.ext.Provider;
 import com.pack.pack.IMiscService;
 import com.pack.pack.IPackService;
 import com.pack.pack.common.util.CommonConstants;
+import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.User;
 import com.pack.pack.model.web.EntityType;
@@ -57,7 +58,8 @@ public class PackResource {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public JPack createNewPack(PackDTO dto) throws PackPackException {
+	public JPack createNewPack(String json) throws PackPackException {
+		PackDTO dto = JSONUtil.deserialize(json, PackDTO.class, true);
 		Pack pack = new Pack();
 		pack.setCreatorId(dto.getUserId());
 		pack.setTitle(dto.getTitle());

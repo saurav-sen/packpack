@@ -65,6 +65,7 @@ public class PackApi extends AbstractAPI {
 		String url = BASE_URL + "pack/";
 		HttpPost POST = new HttpPost(url);
 		POST.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		POST.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
 		HttpEntity payload = new StringEntity(JSONUtil.serialize(dto));
 		POST.setEntity(payload);
 		HttpResponse response = client.execute(POST);

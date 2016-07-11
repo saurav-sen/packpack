@@ -107,7 +107,7 @@ public class ModelConverter {
 		String baseURL = (type == PackAttachmentType.IMAGE ? SystemPropertyUtil
 				.getImageAttachmentBaseURL() : SystemPropertyUtil
 				.getVideoAttachmentBaseURL());
-		String thumbnailUrl = attachment.getAttachmentThumbnailUrl();
+/*		String thumbnailUrl = attachment.getAttachmentThumbnailUrl();
 		thumbnailUrl = thumbnailUrl.replaceAll(File.separator,
 				SystemPropertyUtil.URL_SEPARATOR);
 		if (!thumbnailUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)
@@ -121,7 +121,7 @@ public class ModelConverter {
 		} else {
 			thumbnailUrl = baseURL + thumbnailUrl;
 		}
-		jAttachment.setAttachmentThumbnailUrl(thumbnailUrl);
+		jAttachment.setAttachmentThumbnailUrl(thumbnailUrl);*/
 		jAttachment.setAttachmentType(type.name());
 		String url = attachment.getAttachmentUrl();
 		url = url.replaceAll(File.separator, SystemPropertyUtil.URL_SEPARATOR);
