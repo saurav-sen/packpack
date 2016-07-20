@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.UUID;
 
 import javax.imageio.ImageIO;
 import javax.ws.rs.Consumes;
@@ -235,7 +236,8 @@ public class AttachmentResource {
 			@FormDataParam("story") String story,
 			@PathParam("topicId") String topicId,
 			@PathParam("userId") String userId) throws PackPackException {
-		String fileName = aboutFile.getFileName();
+		//String fileName = aboutFile.getFileName();
+		String fileName = UUID.randomUUID().toString();
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
 		return service.uploadPack(file, fileName, title, description, story,
@@ -255,7 +257,8 @@ public class AttachmentResource {
 			@PathParam("userId") String userId) throws PackPackException {
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
-		return service.updatePack(file, aboutFile.getFileName(),
+		String fileName = UUID.randomUUID().toString();
+		return service.updatePack(file, fileName,
 				PackAttachmentType.IMAGE, packId, topicId, userId);
 	}
 
@@ -270,7 +273,8 @@ public class AttachmentResource {
 			@FormDataParam("story") String story,
 			@PathParam("topicId") String topicId,
 			@PathParam("userId") String userId) throws PackPackException {
-		String fileName = aboutFile.getFileName();
+		//String fileName = aboutFile.getFileName();
+		String fileName = UUID.randomUUID().toString();
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
 		return service.uploadPack(file, fileName, title, description, story,
@@ -288,7 +292,8 @@ public class AttachmentResource {
 			@PathParam("userId") String userId) throws PackPackException {
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
-		return service.updatePack(file, aboutFile.getFileName(),
+		String fileName = UUID.randomUUID().toString();
+		return service.updatePack(file, fileName,
 				PackAttachmentType.VIDEO, packId, topicId, userId);
 	}
 }
