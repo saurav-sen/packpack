@@ -8,6 +8,7 @@ import javax.ws.rs.ext.Provider;
 
 import com.pack.pack.model.web.Info;
 import com.pack.pack.model.web.SystemInfo;
+import com.pack.pack.rest.api.security.interceptors.Compress;
 import com.pack.pack.util.SystemPropertyUtil;
 
 /**
@@ -20,6 +21,7 @@ import com.pack.pack.util.SystemPropertyUtil;
 public class SystemInfoResource {
 
 	@GET
+	@Compress
 	@Produces(value=MediaType.APPLICATION_JSON)
 	public SystemInfo getSystemInfo() {
 		SystemInfo sysInfo = new SystemInfo();

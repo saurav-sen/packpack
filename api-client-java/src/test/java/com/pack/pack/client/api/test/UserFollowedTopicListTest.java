@@ -11,6 +11,8 @@ import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.Pagination;
 
+import static com.pack.pack.client.api.test.TestConstants.BASE_URL;
+
 /**
  * 
  * @author Saurav
@@ -24,7 +26,7 @@ public class UserFollowedTopicListTest {
 
 	public void beforeTest() throws Exception {
 		oAuthToken = SignInUtil.signIn();
-		API api = APIBuilder.create().setAction(COMMAND.GET_USER_BY_USERNAME)
+		API api = APIBuilder.create(BASE_URL).setAction(COMMAND.GET_USER_BY_USERNAME)
 				.setOauthToken(oAuthToken)
 				.addApiParam(APIConstants.User.USERNAME, SignInUtil.USERNAME)
 				.build();
@@ -36,7 +38,7 @@ public class UserFollowedTopicListTest {
 	public Pagination<JTopic> testUserFollowedTopicList() {
 		Pagination<JTopic> page = null;
 		try {
-			API api = APIBuilder.create()
+			API api = APIBuilder.create(BASE_URL)
 					.setAction(COMMAND.GET_USER_FOLLOWED_TOPIC_LIST)
 					.setOauthToken(oAuthToken)
 					.addApiParam(APIConstants.PageInfo.PAGE_LINK, "FIRST_PAGE")

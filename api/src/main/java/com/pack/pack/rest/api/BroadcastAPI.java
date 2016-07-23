@@ -18,6 +18,7 @@ import com.pack.pack.IPackService;
 import com.pack.pack.common.util.CommonConstants;
 import com.pack.pack.model.PackAttachmentType;
 import com.pack.pack.model.web.JPack;
+import com.pack.pack.rest.api.security.interceptors.Compress;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.rabbitmq.objects.BroadcastCriteria;
 import com.pack.pack.services.registry.ServiceRegistry;
@@ -32,6 +33,7 @@ import com.pack.pack.services.registry.ServiceRegistry;
 public class BroadcastAPI {
 
 	@POST
+	@Compress
 	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
 	@Produces(value=MediaType.APPLICATION_JSON)
 	public JPack broadcastImagePack(@FormDataParam("file") InputStream file,

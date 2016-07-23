@@ -62,7 +62,7 @@
 		</dependency>
 	</dependencies>
 	<build>
-	<finalName>${project.artifactId}-${project.version}</finalName>
+		<finalName>${project.artifactId}-${project.version}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -174,7 +174,39 @@
 					<include>META-INF/*.properties</include>
 					<include>META-INF/*.json</include>
 				</includes>
+				<filtering>true</filtering>
 			</resource>
 		</resources>
 	</build>
+	<profiles>
+	    <profile>
+	      <id>development</id>
+	      <properties>
+	        <couchdb.url>http://192.168.35.12:5984/</couchdb.url>
+	        <couchdb.username>sourabhnits</couchdb.username>
+	        <couchdb.password>P@$$w0rd4SQui11</couchdb.password>
+	        <couchdb.enableSSL>false</couchdb.enableSSL>
+	        <couchdb.relaxedSSLSettings>true</couchdb.relaxedSSLSettings>
+	        <couchdb.maxConnections>20</couchdb.maxConnections>
+	        <couchdb.connectionTimeout>1000</couchdb.connectionTimeout>
+	        <couchdb.socketTimeout>10000</couchdb.socketTimeout>
+	        <couchdb.autoUpdateViewOnChange>true</couchdb.autoUpdateViewOnChange>
+	      </properties>
+	    </profile>
+	    <!-- Production environment @ production server -->
+	    <profile>
+	      <id>production</id>
+	      <properties>
+	        <couchdb.url>https://ritgho.cloudant.com/</couchdb.url>
+	        <couchdb.username>ritgho</couchdb.username>
+	        <couchdb.password>P@$$w0rd4sQui11</couchdb.password>
+	        <couchdb.enableSSL>true</couchdb.enableSSL>
+	        <couchdb.relaxedSSLSettings>true</couchdb.relaxedSSLSettings>
+	        <couchdb.maxConnections>20</couchdb.maxConnections>
+	        <couchdb.connectionTimeout>1000</couchdb.connectionTimeout>
+	        <couchdb.socketTimeout>10000</couchdb.socketTimeout>
+	        <couchdb.autoUpdateViewOnChange>true</couchdb.autoUpdateViewOnChange>
+	      </properties>
+	    </profile>
+	  </profiles>
 </project>

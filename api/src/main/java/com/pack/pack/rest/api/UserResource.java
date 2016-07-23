@@ -19,6 +19,7 @@ import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.JUsers;
 import com.pack.pack.model.web.dto.SignupDTO;
+import com.pack.pack.rest.api.security.interceptors.Compress;
 import com.pack.pack.security.util.EncryptionUtil;
 import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.es.SearchService;
@@ -36,6 +37,7 @@ import com.pack.pack.util.ModelConverter;
 public class UserResource {
 
 	@GET
+	@Compress
 	@Path("id/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public JUser getUserById(@PathParam("id") String id)
@@ -48,6 +50,7 @@ public class UserResource {
 	}
 
 	@GET
+	@Compress
 	@Path("username/{username}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public JUser getUserByUsername(@PathParam("username") String username)
@@ -64,6 +67,7 @@ public class UserResource {
 	}
 
 	@GET
+	@Compress
 	@Path("name/{namePattern}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public JUsers getUsersByName(@PathParam("namePattern") String namePattern)

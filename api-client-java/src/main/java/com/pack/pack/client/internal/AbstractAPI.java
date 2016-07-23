@@ -8,7 +8,7 @@ import com.pack.pack.client.api.MultipartRequestProgressListener;
  * @author Saurav
  *
  */
-public abstract class AbstractAPI implements API {
+abstract class AbstractAPI implements API {
 
 	protected abstract ApiInvoker getInvoker();
 	

@@ -2,7 +2,6 @@ package com.pack.pack.client.internal;
 
 import static com.pack.pack.client.api.APIConstants.APPLICATION_JSON;
 import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
-import static com.pack.pack.client.api.APIConstants.BASE_URL;
 import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
 
 import java.util.List;
@@ -40,7 +39,11 @@ import com.pack.pack.model.web.dto.PackReceipentType;
  * @author Saurav
  *
  */
-public class PackApi extends AbstractAPI {
+class PackApi extends BaseAPI {
+
+	PackApi(String baseUrl) {
+		super(baseUrl);
+	}
 
 	private Invoker invoker = new Invoker();
 
@@ -52,50 +55,56 @@ public class PackApi extends AbstractAPI {
 	private JPack getPackById(String packId, String oAuthToken)
 			throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + "pack/" + packId;
+		String url = getBaseUrl() + "pack/" + packId;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				JPack.class);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JPack.class);
 	}
-	
-	private JPack createNewPack(PackDTO dto, String oAuthToken) throws Exception {
+
+	private JPack createNewPack(PackDTO dto, String oAuthToken)
+			throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + "pack/";
+		String url = getBaseUrl() + "pack/";
 		HttpPost POST = new HttpPost(url);
 		POST.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		POST.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
 		HttpEntity payload = new StringEntity(JSONUtil.serialize(dto));
 		POST.setEntity(payload);
 		HttpResponse response = client.execute(POST);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				JPack.class);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JPack.class);
 	}
 
 	@SuppressWarnings("unchecked")
 	private Pagination<JPack> getAllLatestPackInDefaultTopics(String userId,
 			String pageLink, String oAuthToken) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + "pack/" + "usr/" + userId + "/page/" + pageLink;
+		String url = getBaseUrl() + "pack/" + "usr/" + userId + "/page/"
+				+ pageLink;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				Pagination.class);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), Pagination.class);
 	}
 
 	@SuppressWarnings("unchecked")
 	private Pagination<JPack> getAllPacksInTopic(String userId, String topicId,
 			String pageLink, String oAuthToken) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + "pack/" + "usr/" + userId + "/topic/" + topicId
-				+ "/page/" + pageLink;
+		String url = getBaseUrl() + "pack/" + "usr/" + userId + "/topic/"
+				+ topicId + "/page/" + pageLink;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
-		Pagination<JPack> page = JSONUtil.deserialize(
-				EntityUtils.toString(response.getEntity()), Pagination.class);
+		Pagination<JPack> page = JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), Pagination.class);
 		List<JPack> result = page.getResult();
 		String json = "{\"packs\": " + JSONUtil.serialize(result, false) + "}";
 		JPacks packs = JSONUtil.deserialize(json, JPacks.class);
@@ -107,13 +116,13 @@ public class PackApi extends AbstractAPI {
 	private JPackAttachment getPackAttachmentById(String id, String oAuthToken)
 			throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + "pack/items/" + id;
+		String url = getBaseUrl() + "pack/items/" + id;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
-		JPackAttachment attachment = JSONUtil.deserialize(
-				EntityUtils.toString(response.getEntity()),
-				JPackAttachment.class);
+		JPackAttachment attachment = JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JPackAttachment.class);
 		return attachment;
 	}
 
@@ -122,13 +131,14 @@ public class PackApi extends AbstractAPI {
 			String topicId, String packId, String pageLink, String oAuthToken)
 			throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + "pack/items/" + "usr/" + userId + "/topic/"
+		String url = getBaseUrl() + "pack/items/" + "usr/" + userId + "/topic/"
 				+ topicId + "/pack/" + packId + "/page/" + pageLink;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
-		Pagination<JPackAttachment> page = JSONUtil.deserialize(
-				EntityUtils.toString(response.getEntity()), Pagination.class);
+		Pagination<JPackAttachment> page = JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), Pagination.class);
 		List<JPackAttachment> result = page.getResult();
 		String json = "{\"attachments\": " + JSONUtil.serialize(result, false)
 				+ "}";
@@ -142,7 +152,7 @@ public class PackApi extends AbstractAPI {
 	private JStatus forwardPack(String packId, String fromUserId,
 			String toUserId, String oAuthToken) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + "pack/" + packId;
+		String url = getBaseUrl() + "pack/" + packId;
 		HttpPut PUT = new HttpPut(url);
 		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
@@ -156,26 +166,28 @@ public class PackApi extends AbstractAPI {
 		HttpEntity jsonBody = new StringEntity(json);
 		PUT.setEntity(jsonBody);
 		HttpResponse response = client.execute(PUT);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				JStatus.class);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JStatus.class);
 	}
 
 	private JStatus forwardPackOverEMail(String packId, String fromUserId,
 			String toUserEmail, String oAuthToken) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + "pack/" + packId + "/email/" + fromUserId + "/"
-				+ toUserEmail;
+		String url = getBaseUrl() + "pack/" + packId + "/email/" + fromUserId
+				+ "/" + toUserEmail;
 		HttpPut PUT = new HttpPut(url);
 		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(PUT);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				JStatus.class);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JStatus.class);
 	}
 
 	private JComment addComment(CommentDTO commentDTO, String oAuthToken)
 			throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + "pack/comment";
+		String url = getBaseUrl() + "pack/comment";
 		HttpPut PUT = new HttpPut(url);
 		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
@@ -183,14 +195,15 @@ public class PackApi extends AbstractAPI {
 		HttpEntity jsonBody = new StringEntity(json);
 		PUT.setEntity(jsonBody);
 		HttpResponse response = client.execute(PUT);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				JComment.class);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JComment.class);
 	}
 
 	private JStatus addLikeToPack(LikeDTO dto, String oAuthToken)
 			throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + "pack/favourite";
+		String url = getBaseUrl() + "pack/favourite";
 		HttpPut PUT = new HttpPut(url);
 		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
@@ -198,8 +211,9 @@ public class PackApi extends AbstractAPI {
 		HttpEntity jsonBody = new StringEntity(json);
 		PUT.setEntity(jsonBody);
 		HttpResponse response = client.execute(PUT);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				JStatus.class);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JStatus.class);
 	}
 
 	private class Invoker implements ApiInvoker {
@@ -216,14 +230,15 @@ public class PackApi extends AbstractAPI {
 			params = configuration.getApiParams();
 			oAuthToken = configuration.getOAuthToken();
 		}
-		
+
 		@Override
 		public Object invoke() throws Exception {
 			return invoke(null);
 		}
 
 		@Override
-		public Object invoke(MultipartRequestProgressListener listener) throws Exception {
+		public Object invoke(MultipartRequestProgressListener listener)
+				throws Exception {
 			Object result = null;
 			if (COMMAND.GET_PACK_BY_ID.equals(action)) {
 				String packId = (String) params.get(APIConstants.Pack.ID);
@@ -318,7 +333,7 @@ public class PackApi extends AbstractAPI {
 				dto.setUserId(userId);
 				dto.setEntityType("PACK_ATTACHMENT");
 				result = addLikeToPack(dto, oAuthToken);
-			} else if(COMMAND.CREATE_NEW_PACK.equals(action)) {
+			} else if (COMMAND.CREATE_NEW_PACK.equals(action)) {
 				String story = (String) params.get(APIConstants.Pack.STORY);
 				String title = (String) params.get(APIConstants.Pack.TITLE);
 				String topicId = (String) params.get(APIConstants.Topic.ID);

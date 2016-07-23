@@ -2,7 +2,6 @@ package com.pack.pack.client.internal;
 
 import static com.pack.pack.client.api.APIConstants.APPLICATION_JSON;
 import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
-import static com.pack.pack.client.api.APIConstants.BASE_URL;
 import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
 
 import java.util.Map;
@@ -31,10 +30,14 @@ import com.pack.pack.model.web.dto.PackReceipentType;
  * @author Saurav
  *
  */
-public class EGiftApi extends AbstractAPI {
+class EGiftApi extends BaseAPI {
+
+	EGiftApi(String baseUrl) {
+		super(baseUrl);
+	}
 
 	private static final String EGIFTS = "egifts/";
-	
+
 	private Invoker invoker = new Invoker();
 
 	@Override
@@ -45,44 +48,47 @@ public class EGiftApi extends AbstractAPI {
 	private JeGift getEGiftById(String egiftId, String oAuthToken)
 			throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + EGIFTS + egiftId;
+		String url = getBaseUrl() + EGIFTS + egiftId;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				JeGift.class);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JeGift.class);
 	}
 
 	@SuppressWarnings("unchecked")
 	private Pagination<JeGift> getAllEGiftsByBrandId(String brandId,
 			String pageLink, String oAuthToken) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + EGIFTS + "brand/" + brandId + "/page/"
+		String url = getBaseUrl() + EGIFTS + "brand/" + brandId + "/page/"
 				+ pageLink;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				Pagination.class);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), Pagination.class);
 	}
 
 	@SuppressWarnings("unchecked")
 	private Pagination<JeGift> getAllEGiftsByCategory(String category,
 			String pageLink, String oAuthToken) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + EGIFTS + "category/" + category + "/page/"
+		String url = getBaseUrl() + EGIFTS + "category/" + category + "/page/"
 				+ pageLink;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				Pagination.class);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), Pagination.class);
 	}
 
 	private JStatus forwardEGift(EGiftForwardDTO dto, String egiftId,
 			String oAuthToken) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + EGIFTS + egiftId;
+		String url = getBaseUrl() + EGIFTS + egiftId;
 		HttpPut PUT = new HttpPut(url);
 		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
@@ -90,8 +96,9 @@ public class EGiftApi extends AbstractAPI {
 		HttpEntity jsonBody = new StringEntity(json);
 		PUT.setEntity(jsonBody);
 		HttpResponse response = client.execute(PUT);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				JStatus.class);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JStatus.class);
 	}
 
 	private class Invoker implements ApiInvoker {
@@ -108,14 +115,15 @@ public class EGiftApi extends AbstractAPI {
 			params = configuration.getApiParams();
 			oAuthToken = configuration.getOAuthToken();
 		}
-		
+
 		@Override
 		public Object invoke() throws Exception {
 			return invoke(null);
 		}
 
 		@Override
-		public Object invoke(MultipartRequestProgressListener listener) throws Exception {
+		public Object invoke(MultipartRequestProgressListener listener)
+				throws Exception {
 			Object result = null;
 			if (COMMAND.GET_EGIFT_BY_ID.equals(action)) {
 				String egiftId = (String) params.get(APIConstants.EGift.ID);

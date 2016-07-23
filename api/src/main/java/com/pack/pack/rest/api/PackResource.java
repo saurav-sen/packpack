@@ -31,6 +31,7 @@ import com.pack.pack.model.web.dto.LikeDTO;
 import com.pack.pack.model.web.dto.PackDTO;
 import com.pack.pack.model.web.dto.PackReceipent;
 import com.pack.pack.model.web.dto.PackReceipentType;
+import com.pack.pack.rest.api.security.interceptors.Compress;
 import com.pack.pack.services.couchdb.PackRepositoryService;
 import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.exception.PackPackException;
@@ -47,6 +48,7 @@ import com.pack.pack.services.registry.ServiceRegistry;
 public class PackResource {
 
 	@GET
+	@Compress
 	@Path("{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public JPack getById(@PathParam("id") String id) throws PackPackException {
@@ -56,6 +58,7 @@ public class PackResource {
 	}
 
 	@POST
+	@Compress
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public JPack createNewPack(String json) throws PackPackException {
@@ -71,6 +74,7 @@ public class PackResource {
 	}
 
 	@GET
+	@Compress
 	@Path("usr/{userId}/page/{pageLink}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Pagination<JPack> getAll(@PathParam("userId") String userId,
@@ -79,6 +83,7 @@ public class PackResource {
 	}
 
 	@GET
+	@Compress
 	@Path("usr/{userId}/topic/{topicId}/page/{pageLink}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Pagination<JPack> getAll(@PathParam("userId") String userId,
@@ -90,6 +95,7 @@ public class PackResource {
 	}
 
 	@GET
+	@Compress
 	@Path("items/usr/{userId}/topic/{topicId}/pack/{packId}/page/{pageLink}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Pagination<JPackAttachment> getAllAttachments(
@@ -103,6 +109,7 @@ public class PackResource {
 	}
 
 	@GET
+	@Compress
 	@Path("items/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public JPackAttachment getPackAttachmentById(@PathParam("id") String id)

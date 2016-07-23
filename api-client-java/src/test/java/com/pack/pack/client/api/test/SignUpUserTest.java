@@ -7,6 +7,8 @@ import com.pack.pack.client.api.APIBuilder;
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
 
+import static com.pack.pack.client.api.test.TestConstants.BASE_URL;
+
 /**
  * 
  * @author Saurav
@@ -25,7 +27,7 @@ public class SignUpUserTest {
 	public void signUp() {
 		try {
 			API api = APIBuilder
-					.create()
+					.create(BASE_URL)
 					.setAction(COMMAND.SIGN_UP)
 					.addApiParam(APIConstants.User.Register.NAME, NAME)
 					.addApiParam(APIConstants.User.Register.EMAIL, SignInUtil.USERNAME)

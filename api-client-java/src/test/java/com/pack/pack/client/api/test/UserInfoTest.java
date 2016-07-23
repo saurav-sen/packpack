@@ -6,6 +6,8 @@ import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.model.web.JUser;
 
+import static com.pack.pack.client.api.test.TestConstants.BASE_URL;
+
 /**
  * 
  * @author Saurav
@@ -22,7 +24,7 @@ public class UserInfoTest {
 	public void testUserInfo() {
 		try {
 			API api = APIBuilder
-					.create()
+					.create(BASE_URL)
 					.setAction(COMMAND.GET_USER_BY_USERNAME)
 					.setOauthToken(oAuthToken)
 					.addApiParam(APIConstants.User.USERNAME,
@@ -30,7 +32,7 @@ public class UserInfoTest {
 			JUser user = (JUser) api.execute();
 			String id = user.getId();
 			
-			api = APIBuilder.create().setAction(COMMAND.GET_USER_BY_ID)
+			api = APIBuilder.create(BASE_URL).setAction(COMMAND.GET_USER_BY_ID)
 					.setOauthToken(oAuthToken)
 					.addApiParam(APIConstants.User.ID, id).build();
 			user = (JUser) api.execute();

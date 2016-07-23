@@ -2,7 +2,6 @@ package com.pack.pack.client.internal;
 
 import static com.pack.pack.client.api.APIConstants.APPLICATION_JSON;
 import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
-import static com.pack.pack.client.api.APIConstants.BASE_URL;
 import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
 
 import java.io.File;
@@ -44,7 +43,11 @@ import com.pack.pack.services.exception.PackPackException;
  * @author Saurav
  *
  */
-public class UserManagementApi extends AbstractAPI {
+class UserManagementApi extends BaseAPI {
+
+	UserManagementApi(String baseUrl) {
+		super(baseUrl);
+	}
 
 	/*private static final String OAUTH_REQUEST_TOKEN_PATH = "oauth/request_token"; //$NON-NLS-1$
 	private static final String OAUTH_ACCESS_TOKEN_PATH = "oauth/access_token"; //$NON-NLS-1$
@@ -110,12 +113,12 @@ public class UserManagementApi extends AbstractAPI {
 	private JUser searchUserByName(String namePattern, String accessToken)
 			throws ClientProtocolException, IOException, ParseException,
 			PackPackException {
-		String url = BASE_URL + "user/name/" + namePattern;
+		String url = getBaseUrl() + "user/name/" + namePattern;
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, accessToken);
 		HttpResponse response = client.execute(GET);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
+		return JSONUtil.deserialize(EntityUtils.toString(GZipUtil.decompress(response.getEntity())),
 				JUser.class);
 	}
 
@@ -123,31 +126,31 @@ public class UserManagementApi extends AbstractAPI {
 			String accessToken) throws ClientProtocolException, IOException,
 			ParseException, PackPackException {
 		String username = (String) params.get(APIConstants.User.USERNAME);
-		String url = BASE_URL + "user/username/" + username;
+		String url = getBaseUrl() + "user/username/" + username;
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, accessToken);
 		HttpResponse response = client.execute(GET);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
+		return JSONUtil.deserialize(EntityUtils.toString(GZipUtil.decompress(response.getEntity())),
 				JUser.class);
 	}
 
 	private JUser getUserById(Map<String, Object> params, String accessToken)
 			throws ClientProtocolException, IOException, PackPackException {
 		String id = (String) params.get(APIConstants.User.ID);
-		String url = BASE_URL + "user/id/" + id;
+		String url = getBaseUrl() + "user/id/" + id;
 		HttpClient client = new DefaultHttpClient();
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, accessToken);
 		HttpResponse response = client.execute(GET);
-		String json = EntityUtils.toString(response.getEntity());
+		String json = EntityUtils.toString(GZipUtil.decompress(response.getEntity()));
 		return JSONUtil.deserialize(json, JUser.class);
 	}
 	
 	private JStatus signUp(Map<String, Object> params)
 			throws ClientProtocolException, IOException, ParseException,
 			PackPackException {
-		String url = BASE_URL + "user";
+		String url = getBaseUrl() + "user";
 		DefaultHttpClient client = new DefaultHttpClient();
 		Object attachment = params.get(APIConstants.User.Register.PROFILE_PICTURE);
 		if(attachment != null) {
@@ -197,7 +200,7 @@ public class UserManagementApi extends AbstractAPI {
 		/*POST.addHeader("Content-Type",
 				ContentType.MULTIPART_FORM_DATA.getMimeType());*/
 		HttpResponse response = client.execute(POST);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
+		return JSONUtil.deserialize(EntityUtils.toString(GZipUtil.decompress(response.getEntity())),
 				JStatus.class);
 	}
 
@@ -217,7 +220,7 @@ public class UserManagementApi extends AbstractAPI {
 		OAuth1ClientCredentials consumerCredentials = new OAuth1ClientCredentials(
 				clientKey, clientSecret);
 		OAuth1RequestFlow authFlow = OAuth1Support.builder(consumerCredentials,
-				BASE_URL).build();
+				getBaseUrl()).build();
 		String authorizationUri = authFlow.start();
 
 		String query = URI.create(authorizationUri).getQuery();

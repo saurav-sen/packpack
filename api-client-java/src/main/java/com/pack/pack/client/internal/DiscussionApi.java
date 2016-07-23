@@ -2,7 +2,6 @@ package com.pack.pack.client.internal;
 
 import static com.pack.pack.client.api.APIConstants.APPLICATION_JSON;
 import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
-import static com.pack.pack.client.api.APIConstants.BASE_URL;
 import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
 
 import java.util.List;
@@ -35,7 +34,11 @@ import com.pack.pack.model.web.dto.LikeDTO;
  * @author Saurav
  *
  */
-public class DiscussionApi extends AbstractAPI {
+class DiscussionApi extends BaseAPI {
+
+	DiscussionApi(String baseUrl) {
+		super(baseUrl);
+	}
 
 	private Invoker invoker = new Invoker();
 
@@ -48,18 +51,21 @@ public class DiscussionApi extends AbstractAPI {
 	private Pagination<JDiscussion> getAllDiscussionsForTopic(String topicId,
 			String userId, String pageLink, String oAuthToken) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + "discussion/topic/" + topicId + "/usr/"
+		String url = getBaseUrl() + "discussion/topic/" + topicId + "/usr/"
 				+ userId + "/page/" + pageLink;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
-		Pagination<JDiscussion> page = JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				Pagination.class);
-		if(page == null)
+		Pagination<JDiscussion> page = JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), Pagination.class);
+		if (page == null)
 			return page;
 		List<JDiscussion> result = page.getResult();
-		String json = "{\"discussions\": " + JSONUtil.serialize(result, false) + "}";
-		JDiscussions discussions = JSONUtil.deserialize(json, JDiscussions.class);
+		String json = "{\"discussions\": " + JSONUtil.serialize(result, false)
+				+ "}";
+		JDiscussions discussions = JSONUtil.deserialize(json,
+				JDiscussions.class);
 		result = discussions.getDiscussions();
 		page.setResult(result);
 		return page;
@@ -69,18 +75,21 @@ public class DiscussionApi extends AbstractAPI {
 	private Pagination<JDiscussion> getAllDiscussionsForPack(String packId,
 			String userId, String pageLink, String oAuthToken) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + "discussion/pack/" + packId + "/usr/" + userId
-				+ "/page/" + pageLink;
+		String url = getBaseUrl() + "discussion/pack/" + packId + "/usr/"
+				+ userId + "/page/" + pageLink;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
-		Pagination<JDiscussion> page = JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				Pagination.class);
-		if(page == null)
+		Pagination<JDiscussion> page = JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), Pagination.class);
+		if (page == null)
 			return page;
 		List<JDiscussion> result = page.getResult();
-		String json = "{\"discussions\": " + JSONUtil.serialize(result, false) + "}";
-		JDiscussions discussions = JSONUtil.deserialize(json, JDiscussions.class);
+		String json = "{\"discussions\": " + JSONUtil.serialize(result, false)
+				+ "}";
+		JDiscussions discussions = JSONUtil.deserialize(json,
+				JDiscussions.class);
 		result = discussions.getDiscussions();
 		page.setResult(result);
 		return page;
@@ -92,7 +101,7 @@ public class DiscussionApi extends AbstractAPI {
 		DiscussionDTO dto = new DiscussionDTO();
 		dto.setTitle(title);
 		dto.setContent(content);
-		String url = BASE_URL + "discussion/topic/" + topicId + "/usr/"
+		String url = getBaseUrl() + "discussion/topic/" + topicId + "/usr/"
 				+ userId;
 		HttpPut PUT = new HttpPut(url);
 		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
@@ -101,8 +110,9 @@ public class DiscussionApi extends AbstractAPI {
 		HttpEntity jsonBody = new StringEntity(json);
 		PUT.setEntity(jsonBody);
 		HttpResponse response = client.execute(PUT);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				JDiscussion.class);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JDiscussion.class);
 	}
 
 	private JDiscussion startDiscussionOnPack(String packId, String userId,
@@ -111,7 +121,8 @@ public class DiscussionApi extends AbstractAPI {
 		DiscussionDTO dto = new DiscussionDTO();
 		dto.setTitle(title);
 		dto.setContent(content);
-		String url = BASE_URL + "discussion/pack/" + packId + "/usr/" + userId;
+		String url = getBaseUrl() + "discussion/pack/" + packId + "/usr/"
+				+ userId;
 		HttpPut PUT = new HttpPut(url);
 		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
@@ -119,8 +130,9 @@ public class DiscussionApi extends AbstractAPI {
 		HttpEntity jsonBody = new StringEntity(json);
 		PUT.setEntity(jsonBody);
 		HttpResponse response = client.execute(PUT);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				JDiscussion.class);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JDiscussion.class);
 	}
 
 	private JDiscussion addReplyToDiscussion(String discussionId,
@@ -131,7 +143,7 @@ public class DiscussionApi extends AbstractAPI {
 		dto.setComment(content);
 		dto.setEntityId(discussionId);
 		dto.setFromUserId(userId);
-		String url = BASE_URL + "discussion/" + discussionId;
+		String url = getBaseUrl() + "discussion/" + discussionId;
 		HttpPut PUT = new HttpPut(url);
 		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
@@ -139,25 +151,27 @@ public class DiscussionApi extends AbstractAPI {
 		HttpEntity jsonBody = new StringEntity(json);
 		PUT.setEntity(jsonBody);
 		HttpResponse response = client.execute(PUT);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				JDiscussion.class);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JDiscussion.class);
 	}
 
 	private JDiscussion getDiscussionById(String discussionId, String userId,
 			String oAuthToken) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + "discussion/" + discussionId;
+		String url = getBaseUrl() + "discussion/" + discussionId;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				JDiscussion.class);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JDiscussion.class);
 	}
 
 	private JStatus addLikeToDiscussion(String discussionId, String userId,
 			EntityType type, String oAuthToken) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + "discussion/favourite/" + discussionId;
+		String url = getBaseUrl() + "discussion/favourite/" + discussionId;
 		HttpPost POST = new HttpPost(url);
 		POST.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		LikeDTO dto = new LikeDTO();
@@ -167,14 +181,16 @@ public class DiscussionApi extends AbstractAPI {
 		HttpEntity jsonBody = new StringEntity(json);
 		POST.setEntity(jsonBody);
 		HttpResponse response = client.execute(POST);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				JStatus.class);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JStatus.class);
 	}
 
 	private JStatus addLikeToReply(String discussionId, String userId,
 			EntityType type, String oAuthToken) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + "discussion/favourite/reply/" + discussionId;
+		String url = getBaseUrl() + "discussion/favourite/reply/"
+				+ discussionId;
 		HttpPost POST = new HttpPost(url);
 		POST.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		LikeDTO dto = new LikeDTO();
@@ -184,8 +200,9 @@ public class DiscussionApi extends AbstractAPI {
 		HttpEntity jsonBody = new StringEntity(json);
 		POST.setEntity(jsonBody);
 		HttpResponse response = client.execute(POST);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				JStatus.class);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JStatus.class);
 	}
 
 	private class Invoker implements ApiInvoker {

@@ -10,6 +10,7 @@ import javax.ws.rs.ext.Provider;
 import com.pack.pack.IRssFeedService;
 import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.Pagination;
+import com.pack.pack.rest.api.security.interceptors.Compress;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 
@@ -23,6 +24,7 @@ import com.pack.pack.services.registry.ServiceRegistry;
 public class DefaultTopicResource {
 
 	@GET
+	@Compress
 	@Path("usr/{userId}/page/{pageLink}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Pagination<JRssFeed> getRssFeeds(@PathParam("userId") String userId,

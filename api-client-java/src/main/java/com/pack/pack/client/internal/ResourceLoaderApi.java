@@ -15,7 +15,11 @@ import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.client.api.MultipartRequestProgressListener;
 
-public class ResourceLoaderApi extends AbstractAPI {
+class ResourceLoaderApi extends BaseAPI {
+
+	ResourceLoaderApi(String baseUrl) {
+		super(baseUrl);
+	}
 
 	private Invoker invoker = new Invoker();
 
@@ -37,7 +41,7 @@ public class ResourceLoaderApi extends AbstractAPI {
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
-		return response.getEntity().getContent();
+		return GZipUtil.decompress(response.getEntity()).getContent();
 	}
 
 	private InputStream loadExternalResource(String url)
@@ -45,7 +49,7 @@ public class ResourceLoaderApi extends AbstractAPI {
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpGet GET = new HttpGet(url);
 		HttpResponse response = client.execute(GET);
-		return response.getEntity().getContent();
+		return GZipUtil.decompress(response.getEntity()).getContent();
 	}
 
 	private class Invoker implements ApiInvoker {

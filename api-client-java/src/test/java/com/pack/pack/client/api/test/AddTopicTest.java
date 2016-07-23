@@ -8,6 +8,8 @@ import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.model.web.JTopic;
 
+import static com.pack.pack.client.api.test.TestConstants.BASE_URL;
+
 /**
  * 
  * @author Saurav
@@ -24,7 +26,7 @@ public class AddTopicTest extends UserFollowedTopicListTest {
 	public void createNewTopic() {
 		try {
 			API api = APIBuilder
-					.create()
+					.create(BASE_URL)
 					.setAction(COMMAND.CREATE_NEW_TOPIC)
 					.setOauthToken(oAuthToken)
 					.addApiParam(APIConstants.Topic.OWNER_ID, userId)
@@ -36,7 +38,7 @@ public class AddTopicTest extends UserFollowedTopicListTest {
 							new File(TOPIC_WALLPAPER)).build();
 			JTopic topic = (JTopic) api.execute();
 
-			api = APIBuilder.create().setAction(COMMAND.GET_TOPIC_BY_ID)
+			api = APIBuilder.create(BASE_URL).setAction(COMMAND.GET_TOPIC_BY_ID)
 					.setOauthToken(oAuthToken)
 					.addApiParam(APIConstants.Topic.ID, topic.getId()).build();
 			topic = (JTopic) api.execute();

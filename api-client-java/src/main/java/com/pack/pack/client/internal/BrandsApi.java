@@ -1,7 +1,6 @@
 package com.pack.pack.client.internal;
 
 import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
-import static com.pack.pack.client.api.APIConstants.BASE_URL;
 
 import java.util.Map;
 
@@ -21,10 +20,14 @@ import com.pack.pack.model.web.JBrands;
  * @author Saurav
  *
  */
-public class BrandsApi extends AbstractAPI {
+class BrandsApi extends BaseAPI {
+
+	BrandsApi(String baseUrl) {
+		super(baseUrl);
+	}
 
 	private static final String BRANDS = "/brands/";
-	
+
 	private Invoker invoker = new Invoker();
 
 	@Override
@@ -35,12 +38,13 @@ public class BrandsApi extends AbstractAPI {
 	public JBrands getBrandsInfo(String companyName, String oAuthToken)
 			throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + BRANDS + "companyName/" + companyName;
+		String url = getBaseUrl() + BRANDS + "companyName/" + companyName;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				JBrands.class);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JBrands.class);
 	}
 
 	private class Invoker implements ApiInvoker {
@@ -57,14 +61,15 @@ public class BrandsApi extends AbstractAPI {
 			params = configuration.getApiParams();
 			oAuthToken = configuration.getOAuthToken();
 		}
-		
+
 		@Override
 		public Object invoke() throws Exception {
 			return invoke(null);
 		}
 
 		@Override
-		public Object invoke(MultipartRequestProgressListener listener) throws Exception {
+		public Object invoke(MultipartRequestProgressListener listener)
+				throws Exception {
 			Object result = null;
 			if (COMMAND.SEARCH_BRANDS_INFO.equals(action)) {
 				String companyName = (String) params

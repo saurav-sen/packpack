@@ -5,11 +5,11 @@ package com.pack.pack.client.internal;
  * @author Saurav
  *
  */
-public class APIWrapper extends AbstractAPI {
+class APIWrapper extends AbstractAPI {
 
-	private AbstractAPI api;
+	private BaseAPI api;
 
-	public APIWrapper(AbstractAPI api) {
+	APIWrapper(BaseAPI api) {
 		this.api = api;
 	}
 

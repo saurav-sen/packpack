@@ -1,7 +1,6 @@
 package com.pack.pack.client.internal;
 
 import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
-import static com.pack.pack.client.api.APIConstants.BASE_URL;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +34,11 @@ import com.pack.pack.services.exception.PackPackException;
  * @author Saurav
  *
  */
-public class AttachmentsApi extends AbstractAPI {
+class AttachmentsApi extends BaseAPI {
+
+	AttachmentsApi(String baseUrl) {
+		super(baseUrl);
+	}
 
 	private static final String ATTACHMENT = "attachment/";
 
@@ -49,7 +52,7 @@ public class AttachmentsApi extends AbstractAPI {
 	private HttpResponse getProfilePicture(String userId, String fileName,
 			String oAuthToken) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + ATTACHMENT + "profile/image/" + userId + "/"
+		String url = getBaseUrl() + ATTACHMENT + "profile/image/" + userId + "/"
 				+ fileName;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
@@ -71,7 +74,7 @@ public class AttachmentsApi extends AbstractAPI {
 	private HttpResponse getOriginalImage(String topicId, String packId,
 			String fileName, String oAuthToken, int width, int height) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + ATTACHMENT + "image/" + topicId + "/" + packId
+		String url = getBaseUrl() + ATTACHMENT + "image/" + topicId + "/" + packId
 				+ "/" + fileName + "?w=" + width + "&h=" + height;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
@@ -82,7 +85,7 @@ public class AttachmentsApi extends AbstractAPI {
 	private HttpResponse getThumnailVideo(String topicId, String packId,
 			String fileName, String oAuthToken) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + ATTACHMENT + "video/" + topicId + "/" + packId
+		String url = getBaseUrl() + ATTACHMENT + "video/" + topicId + "/" + packId
 				+ "/thumbnail/" + fileName;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
@@ -93,7 +96,7 @@ public class AttachmentsApi extends AbstractAPI {
 	private HttpResponse getOriginalVideo(String topicId, String packId,
 			String fileName, String oAuthToken) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + ATTACHMENT + "video/" + topicId + "/" + packId
+		String url = getBaseUrl() + ATTACHMENT + "video/" + topicId + "/" + packId
 				+ "/" + fileName;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
@@ -107,7 +110,7 @@ public class AttachmentsApi extends AbstractAPI {
 			PackPackException {
 		String topicId = (String) params.get(APIConstants.Topic.ID);
 		String userId = (String) params.get(APIConstants.User.ID);
-		String url = BASE_URL + ATTACHMENT + "image/topic/" + topicId + "/usr/"
+		String url = getBaseUrl() + ATTACHMENT + "image/topic/" + topicId + "/usr/"
 				+ userId;
 		return uploadPack(params, url, oAuthToken, listener);
 	}
@@ -118,7 +121,7 @@ public class AttachmentsApi extends AbstractAPI {
 			PackPackException {
 		String topicId = (String) params.get(APIConstants.Topic.ID);
 		String userId = (String) params.get(APIConstants.User.ID);
-		String url = BASE_URL + ATTACHMENT + "video/topic/" + topicId + "/usr/"
+		String url = getBaseUrl() + ATTACHMENT + "video/topic/" + topicId + "/usr/"
 				+ userId;
 		return uploadPack(params, url, oAuthToken, listener);
 	}
@@ -178,7 +181,7 @@ public class AttachmentsApi extends AbstractAPI {
 		String topicId = (String) params.get(APIConstants.Topic.ID);
 		String packId = (String) params.get(APIConstants.Pack.ID);
 		String userId = (String) params.get(APIConstants.User.ID);
-		String url = BASE_URL + ATTACHMENT + "image/topic/" + topicId
+		String url = getBaseUrl() + ATTACHMENT + "image/topic/" + topicId
 				+ "/pack/" + packId + "/usr/" + userId;
 		return editPack(params, url, oAuthToken, listener);
 	}
@@ -190,7 +193,7 @@ public class AttachmentsApi extends AbstractAPI {
 		String topicId = (String) params.get(APIConstants.Topic.ID);
 		String packId = (String) params.get(APIConstants.Pack.ID);
 		String userId = (String) params.get(APIConstants.User.ID);
-		String url = BASE_URL + ATTACHMENT + "video/topic/" + topicId
+		String url = getBaseUrl() + ATTACHMENT + "video/topic/" + topicId
 				+ "/pack/" + packId + "/usr/" + userId;
 		return editPack(params, url, oAuthToken, listener);
 	}

@@ -2,7 +2,6 @@ package com.pack.pack.client.internal;
 
 import static com.pack.pack.client.api.APIConstants.APPLICATION_JSON;
 import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
-import static com.pack.pack.client.api.APIConstants.BASE_URL;
 import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
 
 import java.io.File;
@@ -38,8 +37,12 @@ import com.pack.pack.model.web.dto.TopicFollowDTO;
  * @author Saurav
  *
  */
-public class TopicApi extends AbstractAPI {
-	
+class TopicApi extends BaseAPI {
+
+	TopicApi(String baseUrl) {
+		super(baseUrl);
+	}
+
 	private Invoker invoker = new Invoker();
 
 	@Override
@@ -50,14 +53,15 @@ public class TopicApi extends AbstractAPI {
 	@SuppressWarnings("unchecked")
 	private Pagination<JTopic> getUserTopicList(String pageLink,
 			String oAuthToken, String userId, String category) throws Exception {
-		String url = BASE_URL + "topic/" + pageLink + "/category/"
+		String url = getBaseUrl() + "topic/" + pageLink + "/category/"
 				+ category + "/user/" + userId;
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpGet GET = new HttpGet(url);
 		GET.setHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
-		Pagination<JTopic> page = JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				Pagination.class);
+		Pagination<JTopic> page = JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), Pagination.class);
 		List<JTopic> result = page.getResult();
 		String json = "{\"topics\": " + JSONUtil.serialize(result, false) + "}";
 		JTopics topics = JSONUtil.deserialize(json, JTopics.class);
@@ -68,7 +72,7 @@ public class TopicApi extends AbstractAPI {
 
 	private JStatus followTopic(String userId, String topicId, String oAuthToken)
 			throws Exception {
-		String url = BASE_URL + "activity/topic";
+		String url = getBaseUrl() + "activity/topic";
 		TopicFollowDTO dto = new TopicFollowDTO();
 		dto.setTopicId(topicId);
 		dto.setUserId(userId);
@@ -80,52 +84,57 @@ public class TopicApi extends AbstractAPI {
 		HttpEntity jsonBody = new StringEntity(json);
 		POST.setEntity(jsonBody);
 		HttpResponse response = client.execute(POST);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				JStatus.class);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JStatus.class);
 	}
 
 	private JStatus neglectTopic(String userId, String topicId,
 			String oAuthToken) throws Exception {
-		String url = BASE_URL + "activity/topic/" + topicId + "/user/" + userId;
+		String url = getBaseUrl() + "activity/topic/" + topicId + "/user/"
+				+ userId;
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpDelete DELETE = new HttpDelete(url);
 		DELETE.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(DELETE);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				JStatus.class);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JStatus.class);
 	}
 
 	private JTopic getTopicById(String topicId, String oAuthToken)
 			throws Exception {
-		String url = BASE_URL + "topic/" + topicId;
+		String url = getBaseUrl() + "topic/" + topicId;
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				JTopic.class);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JTopic.class);
 	}
 
-	private JTopic createTopic(Map<String, Object> params, String oAuthToken) throws Exception {
-		/*int followers = 0;
-		JTopic topic = new JTopic();
-		topic.setDescription(description);
-		topic.setName(name);
-		topic.setFollowers(followers);
-		topic.setOwnerName(ownerName);
-		topic.setOwnerId(ownerId);
-		topic.setCategory(category);
-		String json = JSONUtil.serialize(topic, false);*/
-		String url = BASE_URL + "topic/";
+	private JTopic createTopic(Map<String, Object> params, String oAuthToken)
+			throws Exception {
+		/*
+		 * int followers = 0; JTopic topic = new JTopic();
+		 * topic.setDescription(description); topic.setName(name);
+		 * topic.setFollowers(followers); topic.setOwnerName(ownerName);
+		 * topic.setOwnerId(ownerId); topic.setCategory(category); String json =
+		 * JSONUtil.serialize(topic, false);
+		 */
+		String url = getBaseUrl() + "topic/";
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpPost POST = new HttpPost(url);
 		POST.addHeader(AUTHORIZATION_HEADER, oAuthToken);
-		//POST.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
-		/*HttpEntity jsonBody = new StringEntity(json, APPLICATION_JSON);
-		POST.setEntity(jsonBody);*/
-		
+		// POST.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
+		/*
+		 * HttpEntity jsonBody = new StringEntity(json, APPLICATION_JSON);
+		 * POST.setEntity(jsonBody);
+		 */
+
 		MultipartEntity multipartEntity = new MultipartEntity();
-		//MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+		// MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 		Iterator<String> itr = params.keySet().iterator();
 		while (itr.hasNext()) {
 			String key = itr.next();
@@ -134,21 +143,23 @@ public class TopicApi extends AbstractAPI {
 				FileBody fileBody = new FileBody(file, file.getName(),
 						HTTP.OCTET_STREAM_TYPE, null);
 				multipartEntity.addPart(key, fileBody);
-				//builder.addBinaryBody(key, file, HTTP.OCTET_STREAM_TYPE, file.getName());
+				// builder.addBinaryBody(key, file, HTTP.OCTET_STREAM_TYPE,
+				// file.getName());
 			} else {
 				String text = (String) params.get(key);
-				//builder.addTextBody(key, text);
+				// builder.addTextBody(key, text);
 				StringBody contentBody = new StringBody(text);
 				multipartEntity.addPart(key, contentBody);
 			}
 		}
-		//HttpEntity entity = builder.build();
-		//POST.setEntity(entity);
+		// HttpEntity entity = builder.build();
+		// POST.setEntity(entity);
 		POST.setEntity(multipartEntity);
-		
+
 		HttpResponse response = client.execute(POST);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				JTopic.class);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JTopic.class);
 	}
 
 	private class Invoker implements ApiInvoker {
@@ -165,14 +176,15 @@ public class TopicApi extends AbstractAPI {
 			params = configuration.getApiParams();
 			oAuthToken = configuration.getOAuthToken();
 		}
-		
+
 		@Override
 		public Object invoke() throws Exception {
 			return invoke(null);
 		}
 
 		@Override
-		public Object invoke(MultipartRequestProgressListener listener) throws Exception {
+		public Object invoke(MultipartRequestProgressListener listener)
+				throws Exception {
 			Object result = null;
 			if (action == COMMAND.GET_USER_FOLLOWED_TOPIC_LIST) {
 				String pageLink = (String) params
@@ -181,32 +193,31 @@ public class TopicApi extends AbstractAPI {
 					pageLink = "FIRST_PAGE";
 				}
 				String userId = (String) params.get(APIConstants.User.ID);
-				String category = (String) params.get(APIConstants.Topic.CATEGORY);
-				result = getUserTopicList(pageLink, oAuthToken, userId, category);
+				String category = (String) params
+						.get(APIConstants.Topic.CATEGORY);
+				result = getUserTopicList(pageLink, oAuthToken, userId,
+						category);
 			} else if (action == COMMAND.FOLLOW_TOPIC) {
 				String userId = (String) params.get(APIConstants.User.ID);
-				String topicId = (String) params
-						.get(APIConstants.Topic.ID);
+				String topicId = (String) params.get(APIConstants.Topic.ID);
 				result = followTopic(userId, topicId, oAuthToken);
 			} else if (action == COMMAND.NEGLECT_TOPIC) {
-				String topicId = (String) params
-						.get(APIConstants.Topic.ID);
+				String topicId = (String) params.get(APIConstants.Topic.ID);
 				String userId = (String) params.get(APIConstants.User.ID);
 				result = neglectTopic(userId, topicId, oAuthToken);
 			} else if (action == COMMAND.GET_TOPIC_BY_ID) {
-				String topicId = (String) params
-						.get(APIConstants.Topic.ID);
+				String topicId = (String) params.get(APIConstants.Topic.ID);
 				result = getTopicById(topicId, oAuthToken);
 			} else if (action == COMMAND.CREATE_NEW_TOPIC) {
-				/*String ownerId = (String) params
-						.get(APIConstants.Topic.OWNER_ID);
-				String ownerName = (String) params
-						.get(APIConstants.Topic.OWNER_NAME);
-				String name = (String) params.get(APIConstants.Topic.NAME);
-				String description = (String) params
-						.get(APIConstants.Topic.DESCRIPTION);
-				String category = (String) params
-						.get(APIConstants.Topic.CATEGORY);*/
+				/*
+				 * String ownerId = (String) params
+				 * .get(APIConstants.Topic.OWNER_ID); String ownerName =
+				 * (String) params .get(APIConstants.Topic.OWNER_NAME); String
+				 * name = (String) params.get(APIConstants.Topic.NAME); String
+				 * description = (String) params
+				 * .get(APIConstants.Topic.DESCRIPTION); String category =
+				 * (String) params .get(APIConstants.Topic.CATEGORY);
+				 */
 				result = createTopic(params, oAuthToken);
 			}
 			return result;

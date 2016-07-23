@@ -1,7 +1,6 @@
 package com.pack.pack.client.internal;
 
 import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
-import static com.pack.pack.client.api.APIConstants.BASE_URL;
 
 import java.util.List;
 import java.util.Map;
@@ -24,7 +23,11 @@ import com.pack.pack.model.web.Pagination;
  * @author Saurav
  *
  */
-public class HomeApi extends AbstractAPI {
+class HomeApi extends BaseAPI {
+
+	HomeApi(String baseUrl) {
+		super(baseUrl);
+	}
 
 	private Invoker invoker = new Invoker();
 
@@ -37,12 +40,13 @@ public class HomeApi extends AbstractAPI {
 	private Pagination<JRssFeed> getAllFeeds(String userId, String pageLink,
 			String oAuthToken) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = BASE_URL + "home/usr/" + userId + "/page/" + pageLink;
+		String url = getBaseUrl() + "home/usr/" + userId + "/page/" + pageLink;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
-		Pagination<JRssFeed> page = JSONUtil.deserialize(
-				EntityUtils.toString(response.getEntity()), Pagination.class);
+		Pagination<JRssFeed> page = JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), Pagination.class);
 		if (page == null)
 			return page;
 		List<JRssFeed> feeds = page.getResult();

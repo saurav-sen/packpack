@@ -12,13 +12,15 @@ import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.StatusType;
 
+import static com.pack.pack.client.api.test.TestConstants.BASE_URL;
+
 public class PackUploadTest extends UserFollowedTopicListTest {
 
 	public void uploadIMagePackTest(String topicId, String imageFilePath)
 			throws Exception {
 		File file = new File(imageFilePath);
 		API api = APIBuilder
-				.create()
+				.create(BASE_URL)
 				.setAction(COMMAND.UPLOAD_IMAGE_PACK)
 				.setOauthToken(oAuthToken)
 				.addApiParam(APIConstants.User.ID, userId)
@@ -38,7 +40,7 @@ public class PackUploadTest extends UserFollowedTopicListTest {
 	@SuppressWarnings("unchecked")
 	public Pagination<JPack> testGetAllPacksInTopic(String topicId)
 			throws Exception {
-		API api = APIBuilder.create().setAction(COMMAND.GET_ALL_PACKS_IN_TOPIC)
+		API api = APIBuilder.create(BASE_URL).setAction(COMMAND.GET_ALL_PACKS_IN_TOPIC)
 				.setOauthToken(oAuthToken)
 				.addApiParam(APIConstants.User.ID, userId)
 				.addApiParam(APIConstants.Topic.ID, topicId)
@@ -51,7 +53,7 @@ public class PackUploadTest extends UserFollowedTopicListTest {
 	public JPack testAddImageToPack(String topicId, String packId,
 			String imageFilePath) throws Exception {
 		File file = new File(imageFilePath);
-		API api = APIBuilder.create().setAction(COMMAND.ADD_IMAGE_TO_PACK)
+		API api = APIBuilder.create(BASE_URL).setAction(COMMAND.ADD_IMAGE_TO_PACK)
 				.setOauthToken(oAuthToken)
 				.addApiParam(APIConstants.Topic.ID, topicId)
 				.addApiParam(APIConstants.Pack.ID, packId)
@@ -64,7 +66,7 @@ public class PackUploadTest extends UserFollowedTopicListTest {
 	@SuppressWarnings("unchecked")
 	public Pagination<JPackAttachment> getAllPackAttachments(String topicId,
 			String packId, String pageLink) throws Exception {
-		API api = APIBuilder.create()
+		API api = APIBuilder.create(BASE_URL)
 				.setAction(COMMAND.GET_ALL_ATTACHMENTS_IN_PACK)
 				.setOauthToken(oAuthToken)
 				.addApiParam(APIConstants.Pack.ID, packId)

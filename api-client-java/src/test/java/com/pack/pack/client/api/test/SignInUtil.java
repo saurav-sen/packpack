@@ -6,6 +6,8 @@ import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.oauth1.client.AccessToken;
 
+import static com.pack.pack.client.api.test.TestConstants.BASE_URL;
+
 public class SignInUtil {
 	
 	private static final String ANDROID_APP_CLIENT_KEY = "53e8a1f2-7568-4ac8-ab26-45738ca02599";
@@ -16,7 +18,7 @@ public class SignInUtil {
 
 	public static String signIn() throws Exception {
 		API api = APIBuilder
-				.create()
+				.create(BASE_URL)
 				.setAction(COMMAND.SIGN_IN)
 				.addApiParam(APIConstants.Login.CLIENT_KEY,
 						ANDROID_APP_CLIENT_KEY)

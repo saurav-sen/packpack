@@ -7,7 +7,8 @@ package com.pack.pack.client.api;
  */
 public interface APIConstants {
 	
-	public static final String BASE_URL = "http://192.168.35.12:8080/packpack/";
+	//public static final String BASE_URL = "http://54.169.84.61:8080/packpack/";//"http://192.168.35.12:8080/packpack/";
+	public static final String DEFAULT_SERVICE_URL_PREFIX = "http://54.169.84.61:8080/packpack/";
 	public static final String AUTHORIZATION_HEADER = "Authorization";
 	public static final String CONTENT_TYPE_HEADER = "Content-Type";
 	public static final String APPLICATION_JSON = "application/json";

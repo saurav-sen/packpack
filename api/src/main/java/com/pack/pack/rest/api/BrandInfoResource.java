@@ -8,6 +8,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
 import com.pack.pack.model.web.JBrands;
+import com.pack.pack.rest.api.security.interceptors.Compress;
 import com.pack.pack.services.exception.PackPackException;
 
 /**
@@ -20,6 +21,7 @@ import com.pack.pack.services.exception.PackPackException;
 public class BrandInfoResource {
 
 	@GET
+	@Compress
 	@Path("companyName/{companyName}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public JBrands getBrandsInfoByName(

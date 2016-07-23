@@ -8,6 +8,8 @@ import com.pack.pack.model.web.JDiscussion;
 import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.Pagination;
 
+import static com.pack.pack.client.api.test.TestConstants.BASE_URL;
+
 
 public class TopicDiscussionTest extends UserFollowedTopicListTest {
 
@@ -16,7 +18,7 @@ public class TopicDiscussionTest extends UserFollowedTopicListTest {
 		try {
 			Pagination<JTopic> page = testUserFollowedTopicList();
 			JTopic topic = page.getResult().get(0);
-			API api = APIBuilder.create().setAction(COMMAND.GET_ALL_DISCUSSIONS_FOR_TOPIC)
+			API api = APIBuilder.create(BASE_URL).setAction(COMMAND.GET_ALL_DISCUSSIONS_FOR_TOPIC)
 					.setOauthToken(oAuthToken)
 					.addApiParam(APIConstants.Topic.ID, topic.getId())
 					.addApiParam(APIConstants.User.ID, userId)
@@ -24,7 +26,7 @@ public class TopicDiscussionTest extends UserFollowedTopicListTest {
 			Pagination<JDiscussion> page1 = (Pagination<JDiscussion>)api.execute();
 			int count0 = page1.getResult() == null ? 0 : page1.getResult().size();
 			
-			api = APIBuilder.create().setAction(COMMAND.START_DISCUSSION_ON_TOPIC)
+			api = APIBuilder.create(BASE_URL).setAction(COMMAND.START_DISCUSSION_ON_TOPIC)
 					.setOauthToken(oAuthToken)
 					.addApiParam(APIConstants.User.ID, userId)
 					.addApiParam(APIConstants.Topic.ID, topic.getId())
@@ -34,7 +36,7 @@ public class TopicDiscussionTest extends UserFollowedTopicListTest {
 			JDiscussion discussion =(JDiscussion)api.execute();
 			assert(discussion != null);
 
-			api = APIBuilder.create().setAction(COMMAND.GET_ALL_DISCUSSIONS_FOR_TOPIC)
+			api = APIBuilder.create(BASE_URL).setAction(COMMAND.GET_ALL_DISCUSSIONS_FOR_TOPIC)
 					.setOauthToken(oAuthToken)
 					.addApiParam(APIConstants.Topic.ID, topic.getId())
 					.addApiParam(APIConstants.User.ID, userId)

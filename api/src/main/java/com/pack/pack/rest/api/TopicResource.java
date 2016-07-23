@@ -17,6 +17,7 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 import com.pack.pack.ITopicService;
 import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.Pagination;
+import com.pack.pack.rest.api.security.interceptors.Compress;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 
@@ -30,6 +31,7 @@ import com.pack.pack.services.registry.ServiceRegistry;
 public class TopicResource {
 
 	@GET
+	@Compress
 	@Path("{id}")
 	@Produces(value = MediaType.APPLICATION_JSON)
 	public JTopic getTopicById(@PathParam("id") String topicId)
@@ -47,6 +49,7 @@ public class TopicResource {
 	}*/
 
 	@GET
+	@Compress
 	@Path("{pageLink}/category/{categoryName}")
 	@Produces(value = MediaType.APPLICATION_JSON)
 	public Pagination<JTopic> getTopicsByCategory(
@@ -58,6 +61,7 @@ public class TopicResource {
 	}
 
 	@GET
+	@Compress
 	@Path("{pageLink}/user/{userId}")
 	@Produces(value = MediaType.APPLICATION_JSON)
 	public Pagination<JTopic> getAllTopics(@PathParam("userId") String userId,
@@ -68,6 +72,7 @@ public class TopicResource {
 	}
 	
 	@GET
+	@Compress
 	@Path("{pageLink}/category/{category}/user/{userId}")
 	@Produces(value = MediaType.APPLICATION_JSON)
 	public Pagination<JTopic> getAllTopicsFilteredByCategory(
@@ -80,6 +85,7 @@ public class TopicResource {
 	}
 
 	@POST
+	@Compress
 	@Produces(value = MediaType.APPLICATION_JSON)
 	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
 	public JTopic createNewTopic(

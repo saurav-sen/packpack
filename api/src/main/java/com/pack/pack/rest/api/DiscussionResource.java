@@ -30,6 +30,7 @@ import com.pack.pack.model.web.StatusType;
 import com.pack.pack.model.web.dto.CommentDTO;
 import com.pack.pack.model.web.dto.DiscussionDTO;
 import com.pack.pack.model.web.dto.LikeDTO;
+import com.pack.pack.rest.api.security.interceptors.Compress;
 import com.pack.pack.services.exception.ErrorCodes;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
@@ -44,6 +45,7 @@ import com.pack.pack.services.registry.ServiceRegistry;
 public class DiscussionResource {
 
 	@GET
+	@Compress
 	@Path("{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public JDiscussion getDiscussionById(@PathParam("id") String id)
@@ -137,6 +139,7 @@ public class DiscussionResource {
 	}
 
 	@GET
+	@Compress
 	@Path(TOPIC + URL_SEPARATOR + "{topicId}" + URL_SEPARATOR
 			+ "usr/{userId}/page/{pageLink}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -162,6 +165,7 @@ public class DiscussionResource {
 	}
 
 	@GET
+	@Compress
 	@Path("pack/{packId}/usr/{userId}/page/{pageLink}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Pagination<JDiscussion> getAllDiscussionsForPack(
@@ -186,6 +190,7 @@ public class DiscussionResource {
 	}
 
 	@PUT
+	@Compress
 	@Path("topic/{topicId}/usr/{userId}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -211,6 +216,7 @@ public class DiscussionResource {
 	}
 
 	@PUT
+	@Compress
 	@Path("pack/{packId}/usr/{userId}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
