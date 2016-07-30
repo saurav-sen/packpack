@@ -23,8 +23,7 @@ public class GZipWritter implements WriterInterceptor {
 	public void aroundWriteTo(WriterInterceptorContext context)
 			throws IOException, WebApplicationException {
 		MultivaluedMap<String,Object> headers = context.getHeaders();
-		headers.add("Content-Encoding", "gzip");
-		
+		headers.add("Content-Encoding", "gzip");		
 		OutputStream outStream = context.getOutputStream();
 		context.setOutputStream(new GZIPOutputStream(outStream));
 		context.proceed();

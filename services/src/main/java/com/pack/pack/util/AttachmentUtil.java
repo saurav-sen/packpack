@@ -47,7 +47,7 @@ public class AttachmentUtil {
 			outStream = new FileOutputStream(attachmentFile);
 			int read = 0;
 			byte[] bytes = new byte[1024];
-			outStream = new FileOutputStream(new File(fileLoc));
+			//outStream = new GZIPOutputStream(new FileOutputStream(attachmentFile));
 			while ((read = inputStream.read(bytes)) != -1) {
 				outStream.write(bytes, 0, read);
 			}

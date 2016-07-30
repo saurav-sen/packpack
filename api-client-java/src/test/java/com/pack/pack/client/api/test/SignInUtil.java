@@ -14,7 +14,7 @@ public class SignInUtil {
 	private static final String ANDROID_APP_CLIENT_SECRET = "b1f6d761-dcb7-482b-a695-ab17e4a29b25";
 	
 	public static final String USERNAME = "sourabhnits@gmail.com";
-	public static final String PASSWORD = "P@ckp@K#123";
+	public static final String PASSWORD = "password";
 
 	public static String signIn() throws Exception {
 		API api = APIBuilder
@@ -27,6 +27,7 @@ public class SignInUtil {
 				.addApiParam(APIConstants.Login.USERNAME, USERNAME)
 				.addApiParam(APIConstants.Login.PASSWORD, PASSWORD).build();
 		AccessToken oAuthToken = (AccessToken)api.execute();
+		System.out.println(oAuthToken.getToken());
 		return oAuthToken.getToken();
 	}
 }
