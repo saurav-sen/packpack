@@ -282,8 +282,12 @@ public class ModelConverter {
 		}
 		return jComments;
 	}
-
+	
 	public static JTopic convert(Topic topic) throws PackPackException {
+		return convert(topic, false);
+	}
+
+	public static JTopic convert(Topic topic, boolean isFollowing) throws PackPackException {
 		JTopic jTopic = new JTopic();
 		jTopic.setDescription(topic.getDescription());
 		jTopic.setFollowers(topic.getFollowers());
@@ -293,6 +297,7 @@ public class ModelConverter {
 		jTopic.setId(topic.getId());
 		jTopic.setCategory(topic.getCategory());
 		jTopic.setWallpaperUrl(resolveTopicWallpaperUrl(topic.getWallpaperUrl()));
+		jTopic.setFollowing(isFollowing);
 		JUser user = getUserInfo(userId);
 		if (user != null) {
 			jTopic.setOwnerName(user.getName());
@@ -301,12 +306,16 @@ public class ModelConverter {
 		}
 		return jTopic;
 	}
+	
+	public static List<JTopic> convertTopicList(List<Topic> topics) throws PackPackException {
+		return convertTopicList(topics, false);
+	}
 
-	public static List<JTopic> convertTopicList(List<Topic> topics)
+	public static List<JTopic> convertTopicList(List<Topic> topics, boolean isFollowing)
 			throws PackPackException {
 		List<JTopic> jTopics = new ArrayList<JTopic>();
 		for (Topic topic : topics) {
-			JTopic jTopic = convert(topic);
+			JTopic jTopic = convert(topic, isFollowing);
 			jTopics.add(jTopic);
 		}
 		return jTopics;

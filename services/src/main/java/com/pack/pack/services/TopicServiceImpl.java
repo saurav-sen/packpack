@@ -1,8 +1,13 @@
 package com.pack.pack.services;
 
+import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
+import static com.pack.pack.common.util.CommonConstants.STANDARD_PAGE_SIZE;
+import static com.pack.pack.util.AttachmentUtil.resizeAndStoreUploadedAttachment;
+
 import java.io.File;
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -11,7 +16,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.pack.pack.ITopicService;
-import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.Topic;
 import com.pack.pack.model.UserTopicMap;
@@ -23,9 +27,6 @@ import com.pack.pack.services.couchdb.UserTopicMapRepositoryService;
 import com.pack.pack.services.es.ESUploadService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
-
-import static com.pack.pack.util.AttachmentUtil.*;
-
 import com.pack.pack.util.ModelConverter;
 import com.pack.pack.util.SystemPropertyUtil;
 
@@ -119,15 +120,46 @@ public class TopicServiceImpl implements ITopicService {
 	public Pagination<JTopic> getUserFollowedTopicsFilteredByCategory(
 			String userId, String categoryName, String pageLink)
 			throws PackPackException {
+		String previousLink = null;
+		String nextLink = null;
+		List<JTopic> result = new LinkedList<JTopic>();
 		UserTopicMapRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(UserTopicMapRepositoryService.class);
-		Pagination<Topic> page = service.getAllTopicsFollowedByUserAndCategory(
-				userId, categoryName, pageLink);
-		List<Topic> topics = page != null ? page.getResult() : Collections.emptyList();
-		List<JTopic> jTopics = ModelConverter.convertTopicList(topics);
-		String previousLink = page != null ? page.getPreviousLink() : END_OF_PAGE;
-		String nextLink = page != null ? page.getNextLink() : END_OF_PAGE;
-		return new Pagination<JTopic>(previousLink, nextLink, jTopics);
+		if(!pageLink.startsWith("NOT_FOLLOWING")) {
+			Pagination<Topic> page = service.getAllTopicsFollowedByUserAndCategory(
+					userId, categoryName, pageLink);
+			List<Topic> topics = page != null ? page.getResult() : Collections.emptyList();
+			List<JTopic> jTopics = ModelConverter.convertTopicList(topics, true);
+			result = jTopics;
+			previousLink = page != null ? page.getPreviousLink() : END_OF_PAGE;
+			nextLink = page != null ? page.getNextLink() : END_OF_PAGE;
+		}
+		else {
+			pageLink = pageLink.substring("NOT_FOLLOWING".length());
+			Pagination<Topic> page = service.getAllTopicsNotFollowedByUserAndCategory(
+					userId, categoryName, pageLink);
+			List<Topic> topics = page != null ? page.getResult() : Collections.emptyList();
+			List<JTopic> jTopics = ModelConverter.convertTopicList(topics, false);
+			result = jTopics;
+			previousLink = page != null ? "NOT_FOLLOWING" + page.getPreviousLink() 
+					: "NOT_FOLLOWING" + END_OF_PAGE;
+			nextLink = page != null ? "NOT_FOLLOWING" + page.getNextLink() 
+					: "NOT_FOLLOWING" + END_OF_PAGE;
+		}		
+		if(result.size() < STANDARD_PAGE_SIZE) {
+			Pagination<Topic> page = service.getAllTopicsNotFollowedByUserAndCategory(
+					userId, categoryName, pageLink);
+			List<Topic> topics = page.getResult();
+			if(topics != null && !topics.isEmpty()) {
+				List<JTopic> jTopics = ModelConverter.convertTopicList(topics, false);
+				result.addAll(jTopics);
+				previousLink = page != null ? "NOT_FOLLOWING" + page.getPreviousLink() 
+						: "NOT_FOLLOWING" + END_OF_PAGE;
+				nextLink = page != null ? "NOT_FOLLOWING" + page.getNextLink() 
+						: "NOT_FOLLOWING" + END_OF_PAGE;
+			}
+		}		
+		return new Pagination<JTopic>(previousLink, nextLink, result);
 	}
 
 	@Override

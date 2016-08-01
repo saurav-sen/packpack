@@ -5,7 +5,10 @@ import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
 import static com.pack.pack.common.util.CommonConstants.STANDARD_PAGE_SIZE;
 import static com.pack.pack.util.SystemPropertyUtil.HIGH_UNICODE_CHARACTER;
 
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -81,26 +84,76 @@ public class UserTopicMapRepositoryService extends CouchDbRepositorySupport<User
 		return new Pagination<Topic>(previousLink, nextLink, result);
 	}
 	
-	public Pagination<Topic> getAllTopicsFollowedByUserAndCategory(String userId, String topicCategory, String pageLink) {
+	public Pagination<Topic> getAllTopicsFollowedByUserAndCategory(
+			String userId, String topicCategory, String pageLink) {
 		logger.debug("Loading All Topic information followed by user having userId="
 				+ userId + " in paginated API with page-link=" + pageLink);
-		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink))? 
-				PageRequest.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
-		//ComplexKey key = ComplexKey.of(userId, topicCategory);
+		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink)) ? PageRequest
+				.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
+		// ComplexKey key = ComplexKey.of(userId, topicCategory);
 		String key = userId + topicCategory;
 		ViewQuery query = createQuery("allForUser").key(key);
 		Page<String> page = db.queryForPage(query, pr, String.class);
-		if(page == null) {
+		if (page == null) {
 			return null;
 		}
 		List<String> topicIds = page.getRows();
-		if(topicIds == null || topicIds.isEmpty()) {
+		if (topicIds == null || topicIds.isEmpty()) {
 			return null;
 		}
 		List<Topic> result = topicRepoService.getAllTopicsById(topicIds);
 		String nextLink = page.isHasNext() ? page.getNextLink() : END_OF_PAGE;
-		String previousLink = page.isHasPrevious() ? page.getPreviousLink() : END_OF_PAGE;
+		String previousLink = page.isHasPrevious() ? page.getPreviousLink()
+				: END_OF_PAGE;
 		return new Pagination<Topic>(previousLink, nextLink, result);
+	}
+	
+	public Pagination<Topic> getAllTopicsNotFollowedByUserAndCategory(
+			String userId, String topicCategory, String pageLink) {
+		logger.debug("Loading All Topic information NOT followed by user having userId="
+				+ userId + " & in topicCategoy of " + topicCategory + "in paginated API "
+						+ "with page-link=" + pageLink);
+		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink)) ? PageRequest
+				.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
+		Pagination<Topic> page = topicRepoService.getAllTopicsByCategoryName(
+				topicCategory, pageLink);
+		if (page == null) {
+			return null;
+		}
+		List<Topic> newResult = new LinkedList<Topic>();
+		List<Topic> result = page.getResult();
+		if (result == null || result.isEmpty()) {
+			return page;
+		}
+		Map<String, Object> topicIdsMap = new HashMap<String, Object>();
+		String key = userId + topicCategory;
+		ViewQuery query = createQuery("allForUser").key(key);
+		Page<String> pg = db.queryForPage(query, pr, String.class);
+		if (pg != null) {
+			List<String> topicIds = pg.getRows();
+			if (topicIds != null && !topicIds.isEmpty()) {
+				for (String topicId : topicIds) {
+					topicIdsMap.put(topicId, new Object());
+				}
+			}
+		}
+		for (Topic topic : result) {
+			String id = topic.getId();
+			if (id == null)
+				continue;
+			if (topicIdsMap.get(id) != null)
+				continue;
+			newResult.add(topic);
+		}
+		if (newResult.isEmpty()) {
+			if (page.getNextLink() == null
+					|| END_OF_PAGE.equals(page.getNextLink()))
+				return page;
+			return getAllTopicsNotFollowedByUserAndCategory(userId,
+					topicCategory, page.getNextLink());
+		}
+		return new Pagination<Topic>(page.getPreviousLink(),
+				page.getNextLink(), result);
 	}
 	
 	public UserTopicMap findUserTopicMapById(String userId, String topicId) {

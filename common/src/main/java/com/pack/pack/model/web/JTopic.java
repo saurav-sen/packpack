@@ -26,6 +26,8 @@ public class JTopic {
 	
 	private String ownerProfilePicture;
 	
+	private boolean isFollowing;
+	
 	public String getOwnerId() {
 		return ownerId;
 	}
@@ -96,5 +98,13 @@ public class JTopic {
 
 	public void setOwnerProfilePicture(String ownerProfilePicture) {
 		this.ownerProfilePicture = ownerProfilePicture;
+	}
+
+	public boolean isFollowing() {
+		return isFollowing;
+	}
+
+	public void setFollowing(boolean isFollowing) {
+		this.isFollowing = isFollowing;
 	}
 }
