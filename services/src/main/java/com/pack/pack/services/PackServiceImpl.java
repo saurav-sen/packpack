@@ -44,6 +44,7 @@ import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.services.sms.SMSSender;
 import com.pack.pack.util.AttachmentUtil;
 import com.pack.pack.util.ModelConverter;
+import com.pack.pack.util.S3Path;
 import com.pack.pack.util.SystemPropertyUtil;
 
 /**
@@ -275,11 +276,15 @@ public class PackServiceImpl implements IPackService {
 			f.mkdir();
 		}
 		location = location + File.separator + fileName;
+		
+		S3Path root = new S3Path(topicId, false);
+		root.addChild(new S3Path(pack.getId(), false)).addChild(new S3Path(fileName, true));
+		
 		File originalFile = AttachmentUtil.storeUploadedAttachment(file,
-				location);
+				location, root);
 		PackAttachment packAttachment = new PackAttachment();
 		File thumbnailFile = (type == PackAttachmentType.IMAGE ? null
-				: AttachmentUtil.createThumnailForVideo(originalFile));
+				: AttachmentUtil.createThumnailForVideo(originalFile, root));
 		if (thumbnailFile != null) {
 			String thumbnailFileLocation = thumbnailFile.getAbsolutePath();
 			packAttachment.setAttachmentThumbnailUrl(thumbnailFileLocation

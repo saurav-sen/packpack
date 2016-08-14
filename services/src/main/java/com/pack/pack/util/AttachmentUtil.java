@@ -34,13 +34,13 @@ public class AttachmentUtil {
 	private static final int THUMBNAIL_HEIGHT = 100;
 	
 	public static File resizeAndStoreUploadedAttachment(InputStream inputStream,
-			String fileLoc, int width, int height) throws PackPackException {
-		File attachmentFile = storeUploadedAttachment(inputStream, fileLoc);
-		return createThumnailForImage(attachmentFile, width, height);
+			String fileLoc, int width, int height, S3Path s3Path) throws PackPackException {
+		File attachmentFile = storeUploadedAttachment(inputStream, fileLoc, s3Path);
+		return createThumnailForImage(attachmentFile, width, height, s3Path);
 	}
 
 	public static File storeUploadedAttachment(InputStream inputStream,
-			String fileLoc) throws PackPackException {
+			String fileLoc, S3Path s3Path) throws PackPackException {
 		OutputStream outStream = null;
 		File attachmentFile = new File(fileLoc);
 		try {
@@ -52,6 +52,9 @@ public class AttachmentUtil {
 				outStream.write(bytes, 0, read);
 			}
 			outStream.flush();
+			
+			// Upload to S3 bucket.
+			S3Util.uploadFileToS3Bucket(attachmentFile, s3Path);
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 			throw new PackPackException("TODO", e.getMessage(), e);
@@ -73,7 +76,7 @@ public class AttachmentUtil {
 		return createThumnailForImage(imageFile, THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT);
 	}*/
 
-	private static File createThumnailForImage(File imageFile, int width, int height)
+	private static File createThumnailForImage(File imageFile, int width, int height, S3Path s3Path)
 			throws PackPackException {
 		try {
 			BufferedImage image = ImageIO.read(imageFile);
@@ -83,6 +86,9 @@ public class AttachmentUtil {
 			File parentFile = imageFile.getParentFile();
 			String path = parentFile.getAbsolutePath() + File.separator
 					+ "thumbnail";
+			
+			s3Path.getParent().addChild(new S3Path("thumbnail", true));
+			
 			File dir = new File(path);
 			if (!dir.exists()) {
 				dir.mkdir();
@@ -95,6 +101,10 @@ public class AttachmentUtil {
 					+ ".jpg";
 			File thumbnailImageFile = new File(path);
 			ImageIO.write(thumbnailImage, "jpg", thumbnailImageFile);
+			
+			// Upload to S3 bucket.
+			S3Util.uploadFileToS3Bucket(thumbnailImageFile, s3Path);
+			
 			return thumbnailImageFile;
 		} catch (IllegalArgumentException e) {
 			logger.error(e.getMessage(), e);
@@ -108,7 +118,7 @@ public class AttachmentUtil {
 		}
 	}
 
-	public static File createThumnailForVideo(File videoFile)
+	public static File createThumnailForVideo(File videoFile, S3Path s3Path)
 			throws PackPackException {
 		try {
 			int frameNo = 10;
@@ -119,6 +129,9 @@ public class AttachmentUtil {
 			File parentFile = videoFile.getParentFile();
 			String path = parentFile.getAbsolutePath() + File.separator
 					+ "thumbnail";
+			
+			s3Path.getParent().addChild(new S3Path("thumbnail", true));
+			
 			File dir = new File(path);
 			if (!dir.exists()) {
 				dir.mkdir();
@@ -131,6 +144,10 @@ public class AttachmentUtil {
 					+ ".jpg";
 			File thumbnailImageFile = new File(path);
 			ImageIO.write(thumbnailImage, "jpg", thumbnailImageFile);
+			
+			// Upload to S3 bucket.
+			S3Util.uploadFileToS3Bucket(thumbnailImageFile, s3Path);
+			
 			return thumbnailImageFile;
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);

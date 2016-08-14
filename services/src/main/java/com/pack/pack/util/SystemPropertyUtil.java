@@ -61,6 +61,12 @@ public class SystemPropertyUtil {
 	
 	public static final String HIGH_UNICODE_CHARACTER = "\ufff0";
 	
+	private static final String PRODUCTION_ENVIRONMENT = "prod.env";
+	
+	private static final String AWS_S3_ACCESS_KEY = "aws.s3.access.key";
+	private static final String AWS_S3_ACCESS_SECRET = "aws.s3.access.secret";
+	private static final String AWS_S3_ROOT_BUCKET = "aws.s3.root.bucket";
+	
 	public static void init() {
 		try {
 			properties = new Properties();
@@ -111,6 +117,29 @@ public class SystemPropertyUtil {
 
 	public static String getBaseURL() {
 		return getPropertyValue(BASE_URL);
+	}
+	
+	public static boolean isProductionEnvironment() {
+		String propertyValue = getPropertyValue(PRODUCTION_ENVIRONMENT);
+		if(propertyValue == null || propertyValue.trim().isEmpty())
+			return false;
+		try {
+			return Boolean.parseBoolean(propertyValue.trim());
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	
+	public static final String getAwsS3AccessKey() {
+		return getPropertyValue(AWS_S3_ACCESS_KEY);
+	}
+	
+	public static final String getAwsS3AccessSecret() {
+		return getPropertyValue(AWS_S3_ACCESS_SECRET);
+	}
+	
+	public static final String getAwsS3RootBucketName() {
+		return getPropertyValue(AWS_S3_ROOT_BUCKET);
 	}
 
 	public static String getImageAttachmentBaseURL() {

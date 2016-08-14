@@ -29,4 +29,11 @@ public interface IRssFeedService {
 	 * @return
 	 */
 	public JRssFeed upload(JRssFeed feed, TTL ttl);
+	
+	/**
+	 * 
+	 * @param topicId
+	 * @return
+	 */
+	public JRssFeed generateRssFeedForTopic(String topicId);
 }

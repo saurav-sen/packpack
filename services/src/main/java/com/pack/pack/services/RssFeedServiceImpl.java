@@ -107,4 +107,10 @@ public class RssFeedServiceImpl implements IRssFeedService {
 		service.add(rssFeed);
 		return ModelConverter.convert(rssFeed);
 	}
+
+	@Override
+	public JRssFeed generateRssFeedForTopic(String topicId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

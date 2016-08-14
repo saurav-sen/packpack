@@ -19,6 +19,7 @@ import com.pack.pack.services.es.ESUploadService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.ModelConverter;
+import com.pack.pack.util.S3Path;
 import com.pack.pack.util.SystemPropertyUtil;
 
 /**
@@ -103,7 +104,9 @@ public class UserServiceImpl implements IUserService {
 			f.mkdir();
 		}
 		location = location + File.separator + profilePictureFileName;
-		resizeAndStoreUploadedAttachment(profilePicture, location, 30, 30);
+		S3Path root = new S3Path(userId, false);
+		root.addChild(new S3Path(profilePictureFileName, true));
+		resizeAndStoreUploadedAttachment(profilePicture, location, 30, 30, root);
 		return location.substring(home.length());
 	}
 }

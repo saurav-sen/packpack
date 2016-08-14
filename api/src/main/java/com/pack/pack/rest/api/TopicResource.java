@@ -5,6 +5,7 @@ import java.io.InputStream;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -14,9 +15,15 @@ import javax.ws.rs.ext.Provider;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
+import com.pack.pack.IRssFeedService;
 import com.pack.pack.ITopicService;
+import com.pack.pack.common.util.JSONUtil;
+import com.pack.pack.model.web.JRssFeed;
+import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.Pagination;
+import com.pack.pack.model.web.StatusType;
+import com.pack.pack.model.web.dto.UserPromotion;
 import com.pack.pack.rest.api.security.interceptors.Compress;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
@@ -106,5 +113,20 @@ public class TopicResource {
 				.findCompositeService(ITopicService.class);
 		return service.createNewTopic(topic, wallpaper,
 				aboutWallpaper.getFileName());
+	}
+	
+	@PUT
+	@Path("promote")
+	@Produces(value = MediaType.APPLICATION_JSON)
+	@Consumes(value = MediaType.APPLICATION_JSON)
+	public JStatus promoteTopic(String json) throws PackPackException {
+		UserPromotion userPromotion = JSONUtil.deserialize(json, UserPromotion.class);
+		String topicId = userPromotion.getObjectId();
+		IRssFeedService feedService = ServiceRegistry.INSTANCE.findCompositeService(IRssFeedService.class);
+		JRssFeed feedForTopic = feedService.generateRssFeedForTopic(topicId);
+		JStatus status = new JStatus();
+		status.setStatus(StatusType.OK);
+		status.setInfo("Successfully promoted topic");
+		return status;
 	}
 }

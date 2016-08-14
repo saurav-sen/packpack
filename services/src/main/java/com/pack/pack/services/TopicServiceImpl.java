@@ -28,6 +28,7 @@ import com.pack.pack.services.es.ESUploadService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.ModelConverter;
+import com.pack.pack.util.S3Path;
 import com.pack.pack.util.SystemPropertyUtil;
 
 /**
@@ -248,7 +249,9 @@ public class TopicServiceImpl implements ITopicService {
 			f.mkdir();
 		}
 		location = location + File.separator + wallpaperFileName;
-		resizeAndStoreUploadedAttachment(wallpaper, location, 100, 100);
+		S3Path root = new S3Path(topicId, false);
+		root.addChild(new S3Path(wallpaperFileName, true));
+		resizeAndStoreUploadedAttachment(wallpaper, location, 100, 100, root);
 		return location.substring(home.length());
 	}
 
