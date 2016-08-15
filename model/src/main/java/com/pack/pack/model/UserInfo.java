@@ -6,6 +6,8 @@ package com.pack.pack.model;
  *
  */
 public class UserInfo {
+	
+	public static final String FOLLOWED_CATEGORIES = "followedCategories";
 
 	private String key;
 	

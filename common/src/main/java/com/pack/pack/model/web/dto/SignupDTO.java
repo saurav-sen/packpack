@@ -16,6 +16,8 @@ public class SignupDTO {
 	private String city;
 	
 	private String dob;
+	
+	private String country;
 
 	public String getEmail() {
 		return email;
@@ -55,5 +57,13 @@ public class SignupDTO {
 
 	public void setDob(String dob) {
 		this.dob = dob;
+	}
+
+	public String getCountry() {
+		return country;
+	}
+
+	public void setCountry(String country) {
+		this.country = country;
 	}
 }

@@ -66,6 +66,9 @@ public class SystemPropertyUtil {
 	private static final String AWS_S3_ACCESS_KEY = "aws.s3.access.key";
 	private static final String AWS_S3_ACCESS_SECRET = "aws.s3.access.secret";
 	private static final String AWS_S3_ROOT_BUCKET = "aws.s3.root.bucket";
+	private static final String AWS_S3_BASE_URL = "aws.s3.base.url";
+	
+	private static final String GOOGLE_GEO_CODING_API_KEY = "google.geo.coding.api_key";
 	
 	public static void init() {
 		try {
@@ -85,6 +88,10 @@ public class SystemPropertyUtil {
 
 	private static String getPropertyValue(String key) {
 		return properties.getProperty(key);
+	}
+	
+	public static String getGoogleGeoCodingApiKey() {
+		return getPropertyValue(GOOGLE_GEO_CODING_API_KEY);
 	}
 
 	public static String getAppHome() {
@@ -115,7 +122,14 @@ public class SystemPropertyUtil {
 		return getPropertyValue(TOPIC_WALLAPER_HOME);
 	}
 
-	public static String getBaseURL() {
+	private static String getAttachmentBaseURL() {
+		if(isProductionEnvironment()) {
+			return getPropertyValue(AWS_S3_BASE_URL);
+		}
+		return getBaseURL();
+	}
+	
+	private static String getBaseURL() {
 		return getPropertyValue(BASE_URL);
 	}
 	
@@ -143,33 +157,45 @@ public class SystemPropertyUtil {
 	}
 
 	public static String getImageAttachmentBaseURL() {
-		String baseURL = getBaseURL();
+		String baseURL = getAttachmentBaseURL();
 		if (!baseURL.endsWith(URL_SEPARATOR)) {
 			baseURL = baseURL + URL_SEPARATOR;
+		}
+		if(isProductionEnvironment()) {
+			return baseURL;
 		}
 		return baseURL + IMAGE_ATTACHMENT_URL_SUFFIX;
 	}
 
 	public static String getVideoAttachmentBaseURL() {
-		String baseURL = getBaseURL();
+		String baseURL = getAttachmentBaseURL();
 		if (!baseURL.endsWith(URL_SEPARATOR)) {
 			baseURL = baseURL + URL_SEPARATOR;
+		}
+		if(isProductionEnvironment()) {
+			return baseURL;
 		}
 		return baseURL + VIDEO_ATTACHMENT_URL_SUFFIX;
 	}
 
 	public static String getProfilePictureBaseURL() {
-		String baseURL = getBaseURL();
+		String baseURL = getAttachmentBaseURL();
 		if (!baseURL.endsWith(URL_SEPARATOR)) {
 			baseURL = baseURL + URL_SEPARATOR;
+		}
+		if(isProductionEnvironment()) {
+			return baseURL;
 		}
 		return baseURL + PROFILE_IMAGE_URL_SUFFIX;
 	}
 	
 	public static String getTopicWallpaperBaseURL() {
-		String baseURL = getBaseURL();
+		String baseURL = getAttachmentBaseURL();
 		if (!baseURL.endsWith(URL_SEPARATOR)) {
 			baseURL = baseURL + URL_SEPARATOR;
+		}
+		if(isProductionEnvironment()) {
+			return baseURL;
 		}
 		return baseURL + TOPIC_WALLPAPER_URL_SUFFIX;
 	}

@@ -33,6 +33,8 @@ public class User extends CouchDbDocument {
 	
 	private String city;
 	
+	private String country;
+	
 	public String getCity() {
 		return city;
 	}
@@ -98,5 +100,13 @@ public class User extends CouchDbDocument {
 
 	public void setExtraInfoMap(List<UserInfo> extraInfoMap) {
 		this.extraInfoMap = extraInfoMap;
+	}
+
+	public String getCountry() {
+		return country;
+	}
+
+	public void setCountry(String country) {
+		this.country = country;
 	}
 }

@@ -50,6 +50,8 @@ public interface APIConstants {
 		public static final String DESCRIPTION = "description";
 		public static final String CATEGORY = "category";
 		public static final String WALLPAPER = "wallpaper";
+		public static final String CITY = "city";
+		public static final String COUNTRY = "country";
 	}
 
 	public static interface Pack {
@@ -120,5 +122,10 @@ public interface APIConstants {
 		public static final String TITLE = "title";
 		public static final String CONTENT = "content";
 		public static final String TYPE = "type";
+	}
+	
+	public static interface GeoLocation {
+		public static final String LONGITUDE = "longitude";
+		public static final String LATITUDE = "latitude";
 	}
 }

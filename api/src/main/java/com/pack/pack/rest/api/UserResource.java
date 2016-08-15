@@ -113,7 +113,7 @@ public class UserResource {
 	}*/
 	
 	private JStatus doRegisterUser(String name, String email,
-			String password, String city, String dob)
+			String password, String city, String country, String dob)
 			throws PackPackException {
 		String profilePictureFileName = null;
 		IUserService service = ServiceRegistry.INSTANCE
@@ -127,7 +127,7 @@ public class UserResource {
 							+ " already registered");
 		}
 		password = EncryptionUtil.encryptPassword(password);
-		return service.registerNewUser(name, email, password, city, dob,
+		return service.registerNewUser(name, email, password, city, country, dob,
 				null, profilePictureFileName);
 	}
 
@@ -141,6 +141,7 @@ public class UserResource {
 		String password = dto.getPassword();
 		String dob = dto.getDob();
 		String city = dto.getCity();
-		return doRegisterUser(name, email, password, city, dob);
+		String country = dto.getCountry();
+		return doRegisterUser(name, email, password, city, country, dob);
 	}
 }

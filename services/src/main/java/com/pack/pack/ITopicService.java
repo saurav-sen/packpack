@@ -60,7 +60,7 @@ public interface ITopicService {
 	 */
 	public Pagination<JTopic> getAllTopicListing(String userId, String pageLink)
 			throws PackPackException;
-	
+
 	/**
 	 * 
 	 * @param userId
@@ -90,8 +90,9 @@ public interface ITopicService {
 	 * @return
 	 * @throws PackPackException
 	 */
-	public JTopic createNewTopic(JTopic topic, InputStream wallpaper, String wallpaperName) throws PackPackException;
-	
+	public JTopic createNewTopic(JTopic topic, InputStream wallpaper,
+			String wallpaperName) throws PackPackException;
+
 	/**
 	 * 
 	 * @param categoryName

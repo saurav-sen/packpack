@@ -28,6 +28,10 @@ public class JTopic {
 	
 	private boolean isFollowing;
 	
+	private double longitude;
+	
+	private double latitude;
+	
 	public String getOwnerId() {
 		return ownerId;
 	}
@@ -106,5 +110,21 @@ public class JTopic {
 
 	public void setFollowing(boolean isFollowing) {
 		this.isFollowing = isFollowing;
+	}
+
+	public double getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(double longitude) {
+		this.longitude = longitude;
+	}
+
+	public double getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(double latitude) {
+		this.latitude = latitude;
 	}
 }

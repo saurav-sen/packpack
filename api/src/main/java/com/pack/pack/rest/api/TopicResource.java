@@ -27,6 +27,8 @@ import com.pack.pack.model.web.dto.UserPromotion;
 import com.pack.pack.rest.api.security.interceptors.Compress;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
+import com.pack.pack.util.GeoLocationUtil;
+import com.pack.pack.util.GeoLocationUtil.GeoLocation;
 
 /**
  * 
@@ -101,6 +103,8 @@ public class TopicResource {
 			@FormDataParam("ownerId") String ownerId,
 			@FormDataParam("category") String category,
 			@FormDataParam("wallpaper") InputStream wallpaper,
+			@FormDataParam("city") String city,
+			@FormDataParam("country") String country,
 			@FormDataParam("wallpaper") FormDataContentDisposition aboutWallpaper)
 			throws PackPackException {
 		JTopic topic = new JTopic();
@@ -109,6 +113,11 @@ public class TopicResource {
 		topic.setFollowers(1);
 		topic.setOwnerId(ownerId);
 		topic.setCategory(category);
+		GeoLocation geoLocation = GeoLocationUtil.resolveGeoLocation(city, country);
+		if(geoLocation != null) {
+			topic.setLatitude(geoLocation.getLatitude());
+			topic.setLongitude(geoLocation.getLongitude());
+		}
 		ITopicService service = ServiceRegistry.INSTANCE
 				.findCompositeService(ITopicService.class);
 		return service.createNewTopic(topic, wallpaper,

@@ -30,6 +30,10 @@ public class Topic extends CouchDbDocument {
 	private String category;
 	
 	private String wallpaperUrl;
+	
+	private double longitude;
+	
+	private double latitude;
 
 	public String getOwnerId() {
 		return ownerId;
@@ -88,5 +92,21 @@ public class Topic extends CouchDbDocument {
 
 	public void setWallpaperUrl(String wallpaperUrl) {
 		this.wallpaperUrl = wallpaperUrl;
+	}
+
+	public double getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(double longitude) {
+		this.longitude = longitude;
+	}
+
+	public double getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(double latitude) {
+		this.latitude = latitude;
 	}
 }

@@ -298,6 +298,8 @@ public class ModelConverter {
 		jTopic.setCategory(topic.getCategory());
 		jTopic.setWallpaperUrl(resolveTopicWallpaperUrl(topic.getWallpaperUrl()));
 		jTopic.setFollowing(isFollowing);
+		jTopic.setLongitude(topic.getLongitude());
+		jTopic.setLatitude(topic.getLatitude());
 		JUser user = getUserInfo(userId);
 		if (user != null) {
 			jTopic.setOwnerName(user.getName());
@@ -333,6 +335,8 @@ public class ModelConverter {
 		topic.setName(jTopic.getName());
 		topic.setOwnerId(jTopic.getOwnerId());
 		topic.setCategory(jTopic.getCategory());
+		topic.setLongitude(jTopic.getLongitude());
+		topic.setLatitude(jTopic.getLatitude());
 		return topic;
 	}
 

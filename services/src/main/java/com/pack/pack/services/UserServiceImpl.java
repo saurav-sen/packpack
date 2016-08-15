@@ -11,13 +11,18 @@ import org.springframework.stereotype.Component;
 
 import com.pack.pack.IUserService;
 import com.pack.pack.model.User;
+import com.pack.pack.model.UserInfo;
+import com.pack.pack.model.UserLocation;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.StatusType;
+import com.pack.pack.services.couchdb.UserLocationRepositoryService;
 import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.es.ESUploadService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
+import com.pack.pack.util.GeoLocationUtil;
+import com.pack.pack.util.GeoLocationUtil.GeoLocation;
 import com.pack.pack.util.ModelConverter;
 import com.pack.pack.util.S3Path;
 import com.pack.pack.util.SystemPropertyUtil;
@@ -32,9 +37,10 @@ import com.pack.pack.util.SystemPropertyUtil;
 public class UserServiceImpl implements IUserService {
 
 	@Override
-	public JStatus registerNewUser(String name, String email, String password,
-			String city, String dob, InputStream profilePicture,
-			String profilePictureFileName) throws PackPackException {
+	public JUser registerNewUser(String name, String email, String password,
+			String city, String country, String dob,
+			InputStream profilePicture, String profilePictureFileName)
+			throws PackPackException {
 		UserRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(UserRepositoryService.class);
 		User user = new User();
@@ -42,18 +48,17 @@ public class UserServiceImpl implements IUserService {
 		user.setUsername(email);
 		user.setPassword(password);
 		user.setCity(city);
+		user.setCountry(country);
 		user.setDob(dob);
 		service.add(user);
 		JStatus status = new JStatus();
 		List<User> users = service.getBasedOnUsername(email);
 		if (users == null || users.isEmpty()) {
-			status.setStatus(StatusType.ERROR);
-			status.setInfo("Internal Server Error. Failed to register user: "
+			throw new PackPackException("", "Internal Server Error. Failed to register user: "
 					+ email);
-			return status;
 		}
 		user = users.get(0);
-		if(profilePicture != null) {
+		if (profilePicture != null) {
 			String profilePictureUrl = storeProfilePicture(user.getId(),
 					profilePicture, profilePictureFileName);
 			user.setProfilePicture(profilePictureUrl);
@@ -61,12 +66,64 @@ public class UserServiceImpl implements IUserService {
 		service.update(user);
 		status.setStatus(StatusType.OK);
 		status.setInfo("Successfully registered the user " + email);
+
+		GeoLocation geoLocation = GeoLocationUtil.resolveGeoLocation(city,
+				country);
+		if (geoLocation != null) {
+			UserLocation userLocation = new UserLocation();
+			userLocation.setUserId(user.getId());
+			userLocation
+					.setLongitude(String.valueOf(geoLocation.getLongitude()));
+			userLocation.setLatitude(String.valueOf(geoLocation.getLatitude()));
+			UserLocationRepositoryService service2 = ServiceRegistry.INSTANCE
+					.findService(UserLocationRepositoryService.class);
+			service2.add(userLocation);
+		}
+
 		ESUploadService esService = ServiceRegistry.INSTANCE
 				.findService(ESUploadService.class);
 		esService.uploadNewUserDetails(user);
-		return status;
+		return ModelConverter.convert(user);
 	}
 	
+	@Override
+	public JStatus editUserFollowedCategories(String userId,
+			List<String> categories) throws PackPackException {
+		UserRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(UserRepositoryService.class);
+		User user = service.get(userId);
+		if(user == null) {
+			JStatus status = new JStatus();
+			status.setStatus(StatusType.ERROR);
+			status.setInfo("Failed to find user with ID = " + userId);
+			return status;
+		}
+		List<UserInfo> infos = user.getExtraInfoMap();
+		UserInfo userInfo = null;
+		for(UserInfo info : infos) {
+			if(UserInfo.FOLLOWED_CATEGORIES.equals(info.getKey())) {
+				userInfo = info;
+				break;
+			}
+		}
+		if(userInfo == null) {
+			userInfo = new UserInfo();
+			userInfo.setKey(UserInfo.FOLLOWED_CATEGORIES);
+			infos.add(userInfo);
+		}
+		StringBuilder categoriesValue = new StringBuilder();
+		for(String category : categories) {
+			categoriesValue.append(category.trim().toLowerCase());
+			categoriesValue.append(":");
+		}
+		userInfo.setValue(categoriesValue.toString());
+		service.update(user);
+		JStatus status = new JStatus();
+		status.setStatus(StatusType.OK);
+		status.setInfo("Successfully updated user information");
+		return status;
+	}
+
 	@Override
 	public JUser findUserById(String userId) throws PackPackException {
 		UserRepositoryService service = ServiceRegistry.INSTANCE
