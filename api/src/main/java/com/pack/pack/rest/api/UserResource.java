@@ -1,5 +1,6 @@
 package com.pack.pack.rest.api;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -14,8 +15,8 @@ import javax.ws.rs.ext.Provider;
 import com.pack.pack.IUserService;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.User;
+import com.pack.pack.model.UserInfo;
 import com.pack.pack.model.es.UserDetail;
-import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.JUsers;
 import com.pack.pack.model.web.dto.SignupDTO;
@@ -112,7 +113,7 @@ public class UserResource {
 				profilePicture, profilePictureFileName);
 	}*/
 	
-	private JStatus doRegisterUser(String name, String email,
+	private JUser doRegisterUser(String name, String email,
 			String password, String city, String country, String dob)
 			throws PackPackException {
 		String profilePictureFileName = null;
@@ -132,9 +133,10 @@ public class UserResource {
 	}
 
 	@POST
+	@Compress
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public JStatus registerUser(String json) throws PackPackException {
+	public JUser registerUser(String json) throws PackPackException {
 		SignupDTO dto = JSONUtil.deserialize(json, SignupDTO.class, true);
 		String name = dto.getName();
 		String email = dto.getEmail();
@@ -143,5 +145,22 @@ public class UserResource {
 		String city = dto.getCity();
 		String country = dto.getCountry();
 		return doRegisterUser(name, email, password, city, country, dob);
+	}
+	
+	@POST
+	@Compress
+	@Path("id/{id}/follow/category")
+	@Consumes(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
+	public JUser editUserFollowedCategories(
+			@PathParam("id") String userId, String followedCategories)
+			throws PackPackException {
+		IUserService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IUserService.class);
+		String[] split = followedCategories
+				.split(UserInfo.FOLLOWED_CATEGORIES_SEPARATOR);
+		List<String> categories = Arrays.asList(split);
+		service.editUserFollowedCategories(userId, categories);
+		return getUserById(userId);
 	}
 }

@@ -2,6 +2,7 @@ package com.pack.pack.util;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,6 +20,7 @@ import com.pack.pack.model.PackAttachmentType;
 import com.pack.pack.model.RSSFeed;
 import com.pack.pack.model.Topic;
 import com.pack.pack.model.User;
+import com.pack.pack.model.UserInfo;
 import com.pack.pack.model.es.UserDetail;
 import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JDiscussion;
@@ -185,6 +187,19 @@ public class ModelConverter {
 		jUser.setUsername(user.getUsername());
 		jUser.setProfilePictureUrl(resolveProfilePictureUrl(user
 				.getProfilePicture()));
+		List<UserInfo> infos = user.getExtraInfoMap();
+		if (infos != null && !infos.isEmpty()) {
+			for (UserInfo info : infos) {
+				if (UserInfo.FOLLOWED_CATEGORIES.equals(info.getKey())) {
+					String followedCategories = info.getValue();
+					String[] split = followedCategories
+							.split(UserInfo.FOLLOWED_CATEGORIES_SEPARATOR);
+					List<String> list = Arrays.asList(split);
+					jUser.setFollowedCategories(list);
+					break;
+				}
+			}
+		}
 		return jUser;
 	}
 

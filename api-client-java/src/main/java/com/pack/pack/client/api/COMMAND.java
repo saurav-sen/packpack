@@ -8,7 +8,8 @@ package com.pack.pack.client.api;
 public enum COMMAND {
 
 	SIGN_IN(APIConstants.Login.CLIENT_KEY, APIConstants.Login.CLIENT_SECRET,
-			APIConstants.Login.USERNAME, APIConstants.Login.PASSWORD), SIGN_UP(), SIGN_OUT(), GET_USER_BY_ID(
+			APIConstants.Login.USERNAME, APIConstants.Login.PASSWORD), SIGN_UP(), SIGN_OUT(), EDIT_USER_CATEGORIES(
+			APIConstants.TopicCategories.FOLLOWED_CATEGORIES), GET_USER_BY_ID(
 			APIConstants.User.ID), GET_USER_BY_USERNAME(
 			APIConstants.User.USERNAME), SEARCH_USER_BY_NAME(
 			APIConstants.User.NAME_SEARCH_PATTERN), GET_USER_FOLLOWED_TOPIC_LIST(

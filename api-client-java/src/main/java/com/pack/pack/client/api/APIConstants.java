@@ -53,6 +53,11 @@ public interface APIConstants {
 		public static final String CITY = "city";
 		public static final String COUNTRY = "country";
 	}
+	
+	public static interface TopicCategories {
+		public static final String FOLLOWED_CATEGORIES = "followedCategories";
+		public static final String SEPARATOR = ":";
+	}
 
 	public static interface Pack {
 		public static final String ID = "packId";

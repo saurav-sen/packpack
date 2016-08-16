@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.http.HttpEntity;
@@ -29,7 +30,6 @@ import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.client.api.MultipartRequestProgressListener;
 import com.pack.pack.common.util.JSONUtil;
-import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.dto.SignupDTO;
 import com.pack.pack.oauth1.client.AccessToken;
@@ -81,12 +81,25 @@ class UserManagementApi extends BaseAPI {
 		}
 		
 		@Override
+		@SuppressWarnings("unchecked")
 		public Object invoke(MultipartRequestProgressListener listener) throws Exception {
 			Object result = null;
 			if (action == COMMAND.SIGN_IN) {
 				result = signIn(params);
 			} else if (action == COMMAND.SIGN_UP) {
 				result = signUp(params);
+			} else if (action == COMMAND.EDIT_USER_CATEGORIES) {
+				String userId = (String) params.get(APIConstants.User.ID);
+				List<String> followedCategories = (List<String>) params
+						.get(APIConstants.TopicCategories.FOLLOWED_CATEGORIES);
+				StringBuilder followedCategoriesStr = new StringBuilder();
+				for (String followedCategory : followedCategories) {
+					followedCategoriesStr.append(followedCategory);
+					followedCategoriesStr
+							.append(APIConstants.TopicCategories.SEPARATOR);
+				}
+				result = editUserFollowdCategories(userId,
+						followedCategoriesStr.toString(), oAuthToken);
 			} else if (action == COMMAND.GET_USER_BY_ID) {
 				result = getUserById(params, oAuthToken);
 			} else if (action == COMMAND.GET_USER_BY_USERNAME) {
@@ -147,7 +160,22 @@ class UserManagementApi extends BaseAPI {
 		return JSONUtil.deserialize(json, JUser.class);
 	}
 	
-	private JStatus signUp(Map<String, Object> params)
+	private JUser editUserFollowdCategories(String userId,
+			String followedCategories, String accessToken)
+			throws ClientProtocolException, IOException, PackPackException {
+		String url = getBaseUrl() + "user/id/" + userId + "/follow/category";
+		HttpClient client = new DefaultHttpClient();
+		HttpPost POST = new HttpPost(url);
+		POST.addHeader(AUTHORIZATION_HEADER, accessToken);
+		HttpEntity entity = new StringEntity(followedCategories);
+		POST.setEntity(entity);
+		HttpResponse response = client.execute(POST);
+		String json = EntityUtils.toString(GZipUtil.decompress(response
+				.getEntity()));
+		return JSONUtil.deserialize(json, JUser.class);
+	}
+	
+	private JUser signUp(Map<String, Object> params)
 			throws ClientProtocolException, IOException, ParseException,
 			PackPackException {
 		String url = getBaseUrl() + "user";
@@ -186,8 +214,10 @@ class UserManagementApi extends BaseAPI {
 			String email = (String) params.get(APIConstants.User.Register.EMAIL);
 			String password = (String) params.get(APIConstants.User.Register.PASSWORD);
 			String city = (String) params.get(APIConstants.User.Register.CITY);
+			String country = (String) params.get(APIConstants.User.Register.COUNTRY);
 			String dob = (String) params.get(APIConstants.User.Register.DOB);
 			dto.setCity(city);
+			dto.setCountry(country);
 			dto.setDob(dob);
 			dto.setEmail(email);
 			dto.setName(name);
@@ -201,8 +231,10 @@ class UserManagementApi extends BaseAPI {
 				ContentType.MULTIPART_FORM_DATA.getMimeType());*/
 		HttpResponse response = client.execute(POST);
 		return JSONUtil.deserialize(EntityUtils.toString(GZipUtil.decompress(response.getEntity())),
-				JStatus.class);
+				JUser.class);
 	}
+	
+	
 
 	private AccessToken signIn(Map<String, Object> params)
 			throws ClientProtocolException, IOException {

@@ -8,6 +8,7 @@ package com.pack.pack.model;
 public class UserInfo {
 	
 	public static final String FOLLOWED_CATEGORIES = "followedCategories";
+	public static final String FOLLOWED_CATEGORIES_SEPARATOR = ":";
 
 	private String key;
 	

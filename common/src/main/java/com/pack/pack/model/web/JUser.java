@@ -1,5 +1,8 @@
 package com.pack.pack.model.web;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 
  * @author Saurav
@@ -16,6 +19,8 @@ public class JUser {
 	private String dob;
 	
 	private String profilePictureUrl;
+	
+	private List<String> followedCategories;
 
 	public String getName() {
 		return name;
@@ -55,5 +60,16 @@ public class JUser {
 
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	public List<String> getFollowedCategories() {
+		if(followedCategories == null) {
+			followedCategories = new ArrayList<String>(10);
+		}
+		return followedCategories;
+	}
+
+	public void setFollowedCategories(List<String> followedCategories) {
+		this.followedCategories = followedCategories;
 	}
 }
