@@ -9,8 +9,8 @@ public enum COMMAND {
 
 	SIGN_IN(APIConstants.Login.CLIENT_KEY, APIConstants.Login.CLIENT_SECRET,
 			APIConstants.Login.USERNAME, APIConstants.Login.PASSWORD), SIGN_UP(), SIGN_OUT(), EDIT_USER_CATEGORIES(
-			APIConstants.TopicCategories.FOLLOWED_CATEGORIES), GET_USER_BY_ID(
-			APIConstants.User.ID), GET_USER_BY_USERNAME(
+			APIConstants.TopicCategories.FOLLOWED_CATEGORIES), GET_USER_CATEGORIES(
+			APIConstants.User.ID), GET_USER_BY_ID(APIConstants.User.ID), GET_USER_BY_USERNAME(
 			APIConstants.User.USERNAME), SEARCH_USER_BY_NAME(
 			APIConstants.User.NAME_SEARCH_PATTERN), GET_USER_FOLLOWED_TOPIC_LIST(
 			APIConstants.PageInfo.PAGE_LINK, APIConstants.User.ID), FOLLOW_TOPIC(
@@ -18,7 +18,8 @@ public enum COMMAND {
 			APIConstants.Topic.ID, APIConstants.User.ID), GET_TOPIC_BY_ID(
 			APIConstants.Topic.ID), CREATE_NEW_TOPIC(
 			APIConstants.Topic.OWNER_ID, APIConstants.Topic.OWNER_NAME,
-			APIConstants.Topic.NAME, APIConstants.Topic.DESCRIPTION), GET_PACK_BY_ID(
+			APIConstants.Topic.NAME, APIConstants.Topic.DESCRIPTION,
+			APIConstants.Topic.CITY, APIConstants.Topic.COUNTRY), GET_PACK_BY_ID(
 			APIConstants.Pack.ID), GET_PACK_ATTACHMENT_BY_ID(
 			APIConstants.PackAttachment.ID), GET_ALL_PACKS_IN_DEFAULT_TOPICS(
 			APIConstants.User.ID, APIConstants.PageInfo.PAGE_LINK), GET_ALL_PACKS_IN_TOPIC(

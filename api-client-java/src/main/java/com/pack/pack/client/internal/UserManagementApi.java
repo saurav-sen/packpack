@@ -7,6 +7,7 @@ import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
@@ -100,6 +102,9 @@ class UserManagementApi extends BaseAPI {
 				}
 				result = editUserFollowdCategories(userId,
 						followedCategoriesStr.toString(), oAuthToken);
+			} else if(action == COMMAND.GET_USER_CATEGORIES) {
+				String userId = (String) params.get(APIConstants.User.ID);
+				result = getUserFollowedCategories(userId, oAuthToken);
 			} else if (action == COMMAND.GET_USER_BY_ID) {
 				result = getUserById(params, oAuthToken);
 			} else if (action == COMMAND.GET_USER_BY_USERNAME) {
@@ -160,16 +165,30 @@ class UserManagementApi extends BaseAPI {
 		return JSONUtil.deserialize(json, JUser.class);
 	}
 	
+	@SuppressWarnings("unchecked")
+	private List<String> getUserFollowedCategories(String userId,
+			String accessToken) throws ClientProtocolException, IOException,
+			PackPackException {
+		String url = getBaseUrl() + "user/id/" + userId + "/follow/category";
+		HttpClient client = new DefaultHttpClient();
+		HttpGet GET = new HttpGet(url);
+		GET.addHeader(AUTHORIZATION_HEADER, accessToken);
+		HttpResponse response = client.execute(GET);
+		String json = EntityUtils.toString(GZipUtil.decompress(response
+				.getEntity()));
+		return JSONUtil.deserialize(json, ArrayList.class);
+	}
+	
 	private JUser editUserFollowdCategories(String userId,
 			String followedCategories, String accessToken)
 			throws ClientProtocolException, IOException, PackPackException {
 		String url = getBaseUrl() + "user/id/" + userId + "/follow/category";
 		HttpClient client = new DefaultHttpClient();
-		HttpPost POST = new HttpPost(url);
-		POST.addHeader(AUTHORIZATION_HEADER, accessToken);
+		HttpPut PUT = new HttpPut(url);
+		PUT.addHeader(AUTHORIZATION_HEADER, accessToken);
 		HttpEntity entity = new StringEntity(followedCategories);
-		POST.setEntity(entity);
-		HttpResponse response = client.execute(POST);
+		PUT.setEntity(entity);
+		HttpResponse response = client.execute(PUT);
 		String json = EntityUtils.toString(GZipUtil.decompress(response
 				.getEntity()));
 		return JSONUtil.deserialize(json, JUser.class);

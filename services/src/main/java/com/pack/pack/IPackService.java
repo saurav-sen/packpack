@@ -3,9 +3,9 @@ package com.pack.pack;
 import java.io.InputStream;
 
 import com.pack.pack.model.Pack;
-import com.pack.pack.model.PackAttachmentType;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPackAttachment;
+import com.pack.pack.model.web.PackAttachmentType;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.dto.PackReceipent;
 import com.pack.pack.services.exception.PackPackException;

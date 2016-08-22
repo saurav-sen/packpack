@@ -24,7 +24,7 @@ public class PackAttachment extends CouchDbDocument {
 	
 	private String mimeType;
 	
-	private PackAttachmentType type;
+	private AttachmentType type;
 	
 	private String title;
 	
@@ -58,11 +58,11 @@ public class PackAttachment extends CouchDbDocument {
 		this.mimeType = mimeType;
 	}
 
-	public PackAttachmentType getType() {
+	public AttachmentType getType() {
 		return type;
 	}
 
-	public void setType(PackAttachmentType type) {
+	public void setType(AttachmentType type) {
 		this.type = type;
 	}
 

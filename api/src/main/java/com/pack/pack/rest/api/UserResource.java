@@ -1,11 +1,13 @@
 package com.pack.pack.rest.api;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -147,7 +149,7 @@ public class UserResource {
 		return doRegisterUser(name, email, password, city, country, dob);
 	}
 	
-	@POST
+	@PUT
 	@Compress
 	@Path("id/{id}/follow/category")
 	@Consumes(MediaType.TEXT_PLAIN)
@@ -162,5 +164,33 @@ public class UserResource {
 		List<String> categories = Arrays.asList(split);
 		service.editUserFollowedCategories(userId, categories);
 		return getUserById(userId);
+	}
+	
+	@GET
+	@Compress
+	@Path("id/{id}/follow/category")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getUserFollowedCategories(
+			@PathParam("id") String userId) throws PackPackException {
+		List<String> list = null;
+		UserRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(UserRepositoryService.class);
+		User user = service.get(userId);
+		List<UserInfo> infos = user.getExtraInfoMap();
+		if (infos != null && !infos.isEmpty()) {
+			for (UserInfo info : infos) {
+				if (UserInfo.FOLLOWED_CATEGORIES.equals(info.getKey())) {
+					String followedCategories = info.getValue();
+					String[] split = followedCategories
+							.split(UserInfo.FOLLOWED_CATEGORIES_SEPARATOR);
+					list = Arrays.asList(split);
+					break;
+				}
+			}
+		}
+		if(list != null) {
+			return JSONUtil.serialize(list, false);
+		}
+		return JSONUtil.serialize(Collections.EMPTY_LIST, false);
 	}
 }

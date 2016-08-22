@@ -17,15 +17,16 @@ import org.springframework.stereotype.Component;
 import com.pack.pack.IPackService;
 import com.pack.pack.common.util.CommonConstants;
 import com.pack.pack.message.FwdPack;
+import com.pack.pack.model.AttachmentType;
 import com.pack.pack.model.Comment;
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.PackAttachment;
-import com.pack.pack.model.PackAttachmentType;
 import com.pack.pack.model.Topic;
 import com.pack.pack.model.TopicPackMap;
 import com.pack.pack.model.User;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPackAttachment;
+import com.pack.pack.model.web.PackAttachmentType;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.dto.PackReceipent;
 import com.pack.pack.model.web.dto.PackReceipentType;
@@ -291,7 +292,8 @@ public class PackServiceImpl implements IPackService {
 					.substring(home.length()));
 		}
 		packAttachment.setAttachmentUrl(location.substring(home.length()));
-		packAttachment.setType(type);
+		packAttachment.setType(AttachmentType.valueOf(type.name()));
+		packAttachment.setMimeType(type.name());
 		packAttachment.setAttachmentParentPackId(pack.getId());
 		PackAttachmentRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(PackAttachmentRepositoryService.class);

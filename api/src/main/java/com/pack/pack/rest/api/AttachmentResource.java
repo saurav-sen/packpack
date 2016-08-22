@@ -35,8 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pack.pack.IPackService;
-import com.pack.pack.model.PackAttachmentType;
 import com.pack.pack.model.web.JPack;
+import com.pack.pack.model.web.PackAttachmentType;
 import com.pack.pack.rest.api.security.interceptors.Compress;
 import com.pack.pack.rest.web.util.ImageUtil;
 import com.pack.pack.services.exception.PackPackException;

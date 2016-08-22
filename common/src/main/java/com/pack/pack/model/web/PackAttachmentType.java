@@ -1,4 +1,4 @@
-package com.pack.pack.model;
+package com.pack.pack.model.web;
 
 /**
  * 

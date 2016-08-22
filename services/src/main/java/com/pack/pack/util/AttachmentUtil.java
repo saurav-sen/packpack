@@ -1,5 +1,7 @@
 package com.pack.pack.util;
 
+import static com.pack.pack.util.SystemPropertyUtil.isProductionEnvironment;
+
 import java.awt.image.BufferedImage;
 import java.awt.image.ImagingOpException;
 import java.io.File;
@@ -87,7 +89,10 @@ public class AttachmentUtil {
 			String path = parentFile.getAbsolutePath() + File.separator
 					+ "thumbnail";
 			
-			s3Path.getParent().addChild(new S3Path("thumbnail", true));
+			if (isProductionEnvironment()) {
+				s3Path.addChild(new S3Path("thumbnail", true));
+			}
+			//s3Path.getParent().addChild(new S3Path("thumbnail", true));
 			
 			File dir = new File(path);
 			if (!dir.exists()) {

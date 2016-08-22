@@ -11,12 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pack.pack.IUserService;
+import com.pack.pack.model.AttachmentType;
 import com.pack.pack.model.Comment;
 import com.pack.pack.model.Discussion;
 import com.pack.pack.model.EGift;
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.PackAttachment;
-import com.pack.pack.model.PackAttachmentType;
 import com.pack.pack.model.RSSFeed;
 import com.pack.pack.model.Topic;
 import com.pack.pack.model.User;
@@ -105,8 +105,8 @@ public class ModelConverter {
 
 	public static JPackAttachment convert(PackAttachment attachment) {
 		JPackAttachment jAttachment = new JPackAttachment();
-		PackAttachmentType type = attachment.getType();
-		String baseURL = (type == PackAttachmentType.IMAGE ? SystemPropertyUtil
+		AttachmentType type = attachment.getType();
+		String baseURL = (type == AttachmentType.IMAGE ? SystemPropertyUtil
 				.getImageAttachmentBaseURL() : SystemPropertyUtil
 				.getVideoAttachmentBaseURL());
 /*		String thumbnailUrl = attachment.getAttachmentThumbnailUrl();

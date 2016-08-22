@@ -45,9 +45,9 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.GmailScopes;
 import com.google.api.services.gmail.model.Message;
+import com.pack.pack.model.AttachmentType;
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.PackAttachment;
-import com.pack.pack.model.PackAttachmentType;
 import com.pack.pack.model.web.dto.PackReceipent;
 import com.pack.pack.services.couchdb.PackAttachmentRepositoryService;
 import com.pack.pack.services.registry.ServiceRegistry;
@@ -117,7 +117,7 @@ public class GmailMessageService {
 		if (packAttachments != null && !packAttachments.isEmpty()) {
 			for (PackAttachment packAttachment : packAttachments) {
 				String filePath = packAttachment.getAttachmentUrl();
-				PackAttachmentType type = packAttachment.getType();
+				AttachmentType type = packAttachment.getType();
 				File f = null;
 				switch (type) {
 				case IMAGE:

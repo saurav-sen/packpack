@@ -13,13 +13,14 @@ import org.springframework.stereotype.Component;
 import com.pack.pack.IeGiftService;
 import com.pack.pack.common.util.CommonConstants;
 import com.pack.pack.message.FwdPack;
+import com.pack.pack.model.AttachmentType;
 import com.pack.pack.model.EGift;
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.PackAttachment;
-import com.pack.pack.model.PackAttachmentType;
 import com.pack.pack.model.User;
 import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JeGift;
+import com.pack.pack.model.web.PackAttachmentType;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.dto.PackReceipent;
 import com.pack.pack.model.web.dto.PackReceipentType;
@@ -179,7 +180,7 @@ public class EGiftServiceImpl implements IeGiftService {
 		PackAttachment packAttachment = new PackAttachment();
 		//packAttachment.setAttachmentThumbnailUrl(eGift.getImageThumbnailUrl());
 		packAttachment.setAttachmentUrl(eGift.getImageUrl());
-		packAttachment.setType(PackAttachmentType.IMAGE);
+		packAttachment.setType(AttachmentType.valueOf(PackAttachmentType.IMAGE.name()));
 		PackAttachmentRepositoryService service2 = ServiceRegistry.INSTANCE
 				.findService(PackAttachmentRepositoryService.class);
 		service2.add(packAttachment);
