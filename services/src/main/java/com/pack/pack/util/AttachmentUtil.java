@@ -17,6 +17,8 @@ import org.imgscalr.Scalr.Method;
 import org.imgscalr.Scalr.Mode;
 import org.jcodec.api.JCodecException;
 import org.jcodec.api.awt.FrameGrab;
+import org.jcodec.common.FileChannelWrapper;
+import org.jcodec.common.NIOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,15 +124,54 @@ public class AttachmentUtil {
 			throw new PackPackException("TODO", e.getMessage(), e);
 		}
 	}
+	
+	private static BufferedImage grabFrameFromVideoFile(File videoFile)
+			throws IOException, JCodecException {
+		File outputFile = videoFile;
+		String fFmpegCommand = SystemPropertyUtil.getFFmpegCommand();
+		if(fFmpegCommand != null) {
+			String tmpDir = System.getProperty("java.io.tmpdir");
+			if(!tmpDir.endsWith(File.separator)) {
+				tmpDir = tmpDir + File.separator;
+			}
+			String outputFilePath = tmpDir + videoFile.getName().substring(0, videoFile.getName().lastIndexOf(".")) + ".mp4";
+			fFmpegCommand = fFmpegCommand + " -i " + videoFile.getAbsolutePath() + " " + outputFilePath;
+			Process process = Runtime.getRuntime().exec(fFmpegCommand);
+			try {
+				process.waitFor();
+			} catch (InterruptedException e) {
+				logger.error(e.getMessage(), e);
+			}
+			outputFile = new File(outputFilePath);
+		}
+		BufferedImage frameImage = null;
+		FileChannelWrapper ch = null;
+		int frameNo = 1;
+		try {
+			ch = NIOUtils.readableFileChannel(outputFile);
+			frameImage = ((FrameGrab) new FrameGrab(ch)
+					.seekToFramePrecise(frameNo)).getFrame();
+		} finally {
+			NIOUtils.closeQuietly(ch);
+		}
+		return frameImage;
+	}
+	
+	
+	/*public static void main(String[] args) throws Exception {
+		BufferedImage grabFrameFromVideoFile = grabFrameFromVideoFile(new File("D:/Saurav/VM/packpack/65547c86-b2ba-448f-8f32-4206a7d49376_2.mp4"));
+		assert(grabFrameFromVideoFile != null);
+	}*/
 
 	public static File createThumnailForVideo(File videoFile, S3Path s3Path)
 			throws PackPackException {
 		try {
-			int frameNo = 10;
-			BufferedImage frameImage = FrameGrab.getFrame(videoFile, frameNo);
-			BufferedImage thumbnailImage = Scalr.resize(frameImage, Method.QUALITY,
+			BufferedImage frameImage = grabFrameFromVideoFile(videoFile);
+			if(frameImage == null)
+				return null;
+			/*BufferedImage thumbnailImage = Scalr.resize(frameImage, Method.QUALITY,
 					Mode.AUTOMATIC, THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT,
-					Scalr.OP_ANTIALIAS);
+					Scalr.OP_ANTIALIAS);*/
 			File parentFile = videoFile.getParentFile();
 			String path = parentFile.getAbsolutePath() + File.separator
 					+ "thumbnail";
@@ -148,7 +189,7 @@ public class AttachmentUtil {
 							.substring(0, imageFileName.lastIndexOf("."))
 					+ ".jpg";
 			File thumbnailImageFile = new File(path);
-			ImageIO.write(thumbnailImage, "jpg", thumbnailImageFile);
+			ImageIO.write(frameImage, "jpg", thumbnailImageFile);
 			
 			// Upload to S3 bucket.
 			S3Util.uploadFileToS3Bucket(thumbnailImageFile, s3Path);

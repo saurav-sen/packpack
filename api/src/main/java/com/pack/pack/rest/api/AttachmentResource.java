@@ -244,7 +244,7 @@ public class AttachmentResource {
 			@PathParam("topicId") String topicId,
 			@PathParam("userId") String userId) throws PackPackException {
 		//String fileName = aboutFile.getFileName();
-		String fileName = UUID.randomUUID().toString();
+		String fileName = UUID.randomUUID().toString() + ".jpg";
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
 		return service.uploadPack(file, fileName, title, description, story,
@@ -265,7 +265,7 @@ public class AttachmentResource {
 			@PathParam("userId") String userId) throws PackPackException {
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
-		String fileName = UUID.randomUUID().toString();
+		String fileName = UUID.randomUUID().toString() + ".jpg";
 		return service.updatePack(file, fileName,
 				PackAttachmentType.IMAGE, packId, topicId, userId);
 	}
@@ -283,11 +283,11 @@ public class AttachmentResource {
 			@PathParam("topicId") String topicId,
 			@PathParam("userId") String userId) throws PackPackException {
 		//String fileName = aboutFile.getFileName();
-		String fileName = UUID.randomUUID().toString();
+		String fileName = UUID.randomUUID().toString() + ".mp4";
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
 		return service.uploadPack(file, fileName, title, description, story,
-				topicId, userId, null, PackAttachmentType.IMAGE, true);
+				topicId, userId, null, PackAttachmentType.VIDEO, true);
 	}
 
 	@PUT
@@ -302,7 +302,7 @@ public class AttachmentResource {
 			@PathParam("userId") String userId) throws PackPackException {
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
-		String fileName = UUID.randomUUID().toString();
+		String fileName = UUID.randomUUID().toString() + ".mp4";
 		return service.updatePack(file, fileName,
 				PackAttachmentType.VIDEO, packId, topicId, userId);
 	}

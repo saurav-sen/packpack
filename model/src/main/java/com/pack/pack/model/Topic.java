@@ -34,6 +34,8 @@ public class Topic extends CouchDbDocument {
 	private double longitude;
 	
 	private double latitude;
+	
+	private String place;
 
 	public String getOwnerId() {
 		return ownerId;
@@ -108,5 +110,13 @@ public class Topic extends CouchDbDocument {
 
 	public void setLatitude(double latitude) {
 		this.latitude = latitude;
+	}
+
+	public String getPlace() {
+		return place;
+	}
+
+	public void setPlace(String place) {
+		this.place = place;
 	}
 }

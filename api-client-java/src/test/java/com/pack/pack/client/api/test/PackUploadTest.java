@@ -62,6 +62,19 @@ public class PackUploadTest extends UserFollowedTopicListTest {
 				.build();
 		return (JPack) api.execute();
 	}
+	
+	public JPack testAddVideoToPack(String topicId, String packId,
+			String videoFilePath) throws Exception {
+		File file = new File(videoFilePath);
+		API api = APIBuilder.create(BASE_URL).setAction(COMMAND.ADD_VIDEO_TO_PACK)
+				.setOauthToken(oAuthToken)
+				.addApiParam(APIConstants.Topic.ID, topicId)
+				.addApiParam(APIConstants.Pack.ID, packId)
+				.addApiParam(APIConstants.User.ID, userId)
+				.addApiParam(APIConstants.Attachment.FILE_ATTACHMENT, file)
+				.build();
+		return (JPack) api.execute();
+	}
 
 	@SuppressWarnings("unchecked")
 	public Pagination<JPackAttachment> getAllPackAttachments(String topicId,

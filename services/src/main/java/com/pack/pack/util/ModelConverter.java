@@ -136,6 +136,24 @@ public class ModelConverter {
 		} else {
 			url = baseURL + url;
 		}
+		
+		{
+			String thumbnailUrl = attachment.getAttachmentThumbnailUrl();
+			if(thumbnailUrl != null && !thumbnailUrl.trim().isEmpty()) {
+				thumbnailUrl = thumbnailUrl.replaceAll(File.separator, SystemPropertyUtil.URL_SEPARATOR);
+				if (!thumbnailUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)
+						&& !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+					thumbnailUrl = baseURL + SystemPropertyUtil.URL_SEPARATOR + thumbnailUrl;
+				} else if (baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)
+						&& thumbnailUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+					thumbnailUrl = baseURL.substring(0, baseURL.length() - 1) + thumbnailUrl;
+				} else {
+					thumbnailUrl = baseURL + thumbnailUrl;
+				}
+				jAttachment.setAttachmentThumbnailUrl(thumbnailUrl);
+			}
+		}
+		
 		jAttachment.setId(attachment.getId());
 		jAttachment.setAttachmentUrl(url);
 		jAttachment.setMimeType(attachment.getMimeType());

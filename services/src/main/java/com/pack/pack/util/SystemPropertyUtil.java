@@ -68,6 +68,8 @@ public class SystemPropertyUtil {
 	private static final String AWS_S3_ROOT_BUCKET = "aws.s3.root.bucket";
 	private static final String AWS_S3_BASE_URL = "aws.s3.base.url";
 	
+	private static final String FFMPEG_COMMAND = "ffmpeg.cmd";
+	
 	private static final String GOOGLE_GEO_CODING_API_KEY = "google.geo.coding.api_key";
 	
 	public static void init() {
@@ -88,6 +90,10 @@ public class SystemPropertyUtil {
 
 	private static String getPropertyValue(String key) {
 		return properties.getProperty(key);
+	}
+	
+	public static String getFFmpegCommand() {
+		return getPropertyValue(FFMPEG_COMMAND);
 	}
 	
 	public static String getGoogleGeoCodingApiKey() {

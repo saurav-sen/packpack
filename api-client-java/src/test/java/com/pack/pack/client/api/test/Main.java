@@ -39,6 +39,7 @@ public class Main {
 		testUserFOllowedTopicList();
 		uploadPackTest(false);
 		//addImageToPack();
+		addVideoToPack();
 	}
 	
 	private static void addImageToPack() throws Exception {
@@ -63,6 +64,33 @@ public class Main {
 					continue;
 				System.out.println(JSONUtil.serialize(test.testAddImageToPack(
 						topicId, packs.get(0).getId(), imageFilePath)));
+				break;
+			}
+		}
+	}
+	
+	private static void addVideoToPack() throws Exception {
+		PackUploadTest test = new PackUploadTest();
+		test.beforeTest();
+		Pagination<JTopic> topicList = test.testUserFollowedTopicList();
+		String videoFilePath = "D:/Saurav/VM/packpack/65547c86-b2ba-448f-8f32-4206a7d49376.mp4";//"D:/Saurav/Lord_Ganesh.mp4";
+		if (topicList != null) {
+			List<JTopic> result = topicList.getResult();
+			if (result == null || result.isEmpty())
+				return;
+			int count = 0;
+			for (JTopic r : result) {
+				if (count > 1)
+					break;
+				String topicId = r.getId();
+				Pagination<JPack> page = test.testGetAllPacksInTopic(topicId);
+				if(page == null)
+					continue;
+				List<JPack> packs = page.getResult();
+				if(packs == null || packs.isEmpty())
+					continue;
+				System.out.println(JSONUtil.serialize(test.testAddVideoToPack(
+						topicId, packs.get(0).getId(), videoFilePath)));
 				break;
 			}
 		}

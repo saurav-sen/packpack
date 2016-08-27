@@ -49,8 +49,9 @@ public class S3Path {
 		return parent;
 	}
 
-	public void setParent(S3Path parent) {
+	public S3Path setParent(S3Path parent) {
 		this.parent = parent;
+		return this;
 	}
 	
 	public S3Path addChild(S3Path child) {

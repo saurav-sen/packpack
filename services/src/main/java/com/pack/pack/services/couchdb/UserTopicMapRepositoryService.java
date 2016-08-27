@@ -145,7 +145,9 @@ public class UserTopicMapRepositoryService extends CouchDbRepositorySupport<User
 				continue;
 			newResult.add(topic);
 		}
-		if (newResult.isEmpty()) {
+		return new Pagination<Topic>(page.getPreviousLink(),
+				page.getNextLink(), newResult);
+		/*if (newResult.isEmpty()) {
 			if (page.getNextLink() == null
 					|| END_OF_PAGE.equals(page.getNextLink()))
 				return page;
@@ -153,7 +155,7 @@ public class UserTopicMapRepositoryService extends CouchDbRepositorySupport<User
 					topicCategory, page.getNextLink());
 		}
 		return new Pagination<Topic>(page.getPreviousLink(),
-				page.getNextLink(), result);
+				page.getNextLink(), result);*/
 	}
 	
 	public UserTopicMap findUserTopicMapById(String userId, String topicId) {

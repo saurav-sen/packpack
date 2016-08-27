@@ -1,5 +1,7 @@
 package com.pack.pack.client.api.test;
 
+import static com.pack.pack.client.api.test.TestConstants.BASE_URL;
+
 import java.util.List;
 
 import com.pack.pack.client.api.API;
@@ -10,8 +12,6 @@ import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.Pagination;
-
-import static com.pack.pack.client.api.test.TestConstants.BASE_URL;
 
 /**
  * 

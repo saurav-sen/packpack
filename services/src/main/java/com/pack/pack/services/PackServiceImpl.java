@@ -278,14 +278,15 @@ public class PackServiceImpl implements IPackService {
 		}
 		location = location + File.separator + fileName;
 		
-		S3Path root = new S3Path(topicId, false);
-		root.addChild(new S3Path(pack.getId(), false)).addChild(new S3Path(fileName, true));
+		S3Path fileS3 = new S3Path(topicId, false).addChild(
+				new S3Path(pack.getId(), false)).addChild(
+				new S3Path(fileName, true));
 		
 		File originalFile = AttachmentUtil.storeUploadedAttachment(file,
-				location, root);
+				location, fileS3);
 		PackAttachment packAttachment = new PackAttachment();
 		File thumbnailFile = (type == PackAttachmentType.IMAGE ? null
-				: AttachmentUtil.createThumnailForVideo(originalFile, root));
+				: AttachmentUtil.createThumnailForVideo(originalFile, fileS3));
 		if (thumbnailFile != null) {
 			String thumbnailFileLocation = thumbnailFile.getAbsolutePath();
 			packAttachment.setAttachmentThumbnailUrl(thumbnailFileLocation

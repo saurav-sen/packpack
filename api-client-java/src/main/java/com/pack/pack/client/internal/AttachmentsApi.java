@@ -170,7 +170,7 @@ class AttachmentsApi extends BaseAPI {
 		 * POST.addHeader(CONTENT_TYPE_HEADER, "multipart/form-data");
 		 */
 		HttpResponse response = client.execute(POST);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
+		return JSONUtil.deserialize(EntityUtils.toString(GZipUtil.decompress(response.getEntity())),
 				JStatus.class);
 	}
 
@@ -242,7 +242,7 @@ class AttachmentsApi extends BaseAPI {
 		 * ContentType.MULTIPART_FORM_DATA.getMimeType());
 		 */
 		HttpResponse response = client.execute(PUT);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
+		return JSONUtil.deserialize(EntityUtils.toString(GZipUtil.decompress(response.getEntity())),
 				JPack.class);
 	}
 
