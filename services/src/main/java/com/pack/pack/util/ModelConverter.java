@@ -331,6 +331,7 @@ public class ModelConverter {
 		jTopic.setCategory(topic.getCategory());
 		jTopic.setWallpaperUrl(resolveTopicWallpaperUrl(topic.getWallpaperUrl()));
 		jTopic.setFollowing(isFollowing);
+		jTopic.setAddress(topic.getAddress());
 		jTopic.setLongitude(topic.getLongitude());
 		jTopic.setLatitude(topic.getLatitude());
 		JUser user = getUserInfo(userId);

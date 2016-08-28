@@ -32,6 +32,8 @@ public class JTopic {
 	
 	private double latitude;
 	
+	private String address;
+	
 	public String getOwnerId() {
 		return ownerId;
 	}
@@ -126,5 +128,13 @@ public class JTopic {
 
 	public void setLatitude(double latitude) {
 		this.latitude = latitude;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
 	}
 }

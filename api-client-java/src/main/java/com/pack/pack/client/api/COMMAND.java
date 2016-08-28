@@ -19,8 +19,8 @@ public enum COMMAND {
 			APIConstants.Topic.ID), CREATE_NEW_TOPIC(
 			APIConstants.Topic.OWNER_ID, APIConstants.Topic.OWNER_NAME,
 			APIConstants.Topic.NAME, APIConstants.Topic.DESCRIPTION,
-			APIConstants.Topic.CITY, APIConstants.Topic.COUNTRY), GET_PACK_BY_ID(
-			APIConstants.Pack.ID), GET_PACK_ATTACHMENT_BY_ID(
+			APIConstants.Topic.LOCALITY_ADDRESS, APIConstants.Topic.CITY,
+			APIConstants.Topic.COUNTRY), GET_PACK_BY_ID(APIConstants.Pack.ID), GET_PACK_ATTACHMENT_BY_ID(
 			APIConstants.PackAttachment.ID), GET_ALL_PACKS_IN_DEFAULT_TOPICS(
 			APIConstants.User.ID, APIConstants.PageInfo.PAGE_LINK), GET_ALL_PACKS_IN_TOPIC(
 			APIConstants.User.ID, APIConstants.Topic.ID,

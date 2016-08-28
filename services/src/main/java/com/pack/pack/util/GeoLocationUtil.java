@@ -30,16 +30,23 @@ public class GeoLocationUtil {
 
 	private GeoLocationUtil() {
 	}
-
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static GeoLocation resolveGeoLocation(String city, String country) {
+	public static GeoLocation resolveGeoLocation(String locality, String city, String country) {
 		CloseableHttpClient client = null;
 		try {
 			HttpClientBuilder builder = HttpClientBuilder.create();
 			client = builder.build();
+			if(locality == null)
+				locality = "";
+			else {
+				locality = locality.replaceAll("[^A-Za-z0-9]", " ");
+			}
+			city = city.replaceAll("[^A-Za-z0-9]", "");
+			country = country.replaceAll("[^A-Za-z0-9]", "");
 			HttpGet GET = new HttpGet(
 					"https://maps.googleapis.com/maps/api/geocode/json?address="
-							+ city + "+" + country + "&key="
+							+ locality.replaceAll(" ", "+") + "+" + city + "+" + country + "&key="
 							+ SystemPropertyUtil.getGoogleGeoCodingApiKey());
 			HttpResponse response = client.execute(GET);
 			String json = EntityUtils.toString(response.getEntity());
@@ -87,10 +94,9 @@ public class GeoLocationUtil {
 		public double getLatitude();
 	}
 
-	/*
-	 * public static void main(String[] args) { GeoLocation geoLocation =
-	 * resolveGeoLocation("Hyderabad", "India");
-	 * System.out.println("Longitude: " + geoLocation.getLongitude());
-	 * System.out.println("Latitude: " + geoLocation.getLatitude()); }
-	 */
+	/*public static void main(String[] args) {
+		String str = "601, EDEN C, Casa Paradiso, Sanath Nagar";
+		str = str.replaceAll("[^A-Za-z0-9]", " ");
+		System.out.println(str);
+	}*/
 }

@@ -50,6 +50,7 @@ public interface APIConstants {
 		public static final String DESCRIPTION = "description";
 		public static final String CATEGORY = "category";
 		public static final String WALLPAPER = "wallpaper";
+		public static final String LOCALITY_ADDRESS = "locality";
 		public static final String CITY = "city";
 		public static final String COUNTRY = "country";
 	}

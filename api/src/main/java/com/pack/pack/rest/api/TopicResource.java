@@ -105,6 +105,7 @@ public class TopicResource {
 			@FormDataParam("wallpaper") InputStream wallpaper,
 			@FormDataParam("city") String city,
 			@FormDataParam("country") String country,
+			@FormDataParam("locality") String localityAddr,
 			@FormDataParam("wallpaper") FormDataContentDisposition aboutWallpaper)
 			throws PackPackException {
 		JTopic topic = new JTopic();
@@ -113,7 +114,12 @@ public class TopicResource {
 		topic.setFollowers(1);
 		topic.setOwnerId(ownerId);
 		topic.setCategory(category);
-		GeoLocation geoLocation = GeoLocationUtil.resolveGeoLocation(city, country);
+		if(localityAddr != null && !localityAddr.trim().isEmpty()) {
+			topic.setAddress(localityAddr + ", " + city + ", " + country);
+		} else {
+			topic.setAddress(city + ", " + country);
+		}
+		GeoLocation geoLocation = GeoLocationUtil.resolveGeoLocation(localityAddr, city, country);
 		if(geoLocation != null) {
 			topic.setLatitude(geoLocation.getLatitude());
 			topic.setLongitude(geoLocation.getLongitude());

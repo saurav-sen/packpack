@@ -67,7 +67,7 @@ public class UserServiceImpl implements IUserService {
 		status.setStatus(StatusType.OK);
 		status.setInfo("Successfully registered the user " + email);
 
-		GeoLocation geoLocation = GeoLocationUtil.resolveGeoLocation(city,
+		GeoLocation geoLocation = GeoLocationUtil.resolveGeoLocation(null, city,
 				country);
 		if (geoLocation != null) {
 			UserLocation userLocation = new UserLocation();
