@@ -25,14 +25,15 @@ public interface IPackService {
 	 * @throws PackPackException
 	 */
 	public JPack getPackById(String id) throws PackPackException;
-	
+
 	/**
 	 * 
 	 * @param id
 	 * @return
 	 * @throws PackPackException
 	 */
-	public JPackAttachment getPackAttachmentById(String id) throws PackPackException;
+	public JPackAttachment getPackAttachmentById(String id)
+			throws PackPackException;
 
 	/**
 	 * 
@@ -96,12 +97,15 @@ public interface IPackService {
 	 * @param packId
 	 * @param topicId
 	 * @param userId
+	 * @param title
+	 * @param description
 	 * @return
 	 * @throws PackPackException
 	 */
 	public JPack updatePack(InputStream file, String fileName,
 			PackAttachmentType type, String packId, String topicId,
-			String userId) throws PackPackException;
+			String userId, String title, String description)
+			throws PackPackException;
 
 	/**
 	 * 
@@ -121,7 +125,7 @@ public interface IPackService {
 	 */
 	public void broadcastSystemPack(BroadcastCriteria criteria, String packId)
 			throws PackPackException;
-	
+
 	/**
 	 * 
 	 * @param pack

@@ -22,6 +22,8 @@ public class JPackAttachment {
 	
 	private String title;
 	
+	private String description;
+	
 	private Float avgRating;
 	
 	private long creationTime;
@@ -31,6 +33,8 @@ public class JPackAttachment {
 	private int views;
 	
 	private List<JComment> comments;
+	
+	private JUser creator;
 	
 	public String getAttachmentUrl() {
 		return attachmentUrl;
@@ -121,5 +125,21 @@ public class JPackAttachment {
 
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public JUser getCreator() {
+		return creator;
+	}
+
+	public void setCreator(JUser creator) {
+		this.creator = creator;
 	}
 }

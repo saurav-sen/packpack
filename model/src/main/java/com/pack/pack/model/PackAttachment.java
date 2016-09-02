@@ -28,6 +28,10 @@ public class PackAttachment extends CouchDbDocument {
 	
 	private String title;
 	
+	private String creatorId;
+	
+	private String description;
+	
 	private float avgRating;
 	
 	private long creationTime;
@@ -139,5 +143,21 @@ public class PackAttachment extends CouchDbDocument {
 
 	public void setAttachmentParentPackId(String attachmentParentPackId) {
 		this.attachmentParentPackId = attachmentParentPackId;
+	}
+
+	public String getCreatorId() {
+		return creatorId;
+	}
+
+	public void setCreatorId(String creatorId) {
+		this.creatorId = creatorId;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

@@ -260,14 +260,16 @@ public class AttachmentResource {
 	@Produces(value = MediaType.APPLICATION_JSON)
 	public JPack modifyPack_addImage(@FormDataParam("file") InputStream file,
 			@FormDataParam("file") FormDataContentDisposition aboutFile,
+			@FormDataParam("title") String title,
+			@FormDataParam("description") String description,
 			@PathParam("topicId") String topicId,
 			@PathParam("packId") String packId,
 			@PathParam("userId") String userId) throws PackPackException {
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
 		String fileName = UUID.randomUUID().toString() + ".jpg";
-		return service.updatePack(file, fileName,
-				PackAttachmentType.IMAGE, packId, topicId, userId);
+		return service.updatePack(file, fileName, PackAttachmentType.IMAGE,
+				packId, topicId, userId, title, description);
 	}
 
 	@POST
@@ -297,13 +299,15 @@ public class AttachmentResource {
 	@Produces(value = MediaType.APPLICATION_JSON)
 	public JPack modifyPack_addVideo(@FormDataParam("file") InputStream file,
 			@FormDataParam("file") FormDataContentDisposition aboutFile,
+			@FormDataParam("title") String title,
+			@FormDataParam("description") String description,
 			@PathParam("topicId") String topicId,
 			@PathParam("packId") String packId,
 			@PathParam("userId") String userId) throws PackPackException {
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
 		String fileName = UUID.randomUUID().toString() + ".mp4";
-		return service.updatePack(file, fileName,
-				PackAttachmentType.VIDEO, packId, topicId, userId);
+		return service.updatePack(file, fileName, PackAttachmentType.VIDEO,
+				packId, topicId, userId, title, description);
 	}
 }

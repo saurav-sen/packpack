@@ -103,7 +103,7 @@ public class ModelConverter {
 		return jPack;
 	}
 
-	public static JPackAttachment convert(PackAttachment attachment) {
+	public static JPackAttachment convert(PackAttachment attachment) throws PackPackException {
 		JPackAttachment jAttachment = new JPackAttachment();
 		AttachmentType type = attachment.getType();
 		String baseURL = (type == AttachmentType.IMAGE ? SystemPropertyUtil
@@ -158,6 +158,7 @@ public class ModelConverter {
 		jAttachment.setAttachmentUrl(url);
 		jAttachment.setMimeType(attachment.getMimeType());
 		jAttachment.setTitle(attachment.getTitle());
+		jAttachment.setDescription(attachment.getDescription());
 		jAttachment.setLikes(attachment.getLikes());
 		jAttachment.setViews(attachment.getViews());
 		jAttachment.setCreationTime(attachment.getCreationTime());
@@ -168,6 +169,11 @@ public class ModelConverter {
 				jAttachment.getComments().add(jComment);
 			}
 		}
+		String userId = attachment.getCreatorId();
+		IUserService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IUserService.class);
+		JUser user = service.findUserById(userId);
+		jAttachment.setCreator(user);
 		return jAttachment;
 	}
 

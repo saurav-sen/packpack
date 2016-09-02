@@ -211,7 +211,8 @@ public class PackServiceImpl implements IPackService {
 			String mimeType, PackAttachmentType type, boolean publish)
 			throws PackPackException {
 		Pack pack = addNewPack(story, title, userId, topicId);
-		addPackAttachment(pack, topicId, type, fileName, file);
+		addPackAttachment(pack, topicId, type, title, userId, description,
+				fileName, file);
 		TopicRepositoryService service2 = ServiceRegistry.INSTANCE
 				.findService(TopicRepositoryService.class);
 		Topic topic = service2.get(topicId);
@@ -262,7 +263,8 @@ public class PackServiceImpl implements IPackService {
 	}
 
 	private void addPackAttachment(Pack pack, String topicId,
-			PackAttachmentType type, String fileName, InputStream file)
+			PackAttachmentType type, String title, String creatorId, 
+			String description, String fileName, InputStream file)
 			throws PackPackException {
 		String home = (type == PackAttachmentType.IMAGE ? SystemPropertyUtil
 				.getImageHome() : SystemPropertyUtil.getVideoHome());
@@ -292,7 +294,11 @@ public class PackServiceImpl implements IPackService {
 			packAttachment.setAttachmentThumbnailUrl(thumbnailFileLocation
 					.substring(home.length()));
 		}
+		packAttachment.setTitle(title);
+		packAttachment.setDescription(description);
+		packAttachment.setCreatorId(creatorId);
 		packAttachment.setAttachmentUrl(location.substring(home.length()));
+		packAttachment.setCreationTime(System.currentTimeMillis());
 		packAttachment.setType(AttachmentType.valueOf(type.name()));
 		packAttachment.setMimeType(type.name());
 		packAttachment.setAttachmentParentPackId(pack.getId());
@@ -304,9 +310,11 @@ public class PackServiceImpl implements IPackService {
 	@Override
 	public JPack updatePack(InputStream file, String fileName,
 			PackAttachmentType type, String packId, String topicId,
-			String userId) throws PackPackException {
+			String userId, String title, String description)
+			throws PackPackException {
 		Pack pack = findPackById(packId);
-		addPackAttachment(pack, topicId, type, fileName, file);
+		addPackAttachment(pack, topicId, type, title, userId, description,
+				fileName, file);
 		TopicRepositoryService topicService = ServiceRegistry.INSTANCE
 				.findService(TopicRepositoryService.class);
 		Topic topic = topicService.get(topicId);
