@@ -4,6 +4,7 @@ import java.io.InputStream;
 
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JTopic;
+import com.pack.pack.model.web.JTopics;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.services.exception.PackPackException;
 
@@ -102,4 +103,13 @@ public interface ITopicService {
 	 */
 	public Pagination<JTopic> getAllTopicsByCategoryName(String categoryName,
 			String pageLink) throws PackPackException;
+
+	/**
+	 * 
+	 * @param userId
+	 * @return
+	 * @throws PackPackException
+	 */
+	public JTopics getAllTopicsOwnedByUser(String userId)
+			throws PackPackException;
 }

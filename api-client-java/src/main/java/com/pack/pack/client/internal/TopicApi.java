@@ -5,6 +5,7 @@ import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
 import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -113,6 +114,22 @@ class TopicApi extends BaseAPI {
 				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
 						.getEntity())), JTopic.class);
 	}
+	
+	private List<JTopic> getUserOwnedTopics(String userId, String oAuthToken)
+			throws Exception {
+		String url = getBaseUrl() + "owner/" + userId;
+		DefaultHttpClient client = new DefaultHttpClient();
+		HttpGet GET = new HttpGet(url);
+		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		HttpResponse response = client.execute(GET);
+		JTopics topics = JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JTopics.class);
+		if (topics == null) {
+			return Collections.emptyList();
+		}
+		return topics.getTopics();
+	}
 
 	private JTopic createTopic(Map<String, Object> params, String oAuthToken)
 			throws Exception {
@@ -219,6 +236,9 @@ class TopicApi extends BaseAPI {
 				 * (String) params .get(APIConstants.Topic.CATEGORY);
 				 */
 				result = createTopic(params, oAuthToken);
+			} else if(action == COMMAND.GET_USER_OWNED_TOPICS) {
+				String userId = (String) params.get(APIConstants.User.ID);
+				result = getUserOwnedTopics(userId, oAuthToken);
 			}
 			return result;
 		}

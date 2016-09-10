@@ -21,6 +21,7 @@ import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JTopic;
+import com.pack.pack.model.web.JTopics;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.StatusType;
 import com.pack.pack.model.web.dto.UserPromotion;
@@ -78,6 +79,17 @@ public class TopicResource {
 		ITopicService service = ServiceRegistry.INSTANCE
 				.findCompositeService(ITopicService.class);
 		return service.getAllTopicListing(userId, pageLink);
+	}
+	
+	@GET
+	@Compress
+	@Path("owner/{ownerId}")
+	@Produces(value = MediaType.APPLICATION_JSON)
+	public JTopics getAllTopicsOwnedByUser(@PathParam("ownerId") String userId)
+			throws PackPackException {
+		ITopicService service = ServiceRegistry.INSTANCE
+				.findCompositeService(ITopicService.class);
+		return service.getAllTopicsOwnedByUser(userId);
 	}
 	
 	@GET

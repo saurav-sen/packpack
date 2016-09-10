@@ -21,6 +21,7 @@ import com.pack.pack.model.Topic;
 import com.pack.pack.model.UserTopicMap;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JTopic;
+import com.pack.pack.model.web.JTopics;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.services.couchdb.TopicRepositoryService;
 import com.pack.pack.services.couchdb.UserTopicMapRepositoryService;
@@ -265,5 +266,21 @@ public class TopicServiceImpl implements ITopicService {
 		List<JTopic> topics = ModelConverter.convertTopicList(page.getResult());
 		return new Pagination<JTopic>(page.getPreviousLink(),
 				page.getNextLink(), topics);
+	}
+	
+	@Override
+	public JTopics getAllTopicsOwnedByUser(String userId)
+			throws PackPackException {
+		JTopics result = new JTopics();
+		TopicRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(TopicRepositoryService.class);
+		List<Topic> topics = service.getAllTopicsOwnedByUser(userId);
+		if (topics == null || topics.isEmpty()) {
+			return result;
+		}
+		for (Topic topic : topics) {
+			result.getTopics().add(ModelConverter.convert(topic));
+		}
+		return result;
 	}
 }

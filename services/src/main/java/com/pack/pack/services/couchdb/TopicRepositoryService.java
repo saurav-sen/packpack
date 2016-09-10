@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.Topic;
+import com.pack.pack.model.web.JTopics;
 import com.pack.pack.model.web.Pagination;
 
 /**
@@ -90,7 +91,7 @@ public class TopicRepositoryService extends CouchDbRepositorySupport<Topic> {
 		return db.queryView(query, Topic.class);
 	}
 
-	public Pagination<Topic> getAllTopics(String userId, String pageLink) {
+	/*public Pagination<Topic> getAllTopicsOwnedByUser(String userId, String pageLink) {
 		logger.debug("getAllTopics(userId=" + userId + ", pageLink=" + pageLink);
 		ViewQuery query = createQuery("findTopicByOwner").key(userId)
 				.includeDocs(true);
@@ -106,6 +107,12 @@ public class TopicRepositoryService extends CouchDbRepositorySupport<Topic> {
 				: END_OF_PAGE;
 		List<Topic> topics = page.getRows();
 		return new Pagination<Topic>(previousLink, nextLink, topics);
+	}*/
+	
+	public List<Topic> getAllTopicsOwnedByUser(String userId) {
+		ViewQuery query = createQuery("findTopicByOwner").key(userId)
+				.includeDocs(true);
+		return db.queryView(query, Topic.class);
 	}
 
 	public Pagination<Topic> getAllTopicsByCategoryName(String categoryName,
