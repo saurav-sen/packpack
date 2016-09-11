@@ -117,7 +117,7 @@ class TopicApi extends BaseAPI {
 	
 	private List<JTopic> getUserOwnedTopics(String userId, String oAuthToken)
 			throws Exception {
-		String url = getBaseUrl() + "owner/" + userId;
+		String url = getBaseUrl() + "topic/owner/" + userId;
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
