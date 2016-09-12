@@ -55,6 +55,11 @@ public interface APIConstants {
 		public static final String COUNTRY = "country";
 	}
 	
+	public static interface TopicSettings {
+		public static final String KEY = "key";
+		public static final String VALUE = "value";
+	}
+	
 	public static interface TopicCategories {
 		public static final String FOLLOWED_CATEGORIES = "followedCategories";
 		public static final String SEPARATOR = ":";

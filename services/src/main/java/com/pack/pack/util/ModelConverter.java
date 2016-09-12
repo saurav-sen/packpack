@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import com.pack.pack.model.Pack;
 import com.pack.pack.model.PackAttachment;
 import com.pack.pack.model.RSSFeed;
 import com.pack.pack.model.Topic;
+import com.pack.pack.model.TopicProperty;
 import com.pack.pack.model.User;
 import com.pack.pack.model.UserInfo;
 import com.pack.pack.model.es.UserDetail;
@@ -345,6 +347,10 @@ public class ModelConverter {
 			jTopic.setOwnerName(user.getName());
 			jTopic.setOwnerProfilePicture(user.getProfilePictureUrl());
 
+		}
+		Set<TopicProperty> settings = topic.getPropeties();
+		for(TopicProperty prop : settings) {
+			jTopic.getProperties().put(prop.getKey(), prop.getValue());
 		}
 		return jTopic;
 	}

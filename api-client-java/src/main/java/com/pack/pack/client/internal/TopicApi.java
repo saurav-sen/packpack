@@ -15,6 +15,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
@@ -178,6 +179,19 @@ class TopicApi extends BaseAPI {
 				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
 						.getEntity())), JTopic.class);
 	}
+	
+	private JTopic editTopicSettings(String topicId, String userId, String key,
+			String value, String oAuthToken) throws Exception {
+		String url = getBaseUrl() + "topic/" + topicId + "/settings/" + key
+				+ "/" + value + "/usr/" + userId;
+		DefaultHttpClient client = new DefaultHttpClient();
+		HttpPut PUT = new HttpPut(url);
+		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		HttpResponse response = client.execute(PUT);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JTopic.class);
+	}
 
 	private class Invoker implements ApiInvoker {
 
@@ -239,6 +253,15 @@ class TopicApi extends BaseAPI {
 			} else if(action == COMMAND.GET_USER_OWNED_TOPICS) {
 				String userId = (String) params.get(APIConstants.User.ID);
 				result = getUserOwnedTopics(userId, oAuthToken);
+			} else if(action == COMMAND.EDIT_TOPIC_SETTINGS) {
+				String topicId = (String) params.get(APIConstants.Topic.ID);
+				String userId = (String) params.get(APIConstants.User.ID);
+				String key = (String) params
+						.get(APIConstants.TopicSettings.KEY);
+				String value = (String) params
+						.get(APIConstants.TopicSettings.VALUE);
+				result = editTopicSettings(topicId, userId, key, value,
+						oAuthToken);
 			}
 			return result;
 		}

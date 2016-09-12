@@ -112,4 +112,16 @@ public interface ITopicService {
 	 */
 	public JTopics getAllTopicsOwnedByUser(String userId)
 			throws PackPackException;
+	
+	/**
+	 * 
+	 * @param topicId
+	 * @param key
+	 * @param value
+	 * @param ownerId
+	 * @return
+	 * @throws PackPackException
+	 */
+	public JTopic editTopicSettings(String topicId, String key, String value,
+			String ownerId) throws PackPackException;
 }

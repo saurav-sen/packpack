@@ -55,7 +55,8 @@ public class APIBuilderImpl extends APIBuilder {
 				|| action == COMMAND.NEGLECT_TOPIC
 				|| action == COMMAND.GET_TOPIC_BY_ID
 				|| action == COMMAND.CREATE_NEW_TOPIC
-				|| action == COMMAND.GET_USER_OWNED_TOPICS) {
+				|| action == COMMAND.GET_USER_OWNED_TOPICS
+				|| action == COMMAND.EDIT_TOPIC_SETTINGS) {
 			api = new APIWrapper(new TopicApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
 		} else if (action == COMMAND.GET_PACK_BY_ID

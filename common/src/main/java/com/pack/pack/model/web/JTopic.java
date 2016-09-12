@@ -1,5 +1,8 @@
 package com.pack.pack.model.web;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 /**
  * 
@@ -33,6 +36,8 @@ public class JTopic {
 	private double latitude;
 	
 	private String address;
+	
+	private Map<String, String> properties;
 	
 	public String getOwnerId() {
 		return ownerId;
@@ -136,5 +141,16 @@ public class JTopic {
 
 	public void setAddress(String address) {
 		this.address = address;
+	}
+
+	public Map<String, String> getProperties() {
+		if(properties == null) {
+			properties = new HashMap<String, String>();
+		}
+		return properties;
+	}
+
+	public void setProperties(Map<String, String> properties) {
+		this.properties = properties;
 	}
 }

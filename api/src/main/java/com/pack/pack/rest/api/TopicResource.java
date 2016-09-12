@@ -156,4 +156,16 @@ public class TopicResource {
 		status.setInfo("Successfully promoted topic");
 		return status;
 	}
+	
+	@PUT
+	@Compress
+	@Path("{topicId}/settings/{key}/{value}/usr/{userId}")
+	@Produces(value = MediaType.APPLICATION_JSON)
+	public JTopic editTopicSettings(@PathParam("topicId") String topicId,
+			@PathParam("userId") String userId, @PathParam("key") String key,
+			@PathParam("value") String value) throws PackPackException {
+		ITopicService service = ServiceRegistry.INSTANCE
+				.findCompositeService(ITopicService.class);
+		return service.editTopicSettings(topicId, key, value, userId);
+	}
 }

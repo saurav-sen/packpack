@@ -1,7 +1,10 @@
 package com.pack.pack.model;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.ektorp.support.CouchDbDocument;
 
@@ -36,6 +39,8 @@ public class Topic extends CouchDbDocument {
 	private double latitude;
 	
 	private String address;
+	
+	private Set<TopicProperty> propeties;
 	
 	public String getOwnerId() {
 		return ownerId;
@@ -118,5 +123,16 @@ public class Topic extends CouchDbDocument {
 
 	public void setAddress(String address) {
 		this.address = address;
+	}
+
+	public Set<TopicProperty> getPropeties() {
+		if(propeties == null) {
+			propeties = new HashSet<TopicProperty>(5);
+		}
+		return propeties;
+	}
+
+	public void setPropeties(Set<TopicProperty> propeties) {
+		this.propeties = propeties;
 	}
 }

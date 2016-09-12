@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import com.pack.pack.ITopicService;
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.Topic;
+import com.pack.pack.model.TopicProperty;
 import com.pack.pack.model.UserTopicMap;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JTopic;
@@ -26,6 +27,7 @@ import com.pack.pack.model.web.Pagination;
 import com.pack.pack.services.couchdb.TopicRepositoryService;
 import com.pack.pack.services.couchdb.UserTopicMapRepositoryService;
 import com.pack.pack.services.es.ESUploadService;
+import com.pack.pack.services.exception.ErrorCodes;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.ModelConverter;
@@ -282,5 +284,29 @@ public class TopicServiceImpl implements ITopicService {
 			result.getTopics().add(ModelConverter.convert(topic));
 		}
 		return result;
+	}
+
+	@Override
+	public JTopic editTopicSettings(String topicId, String key, String value,
+			String ownerId) throws PackPackException {
+		if (ownerId == null) {
+			throw new PackPackException(ErrorCodes.PACK_ERR_93,
+					"Permission Denied. Not a valid topic Owner");
+		}
+		TopicRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(TopicRepositoryService.class);
+		Topic topic = service.get(topicId);
+		if (topic == null) {
+			throw new PackPackException(ErrorCodes.PACK_ERR_01,
+					"No topic found wit ID = " + topicId);
+		}
+		String ownerId2 = topic.getOwnerId();
+		if (!ownerId.equals(ownerId2)) {
+			throw new PackPackException(ErrorCodes.PACK_ERR_93,
+					"Permission Denied. Not a valid topic Owner");
+		}
+		topic.getPropeties().add(new TopicProperty(key, value));
+		service.update(topic);
+		return ModelConverter.convert(topic);
 	}
 }
