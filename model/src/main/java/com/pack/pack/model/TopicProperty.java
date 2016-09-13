@@ -11,6 +11,9 @@ public class TopicProperty {
 	
 	private String value;
 	
+	public TopicProperty() {
+	}
+	
 	public TopicProperty(String key, String value) {
 		this.key = key;
 		this.value = value;

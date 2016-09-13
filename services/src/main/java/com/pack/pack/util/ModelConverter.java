@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -348,7 +347,7 @@ public class ModelConverter {
 			jTopic.setOwnerProfilePicture(user.getProfilePictureUrl());
 
 		}
-		Set<TopicProperty> settings = topic.getPropeties();
+		List<TopicProperty> settings = topic.getPropeties();
 		for(TopicProperty prop : settings) {
 			jTopic.getProperties().put(prop.getKey(), prop.getValue());
 		}

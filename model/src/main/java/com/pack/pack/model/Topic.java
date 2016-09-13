@@ -1,10 +1,8 @@
 package com.pack.pack.model;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import org.ektorp.support.CouchDbDocument;
 
@@ -40,7 +38,7 @@ public class Topic extends CouchDbDocument {
 	
 	private String address;
 	
-	private Set<TopicProperty> propeties;
+	private List<TopicProperty> propeties;
 	
 	public String getOwnerId() {
 		return ownerId;
@@ -125,14 +123,14 @@ public class Topic extends CouchDbDocument {
 		this.address = address;
 	}
 
-	public Set<TopicProperty> getPropeties() {
+	public List<TopicProperty> getPropeties() {
 		if(propeties == null) {
-			propeties = new HashSet<TopicProperty>(5);
+			propeties = new ArrayList<TopicProperty>(5);
 		}
 		return propeties;
 	}
 
-	public void setPropeties(Set<TopicProperty> propeties) {
+	public void setPropeties(List<TopicProperty> propeties) {
 		this.propeties = propeties;
 	}
 }

@@ -7,6 +7,7 @@ import static com.pack.pack.util.AttachmentUtil.resizeAndStoreUploadedAttachment
 import java.io.File;
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -305,7 +306,18 @@ public class TopicServiceImpl implements ITopicService {
 			throw new PackPackException(ErrorCodes.PACK_ERR_93,
 					"Permission Denied. Not a valid topic Owner");
 		}
-		topic.getPropeties().add(new TopicProperty(key, value));
+		boolean isNew = true;
+		Iterator<TopicProperty> itr = topic.getPropeties().iterator();
+		while(itr.hasNext()) {
+			TopicProperty property = itr.next();
+			if(property.getKey().equals(key)) {
+				property.setValue(value);
+				isNew = false;
+			}
+		}
+		if(isNew) {
+			topic.getPropeties().add(new TopicProperty(key, value));
+		}
 		service.update(topic);
 		return ModelConverter.convert(topic);
 	}
