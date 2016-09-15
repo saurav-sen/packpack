@@ -46,8 +46,10 @@ public class APIBuilderImpl extends APIBuilder {
 				|| action == COMMAND.SEARCH_USER_BY_NAME
 				|| action == COMMAND.EDIT_USER_CATEGORIES
 				|| action == COMMAND.GET_USER_CATEGORIES
-				|| action == COMMAND.SIGN_IN || action == COMMAND.SIGN_OUT
-				|| action == COMMAND.SIGN_UP) {
+				|| action == COMMAND.SIGN_IN 
+				|| action == COMMAND.SIGN_OUT
+				|| action == COMMAND.SIGN_UP
+				|| action == COMMAND.UPLOAD_USER_PROFILE_PICTURE) {
 			api = new APIWrapper(new UserManagementApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
 		} else if (action == COMMAND.GET_USER_FOLLOWED_TOPIC_LIST

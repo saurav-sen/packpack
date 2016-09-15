@@ -12,7 +12,8 @@ public enum COMMAND {
 			APIConstants.TopicCategories.FOLLOWED_CATEGORIES), GET_USER_CATEGORIES(
 			APIConstants.User.ID), GET_USER_BY_ID(APIConstants.User.ID), GET_USER_BY_USERNAME(
 			APIConstants.User.USERNAME), SEARCH_USER_BY_NAME(
-			APIConstants.User.NAME_SEARCH_PATTERN), GET_USER_FOLLOWED_TOPIC_LIST(
+			APIConstants.User.NAME_SEARCH_PATTERN), UPLOAD_USER_PROFILE_PICTURE(
+			APIConstants.User.ID, APIConstants.User.PROFILE_PICTURE), GET_USER_FOLLOWED_TOPIC_LIST(
 			APIConstants.PageInfo.PAGE_LINK, APIConstants.User.ID), FOLLOW_TOPIC(
 			APIConstants.User.ID, APIConstants.Topic.ID), NEGLECT_TOPIC(
 			APIConstants.Topic.ID, APIConstants.User.ID), GET_TOPIC_BY_ID(

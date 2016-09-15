@@ -24,6 +24,7 @@ public interface APIConstants {
 		public static final String ID = "userId";
 		public static final String USERNAME = "username";
 		public static final String NAME_SEARCH_PATTERN = "namePattern";
+		public static final String PROFILE_PICTURE = "profilePicture";
 		
 		public static interface Register {
 			public static final String NAME = "name";
@@ -33,8 +34,7 @@ public interface APIConstants {
 			public static final String COUNTRY = "country";
 			public static final String STATE = "state";
 			public static final String LOCALITY = "locality";
-			public static final String DOB = "dob";
-			public static final String PROFILE_PICTURE = "profilePicture";
+			public static final String DOB = "dob";			
 		}
 	}
 	

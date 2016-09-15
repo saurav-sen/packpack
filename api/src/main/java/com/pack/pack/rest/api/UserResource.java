@@ -1,5 +1,6 @@
 package com.pack.pack.rest.api;
 
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +14,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
+
+import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import com.pack.pack.IUserService;
 import com.pack.pack.common.util.JSONUtil;
@@ -115,10 +118,24 @@ public class UserResource {
 				profilePicture, profilePictureFileName);
 	}*/
 	
+	@PUT
+	@Compress
+	@Path("id/{id}")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.APPLICATION_JSON)
+	public JUser uploadProfilePicture(
+			@FormDataParam("profilePicture") InputStream profilePicture,
+			@PathParam("id") String userId) throws PackPackException {
+		String profilePictureFileName = userId + "_profilePicture.jpg";
+		IUserService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IUserService.class);
+		return service.uploadProfilePicture(userId, profilePicture,
+				profilePictureFileName);
+	}
+	
 	private JUser doRegisterUser(String name, String email,
 			String password, String city, String country, String dob)
 			throws PackPackException {
-		String profilePictureFileName = null;
 		IUserService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IUserService.class);
 		UserRepositoryService repoService = ServiceRegistry.INSTANCE
@@ -131,7 +148,7 @@ public class UserResource {
 		}
 		password = EncryptionUtil.encryptPassword(password);
 		return service.registerNewUser(name, email, password, city, country, dob,
-				null, profilePictureFileName);
+				null, null);
 	}
 
 	@POST

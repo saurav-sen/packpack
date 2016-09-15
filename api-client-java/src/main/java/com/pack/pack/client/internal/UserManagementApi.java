@@ -22,6 +22,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -113,6 +114,11 @@ class UserManagementApi extends BaseAPI {
 				result = searchUserByName(
 						(String) params.get(APIConstants.User.NAME_SEARCH_PATTERN),
 						oAuthToken);
+			} else if (action == COMMAND.UPLOAD_USER_PROFILE_PICTURE) {
+				String userId = (String) params.get(APIConstants.User.ID);
+				byte[] data = (byte[]) params
+						.get(APIConstants.User.PROFILE_PICTURE);
+				result = uploadUserProfilePicture(userId, data, oAuthToken);
 			} else {
 				throw new UnsupportedOperationException(action.name()
 						+ " is not supported. Probably a different API "
@@ -194,12 +200,30 @@ class UserManagementApi extends BaseAPI {
 		return JSONUtil.deserialize(json, JUser.class);
 	}
 	
+	private JUser uploadUserProfilePicture(String userId, byte[] data,
+			String oAuthToken) throws ClientProtocolException, IOException,
+			PackPackException {
+		String url = getBaseUrl() + "user/id/" + userId;
+		DefaultHttpClient client = new DefaultHttpClient();
+		HttpPut PUT = new HttpPut(url);
+		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		MultipartEntity multipartEntity = new MultipartEntity();
+		multipartEntity.addPart(APIConstants.User.PROFILE_PICTURE,
+				new ByteArrayBody(data, "image/jpeg", userId
+						+ "_profilePicture.jpg"));
+		PUT.setEntity(multipartEntity);
+		HttpResponse response = client.execute(PUT);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JUser.class);
+	}
+	
 	private JUser signUp(Map<String, Object> params)
 			throws ClientProtocolException, IOException, ParseException,
 			PackPackException {
 		String url = getBaseUrl() + "user";
 		DefaultHttpClient client = new DefaultHttpClient();
-		Object attachment = params.get(APIConstants.User.Register.PROFILE_PICTURE);
+		Object attachment = params.get(APIConstants.User.PROFILE_PICTURE);
 		if(attachment != null) {
 			url = url + "/register";
 		}
@@ -210,7 +234,7 @@ class UserManagementApi extends BaseAPI {
 			Iterator<String> itr = params.keySet().iterator();
 			while (itr.hasNext()) {
 				String key = itr.next();
-				if (APIConstants.User.Register.PROFILE_PICTURE.equals(key)) {
+				if (APIConstants.User.PROFILE_PICTURE.equals(key)) {
 					File file = (File) params.get(key);
 					FileBody fileBody = new FileBody(file, file.getName(),
 							HTTP.OCTET_STREAM_TYPE, null);
