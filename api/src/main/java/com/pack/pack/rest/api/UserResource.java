@@ -25,6 +25,7 @@ import com.pack.pack.model.es.UserDetail;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.JUsers;
 import com.pack.pack.model.web.dto.SignupDTO;
+import com.pack.pack.model.web.dto.UserSettings;
 import com.pack.pack.rest.api.security.interceptors.Compress;
 import com.pack.pack.security.util.EncryptionUtil;
 import com.pack.pack.services.couchdb.UserRepositoryService;
@@ -209,5 +210,18 @@ public class UserResource {
 			return JSONUtil.serialize(list, false);
 		}
 		return JSONUtil.serialize(Collections.EMPTY_LIST, false);
+	}
+	
+	@PUT
+	@Compress
+	@Path("id/{id}/settings")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public JUser updateUserDetails(@PathParam("id") String userId, String json)
+			throws PackPackException {
+		UserSettings dto = JSONUtil.deserialize(json, UserSettings.class, true);
+		IUserService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IUserService.class);
+		return service.updateUserSettings(userId, dto.getKey(), dto.getValue());
 	}
 }

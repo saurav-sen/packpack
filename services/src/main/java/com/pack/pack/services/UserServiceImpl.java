@@ -16,9 +16,11 @@ import com.pack.pack.model.UserLocation;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.StatusType;
+import com.pack.pack.model.web.dto.UserSettings;
 import com.pack.pack.services.couchdb.UserLocationRepositoryService;
 import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.es.ESUploadService;
+import com.pack.pack.services.exception.ErrorCodes;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.GeoLocationUtil;
@@ -165,5 +167,42 @@ public class UserServiceImpl implements IUserService {
 		root.addChild(new S3Path(profilePictureFileName, true));
 		resizeAndStoreUploadedAttachment(profilePicture, location, 30, 30, root);
 		return location.substring(home.length());
+	}
+	
+	@Override
+	public JUser updateUserSettings(String userId, String key, String value)
+			throws PackPackException {
+		if (key == null || key.trim().isEmpty()) {
+			throw new PackPackException(ErrorCodes.PACK_ERR_72, "Invalid Key.");
+		}
+		if (value == null || value.trim().isEmpty()) {
+			throw new PackPackException(ErrorCodes.PACK_ERR_72,
+					"Invalid value.");
+		}
+		UserRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(UserRepositoryService.class);
+		User user = service.get(userId);
+		if (user == null) {
+			throw new PackPackException(ErrorCodes.PACK_ERR_73,
+					"No user found with supplied ID.");
+		}
+		boolean bool = false;
+		if (UserSettings.DISPLAY_NAME.equals(key)) {
+			user.setName(value);
+			bool = true;
+		} else if (UserSettings.USER_ADDRESS.equals(key)) {
+			String[] split = value.split(", ");
+			if (split.length != 2) {
+				throw new PackPackException(ErrorCodes.PACK_ERR_81,
+						"Invalid value " + value);
+			}
+			user.setCity(split[0]);
+			user.setCountry(split[1]);
+			bool = true;
+		}
+		if (bool) {
+			service.update(user);
+		}
+		return ModelConverter.convert(user);
 	}
 }

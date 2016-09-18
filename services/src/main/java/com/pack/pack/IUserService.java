@@ -26,4 +26,7 @@ public interface IUserService {
 			throws PackPackException;
 	
 	public JUser findUserById(String userId) throws PackPackException;
+	
+	public JUser updateUserSettings(String userId, String key, String value)
+			throws PackPackException;
 }

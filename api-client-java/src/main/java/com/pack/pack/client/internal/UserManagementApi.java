@@ -35,6 +35,7 @@ import com.pack.pack.client.api.MultipartRequestProgressListener;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.dto.SignupDTO;
+import com.pack.pack.model.web.dto.UserSettings;
 import com.pack.pack.oauth1.client.AccessToken;
 import com.pack.pack.oauth1.client.OAuth1ClientCredentials;
 import com.pack.pack.oauth1.client.OAuth1RequestFlow;
@@ -119,6 +120,11 @@ class UserManagementApi extends BaseAPI {
 				byte[] data = (byte[]) params
 						.get(APIConstants.User.PROFILE_PICTURE);
 				result = uploadUserProfilePicture(userId, data, oAuthToken);
+			} else if(action == COMMAND.UPDATE_USER_SETTINGS) {
+				String userId = (String) params.get(APIConstants.User.ID);
+				String key = (String) params.get(APIConstants.User.Settings.KEY);
+				String value = (String) params.get(APIConstants.User.Settings.VALUE);
+				result = updateUserSettings(userId, key, value, oAuthToken);
 			} else {
 				throw new UnsupportedOperationException(action.name()
 						+ " is not supported. Probably a different API "
@@ -132,6 +138,24 @@ class UserManagementApi extends BaseAPI {
 			}*/
 			return result;
 		}
+	}
+	
+	private JUser updateUserSettings(String userId, String key, String value,
+			String oAuthToken) throws ClientProtocolException, IOException,
+			PackPackException {
+		String url = getBaseUrl() + "user/id/" + userId + "/settings";
+		HttpPut PUT = new HttpPut(url);
+		DefaultHttpClient client = new DefaultHttpClient();
+		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		UserSettings settings = new UserSettings();
+		settings.setKey(key);
+		settings.setValue(value);
+		String json = JSONUtil.serialize(settings, true);
+		PUT.setEntity(new StringEntity(json));
+		HttpResponse response = client.execute(PUT);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JUser.class);
 	}
 
 	private JUser searchUserByName(String namePattern, String accessToken)

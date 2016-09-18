@@ -210,6 +210,8 @@ public class ModelConverter {
 		jUser.setDob(user.getDob());
 		jUser.setName(user.getName());
 		jUser.setUsername(user.getUsername());
+		jUser.setCity(user.getCity());
+		jUser.setCountry(user.getCountry());
 		jUser.setProfilePictureUrl(resolveProfilePictureUrl(user
 				.getProfilePicture()));
 		List<UserInfo> infos = user.getExtraInfoMap();

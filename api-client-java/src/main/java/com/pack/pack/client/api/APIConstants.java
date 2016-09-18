@@ -36,6 +36,11 @@ public interface APIConstants {
 			public static final String LOCALITY = "locality";
 			public static final String DOB = "dob";			
 		}
+		
+		public static interface Settings {
+			public static final String KEY = "key";
+			public static final String VALUE = "value";
+		}
 	}
 	
 	public static interface PageInfo {
