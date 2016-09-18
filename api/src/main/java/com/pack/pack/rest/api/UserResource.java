@@ -26,7 +26,8 @@ import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.JUsers;
 import com.pack.pack.model.web.dto.SignupDTO;
 import com.pack.pack.model.web.dto.UserSettings;
-import com.pack.pack.rest.api.security.interceptors.Compress;
+import com.pack.pack.rest.api.security.interceptors.CompressRead;
+import com.pack.pack.rest.api.security.interceptors.CompressWrite;
 import com.pack.pack.security.util.EncryptionUtil;
 import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.es.SearchService;
@@ -44,7 +45,7 @@ import com.pack.pack.util.ModelConverter;
 public class UserResource {
 
 	@GET
-	@Compress
+	@CompressWrite
 	@Path("id/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public JUser getUserById(@PathParam("id") String id)
@@ -57,7 +58,7 @@ public class UserResource {
 	}
 
 	@GET
-	@Compress
+	@CompressWrite
 	@Path("username/{username}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public JUser getUserByUsername(@PathParam("username") String username)
@@ -74,7 +75,7 @@ public class UserResource {
 	}
 
 	@GET
-	@Compress
+	@CompressWrite
 	@Path("name/{namePattern}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public JUsers getUsersByName(@PathParam("namePattern") String namePattern)
@@ -120,7 +121,8 @@ public class UserResource {
 	}*/
 	
 	@PUT
-	@Compress
+	@CompressRead
+	@CompressWrite
 	@Path("id/{id}")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -153,7 +155,8 @@ public class UserResource {
 	}
 
 	@POST
-	@Compress
+	@CompressRead
+	@CompressWrite
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public JUser registerUser(String json) throws PackPackException {
@@ -168,7 +171,8 @@ public class UserResource {
 	}
 	
 	@PUT
-	@Compress
+	@CompressRead
+	@CompressWrite
 	@Path("id/{id}/follow/category")
 	@Consumes(MediaType.TEXT_PLAIN)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -185,7 +189,7 @@ public class UserResource {
 	}
 	
 	@GET
-	@Compress
+	@CompressWrite
 	@Path("id/{id}/follow/category")
 	@Produces(MediaType.APPLICATION_JSON)
 	public String getUserFollowedCategories(
@@ -213,7 +217,8 @@ public class UserResource {
 	}
 	
 	@PUT
-	@Compress
+	@CompressRead
+	@CompressWrite
 	@Path("id/{id}/settings")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)

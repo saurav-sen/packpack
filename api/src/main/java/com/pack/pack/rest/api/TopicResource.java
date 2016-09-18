@@ -25,7 +25,8 @@ import com.pack.pack.model.web.JTopics;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.StatusType;
 import com.pack.pack.model.web.dto.UserPromotion;
-import com.pack.pack.rest.api.security.interceptors.Compress;
+import com.pack.pack.rest.api.security.interceptors.CompressRead;
+import com.pack.pack.rest.api.security.interceptors.CompressWrite;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.GeoLocationUtil;
@@ -41,7 +42,7 @@ import com.pack.pack.util.GeoLocationUtil.GeoLocation;
 public class TopicResource {
 
 	@GET
-	@Compress
+	@CompressWrite
 	@Path("{id}")
 	@Produces(value = MediaType.APPLICATION_JSON)
 	public JTopic getTopicById(@PathParam("id") String topicId)
@@ -59,7 +60,7 @@ public class TopicResource {
 	}*/
 
 	@GET
-	@Compress
+	@CompressWrite
 	@Path("{pageLink}/category/{categoryName}")
 	@Produces(value = MediaType.APPLICATION_JSON)
 	public Pagination<JTopic> getTopicsByCategory(
@@ -71,7 +72,7 @@ public class TopicResource {
 	}
 
 	@GET
-	@Compress
+	@CompressWrite
 	@Path("{pageLink}/user/{userId}")
 	@Produces(value = MediaType.APPLICATION_JSON)
 	public Pagination<JTopic> getAllTopics(@PathParam("userId") String userId,
@@ -82,7 +83,7 @@ public class TopicResource {
 	}
 	
 	@GET
-	@Compress
+	@CompressWrite
 	@Path("owner/{ownerId}")
 	@Produces(value = MediaType.APPLICATION_JSON)
 	public JTopics getAllTopicsOwnedByUser(@PathParam("ownerId") String userId)
@@ -93,7 +94,7 @@ public class TopicResource {
 	}
 	
 	@GET
-	@Compress
+	@CompressWrite
 	@Path("{pageLink}/category/{category}/user/{userId}")
 	@Produces(value = MediaType.APPLICATION_JSON)
 	public Pagination<JTopic> getAllTopicsFilteredByCategory(
@@ -106,7 +107,8 @@ public class TopicResource {
 	}
 
 	@POST
-	@Compress
+	@CompressRead
+	@CompressWrite
 	@Produces(value = MediaType.APPLICATION_JSON)
 	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
 	public JTopic createNewTopic(
@@ -144,6 +146,7 @@ public class TopicResource {
 	
 	@PUT
 	@Path("promote")
+	@CompressRead
 	@Produces(value = MediaType.APPLICATION_JSON)
 	@Consumes(value = MediaType.APPLICATION_JSON)
 	public JStatus promoteTopic(String json) throws PackPackException {
@@ -158,7 +161,7 @@ public class TopicResource {
 	}
 	
 	@PUT
-	@Compress
+	@CompressWrite
 	@Path("{topicId}/settings/{key}/{value}/usr/{userId}")
 	@Produces(value = MediaType.APPLICATION_JSON)
 	public JTopic editTopicSettings(@PathParam("topicId") String topicId,

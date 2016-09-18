@@ -12,6 +12,6 @@ import javax.ws.rs.NameBinding;
  */
 @NameBinding
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Compress {
+public @interface CompressRead {
 
 }

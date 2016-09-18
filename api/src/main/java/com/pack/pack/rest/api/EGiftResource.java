@@ -18,7 +18,8 @@ import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.StatusType;
 import com.pack.pack.model.web.dto.EGiftForwardDTO;
 import com.pack.pack.model.web.dto.PackReceipent;
-import com.pack.pack.rest.api.security.interceptors.Compress;
+import com.pack.pack.rest.api.security.interceptors.CompressRead;
+import com.pack.pack.rest.api.security.interceptors.CompressWrite;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 
@@ -32,7 +33,7 @@ import com.pack.pack.services.registry.ServiceRegistry;
 public class EGiftResource {
 
 	@GET
-	@Compress
+	@CompressWrite
 	@Path("{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public JeGift getEGiftById(@PathParam("id") String id)
@@ -43,7 +44,7 @@ public class EGiftResource {
 	}
 
 	@GET
-	@Compress
+	@CompressWrite
 	@Path("brand/{brandId}/page/{pageLink}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Pagination<JeGift> getEGiftsById(
@@ -55,7 +56,7 @@ public class EGiftResource {
 	}
 
 	@GET
-	@Compress
+	@CompressWrite
 	@Path("category/{category}/page/{pageLink}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Pagination<JeGift> getEGiftsByCategory(
@@ -67,7 +68,8 @@ public class EGiftResource {
 	}
 
 	@PUT
-	@Compress
+	@CompressRead
+	@CompressWrite
 	@Path("{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)

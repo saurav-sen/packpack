@@ -37,7 +37,8 @@ import org.slf4j.LoggerFactory;
 import com.pack.pack.IPackService;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.PackAttachmentType;
-import com.pack.pack.rest.api.security.interceptors.Compress;
+import com.pack.pack.rest.api.security.interceptors.CompressRead;
+import com.pack.pack.rest.api.security.interceptors.CompressWrite;
 import com.pack.pack.rest.web.util.ImageUtil;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
@@ -56,7 +57,7 @@ public class AttachmentResource {
 			.getLogger(AttachmentResource.class);
 	
 	@GET
-	@Compress
+	@CompressWrite
 	@Path(TOPIC + URL_SEPARATOR + IMAGE + URL_SEPARATOR + "{topicId}"
 			+ URL_SEPARATOR + "{fileName}")
 	@Produces({ "image/png", "image/jpg" })
@@ -100,7 +101,7 @@ public class AttachmentResource {
 	}
 
 	@GET
-	@Compress
+	@CompressWrite
 	@Path(PROFILE + URL_SEPARATOR + IMAGE + URL_SEPARATOR + "{userId}"
 			+ URL_SEPARATOR + "{fileName}")
 	@Produces({ "image/png", "image/jpg" })
@@ -136,7 +137,7 @@ public class AttachmentResource {
 	}*/
 
 	@GET
-	@Compress
+	@CompressWrite
 	@Path(IMAGE + URL_SEPARATOR + "{topicId}" + URL_SEPARATOR + "{packId}"
 			+ URL_SEPARATOR + "{fileName}")
 	@Produces({ "image/png", "image/jpg" })
@@ -184,7 +185,7 @@ public class AttachmentResource {
 	}
 	
 	@GET
-	@Compress
+	@CompressWrite
 	@Path(VIDEO + URL_SEPARATOR + "{topicId}" + URL_SEPARATOR + "{packId}"
 			+ URL_SEPARATOR + "thumbnail" + URL_SEPARATOR + "{fileName}")
 	// @Produces({"image/png", "image/jpg"})
@@ -195,7 +196,7 @@ public class AttachmentResource {
 	}
 
 	@GET
-	@Compress
+	@CompressWrite
 	@Path(VIDEO + URL_SEPARATOR + "{topicId}" + URL_SEPARATOR + "{packId}"
 			+ URL_SEPARATOR + "{fileName}")
 	// @Produces({"image/png", "image/jpg"})
@@ -232,7 +233,8 @@ public class AttachmentResource {
 	}
 
 	@POST
-	@Compress
+	@CompressRead
+	@CompressWrite
 	@Path("image/topic/{topicId}/usr/{userId}")
 	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
 	@Produces(value = MediaType.APPLICATION_JSON)
@@ -254,7 +256,8 @@ public class AttachmentResource {
 	// http://javapapers.com/android/android-get-address-with-street-name-city-for-location-with-geocoding/
 
 	@PUT
-	@Compress
+	@CompressRead
+	@CompressWrite
 	@Path("image/topic/{topicId}/pack/{packId}/usr/{userId}")
 	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
 	@Produces(value = MediaType.APPLICATION_JSON)
@@ -273,7 +276,8 @@ public class AttachmentResource {
 	}
 
 	@POST
-	@Compress
+	@CompressRead
+	@CompressWrite
 	@Path("video/topic/{topicId}/usr/{userId}")
 	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
 	@Produces(value = MediaType.APPLICATION_JSON)
@@ -293,7 +297,8 @@ public class AttachmentResource {
 	}
 
 	@PUT
-	@Compress
+	@CompressRead
+	@CompressWrite
 	@Path("video/topic/{topicId}/pack/{packId}/usr/{userId}")
 	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
 	@Produces(value = MediaType.APPLICATION_JSON)
