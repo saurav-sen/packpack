@@ -2,6 +2,7 @@ package com.pack.pack.rest.api;
 
 import java.util.List;
 
+import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -28,6 +29,7 @@ import com.pack.pack.services.registry.ServiceRegistry;
  * @author Saurav
  *
  */
+@Singleton
 @Provider
 @Path("/egifts")
 public class EGiftResource {

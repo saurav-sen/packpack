@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -40,6 +41,7 @@ import com.pack.pack.util.ModelConverter;
  * @author Saurav
  *
  */
+@Singleton
 @Provider
 @Path("/user")
 public class UserResource {

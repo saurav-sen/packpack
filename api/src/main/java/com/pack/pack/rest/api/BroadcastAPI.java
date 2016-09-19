@@ -4,6 +4,7 @@ import static com.pack.pack.util.SystemPropertyUtil.BROADCAST_API_PREFIX;
 
 import java.io.InputStream;
 
+import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -28,6 +29,7 @@ import com.pack.pack.services.registry.ServiceRegistry;
  * @author Saurav
  *
  */
+@Singleton
 @Provider
 @Path(BROADCAST_API_PREFIX)
 public class BroadcastAPI {

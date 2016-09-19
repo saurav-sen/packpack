@@ -1,5 +1,6 @@
 package com.pack.pack.rest.api;
 
+import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -26,6 +27,7 @@ import com.pack.pack.services.registry.ServiceRegistry;
  * @author Saurav
  *
  */
+@Singleton
 @Provider
 @Path("activity/topic")
 public class TopicActivityResource {

@@ -6,6 +6,7 @@ import static com.pack.pack.util.SystemPropertyUtil.URL_SEPARATOR;
 import java.util.Collections;
 import java.util.List;
 
+import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -41,6 +42,7 @@ import com.pack.pack.services.registry.ServiceRegistry;
  * @author Saurav
  *
  */
+@Singleton
 @Provider
 @Path("/discussion")
 public class DiscussionResource {

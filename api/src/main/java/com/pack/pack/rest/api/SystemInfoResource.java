@@ -1,5 +1,6 @@
 package com.pack.pack.rest.api;
 
+import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -16,6 +17,7 @@ import com.pack.pack.util.SystemPropertyUtil;
  * @author Saurav
  *
  */
+@Singleton
 @Provider
 @Path("/sys.info")
 public class SystemInfoResource {

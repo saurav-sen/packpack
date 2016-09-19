@@ -1,5 +1,6 @@
 package com.pack.pack.rest.api;
 
+import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -16,6 +17,7 @@ import com.pack.pack.services.exception.PackPackException;
  * @author Saurav
  *
  */
+@Singleton
 @Provider
 @Path("/brands")
 public class BrandInfoResource {

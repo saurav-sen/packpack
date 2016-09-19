@@ -1,5 +1,6 @@
 package com.pack.pack.rest.api;
 
+import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -19,6 +20,7 @@ import com.pack.pack.services.registry.ServiceRegistry;
  * @author Saurav
  *
  */
+@Singleton
 @Provider
 @Path("/home")
 public class DefaultTopicResource {

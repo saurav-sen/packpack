@@ -6,6 +6,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.pack.pack.IRedisService;
+import com.pack.pack.services.RedisServiceImpl;
 import com.pack.pack.services.exception.PackPackException;
 
 /**
@@ -63,6 +65,13 @@ public class ServiceRegistry {
 			return findService(class1);
 		} catch (ClassNotFoundException e) {
 			throw new PackPackException("", e.getMessage(), e);
+		}
+	}
+	
+	public void stop() {
+		IRedisService service = findService(RedisServiceImpl.class);
+		if(service != null) {
+			service.dispose();
 		}
 	}
 }

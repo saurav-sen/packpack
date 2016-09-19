@@ -2,6 +2,7 @@ package com.pack.pack.rest.api;
 
 import java.io.InputStream;
 
+import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -37,6 +38,7 @@ import com.pack.pack.util.GeoLocationUtil.GeoLocation;
  * @author Saurav
  *
  */
+@Singleton
 @Provider
 @Path("/topic")
 public class TopicResource {

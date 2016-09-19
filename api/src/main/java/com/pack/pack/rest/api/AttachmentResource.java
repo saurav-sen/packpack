@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.util.UUID;
 
 import javax.imageio.ImageIO;
+import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -49,6 +50,7 @@ import com.pack.pack.util.SystemPropertyUtil;
  * @author Saurav
  *
  */
+@Singleton
 @Provider
 @Path("/attachment")
 public class AttachmentResource {
@@ -245,7 +247,7 @@ public class AttachmentResource {
 			@FormDataParam("story") String story,
 			@PathParam("topicId") String topicId,
 			@PathParam("userId") String userId) throws PackPackException {
-		//String fileName = aboutFile.getFileName();
+		//String fileName = aboutFile.getFileName();		
 		String fileName = UUID.randomUUID().toString() + ".jpg";
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
