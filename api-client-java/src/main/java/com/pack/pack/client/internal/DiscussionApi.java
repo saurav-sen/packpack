@@ -108,7 +108,8 @@ class DiscussionApi extends BaseAPI {
 		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
 		String json = JSONUtil.serialize(dto);
 		HttpEntity jsonBody = new StringEntity(json);
-		PUT.setEntity(jsonBody);
+		PUT.setEntity(GZipUtil.compress(jsonBody));
+		PUT.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
 		HttpResponse response = client.execute(PUT);
 		return JSONUtil
 				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
@@ -128,7 +129,8 @@ class DiscussionApi extends BaseAPI {
 		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
 		String json = JSONUtil.serialize(dto);
 		HttpEntity jsonBody = new StringEntity(json);
-		PUT.setEntity(jsonBody);
+		PUT.setEntity(GZipUtil.compress(jsonBody));
+		PUT.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
 		HttpResponse response = client.execute(PUT);
 		return JSONUtil
 				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
@@ -149,7 +151,8 @@ class DiscussionApi extends BaseAPI {
 		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
 		String json = JSONUtil.serialize(dto);
 		HttpEntity jsonBody = new StringEntity(json);
-		PUT.setEntity(jsonBody);
+		PUT.setEntity(GZipUtil.compress(jsonBody));
+		PUT.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
 		HttpResponse response = client.execute(PUT);
 		return JSONUtil
 				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
@@ -179,7 +182,8 @@ class DiscussionApi extends BaseAPI {
 		dto.setUserId(userId);
 		String json = JSONUtil.serialize(dto);
 		HttpEntity jsonBody = new StringEntity(json);
-		POST.setEntity(jsonBody);
+		POST.setEntity(GZipUtil.compress(jsonBody));
+		POST.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
 		HttpResponse response = client.execute(POST);
 		return JSONUtil
 				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
@@ -198,7 +202,8 @@ class DiscussionApi extends BaseAPI {
 		dto.setUserId(userId);
 		String json = JSONUtil.serialize(dto);
 		HttpEntity jsonBody = new StringEntity(json);
-		POST.setEntity(jsonBody);
+		POST.setEntity(GZipUtil.compress(jsonBody));
+		POST.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
 		HttpResponse response = client.execute(POST);
 		return JSONUtil
 				.deserialize(EntityUtils.toString(GZipUtil.decompress(response

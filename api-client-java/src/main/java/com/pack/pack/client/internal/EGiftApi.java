@@ -94,7 +94,8 @@ class EGiftApi extends BaseAPI {
 		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
 		String json = JSONUtil.serialize(dto);
 		HttpEntity jsonBody = new StringEntity(json);
-		PUT.setEntity(jsonBody);
+		PUT.setEntity(GZipUtil.compress(jsonBody));
+		PUT.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
 		HttpResponse response = client.execute(PUT);
 		return JSONUtil
 				.deserialize(EntityUtils.toString(GZipUtil.decompress(response

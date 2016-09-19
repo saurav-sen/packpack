@@ -10,6 +10,9 @@ import javax.ws.rs.ext.Provider;
 import javax.ws.rs.ext.WriterInterceptor;
 import javax.ws.rs.ext.WriterInterceptorContext;
 
+import static com.pack.pack.rest.api.security.interceptors.GZipReader.CONTENT_ENCODING_HEADER;
+import static com.pack.pack.rest.api.security.interceptors.GZipReader.GZIP_CONTENT_ENCODING;;
+
 /**
  * 
  * @author Saurav
@@ -23,7 +26,7 @@ public class GZipWritter implements WriterInterceptor {
 	public void aroundWriteTo(WriterInterceptorContext context)
 			throws IOException, WebApplicationException {
 		MultivaluedMap<String,Object> headers = context.getHeaders();
-		headers.add("Content-Encoding", "gzip");		
+		headers.add(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);		
 		OutputStream outStream = context.getOutputStream();
 		context.setOutputStream(new GZIPOutputStream(outStream));
 		context.proceed();

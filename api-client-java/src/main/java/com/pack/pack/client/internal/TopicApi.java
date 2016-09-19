@@ -84,7 +84,8 @@ class TopicApi extends BaseAPI {
 		POST.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		POST.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
 		HttpEntity jsonBody = new StringEntity(json);
-		POST.setEntity(jsonBody);
+		POST.setEntity(GZipUtil.compress(jsonBody));
+		POST.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
 		HttpResponse response = client.execute(POST);
 		return JSONUtil
 				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
@@ -172,7 +173,8 @@ class TopicApi extends BaseAPI {
 		}
 		// HttpEntity entity = builder.build();
 		// POST.setEntity(entity);
-		POST.setEntity(multipartEntity);
+		POST.setEntity(GZipUtil.compress(multipartEntity));
+		POST.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
 
 		HttpResponse response = client.execute(POST);
 		return JSONUtil

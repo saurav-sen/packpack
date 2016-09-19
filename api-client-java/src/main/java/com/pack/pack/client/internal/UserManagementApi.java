@@ -151,7 +151,8 @@ class UserManagementApi extends BaseAPI {
 		settings.setKey(key);
 		settings.setValue(value);
 		String json = JSONUtil.serialize(settings, true);
-		PUT.setEntity(new StringEntity(json));
+		PUT.setEntity(GZipUtil.compress(new StringEntity(json)));
+		PUT.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
 		HttpResponse response = client.execute(PUT);
 		return JSONUtil
 				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
@@ -217,7 +218,8 @@ class UserManagementApi extends BaseAPI {
 		HttpPut PUT = new HttpPut(url);
 		PUT.addHeader(AUTHORIZATION_HEADER, accessToken);
 		HttpEntity entity = new StringEntity(followedCategories);
-		PUT.setEntity(entity);
+		PUT.setEntity(GZipUtil.compress(entity));
+		PUT.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
 		HttpResponse response = client.execute(PUT);
 		String json = EntityUtils.toString(GZipUtil.decompress(response
 				.getEntity()));
@@ -235,7 +237,8 @@ class UserManagementApi extends BaseAPI {
 		multipartEntity.addPart(APIConstants.User.PROFILE_PICTURE,
 				new ByteArrayBody(data, "image/jpeg", userId
 						+ "_profilePicture.jpg"));
-		PUT.setEntity(multipartEntity);
+		PUT.setEntity(GZipUtil.compress(multipartEntity));
+		PUT.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
 		HttpResponse response = client.execute(PUT);
 		return JSONUtil
 				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
@@ -273,7 +276,8 @@ class UserManagementApi extends BaseAPI {
 			}
 			//HttpEntity entity = builder.build();
 			//POST.setEntity(entity);
-			POST.setEntity(multipartEntity);
+			POST.setEntity(GZipUtil.compress(multipartEntity));
+			POST.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
 		} else {
 			POST.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
 			SignupDTO dto = new SignupDTO();
@@ -291,7 +295,8 @@ class UserManagementApi extends BaseAPI {
 			dto.setPassword(password);
 			String json = JSONUtil.serialize(dto);
 			HttpEntity jsonBody = new StringEntity(json);
-			POST.setEntity(jsonBody);
+			POST.setEntity(GZipUtil.compress(jsonBody));
+			POST.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
 		}
 		
 		/*POST.addHeader("Content-Type",

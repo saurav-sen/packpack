@@ -33,4 +33,8 @@ public class GZipUtil {
 		}
 		return httpEntity;
 	}
+	
+	public static HttpEntity compress(HttpEntity httpEntity) {
+		return new GzipCompressingEntity(httpEntity);
+	}
 }

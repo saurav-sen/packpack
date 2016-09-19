@@ -72,7 +72,8 @@ class PackApi extends BaseAPI {
 		POST.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		POST.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
 		HttpEntity payload = new StringEntity(JSONUtil.serialize(dto));
-		POST.setEntity(payload);
+		POST.setEntity(GZipUtil.compress(payload));
+		POST.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
 		HttpResponse response = client.execute(POST);
 		return JSONUtil
 				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
@@ -164,7 +165,8 @@ class PackApi extends BaseAPI {
 		dto.getReceipents().add(receipent);
 		String json = JSONUtil.serialize(dto);
 		HttpEntity jsonBody = new StringEntity(json);
-		PUT.setEntity(jsonBody);
+		PUT.setEntity(GZipUtil.compress(jsonBody));
+		PUT.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
 		HttpResponse response = client.execute(PUT);
 		return JSONUtil
 				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
@@ -193,7 +195,8 @@ class PackApi extends BaseAPI {
 		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
 		String json = JSONUtil.serialize(commentDTO);
 		HttpEntity jsonBody = new StringEntity(json);
-		PUT.setEntity(jsonBody);
+		PUT.setEntity(GZipUtil.compress(jsonBody));
+		PUT.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
 		HttpResponse response = client.execute(PUT);
 		return JSONUtil
 				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
@@ -209,7 +212,8 @@ class PackApi extends BaseAPI {
 		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
 		String json = JSONUtil.serialize(dto);
 		HttpEntity jsonBody = new StringEntity(json);
-		PUT.setEntity(jsonBody);
+		PUT.setEntity(GZipUtil.compress(jsonBody));
+		PUT.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
 		HttpResponse response = client.execute(PUT);
 		return JSONUtil
 				.deserialize(EntityUtils.toString(GZipUtil.decompress(response

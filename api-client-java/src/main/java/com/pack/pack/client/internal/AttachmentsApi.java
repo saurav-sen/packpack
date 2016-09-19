@@ -153,15 +153,18 @@ class AttachmentsApi extends BaseAPI {
 				 */
 			} else {
 				String text = (String) params.get(key);
+				//GZi stream = new ByteArrayOutputStream();
+				
 				StringBody textBody = new StringBody(text);
 				multipartEntity.addPart(key, textBody);
 				// builder.addTextBody(key, text);
 			}
 		}
-		POST.setEntity(multipartEntity);
+		POST.setEntity(GZipUtil.compress(multipartEntity));
 		// HttpEntity entity = builder.build();
 		// POST.setEntity(entity);
 		POST.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		POST.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
 		/*
 		 * POST.addHeader(CONTENT_TYPE_HEADER,
 		 * ContentType.MULTIPART_FORM_DATA.getMimeType());
@@ -230,10 +233,11 @@ class AttachmentsApi extends BaseAPI {
 				// builder.addTextBody(key, text);
 			}
 		}
-		PUT.setEntity(multipartEntity);
+		PUT.setEntity(GZipUtil.compress(multipartEntity));
 		// HttpEntity entity = builder.build();
 		// PUT.setEntity(entity);
 		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		PUT.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
 		/*
 		 * PUT.addHeader(CONTENT_TYPE_HEADER, "multipart/form-data");
 		 */
