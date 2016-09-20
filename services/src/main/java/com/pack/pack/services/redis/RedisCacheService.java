@@ -1,16 +1,17 @@
-package com.pack.pack.services;
+package com.pack.pack.services.redis;
 
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.lambdaworks.redis.RedisClient;
 import com.lambdaworks.redis.api.StatefulRedisConnection;
 import com.lambdaworks.redis.api.sync.RedisCommands;
-import com.pack.pack.IRedisService;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.services.exception.PackPackException;
 
@@ -21,10 +22,12 @@ import com.pack.pack.services.exception.PackPackException;
  */
 @Component
 @Scope("singleton")
-public class RedisServiceImpl implements IRedisService {
-	
+public class RedisCacheService {
+
 	private RedisClient client;
 	private StatefulRedisConnection<String, String> connection;
+	
+	private static final Logger LOG = LoggerFactory.getLogger(RedisCacheService.class);
 	
 	@PostConstruct
 	private void init() {
@@ -32,9 +35,13 @@ public class RedisServiceImpl implements IRedisService {
 		connection = client.connect();
 	}
 	
-	@Override
 	public void dispose() {
 		if(connection != null && connection.isOpen()) {
+			try {
+				removeAllFromCache("");
+			} catch (PackPackException e) {
+				LOG.debug(e.getErrorCode(), e.getMessage(), e);
+			}
 			connection.close();
 		}
 	}
@@ -46,7 +53,6 @@ public class RedisServiceImpl implements IRedisService {
 		return connection;
 	}
 
-	@Override
 	public <T> void addToCache(String key, Object value)
 			throws PackPackException {
 		String json = JSONUtil.serialize(value);
@@ -55,7 +61,6 @@ public class RedisServiceImpl implements IRedisService {
 		sync.close();
 	}
 
-	@Override
 	public <T> T getFromCache(String key, Class<T> targetType)
 			throws PackPackException {
 		RedisCommands<String,String> sync = getConnection().sync();
@@ -64,14 +69,12 @@ public class RedisServiceImpl implements IRedisService {
 		return JSONUtil.deserialize(json, targetType);
 	}
 
-	@Override
 	public void removeFromCache(String key) throws PackPackException {
 		RedisCommands<String,String> sync = getConnection().sync();
 		sync.del(key);
 		sync.close();
 	}
 
-	@Override
 	public void removeAllFromCache(String keyPrefix) throws PackPackException {
 		RedisCommands<String,String> sync = getConnection().sync();
 		List<String> keys = sync.keys(keyPrefix + "*");

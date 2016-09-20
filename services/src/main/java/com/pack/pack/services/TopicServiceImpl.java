@@ -1,5 +1,6 @@
 package com.pack.pack.services;
 
+import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
 import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
 import static com.pack.pack.common.util.CommonConstants.STANDARD_PAGE_SIZE;
 import static com.pack.pack.util.AttachmentUtil.resizeAndStoreUploadedAttachment;
@@ -30,6 +31,9 @@ import com.pack.pack.services.couchdb.UserTopicMapRepositoryService;
 import com.pack.pack.services.es.ESUploadService;
 import com.pack.pack.services.exception.ErrorCodes;
 import com.pack.pack.services.exception.PackPackException;
+import com.pack.pack.services.redis.RedisCacheService;
+import com.pack.pack.services.redis.PackPage;
+import com.pack.pack.services.redis.TopicPage;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.ModelConverter;
 import com.pack.pack.util.S3Path;
@@ -50,6 +54,18 @@ public class TopicServiceImpl implements ITopicService {
 	@Override
 	public Pagination<JPack> getAllPacks(String topicId, String pageLink)
 			throws PackPackException {
+		String key = "topic:" + topicId + ":"
+				+ (pageLink != null ? pageLink : NULL_PAGE_LINK);
+		if (SystemPropertyUtil.isCacheEnabled()) {
+			RedisCacheService cacheService = ServiceRegistry.INSTANCE
+					.findService(RedisCacheService.class);
+			PackPage packPage = cacheService.getFromCache(key,
+					PackPage.class);
+			if(packPage != null) {
+				return packPage.convert();
+			}
+		}
+		
 		logger.debug("Fetching all packs for topicId=" + topicId
 				+ " with pageLink=" + pageLink);
 		TopicRepositoryService service = ServiceRegistry.INSTANCE
@@ -59,17 +75,37 @@ public class TopicServiceImpl implements ITopicService {
 		List<JPack> jPacks = ModelConverter.convertAll(packs);
 		String nextLink = pagination != null ? pagination.getNextLink() : END_OF_PAGE;
 		String previousLink = pagination != null ? pagination.getPreviousLink() : END_OF_PAGE;
-		return new Pagination<JPack>(previousLink, nextLink, jPacks);
+		Pagination<JPack> page = new Pagination<JPack>(previousLink, nextLink, jPacks);
+		if (SystemPropertyUtil.isCacheEnabled() && page != null) {
+			RedisCacheService cacheService = ServiceRegistry.INSTANCE
+					.findService(RedisCacheService.class);
+			cacheService.addToCache(key, PackPage.build(page));
+		}
+		return page;
 	}
 
 	@Override
 	public JTopic getTopicById(String topicId) throws PackPackException {
 		// logger.debug("Getting Topic Information for topicId=" + topicId);
+		String key = "topic:" + topicId;
+		if (SystemPropertyUtil.isCacheEnabled()) {
+			RedisCacheService cacheService = ServiceRegistry.INSTANCE
+					.findService(RedisCacheService.class);
+			JTopic jTopic = cacheService.getFromCache(key, JTopic.class);
+			if (jTopic != null) {
+				return jTopic;
+			}
+		}
 		TopicRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(TopicRepositoryService.class);
 		Topic topic = service.get(topicId);
 		if (topic != null) {
-			return ModelConverter.convert(topic);
+			JTopic jTopic = ModelConverter.convert(topic);
+			if (SystemPropertyUtil.isCacheEnabled() && jTopic != null) {
+				RedisCacheService cacheService = ServiceRegistry.INSTANCE
+						.findService(RedisCacheService.class);
+				cacheService.addToCache(key, jTopic);
+			}
 		}
 		return null;
 	}
@@ -99,6 +135,16 @@ public class TopicServiceImpl implements ITopicService {
 			topic.setFollowers(followers + 1);
 			topicService.update(topic);
 		}
+		
+		if (SystemPropertyUtil.isCacheEnabled()) {
+			String keyPrefix = "topic:user:" + userId + ":category:"
+					+ topic.getCategory();
+			RedisCacheService cacheService = ServiceRegistry.INSTANCE
+					.findService(RedisCacheService.class);
+			cacheService.removeAllFromCache(keyPrefix);
+			keyPrefix = "topic:followed:user:" + userId;
+			cacheService.removeAllFromCache(keyPrefix);
+		}
 		// logger.info("User having id=" + userId + " following topic with id="
 		// + topicId);
 	}
@@ -106,31 +152,54 @@ public class TopicServiceImpl implements ITopicService {
 	@Override
 	public Pagination<JTopic> getUserFollowedTopics(String userId,
 			String pageLink) throws PackPackException {
-		/*
-		 * logger.debug(
-		 * "Fetching user followed topics in pagination API for userId=" +
-		 * userId + ", pageLink=" + pageLink);
-		 */
+		String key = "topic:followed:user:" + userId + ":"
+				+ (pageLink != null ? pageLink : NULL_PAGE_LINK);
+		if (SystemPropertyUtil.isCacheEnabled()) {
+			RedisCacheService cacheService = ServiceRegistry.INSTANCE
+					.findService(RedisCacheService.class);
+			TopicPage topicPage = cacheService.getFromCache(key,
+					TopicPage.class);
+			if (topicPage != null) {
+				return topicPage.convert();
+			}
+		}
 		UserTopicMapRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(UserTopicMapRepositoryService.class);
 		Pagination<Topic> page = service.getAllTopicsFollowedByUser(userId,
 				pageLink);
 		List<Topic> topics = page.getResult();
 		List<JTopic> jTopics = ModelConverter.convertTopicList(topics);
-		return new Pagination<JTopic>(page.getPreviousLink(),
+		Pagination<JTopic> r = new Pagination<JTopic>(page.getPreviousLink(),
 				page.getNextLink(), jTopics);
+		if (SystemPropertyUtil.isCacheEnabled() && r != null) {
+			RedisCacheService cacheService = ServiceRegistry.INSTANCE
+					.findService(RedisCacheService.class);
+			cacheService.addToCache(key, TopicPage.build(r));
+		}
+		return r;
 	}
 	
 	@Override
 	public Pagination<JTopic> getUserFollowedTopicsFilteredByCategory(
 			String userId, String categoryName, String pageLink)
 			throws PackPackException {
+		String key = "topic:user:" + userId + ":category:" + categoryName + ":";
 		String previousLink = null;
 		String nextLink = null;
 		List<JTopic> result = new LinkedList<JTopic>();
 		UserTopicMapRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(UserTopicMapRepositoryService.class);
 		if(!pageLink.startsWith("NOT_FOLLOWING")) {
+			key = key + (pageLink != null ? pageLink : NULL_PAGE_LINK); 
+			if (SystemPropertyUtil.isCacheEnabled()) {
+				RedisCacheService cacheService = ServiceRegistry.INSTANCE
+						.findService(RedisCacheService.class);
+				TopicPage topicPage = cacheService.getFromCache(key,
+						TopicPage.class);
+				if (topicPage != null) {
+					return topicPage.convert();
+				}
+			}
 			Pagination<Topic> page = service.getAllTopicsFollowedByUserAndCategory(
 					userId, categoryName, pageLink);
 			List<Topic> topics = page != null ? page.getResult() : Collections.emptyList();
@@ -141,6 +210,16 @@ public class TopicServiceImpl implements ITopicService {
 		}
 		else {
 			pageLink = pageLink.substring("NOT_FOLLOWING".length());
+			key = key + pageLink + ":NOT";
+			if (SystemPropertyUtil.isCacheEnabled()) {
+				RedisCacheService cacheService = ServiceRegistry.INSTANCE
+						.findService(RedisCacheService.class);
+				TopicPage topicPage = cacheService.getFromCache(key,
+						TopicPage.class);
+				if (topicPage != null) {
+					return topicPage.convert();
+				}
+			}
 			Pagination<Topic> page = service.getAllTopicsNotFollowedByUserAndCategory(
 					userId, categoryName, pageLink);
 			List<Topic> topics = page != null ? page.getResult() : Collections.emptyList();
@@ -164,16 +243,19 @@ public class TopicServiceImpl implements ITopicService {
 						: "NOT_FOLLOWING" + END_OF_PAGE;
 			}
 		}		
-		return new Pagination<JTopic>(previousLink, nextLink, result);
+		Pagination<JTopic> page = new Pagination<JTopic>(previousLink, nextLink, result);
+		if (SystemPropertyUtil.isCacheEnabled() && page != null) {
+			TopicPage topicPage = TopicPage.build(page);
+			RedisCacheService cacheService = ServiceRegistry.INSTANCE
+					.findService(RedisCacheService.class);
+			cacheService.addToCache(key, topicPage);
+		}
+		return page;
 	}
 
 	@Override
 	public Pagination<JTopic> getAllTopicListing(String userId, String pageLink)
 			throws PackPackException {
-		/*
-		 * logger.debug("Loading all topics as requested by user having userId="
-		 * + userId + " page info(page-link)=" + pageLink);
-		 */
 		UserTopicMapRepositoryService mapService = ServiceRegistry.INSTANCE
 				.findService(UserTopicMapRepositoryService.class);
 		Pagination<Topic> page = mapService.getAllTopicsFollowedByUser(userId,
@@ -184,15 +266,6 @@ public class TopicServiceImpl implements ITopicService {
 				.emptyList();
 		List<JTopic> jTopics = ModelConverter.convertTopicList(topics);
 		return new Pagination<JTopic>(previousLink, nextLink, jTopics);
-		/*
-		 * TopicRepositoryService service = ServiceRegistry.INSTANCE
-		 * .findService(TopicRepositoryService.class); Pagination<Topic> page =
-		 * service.getAllTopics(userId, pageLink); String nextLink =
-		 * page.getNextLink(); String previousLink = page.getPreviousLink();
-		 * List<Topic> topics = page.getResult(); List<JTopic> jTopics =
-		 * ModelConverter.convertTopicList(topics); return new
-		 * Pagination<JTopic>(previousLink, nextLink, jTopics);
-		 */
 	}
 
 	@Override
@@ -215,10 +288,13 @@ public class TopicServiceImpl implements ITopicService {
 			topic.setFollowers(followers - 1);
 
 		}
-		/*
-		 * logger.info("User having ID=" + userId +
-		 * " is neglecting topic whose ID=" + topicId);
-		 */
+		if (SystemPropertyUtil.isCacheEnabled()) {
+			String keyPrefix = "topic:user:" + userId + ":category:"
+					+ topic.getCategory();
+			RedisCacheService cacheService = ServiceRegistry.INSTANCE
+					.findService(RedisCacheService.class);
+			cacheService.removeAllFromCache(keyPrefix);
+		}
 	}
 
 	@Override
@@ -236,6 +312,14 @@ public class TopicServiceImpl implements ITopicService {
 		ESUploadService esUploadService = ServiceRegistry.INSTANCE
 				.findService(ESUploadService.class);
 		esUploadService.uploadNewTopicDetails(topic);
+		if (SystemPropertyUtil.isCacheEnabled()) {
+			String keyPrefix = "topic:owner:" + topic.getOwnerId();
+			RedisCacheService cacheService = ServiceRegistry.INSTANCE
+					.findService(RedisCacheService.class);
+			cacheService.removeAllFromCache(keyPrefix);
+			keyPrefix = "topic:category:" + topic.getCategory();
+			cacheService.removeAllFromCache(keyPrefix);
+		}
 		return ModelConverter.convert(topic);
 	}
 	
@@ -262,18 +346,43 @@ public class TopicServiceImpl implements ITopicService {
 	@Override
 	public Pagination<JTopic> getAllTopicsByCategoryName(String categoryName,
 			String pageLink) throws PackPackException {
+		String key = "topic:category:" + categoryName;
+		if (SystemPropertyUtil.isCacheEnabled()) {
+			RedisCacheService cacheService = ServiceRegistry.INSTANCE
+					.findService(RedisCacheService.class);
+			TopicPage topicPage = cacheService.getFromCache(key,
+					TopicPage.class);
+			if (topicPage != null) {
+				return topicPage.convert();
+			}
+		}
 		TopicRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(TopicRepositoryService.class);
 		Pagination<Topic> page = service.getAllTopicsByCategoryName(
 				categoryName, pageLink);
 		List<JTopic> topics = ModelConverter.convertTopicList(page.getResult());
-		return new Pagination<JTopic>(page.getPreviousLink(),
+		Pagination<JTopic> r = new Pagination<JTopic>(page.getPreviousLink(),
 				page.getNextLink(), topics);
+		if (SystemPropertyUtil.isCacheEnabled()) {
+			RedisCacheService cacheService = ServiceRegistry.INSTANCE
+					.findService(RedisCacheService.class);
+			cacheService.addToCache(key, TopicPage.build(r));
+		}
+		return r;
 	}
 	
 	@Override
 	public JTopics getAllTopicsOwnedByUser(String userId)
 			throws PackPackException {
+		String key = "topic:owner:" + userId;
+		if(SystemPropertyUtil.isCacheEnabled()) {
+			RedisCacheService cacheService = ServiceRegistry.INSTANCE
+					.findService(RedisCacheService.class);
+			JTopics jTopics = cacheService.getFromCache(key, JTopics.class);
+			if(jTopics != null) {
+				return jTopics;
+			}
+		}
 		JTopics result = new JTopics();
 		TopicRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(TopicRepositoryService.class);
@@ -283,6 +392,11 @@ public class TopicServiceImpl implements ITopicService {
 		}
 		for (Topic topic : topics) {
 			result.getTopics().add(ModelConverter.convert(topic));
+		}
+		if (SystemPropertyUtil.isCacheEnabled()) {
+			RedisCacheService cacheService = ServiceRegistry.INSTANCE
+					.findService(RedisCacheService.class);
+			cacheService.addToCache(key, result);
 		}
 		return result;
 	}

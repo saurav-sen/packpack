@@ -209,4 +209,8 @@ public class SystemPropertyUtil {
 	public static String getDefaultSystemTopicId() {
 		return DEFAULT_TOPIC_ID_VALUE;
 	}
+	
+	public static boolean isCacheEnabled() {
+		return true;
+	}
 }

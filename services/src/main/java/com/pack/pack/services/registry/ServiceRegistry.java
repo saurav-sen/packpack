@@ -6,9 +6,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.pack.pack.IRedisService;
-import com.pack.pack.services.RedisServiceImpl;
 import com.pack.pack.services.exception.PackPackException;
+import com.pack.pack.services.redis.RedisCacheService;
 
 /**
  * 
@@ -69,7 +68,7 @@ public class ServiceRegistry {
 	}
 	
 	public void stop() {
-		IRedisService service = findService(RedisServiceImpl.class);
+		RedisCacheService service = findService(RedisCacheService.class);
 		if(service != null) {
 			service.dispose();
 		}
