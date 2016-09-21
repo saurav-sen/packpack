@@ -45,7 +45,6 @@ public class AppContextListener implements ServletContextListener, IEventListene
 
 	@Override
 	public void contextDestroyed(ServletContextEvent sce) {
-		TokenRegistry.INSTANCE.stop();
 		ServiceRegistry.INSTANCE.stop();
 	}
 

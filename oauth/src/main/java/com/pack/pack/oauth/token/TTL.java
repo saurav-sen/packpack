@@ -1,18 +1,13 @@
 package com.pack.pack.oauth.token;
 
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
-
-import com.hazelcast.nio.ObjectDataInput;
-import com.hazelcast.nio.ObjectDataOutput;
-import com.hazelcast.nio.serialization.DataSerializable;
 
 /**
  * 
  * @author Saurav
  *
  */
-public class TTL implements DataSerializable {
+public class TTL {
 
 	private int timeToLive;
 	
@@ -42,7 +37,7 @@ public class TTL implements DataSerializable {
 		this.timeUnit = timeUnit;
 	}
 
-	@Override
+	/*@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
 		out.writeInt(timeToLive);
 		out.writeInt(timeUnit.ordinal());
@@ -52,5 +47,5 @@ public class TTL implements DataSerializable {
 	public void readData(ObjectDataInput in) throws IOException {
 		timeToLive = in.readInt();
 		timeUnit = TimeUnit.values()[in.readInt()];
-	}
+	}*/
 }

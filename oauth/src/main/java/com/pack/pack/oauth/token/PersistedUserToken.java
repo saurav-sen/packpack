@@ -1,19 +1,12 @@
-package com.pack.pack.model;
+package com.pack.pack.oauth.token;
 
-import org.ektorp.support.CouchDbDocument;
-import org.joda.time.DateTime;
 
 /**
  * 
  * @author Saurav
  *
  */
-public class PersistedUserToken extends CouchDbDocument {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8356532879377269960L;
+public class PersistedUserToken {
 
 	private String refreshToken;
 	

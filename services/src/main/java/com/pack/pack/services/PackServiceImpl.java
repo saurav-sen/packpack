@@ -1,6 +1,7 @@
 package com.pack.pack.services;
 
 import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
+import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
 
 import java.io.File;
 import java.io.InputStream;
@@ -41,6 +42,9 @@ import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.rabbitmq.MessagePublisher;
 import com.pack.pack.services.rabbitmq.objects.BroadcastCriteria;
 import com.pack.pack.services.rabbitmq.objects.BroadcastPack;
+import com.pack.pack.services.redis.PackAttachmentPage;
+import com.pack.pack.services.redis.PackPage;
+import com.pack.pack.services.redis.RedisCacheService;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.services.sms.SMSSender;
 import com.pack.pack.util.AttachmentUtil;
@@ -60,7 +64,20 @@ public class PackServiceImpl implements IPackService {
 	@Override
 	public JPack getPackById(String id) throws PackPackException {
 		Pack pack = findPackById(id);
-		return ModelConverter.convert(pack);
+		String key = "pack:" + id;
+		RedisCacheService cacheService = ServiceRegistry.INSTANCE
+				.findService(RedisCacheService.class);
+		if (SystemPropertyUtil.isCacheEnabled()) {
+			JPack jPack = cacheService.getFromCache(key, JPack.class);
+			if (jPack != null) {
+				return jPack;
+			}
+		}
+		JPack jPack = ModelConverter.convert(pack);
+		if (SystemPropertyUtil.isCacheEnabled()) {
+			cacheService.addToCache(key, jPack);
+		}
+		return jPack;
 	}
 
 	private Pack findPackById(String id) throws PackPackException {
@@ -72,10 +89,24 @@ public class PackServiceImpl implements IPackService {
 	@Override
 	public JPackAttachment getPackAttachmentById(String id)
 			throws PackPackException {
+		String key = "pack:attachment" + id;
+		RedisCacheService cacheService = ServiceRegistry.INSTANCE
+				.findService(RedisCacheService.class);
+		if (SystemPropertyUtil.isCacheEnabled()) {
+			JPackAttachment jPackAttachment = cacheService.getFromCache(key,
+					JPackAttachment.class);
+			if (jPackAttachment != null) {
+				return jPackAttachment;
+			}
+		}
 		PackAttachment attachment = findPackAttachmentById(id);
 		if (attachment == null)
 			return null;
-		return ModelConverter.convert(attachment);
+		JPackAttachment jPackAttachment = ModelConverter.convert(attachment);
+		if (SystemPropertyUtil.isCacheEnabled()) {
+			cacheService.addToCache(key, jPackAttachment);
+		}
+		return jPackAttachment;
 	}
 
 	private PackAttachment findPackAttachmentById(String id)
@@ -154,6 +185,16 @@ public class PackServiceImpl implements IPackService {
 	@Override
 	public Pagination<JPack> loadLatestPack(String userId, String topicId,
 			String pageLink) throws PackPackException {
+		String key = "pack:topic:" + topicId + ":page:"
+				+ (pageLink != null ? pageLink : NULL_PAGE_LINK);
+		RedisCacheService cacheService = ServiceRegistry.INSTANCE
+				.findService(RedisCacheService.class);
+		if (SystemPropertyUtil.isCacheEnabled()) {
+			PackPage packPage = cacheService.getFromCache(key, PackPage.class);
+			if (packPage != null) {
+				return packPage.convert();
+			}
+		}
 		UserTopicMapRepositoryService mapRepositoryService = ServiceRegistry.INSTANCE
 				.findService(UserTopicMapRepositoryService.class);
 		List<String> IDs = mapRepositoryService
@@ -166,17 +207,38 @@ public class PackServiceImpl implements IPackService {
 			Pagination<Pack> page = packRepositoryService.getAllPacks(topicId,
 					pageLink);
 			List<JPack> jPacks = ModelConverter.convertAll(page.getResult());
-			return new Pagination<JPack>(page.getPreviousLink(),
+			Pagination<JPack> result = new Pagination<JPack>(page.getPreviousLink(),
 					page.getNextLink(), jPacks);
+			if(SystemPropertyUtil.isCacheEnabled()) {
+				PackPage packPage = PackPage.build(result);
+				cacheService.addToCache(key, packPage);
+			}
+			return result;
 		}
-		return new Pagination<JPack>(END_OF_PAGE, END_OF_PAGE,
+		Pagination<JPack> result = new Pagination<JPack>(END_OF_PAGE, END_OF_PAGE,
 				Collections.emptyList());
+		if(SystemPropertyUtil.isCacheEnabled()) {
+			PackPage packPage = PackPage.build(result);
+			cacheService.addToCache(key, packPage);
+		}
+		return result;
 	}
 
 	@Override
 	public Pagination<JPackAttachment> loadPackAttachments(String userId,
 			String topicId, String packId, String pageLink)
 			throws PackPackException {
+		String key = "pack:topic:" + topicId + ":pack:" + packId
+				+ ":attachment:page:" + (pageLink != null ? pageLink : NULL_PAGE_LINK);
+		RedisCacheService cacheService = ServiceRegistry.INSTANCE
+				.findService(RedisCacheService.class);
+		if (SystemPropertyUtil.isCacheEnabled()) {
+			PackAttachmentPage attachmentPage = cacheService.getFromCache(key,
+					PackAttachmentPage.class);
+			if (attachmentPage != null) {
+				return attachmentPage.convert();
+			}
+		}
 		UserTopicMapRepositoryService mapRepositoryService = ServiceRegistry.INSTANCE
 				.findService(UserTopicMapRepositoryService.class);
 		List<String> IDs = mapRepositoryService
@@ -197,12 +259,20 @@ public class PackServiceImpl implements IPackService {
 						result.add(ModelConverter.convert(attachment));
 					}
 				}
-				return new Pagination<JPackAttachment>(page.getPreviousLink(),
-						page.getNextLink(), result);
+				Pagination<JPackAttachment> r = new Pagination<JPackAttachment>(
+						page.getPreviousLink(), page.getNextLink(), result);
+				if (SystemPropertyUtil.isCacheEnabled()) {
+					cacheService.addToCache(key, PackAttachmentPage.build(r));
+				}
+				return r;
 			}
 		}
-		return new Pagination<JPackAttachment>(END_OF_PAGE, END_OF_PAGE,
-				Collections.emptyList());
+		Pagination<JPackAttachment> r = new Pagination<JPackAttachment>(
+				END_OF_PAGE, END_OF_PAGE, Collections.emptyList());
+		if (SystemPropertyUtil.isCacheEnabled()) {
+			cacheService.addToCache(key, PackAttachmentPage.build(r));
+		}
+		return r;
 	}
 
 	@Override
@@ -213,6 +283,13 @@ public class PackServiceImpl implements IPackService {
 		Pack pack = addNewPack(story, title, userId, topicId);
 		addPackAttachment(pack, topicId, type, title, userId, description,
 				fileName, file);
+		if (SystemPropertyUtil.isCacheEnabled() && pack != null) {
+			String keyPrefix = "pack:topic:" + topicId;
+			RedisCacheService cacheService = ServiceRegistry.INSTANCE
+					.findService(RedisCacheService.class);
+			cacheService.removeAllFromCache(keyPrefix);
+			cacheService.removeFromCache("pack:" + pack.getId());
+		}
 		TopicRepositoryService service2 = ServiceRegistry.INSTANCE
 				.findService(TopicRepositoryService.class);
 		Topic topic = service2.get(topicId);
@@ -315,6 +392,13 @@ public class PackServiceImpl implements IPackService {
 		Pack pack = findPackById(packId);
 		addPackAttachment(pack, topicId, type, title, userId, description,
 				fileName, file);
+		if (SystemPropertyUtil.isCacheEnabled()) {
+			String keyPrefix = "pack:topic:" + topicId + ":pack:" + packId
+					+ ":attachment";
+			RedisCacheService cacheService = ServiceRegistry.INSTANCE
+					.findService(RedisCacheService.class);
+			cacheService.removeFromCache(keyPrefix);
+		}
 		TopicRepositoryService topicService = ServiceRegistry.INSTANCE
 				.findService(TopicRepositoryService.class);
 		Topic topic = topicService.get(topicId);

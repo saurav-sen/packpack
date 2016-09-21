@@ -26,7 +26,7 @@
     	<artifactId>services</artifactId>
      	<version>${packpack.release}</version>          	
     </dependency>
-    <dependency>
+    <!--dependency>
 		<groupId>com.hazelcast</groupId>
 		<artifactId>hazelcast</artifactId>
 		<version>${hazelcast.version}</version>
@@ -35,7 +35,7 @@
 		<groupId>com.hazelcast</groupId>
 		<artifactId>hazelcast-client</artifactId>
 		<version>${hazelcast.version}</version>
-	</dependency>
+	</dependency-->
 	<dependency>
         <groupId>org.glassfish.jersey.security</groupId>
         <artifactId>oauth1-signature</artifactId>

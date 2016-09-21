@@ -68,7 +68,7 @@ public class OAuth10SecurityProvider implements OAuth1Provider {
 
 	public Set<Token> getAccessTokens(final String principalName) {
 		final Set<Token> empty = new HashSet<Token>(0);
-		List<Token> accessTokens = TokenRegistry.INSTANCE
+		List<AccessToken> accessTokens = TokenRegistry.INSTANCE
 				.getAllAccessTokens(principalName);
 		if (accessTokens == null) {
 			return empty;

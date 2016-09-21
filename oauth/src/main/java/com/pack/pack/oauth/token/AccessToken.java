@@ -1,6 +1,5 @@
 package com.pack.pack.oauth.token;
 
-import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
@@ -10,16 +9,12 @@ import javax.ws.rs.core.MultivaluedMap;
 
 import org.glassfish.jersey.internal.util.collection.ImmutableMultivaluedMap;
 
-import com.hazelcast.nio.ObjectDataInput;
-import com.hazelcast.nio.ObjectDataOutput;
-import com.hazelcast.nio.serialization.DataSerializable;
-
 /**
  * 
  * @author Saurav
  *
  */
-public class AccessToken extends Token implements DataSerializable {
+public class AccessToken extends Token {
 	
 	private String refreshToken;
 	
@@ -59,7 +54,7 @@ public class AccessToken extends Token implements DataSerializable {
 		this.refreshToken = refreshToken;
 	}
 	
-	@Override
+	/*@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
 		super.writeData(out);
 		out.writeUTF(refreshToken);
@@ -69,5 +64,5 @@ public class AccessToken extends Token implements DataSerializable {
 	public void readData(ObjectDataInput in) throws IOException {
 		super.readData(in);
 		refreshToken = in.readUTF();
-	}
+	}*/
 }

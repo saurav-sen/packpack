@@ -1,10 +1,9 @@
 package com.pack.pack.rest.api.security;
 
-import com.pack.pack.model.PersistedUserToken;
 import com.pack.pack.oauth.registry.TokenRegistry;
-import com.pack.pack.services.couchdb.PersistedUserTokenRepositoryService;
 import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.exception.PackPackException;
+import com.pack.pack.services.redis.RedisCacheService;
 import com.pack.pack.services.registry.ServiceRegistry;
 
 /**
@@ -25,16 +24,14 @@ public class UserAuthenticator {
 				.findService(UserRepositoryService.class);
 		return umService.validateCredential(username, password);
 	}
-	
-	public boolean IsValidRefreshToken(
-			String refreshToken, String userId, String deviceID)
-			throws Exception {
+
+	public boolean IsValidRefreshToken(String refreshToken, String userId,
+			String deviceID) throws Exception {
 		if (TokenRegistry.INSTANCE.isValidRefreshToken(refreshToken, null,
 				userId, deviceID)) {
-			PersistedUserTokenRepositoryService service = ServiceRegistry.INSTANCE
-					.findService(PersistedUserTokenRepositoryService.class);
-			PersistedUserToken token = service.findByRefreshToken(refreshToken);
-			service.remove(token);
+			RedisCacheService cacheService = ServiceRegistry.INSTANCE
+					.findService(RedisCacheService.class);
+			cacheService.removeFromCache(refreshToken);
 			return true;
 		}
 		return false;

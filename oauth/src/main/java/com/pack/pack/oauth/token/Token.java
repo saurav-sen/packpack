@@ -1,6 +1,5 @@
 package com.pack.pack.oauth.token;
 
-import java.io.IOException;
 import java.security.Principal;
 import java.util.Collections;
 import java.util.HashSet;
@@ -15,9 +14,6 @@ import org.glassfish.jersey.server.oauth1.OAuth1Consumer;
 import org.glassfish.jersey.server.oauth1.OAuth1Provider;
 import org.glassfish.jersey.server.oauth1.OAuth1Token;
 
-import com.hazelcast.nio.ObjectDataInput;
-import com.hazelcast.nio.ObjectDataOutput;
-import com.hazelcast.nio.serialization.DataSerializable;
 import com.pack.pack.oauth.registry.ConsumerRegistry;
 import com.pack.pack.security.util.OAuth1Util;
 
@@ -27,7 +23,7 @@ import com.pack.pack.security.util.OAuth1Util;
  * @author Saurav
  *
  */
-public class Token implements OAuth1Token, DataSerializable {
+public class Token implements OAuth1Token {
 
 	private String token;
 	private String secret;
@@ -136,7 +132,7 @@ public class Token implements OAuth1Token, DataSerializable {
 		return roles;
 	}
 
-	@Override
+	/*@Override
 	public void writeData(ObjectDataOutput out) throws IOException {
 		out.writeUTF(token);
 		out.writeUTF(secret);
@@ -184,5 +180,5 @@ public class Token implements OAuth1Token, DataSerializable {
 		}
 		expiry = in.readObject();
 		timeOfIssue = in.readLong();
-	}
+	}*/
 }
