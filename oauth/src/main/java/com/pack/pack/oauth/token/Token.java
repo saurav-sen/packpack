@@ -14,6 +14,7 @@ import org.glassfish.jersey.server.oauth1.OAuth1Consumer;
 import org.glassfish.jersey.server.oauth1.OAuth1Provider;
 import org.glassfish.jersey.server.oauth1.OAuth1Token;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pack.pack.oauth.registry.ConsumerRegistry;
 import com.pack.pack.security.util.OAuth1Util;
 
@@ -31,6 +32,8 @@ public class Token implements OAuth1Token {
 	private String callbackUrl;
 	private Principal principal;
 	private Set<String> roles;
+	
+	@JsonIgnore
 	private MultivaluedMap<String, String> attribs;
 	
 	private TTL expiry;
@@ -84,6 +87,7 @@ public class Token implements OAuth1Token {
 	}
 
 	@Override
+	@JsonIgnore
 	public MultivaluedMap<String, String> getAttributes() {
 		return attribs;
 	}
