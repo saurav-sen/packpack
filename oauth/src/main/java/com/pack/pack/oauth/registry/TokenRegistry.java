@@ -80,10 +80,14 @@ public class TokenRegistry {
 		}
 	}
 
-	public boolean isValidAccessToken(String token) {
+	public boolean isValidAccessToken(String token) throws PackPackException {
 		RedisCacheService cacheService = ServiceRegistry.INSTANCE
 				.findService(RedisCacheService.class);
-		return cacheService.isKeyExists(token);
+		boolean exists = cacheService.isKeyExists(token);
+		if (exists) {
+			cacheService.setTTL(token, 2 * 60 * 60);
+		}
+		return exists;
 	}
 
 	public boolean isValidRefreshToken(String refreshToken, String userAgent,
@@ -107,8 +111,8 @@ public class TokenRegistry {
 		try {
 			RedisCacheService cacheService = ServiceRegistry.INSTANCE
 					.findService(RedisCacheService.class);
-			cacheService.addToCache(token.getToken(), token.convert(), 2 * 60 * 60,
-					token.getRefreshToken());
+			cacheService.addToCache(token.getToken(), token.convert(),
+					2 * 60 * 60, token.getRefreshToken());
 			Principal principal = token.getPrincipal();
 			AccessTokens fromCache = cacheService.getFromCache(
 					principal.getName(), AccessTokens.class);
