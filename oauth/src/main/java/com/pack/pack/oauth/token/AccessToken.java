@@ -1,6 +1,8 @@
 package com.pack.pack.oauth.token;
 
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -8,6 +10,7 @@ import java.util.Set;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.glassfish.jersey.internal.util.collection.ImmutableMultivaluedMap;
+import org.glassfish.jersey.internal.util.collection.MultivaluedStringMap;
 
 /**
  * 
@@ -52,6 +55,31 @@ public class AccessToken extends Token {
 
 	public void setRefreshToken(String refreshToken) {
 		this.refreshToken = refreshToken;
+	}
+	
+	public static AccessToken build(AccessTokenInfo info) {
+		if (info == null)
+			return null;
+		return new AccessToken(info.getToken(), info.getSecret(),
+				info.getConsumerKey(), info.getCallbackUrl(),
+				info.getPrincipal(), new HashSet<String>(info.getRoles()),
+				new MultivaluedStringMap(), info.getRefreshToken());
+	}
+	
+	public AccessTokenInfo convert() {
+		AccessTokenInfo info = new AccessTokenInfo();
+		info.setToken(this.getToken());
+		info.setSecret(this.getSecret());
+		info.setConsumerKey(this.consumerKey);
+		info.setCallbackUrl(this.callbackUrl);
+		if (this.getPrincipal() != null) {
+			SimplePrinciple p = new SimplePrinciple();
+			p.setName(this.getPrincipal().getName());
+			info.setPrincipal(p);
+		}
+		info.setRoles(new ArrayList<String>(this.getRoles()));
+		info.setRefreshToken(this.refreshToken);
+		return info;
 	}
 	
 	/*@Override

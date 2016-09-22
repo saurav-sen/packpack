@@ -25,6 +25,7 @@ import com.pack.pack.model.web.dto.LoginDTO;
 import com.pack.pack.oauth.OAuthConstants;
 import com.pack.pack.oauth.registry.TokenRegistry;
 import com.pack.pack.oauth.token.AccessToken;
+import com.pack.pack.oauth.token.SimplePrinciple;
 import com.pack.pack.oauth.token.Token;
 import com.pack.pack.rest.api.oauth.provider.jersey.OAuth10SecurityProvider;
 import com.pack.pack.security.util.EncryptionUtil;
@@ -91,13 +92,8 @@ public class UserAuthorizationProvider {
 						.newRequestToken(OAuthConstants.DEFAULT_CLIENT_KEY,
 								null, new HashMap<String, List<String>>(1)));
 				TokenRegistry.INSTANCE.addRequestToken(token);
-				Principal p = new Principal() {
-
-					@Override
-					public String getName() {
-						return username;
-					}
-				};
+				SimplePrinciple p = new SimplePrinciple();
+				p.setName(username);
 				Set<String> roles = new HashSet<String>(
 						Arrays.asList(new String[] { OAuthConstants.DEFAULT_ROLE }));
 				String verifier = ((OAuth10SecurityProvider) oauthProvider)

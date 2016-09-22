@@ -1,6 +1,7 @@
 package com.pack.pack.oauth.token;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Set;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.glassfish.jersey.internal.util.collection.ImmutableMultivaluedMap;
+import org.glassfish.jersey.internal.util.collection.MultivaluedStringMap;
 import org.glassfish.jersey.server.oauth1.OAuth1Consumer;
 import org.glassfish.jersey.server.oauth1.OAuth1Provider;
 import org.glassfish.jersey.server.oauth1.OAuth1Token;
@@ -28,8 +30,8 @@ public class Token implements OAuth1Token {
 
 	private String token;
 	private String secret;
-	private String consumerKey;
-	private String callbackUrl;
+	protected String consumerKey;
+	protected String callbackUrl;
 	private Principal principal;
 	private Set<String> roles;
 	
@@ -134,6 +136,30 @@ public class Token implements OAuth1Token {
 
 	public Set<String> getRoles() {
 		return roles;
+	}
+	
+	public static Token build(TokenInfo info) {
+		if (info == null)
+			return null;
+		return new Token(info.getToken(), info.getSecret(),
+				info.getConsumerKey(), info.getCallbackUrl(),
+				info.getPrincipal(), new HashSet<String>(info.getRoles()),
+				new MultivaluedStringMap());
+	}
+	
+	public TokenInfo convert() {
+		TokenInfo info = new TokenInfo();
+		info.setToken(this.getToken());
+		info.setSecret(this.getSecret());
+		info.setConsumerKey(this.consumerKey);
+		info.setCallbackUrl(this.callbackUrl);
+		if (this.getPrincipal() != null) {
+			SimplePrinciple p = new SimplePrinciple();
+			p.setName(this.getPrincipal().getName());
+			info.setPrincipal(p);
+		}
+		info.setRoles(new ArrayList<String>(this.getRoles()));
+		return info;
 	}
 
 	/*@Override

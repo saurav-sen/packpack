@@ -1,6 +1,7 @@
 package com.pack.pack.oauth.registry;
 
 import java.security.Principal;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,8 +11,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pack.pack.oauth.token.AccessToken;
+import com.pack.pack.oauth.token.AccessTokenInfo;
+import com.pack.pack.oauth.token.AccessTokens;
 import com.pack.pack.oauth.token.PersistedUserToken;
 import com.pack.pack.oauth.token.Token;
+import com.pack.pack.oauth.token.TokenInfo;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.redis.RedisCacheService;
 import com.pack.pack.services.registry.ServiceRegistry;
@@ -40,7 +44,8 @@ public class TokenRegistry {
 		try {
 			RedisCacheService cacheService = ServiceRegistry.INSTANCE
 					.findService(RedisCacheService.class);
-			return cacheService.getFromCache(token, Token.class);
+			TokenInfo info = cacheService.getFromCache(token, TokenInfo.class);
+			return Token.build(info);
 		} catch (PackPackException e) {
 			LOG.debug(e.getErrorCode(), e.getMessage(), e);
 			return null;
@@ -52,7 +57,8 @@ public class TokenRegistry {
 			RedisCacheService cacheService = ServiceRegistry.INSTANCE
 					.findService(RedisCacheService.class);
 			long ttlSeconds = 2 * 60 * 60;
-			cacheService.addToCache(token.getToken(), token, ttlSeconds);
+			cacheService.addToCache(token.getToken(), token.convert(),
+					ttlSeconds);
 		} catch (PackPackException e) {
 			LOG.debug(e.getErrorCode(), e.getMessage(), e);
 		}
@@ -62,11 +68,12 @@ public class TokenRegistry {
 		try {
 			RedisCacheService cacheService = ServiceRegistry.INSTANCE
 					.findService(RedisCacheService.class);
-			Token fromCache = cacheService.getFromCache(token, Token.class);
+			TokenInfo fromCache = cacheService.getFromCache(token,
+					TokenInfo.class);
 			if (fromCache != null) {
 				cacheService.removeFromCache(token);
 			}
-			return fromCache;
+			return Token.build(fromCache);
 		} catch (PackPackException e) {
 			LOG.debug(e.getErrorCode(), e.getMessage(), e);
 			return null;
@@ -100,7 +107,7 @@ public class TokenRegistry {
 		try {
 			RedisCacheService cacheService = ServiceRegistry.INSTANCE
 					.findService(RedisCacheService.class);
-			cacheService.addToCache(token.getToken(), token, 2 * 60 * 60,
+			cacheService.addToCache(token.getToken(), token.convert(), 2 * 60 * 60,
 					token.getRefreshToken());
 			Principal principal = token.getPrincipal();
 			AccessTokens fromCache = cacheService.getFromCache(
@@ -108,7 +115,7 @@ public class TokenRegistry {
 			if (fromCache == null) {
 				fromCache = new AccessTokens();
 			}
-			fromCache.getTokens().add(token);
+			fromCache.getTokens().add(token.convert());
 			String username = principal.getName();
 			cacheService.addToCache(username, fromCache);
 			String refreshToken = token.getRefreshToken();
@@ -131,8 +138,16 @@ public class TokenRegistry {
 					.findService(RedisCacheService.class);
 			AccessTokens fromCache = cacheService.getFromCache(principalName,
 					AccessTokens.class);
-			return fromCache != null ? fromCache.getTokens()
-					: java.util.Collections.emptyList();
+			List<AccessTokenInfo> list = (fromCache != null ? fromCache
+					.getTokens() : null);
+			if (list == null) {
+				return Collections.emptyList();
+			}
+			List<AccessToken> r = new LinkedList<AccessToken>();
+			for (AccessTokenInfo l : list) {
+				r.add(AccessToken.build(l));
+			}
+			return r;
 		} catch (PackPackException e) {
 			LOG.debug(e.getErrorCode(), e.getMessage(), e);
 		}
@@ -179,8 +194,10 @@ public class TokenRegistry {
 		try {
 			RedisCacheService cacheService = ServiceRegistry.INSTANCE
 					.findService(RedisCacheService.class);
-			return cacheService.getFromCache(requestToken + ":verifier",
-					String.class);
+			String key = requestToken + ":verifier";
+			String verifier = cacheService.getFromCache(key, String.class);
+			cacheService.removeFromCache(key);
+			return verifier;
 		} catch (PackPackException e) {
 			LOG.debug(e.getErrorCode(), e.getMessage(), e);
 		}
@@ -191,25 +208,15 @@ public class TokenRegistry {
 		try {
 			RedisCacheService cacheService = ServiceRegistry.INSTANCE
 					.findService(RedisCacheService.class);
-			return cacheService.getFromCache(accessToken, AccessToken.class);
+			AccessTokenInfo fromCache = cacheService.getFromCache(accessToken,
+					AccessTokenInfo.class);
+			if (fromCache == null) {
+				return null;
+			}
+			return AccessToken.build(fromCache);
 		} catch (PackPackException e) {
 			LOG.debug(e.getErrorCode(), e.getMessage(), e);
 		}
 		return null;
-	}
-
-	private class AccessTokens {
-		private List<AccessToken> tokens;
-
-		public List<AccessToken> getTokens() {
-			if (tokens == null) {
-				tokens = new LinkedList<AccessToken>();
-			}
-			return tokens;
-		}
-
-		public void setTokens(List<AccessToken> tokens) {
-			this.tokens = tokens;
-		}
 	}
 }

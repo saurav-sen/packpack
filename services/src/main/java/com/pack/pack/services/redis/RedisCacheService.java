@@ -57,7 +57,12 @@ public class RedisCacheService {
 	public void addToCache(String key, Object value) throws PackPackException {
 		if (value == null)
 			return;
-		String json = JSONUtil.serialize(value);
+		String json = null;
+		if(value.getClass().isAssignableFrom(String.class)) {
+			json = value.toString();
+		} else {
+			json = JSONUtil.serialize(value);
+		}
 		RedisCommands<String, String> sync = getConnection().sync();
 		sync.set(key, json);
 		sync.close();
@@ -97,12 +102,14 @@ public class RedisCacheService {
 		}
 		RedisCommands<String, String> sync = getConnection().sync();
 		sync.setex(key, ttlSeconds, json);
-		if (recovery instanceof String) {
-			json = (String) value;
-		} else {
-			json = JSONUtil.serialize(recovery);
+		if (recovery != null) {
+			if (recovery.getClass().isAssignableFrom(String.class)) {
+				json = recovery.toString();
+			} else {
+				json = JSONUtil.serialize(recovery);
+			}
+			sync.set(key + ":expired", json);
 		}
-		sync.set(key + ":expired", json);
 		sync.close();
 	}
 
@@ -132,7 +139,7 @@ public class RedisCacheService {
 		if(targetType.isAssignableFrom(String.class)) {
 			return (T)json;
 		}
-		return JSONUtil.deserialize(json, targetType);
+		return JSONUtil.deserialize(json, targetType, true);
 	}
 
 	public void removeFromCache(String key) throws PackPackException {
