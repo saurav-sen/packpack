@@ -8,8 +8,11 @@ public interface OAuth1RequestFlow {
 
 	public String start() throws ClientProtocolException, IOException;
 
-	public String authorize(String requestToken, String username,
+	public String authorizeUser(String requestToken, String username,
 			String password) throws ClientProtocolException, IOException;
+	
+	public String authorizeToken(String requestToken, String token,
+			String secret) throws ClientProtocolException, IOException;
 
 	public AccessToken finish(String requestToken, String verifierCode)
 			throws ClientProtocolException, IOException;

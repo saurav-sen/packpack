@@ -6,10 +6,14 @@ package com.pack.pack.model.web.dto;
  *
  */
 public class LoginDTO {
-
+	
 	private String username;
 	
 	private String password;
+	
+	private String token;
+	
+	private String secret;
 
 	public String getUsername() {
 		return username;
@@ -25,5 +29,21 @@ public class LoginDTO {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
+	public String getSecret() {
+		return secret;
+	}
+
+	public void setSecret(String secret) {
+		this.secret = secret;
 	}
 }

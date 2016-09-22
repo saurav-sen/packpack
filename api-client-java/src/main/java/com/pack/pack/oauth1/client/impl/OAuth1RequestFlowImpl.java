@@ -89,7 +89,7 @@ public class OAuth1RequestFlowImpl implements OAuth1RequestFlow {
 	}
 
 	@Override
-	public String authorize(String requestToken, String username,
+	public String authorizeUser(String requestToken, String username,
 			String password) throws ClientProtocolException, IOException {
 		HttpPost POST = new HttpPost(authorizeUrl);
 		POST.addHeader("Authorization", requestToken);
@@ -102,6 +102,28 @@ public class OAuth1RequestFlowImpl implements OAuth1RequestFlow {
 		HttpResponse response = client.execute(POST);
 		String verifier = EntityUtils.toString(response.getEntity());
 		return verifier;
+	}
+	
+	@Override
+	public String authorizeToken(String requestToken, String token,
+			String secret) throws ClientProtocolException, IOException {
+		HttpPost POST = new HttpPost(authorizeUrl);
+		POST.addHeader("Authorization", requestToken);
+		POST.addHeader("Content-Type", APIConstants.APPLICATION_JSON);
+		String json = "{\"token\": \"" + token + "\", \"secret\": \""
+				+ secret + "\"}";
+		HttpEntity body = new StringEntity(json);
+		POST.setEntity(body);
+		DefaultHttpClient client = new DefaultHttpClient();
+		HttpResponse response = client.execute(POST);
+		String verifier = EntityUtils.toString(response.getEntity());
+		return verifier;
+	}
+	
+	public static void main(String[] args) {
+		String str = "relogin:EBFG";
+		str = str.substring(str.indexOf("relogin:") + 8);
+		System.out.println(str);
 	}
 
 	@Override

@@ -1,7 +1,6 @@
 package com.pack.pack.rest.api.oauth.provider.jersey;
 
 import java.security.Principal;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -64,16 +63,6 @@ public class OAuth10SecurityProvider implements OAuth1Provider {
 
 	public Set<Consumer> getConsumers(final String owner) {
 		return ConsumerRegistry.INSTANCE.getConsumers(owner);
-	}
-
-	public Set<Token> getAccessTokens(final String principalName) {
-		final Set<Token> empty = new HashSet<Token>(0);
-		List<AccessToken> accessTokens = TokenRegistry.INSTANCE
-				.getAllAccessTokens(principalName);
-		if (accessTokens == null) {
-			return empty;
-		}
-		return new HashSet<Token>(accessTokens);
 	}
 
 	public String authorizeToken(final Token token,
@@ -145,7 +134,7 @@ public class OAuth10SecurityProvider implements OAuth1Provider {
 			return null;
 		}
 		String refreshToken = newUUIDString();
-		AccessToken at = new AccessToken(newUUIDString(), newUUIDString(),
+		AccessToken at = new AccessToken(newUUIDString(), refreshToken,
 				token, refreshToken);
 		at.setExpiry(new TTL(2, TimeUnit.HOURS));
 		at.setTimeOfIssue(System.currentTimeMillis());

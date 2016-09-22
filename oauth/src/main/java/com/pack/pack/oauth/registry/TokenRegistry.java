@@ -1,19 +1,10 @@
 package com.pack.pack.oauth.registry;
 
-import java.security.Principal;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pack.pack.oauth.token.AccessToken;
 import com.pack.pack.oauth.token.AccessTokenInfo;
-import com.pack.pack.oauth.token.AccessTokens;
-import com.pack.pack.oauth.token.PersistedUserToken;
 import com.pack.pack.oauth.token.Token;
 import com.pack.pack.oauth.token.TokenInfo;
 import com.pack.pack.services.exception.PackPackException;
@@ -80,7 +71,7 @@ public class TokenRegistry {
 		}
 	}
 
-	public boolean isValidAccessToken(String token) throws PackPackException {
+	public boolean isValidAccessToken(String token) {
 		RedisCacheService cacheService = ServiceRegistry.INSTANCE
 				.findService(RedisCacheService.class);
 		boolean exists = cacheService.isKeyExists(token);
@@ -90,21 +81,30 @@ public class TokenRegistry {
 		return exists;
 	}
 
-	public boolean isValidRefreshToken(String refreshToken, String userAgent,
-			String username, String deviceId) {
-		try {
-			RedisCacheService cacheService = ServiceRegistry.INSTANCE
-					.findService(RedisCacheService.class);
-			PersistedUserToken token = cacheService.getFromCache(refreshToken,
-					PersistedUserToken.class);
-			if (token == null)
-				return false;
-			return token.getUserId().equals(username)
-					&& token.getUserIp().equals(deviceId);
-		} catch (PackPackException e) {
-			LOG.debug(e.getErrorCode(), e.getMessage(), e);
+	private boolean isValidRefreshToken(String refreshToken,
+			String accessToken, String deviceId) throws PackPackException {
+		RedisCacheService cacheService = ServiceRegistry.INSTANCE
+				.findService(RedisCacheService.class);
+		boolean bool = cacheService.isKeyExists(refreshToken);
+		if (!bool) {
 			return false;
 		}
+		String expectedOldToken = cacheService.getFromCache(refreshToken,
+				String.class);
+		return expectedOldToken != null && accessToken != null
+				&& expectedOldToken.equals(accessToken);
+	}
+
+	public boolean removeRefreshToken(String refreshToken, String accessToken,
+			String deviceId) throws PackPackException {
+		boolean validRefreshToken = isValidRefreshToken(refreshToken,
+				accessToken, deviceId);
+		if (validRefreshToken) {
+			RedisCacheService cacheService = ServiceRegistry.INSTANCE
+					.findService(RedisCacheService.class);
+			cacheService.removeFromCache(refreshToken);
+		}
+		return validRefreshToken;
 	}
 
 	public void addAccessToken(AccessToken token) {
@@ -112,50 +112,11 @@ public class TokenRegistry {
 			RedisCacheService cacheService = ServiceRegistry.INSTANCE
 					.findService(RedisCacheService.class);
 			cacheService.addToCache(token.getToken(), token.convert(),
-					2 * 60 * 60, token.getRefreshToken());
-			Principal principal = token.getPrincipal();
-			AccessTokens fromCache = cacheService.getFromCache(
-					principal.getName(), AccessTokens.class);
-			if (fromCache == null) {
-				fromCache = new AccessTokens();
-			}
-			fromCache.getTokens().add(token.convert());
-			String username = principal.getName();
-			cacheService.addToCache(username, fromCache);
-			String refreshToken = token.getRefreshToken();
-			if (refreshToken != null) {
-				PersistedUserToken pToken = new PersistedUserToken();
-				pToken.setRefreshToken(refreshToken);
-				pToken.setTimeOfIssue(new DateTime(DateTimeZone.getDefault())
-						.getMillis());
-				pToken.setUserId(username);
-				cacheService.addToCache(refreshToken, pToken);
-			}
+					2 * 60 * 60);
+			cacheService.addToCache(token.getRefreshToken(), token.getToken());
 		} catch (PackPackException e) {
 			LOG.debug(e.getErrorCode(), e.getMessage(), e);
 		}
-	}
-
-	public List<AccessToken> getAllAccessTokens(String principalName) {
-		try {
-			RedisCacheService cacheService = ServiceRegistry.INSTANCE
-					.findService(RedisCacheService.class);
-			AccessTokens fromCache = cacheService.getFromCache(principalName,
-					AccessTokens.class);
-			List<AccessTokenInfo> list = (fromCache != null ? fromCache
-					.getTokens() : null);
-			if (list == null) {
-				return Collections.emptyList();
-			}
-			List<AccessToken> r = new LinkedList<AccessToken>();
-			for (AccessTokenInfo l : list) {
-				r.add(AccessToken.build(l));
-			}
-			return r;
-		} catch (PackPackException e) {
-			LOG.debug(e.getErrorCode(), e.getMessage(), e);
-		}
-		return java.util.Collections.emptyList();
 	}
 
 	public void invalidateAccessToken(String accessToken) {
@@ -172,16 +133,6 @@ public class TokenRegistry {
 		} catch (PackPackException e) {
 			LOG.debug(e.getErrorCode(), e.getMessage(), e);
 		}
-
-		/*
-		 * Map<String, Token> map = hazelcast.getMap(ACCESS_TOKEN_CACHE);
-		 * AccessToken token = (AccessToken)map.remove(accessToken);
-		 * IMap<Principal, List<Token>> map2 =
-		 * hazelcast.getMap(PRINCIPAL_VS_ACCESS_TOKEN_CACHE); Principal
-		 * principal = token.getPrincipal(); List<Token> list =
-		 * map2.get(principal.getName()); if(list != null) { list.remove(token);
-		 * } return token;
-		 */
 	}
 
 	public void addVerifier(String requestToken, String verifier) {

@@ -2,30 +2,23 @@ package com.pack.pack.rest.api.security;
 
 import java.security.Principal;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
 import org.glassfish.jersey.server.oauth1.OAuth1Provider;
-import org.glassfish.jersey.server.oauth1.OAuth1Token;
 
 import com.pack.pack.model.web.dto.LoginDTO;
 import com.pack.pack.oauth.OAuthConstants;
 import com.pack.pack.oauth.registry.TokenRegistry;
-import com.pack.pack.oauth.token.AccessToken;
-import com.pack.pack.oauth.token.SimplePrinciple;
 import com.pack.pack.oauth.token.Token;
 import com.pack.pack.rest.api.oauth.provider.jersey.OAuth10SecurityProvider;
 import com.pack.pack.security.util.EncryptionUtil;
@@ -51,14 +44,14 @@ public class UserAuthorizationProvider {
 			final LoginDTO dto) throws PackPackException {
 		try {
 			String password = dto.getPassword();
-			if(password != null) {
+			if (password != null) {
 				password = EncryptionUtil.encryptPassword(password);
 			}
 			Token token = ((OAuth10SecurityProvider) oauthProvider)
 					.getRequestToken(requestToken);
 			if (token != null
-					&& UserAuthenticator.INSTANCE.authenticateUser(
-							dto.getUsername(), password)) {
+					&& (validateUsernamePassword(dto.getUsername(), password) || validateAccessTokenAndSecret(
+							dto.getToken(), dto.getSecret()))) {
 				Principal p = new Principal() {
 
 					@Override
@@ -77,34 +70,23 @@ public class UserAuthorizationProvider {
 		}
 	}
 
-	@GET
-	@Path("{username}")
-	@Produces(value = MediaType.APPLICATION_JSON)
-	public AccessToken relogin(
-			@HeaderParam(OAuthConstants.AUTHORIZATION_HEADER) String refreshToken,
-			@HeaderParam(OAuthConstants.DEVICE_ID) String deviceId,
-			@PathParam("username") final String username)
+	private boolean validateUsernamePassword(String username, String password)
 			throws PackPackException {
-		try {
-			if (UserAuthenticator.INSTANCE.IsValidRefreshToken(refreshToken,
-					username, null)) {
-				Token token = ((Token) ((OAuth10SecurityProvider) oauthProvider)
-						.newRequestToken(OAuthConstants.DEFAULT_CLIENT_KEY,
-								null, new HashMap<String, List<String>>(1)));
-				TokenRegistry.INSTANCE.addRequestToken(token);
-				SimplePrinciple p = new SimplePrinciple();
-				p.setName(username);
-				Set<String> roles = new HashSet<String>(
-						Arrays.asList(new String[] { OAuthConstants.DEFAULT_ROLE }));
-				String verifier = ((OAuth10SecurityProvider) oauthProvider)
-						.authorizeToken(token, p, roles);
-				OAuth1Token accessToken = ((OAuth10SecurityProvider) oauthProvider)
-						.newAccessToken(token, verifier);
-				return (AccessToken) accessToken;
-			}
-			return null;
-		} catch (Exception e) {
-			throw new PackPackException("TODO", e);
+		if (username != null && !username.trim().isEmpty() && password != null
+				&& !password.trim().isEmpty()) {
+			return UserAuthenticator.INSTANCE.authenticateUser(username,
+					password);
 		}
+		return false;
+	}
+
+	private boolean validateAccessTokenAndSecret(String accessToken,
+			String secret) throws PackPackException {
+		if (accessToken != null && !accessToken.trim().isEmpty()
+				&& secret != null && !secret.trim().isEmpty()) {
+			return TokenRegistry.INSTANCE.removeRefreshToken(secret,
+					accessToken, null);
+		}
+		return false;
 	}
 }

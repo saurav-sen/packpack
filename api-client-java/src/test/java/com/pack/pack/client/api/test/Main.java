@@ -33,13 +33,17 @@ public class Main {
 		System.out.println(EntityUtils.toString(response.getEntity()));
 	}
 	
-	public static void main(String[] args) throws Exception {
+	public static void main3(String[] args) throws Exception {
 		//new SignUpUserTest().signUp();
 		//addTopicTest();
 		testUserFOllowedTopicList();
 		uploadPackTest(false);
 		//addImageToPack();
 		addVideoToPack();
+	}
+	
+	public static void main(String[] args) throws Exception {
+		SignInUtil.signIn();
 	}
 	
 	private static void addImageToPack() throws Exception {

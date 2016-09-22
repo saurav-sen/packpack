@@ -315,7 +315,19 @@ class UserManagementApi extends BaseAPI {
 				.get(APIConstants.Login.CLIENT_SECRET);
 		String username = (String) params.get(APIConstants.Login.USERNAME);
 		String password = (String) params.get(APIConstants.Login.PASSWORD);
-		return doSignIn(clientKey, clientSecret, username, password);
+		if (username != null && !username.trim().isEmpty() && password != null
+				&& !password.trim().isEmpty()) {
+			return doSignIn(clientKey, clientSecret,
+					username, password);
+		}
+		String oldAccessToken = (String) params.get(APIConstants.Login.OLD_ACCESS_TOKEN);
+		String oldAccessTokenSecret = (String) params.get(APIConstants.Login.OLD_ACCESS_TOKEN_SECRET);
+		if (oldAccessToken != null && !oldAccessToken.trim().isEmpty() && oldAccessTokenSecret != null
+				&& !oldAccessTokenSecret.trim().isEmpty()) {
+			return reSignIn(clientKey, clientSecret,
+					oldAccessToken, oldAccessTokenSecret);
+		}
+		return null;
 	}
 	
 	private AccessToken doSignIn(String clientKey, String clientSecret,
@@ -331,7 +343,25 @@ class UserManagementApi extends BaseAPI {
 		int index = query.indexOf("oauth_token=");
 		String requestToken = query.substring(index + "oauth_token=".length());
 
-		String verifier = authFlow.authorize(requestToken, username, password);
+		String verifier = authFlow.authorizeUser(requestToken, username, password);
+
+		return authFlow.finish(requestToken, verifier);
+	}
+	
+	private AccessToken reSignIn(String clientKey, String clientSecret,
+			String accessToken, String accessTokenSecret) throws ClientProtocolException,
+			IOException {
+		OAuth1ClientCredentials consumerCredentials = new OAuth1ClientCredentials(
+				clientKey, clientSecret);
+		OAuth1RequestFlow authFlow = OAuth1Support.builder(consumerCredentials,
+				getBaseUrl()).build();
+		String authorizationUri = authFlow.start();
+
+		String query = URI.create(authorizationUri).getQuery();
+		int index = query.indexOf("oauth_token=");
+		String requestToken = query.substring(index + "oauth_token=".length());
+
+		String verifier = authFlow.authorizeToken(requestToken, accessToken, accessTokenSecret);
 
 		return authFlow.finish(requestToken, verifier);
 	}

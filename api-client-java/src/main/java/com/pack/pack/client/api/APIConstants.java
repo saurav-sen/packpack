@@ -18,6 +18,8 @@ public interface APIConstants {
 		public static final String CLIENT_SECRET = "clientSecret";
 		public static final String USERNAME = "username";
 		public static final String PASSWORD = "password";
+		public static final String OLD_ACCESS_TOKEN = "old_accessToken";
+		public static final String OLD_ACCESS_TOKEN_SECRET = "old_accessTokenSecret";
 	}
 	
 	public static interface User {
