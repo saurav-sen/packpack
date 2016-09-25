@@ -29,7 +29,6 @@ import com.pack.pack.model.web.dto.SignupDTO;
 import com.pack.pack.model.web.dto.UserSettings;
 import com.pack.pack.rest.api.security.interceptors.CompressRead;
 import com.pack.pack.rest.api.security.interceptors.CompressWrite;
-import com.pack.pack.security.util.EncryptionUtil;
 import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.es.SearchService;
 import com.pack.pack.services.exception.PackPackException;
@@ -151,7 +150,7 @@ public class UserResource {
 					"Duplicate user. User with username = " + email
 							+ " already registered");
 		}
-		password = EncryptionUtil.encryptPassword(password);
+		//password = EncryptionUtil.encryptPassword(password);
 		return service.registerNewUser(name, email, password, city, country, dob,
 				null, null);
 	}

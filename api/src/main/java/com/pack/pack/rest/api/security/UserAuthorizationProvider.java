@@ -44,9 +44,10 @@ public class UserAuthorizationProvider {
 			final LoginDTO dto) throws PackPackException {
 		try {
 			String password = dto.getPassword();
-			if (password != null) {
-				password = EncryptionUtil.encryptPassword(password);
-			}
+			/*
+			 * if (password != null) { password =
+			 * EncryptionUtil.encryptPassword(password); }
+			 */
 			Token token = ((OAuth10SecurityProvider) oauthProvider)
 					.getRequestToken(requestToken);
 			if (token != null
@@ -75,7 +76,9 @@ public class UserAuthorizationProvider {
 		if (username != null && !username.trim().isEmpty() && password != null
 				&& !password.trim().isEmpty()) {
 			return UserAuthenticator.INSTANCE.authenticateUser(username,
-					password);
+					password)
+					|| UserAuthenticator.INSTANCE.authenticateUser(username,
+							EncryptionUtil.encryptPassword(password));
 		}
 		return false;
 	}

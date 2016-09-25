@@ -102,6 +102,12 @@ public class TokenRegistry {
 		if (validRefreshToken) {
 			RedisCacheService cacheService = ServiceRegistry.INSTANCE
 					.findService(RedisCacheService.class);
+			String oldAccessToken = cacheService.getFromCache(refreshToken,
+					String.class);
+			if (oldAccessToken != null
+					&& cacheService.isKeyExists(oldAccessToken)) {
+				cacheService.removeFromCache(oldAccessToken);
+			}
 			cacheService.removeFromCache(refreshToken);
 		}
 		return validRefreshToken;
