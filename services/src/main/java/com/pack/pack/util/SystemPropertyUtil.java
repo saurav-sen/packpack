@@ -72,6 +72,8 @@ public class SystemPropertyUtil {
 	
 	private static final String GOOGLE_GEO_CODING_API_KEY = "google.geo.coding.api_key";
 	
+	private static final String WEB_PAGES_ROOT_PATH = "web.pages.root.path";
+	
 	public static void init() {
 		try {
 			properties = new Properties();
@@ -160,6 +162,10 @@ public class SystemPropertyUtil {
 	
 	public static final String getAwsS3RootBucketName() {
 		return getPropertyValue(AWS_S3_ROOT_BUCKET);
+	}
+	
+	public static final String getWebPagesRootPath() {
+		return getPropertyValue(WEB_PAGES_ROOT_PATH);
 	}
 
 	public static String getImageAttachmentBaseURL() {
