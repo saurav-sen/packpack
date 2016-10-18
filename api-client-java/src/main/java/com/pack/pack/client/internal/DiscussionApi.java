@@ -94,6 +94,30 @@ class DiscussionApi extends BaseAPI {
 		page.setResult(result);
 		return page;
 	}
+	
+	@SuppressWarnings("unchecked")
+	private Pagination<JDiscussion> getAllRepliesForDiscussion(String discussionId,
+			String userId, String pageLink, String oAuthToken) throws Exception {
+		DefaultHttpClient client = new DefaultHttpClient();
+		String url = getBaseUrl() + "discussion/discussion/" + discussionId + "/usr/"
+				+ userId + "/page/" + pageLink;
+		HttpGet GET = new HttpGet(url);
+		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		HttpResponse response = client.execute(GET);
+		Pagination<JDiscussion> page = JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), Pagination.class);
+		if (page == null)
+			return page;
+		List<JDiscussion> result = page.getResult();
+		String json = "{\"discussions\": " + JSONUtil.serialize(result, false)
+				+ "}";
+		JDiscussions discussions = JSONUtil.deserialize(json,
+				JDiscussions.class);
+		result = discussions.getDiscussions();
+		page.setResult(result);
+		return page;
+	}
 
 	private JDiscussion startDiscussionOnTopic(String topicId, String userId,
 			String title, String content, String oAuthToken) throws Exception {
@@ -246,6 +270,16 @@ class DiscussionApi extends BaseAPI {
 					pageLink = "FIRST_PAGE";
 				}
 				return getAllDiscussionsForPack(packId, userId, pageLink,
+						oAuthToken);
+			} else if (COMMAND.GET_ALL_REPLIES_FOR_DISCUSSION.equals(action)) {
+				String discussionId = (String) params.get(APIConstants.Discussion.ID);
+				String userId = (String) params.get(APIConstants.User.ID);
+				String pageLink = (String) params
+						.get(APIConstants.PageInfo.PAGE_LINK);
+				if (pageLink == null || pageLink.trim().equals("")) {
+					pageLink = "FIRST_PAGE";
+				}
+				return getAllRepliesForDiscussion(discussionId, userId, pageLink,
 						oAuthToken);
 			} else if (COMMAND.START_DISCUSSION_ON_TOPIC.equals(action)) {
 				String topicId = (String) params.get(APIConstants.Topic.ID);

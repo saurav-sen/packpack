@@ -78,6 +78,8 @@ public enum COMMAND {
 			APIConstants.Topic.ID, APIConstants.User.ID,
 			APIConstants.PageInfo.PAGE_LINK), GET_ALL_DISCUSSIONS_FOR_PACK(
 			APIConstants.Pack.ID, APIConstants.User.ID,
+			APIConstants.PageInfo.PAGE_LINK), GET_ALL_REPLIES_FOR_DISCUSSION(
+			APIConstants.Discussion.ID, APIConstants.User.ID,
 			APIConstants.PageInfo.PAGE_LINK), START_DISCUSSION_ON_TOPIC(
 			APIConstants.Topic.ID, APIConstants.User.ID,
 			APIConstants.Discussion.TITLE, APIConstants.Discussion.CONTENT), START_DISCUSSION_ON_PACK(

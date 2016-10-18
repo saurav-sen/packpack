@@ -194,6 +194,35 @@ public class DiscussionResource {
 		pr.setResult(result);
 		return pr;
 	}
+	
+	@GET
+	@CompressWrite
+	@Path("discussion/{discussionId}/usr/{userId}/page/{pageLink}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Pagination<JDiscussion> getAllRepliesForDiscussion(
+			@PathParam("discussionId") String discussionId,
+			@PathParam("userId") String userId,
+			@PathParam("pageLink") String pageLink) throws PackPackException {
+		IMiscService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IMiscService.class);
+		Pagination<JDiscussion> page = service.loadDiscussions(userId,
+				discussionId, EntityType.DISCUSSION.name(), pageLink);
+		IUserService userService = ServiceRegistry.INSTANCE
+				.findService(IUserService.class);
+		List<JDiscussion> result = page != null ? page.getResult()
+				: Collections.emptyList();
+		for (JDiscussion r : result) {
+			JUser user = userService.findUserById(r.getFromUserId());
+			r.setFromUser(user);
+		}
+		Pagination<JDiscussion> pr = new Pagination<JDiscussion>();
+		pr.setNextLink(page != null ? page.getNextLink()
+				: CommonConstants.END_OF_PAGE);
+		pr.setPreviousLink(page != null ? page.getPreviousLink()
+				: CommonConstants.END_OF_PAGE);
+		pr.setResult(result);
+		return pr;
+	}
 
 	@PUT
 	@CompressRead

@@ -1,5 +1,7 @@
 package com.pack.pack.services;
 
+import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -151,6 +153,7 @@ public class MiscServiceImpl implements IMiscService {
 			throws PackPackException {
 		DiscussionRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(DiscussionRepositoryService.class);
+		
 		Pagination<Discussion> page = service.getAllDiscussions(entityId,
 				entityType, pageLink);
 		if (page == null) {
@@ -160,6 +163,11 @@ public class MiscServiceImpl implements IMiscService {
 		if (discussions == null || discussions.isEmpty())
 			return null;
 		List<JDiscussion> jDiscussions = new LinkedList<JDiscussion>();
+		if (EntityType.DISCUSSION.name().equals(entityType)
+				&& (pageLink == null || NULL_PAGE_LINK.equals(pageLink))) {
+			JDiscussion parentDiscussion = getDiscussionBasedOnId(entityId);
+			jDiscussions.add(parentDiscussion);
+		}
 		for (Discussion discussion : discussions) {
 			JDiscussion jDiscussion = ModelConverter.convert(discussion);
 			if (jDiscussion != null) {

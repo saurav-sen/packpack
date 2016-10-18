@@ -103,6 +103,7 @@ public class APIBuilderImpl extends APIBuilder {
 			api.getInvoker().setConfiguration(config);
 		} else if (action == COMMAND.GET_ALL_DISCUSSIONS_FOR_TOPIC
 				|| action == COMMAND.GET_ALL_DISCUSSIONS_FOR_PACK
+				|| action == COMMAND.GET_ALL_REPLIES_FOR_DISCUSSION
 				|| action == COMMAND.START_DISCUSSION_ON_TOPIC
 				|| action == COMMAND.START_DISCUSSION_ON_PACK
 				|| action == COMMAND.ADD_REPLY_TO_DISCUSSION
