@@ -160,18 +160,20 @@ public class MiscServiceImpl implements IMiscService {
 			return null;
 		}
 		List<Discussion> discussions = page.getResult();
-		if (discussions == null || discussions.isEmpty())
-			return null;
 		List<JDiscussion> jDiscussions = new LinkedList<JDiscussion>();
 		if (EntityType.DISCUSSION.name().equals(entityType)
-				&& (pageLink == null || NULL_PAGE_LINK.equals(pageLink))) {
+				&& (pageLink == null || NULL_PAGE_LINK.equals(pageLink) 
+				|| "FIRST_PAGE".equals(pageLink))) {
 			JDiscussion parentDiscussion = getDiscussionBasedOnId(entityId);
 			jDiscussions.add(parentDiscussion);
 		}
-		for (Discussion discussion : discussions) {
-			JDiscussion jDiscussion = ModelConverter.convert(discussion);
-			if (jDiscussion != null) {
-				jDiscussions.add(jDiscussion);
+		
+		if (discussions != null && !discussions.isEmpty()) {
+			for (Discussion discussion : discussions) {
+				JDiscussion jDiscussion = ModelConverter.convert(discussion);
+				if (jDiscussion != null) {
+					jDiscussions.add(jDiscussion);
+				}
 			}
 		}
 		Pagination<JDiscussion> result = new Pagination<JDiscussion>();

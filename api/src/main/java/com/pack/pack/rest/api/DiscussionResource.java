@@ -114,6 +114,7 @@ public class DiscussionResource {
 
 	@PUT
 	@CompressRead
+	@CompressWrite
 	@Path("{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
