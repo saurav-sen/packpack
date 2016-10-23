@@ -22,7 +22,6 @@ import com.pack.pack.IUserService;
 import com.pack.pack.common.util.CommonConstants;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.EntityType;
-import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JDiscussion;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JUser;
@@ -115,24 +114,29 @@ public class DiscussionResource {
 	@PUT
 	@CompressRead
 	@CompressWrite
-	@Path("{id}")
+	@Path("{id}/usr/{userId}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public JStatus addReplyToDiscussion(@PathParam("id") String id,
+	public JDiscussion addReplyToDiscussion(@PathParam("id") String id,
+			@PathParam("userId") String userId,
 			String json) throws PackPackException {
 		JStatus status = new JStatus();
 		try {
 			CommentDTO dto = JSONUtil.deserialize(json, CommentDTO.class, true);
-			JComment jComment = new JComment();
-			jComment.setFromUserId(dto.getFromUserId());
-			jComment.setDateTime(System.currentTimeMillis());
-			jComment.setComment(dto.getComment());
+			JDiscussion discussion = new JDiscussion();
+			discussion.setDateTime(System.currentTimeMillis());
+			discussion.setContent(dto.getComment());
+			discussion.setTitle("");
+			discussion.setFromUserId(userId);
+			discussion.setParentId(id);
+			discussion.setParentType(EntityType.DISCUSSION.name());
 			IMiscService service = ServiceRegistry.INSTANCE
 					.findCompositeService(IMiscService.class);
-			service.addComment(dto.getFromUserId(), id, EntityType.DISCUSSION,
-					jComment);
-			status.setStatus(StatusType.OK);
-			status.setInfo("Successfully submitted reply to discussion");
+			JDiscussion result = service.startDiscussion(discussion);
+			IUserService userService = ServiceRegistry.INSTANCE.findService(IUserService.class);
+			JUser user = userService.findUserById(result.getFromUserId());
+			result.setFromUser(user);
+			return result;
 		} catch (PackPackException e) {
 			status.setStatus(StatusType.ERROR);
 			status.setInfo("Failed submitted reply to discussion");
@@ -142,7 +146,6 @@ public class DiscussionResource {
 			status.setInfo("Failed submitted reply to discussion");
 			throw new PackPackException(ErrorCodes.PACK_ERR_61, e.getMessage());
 		}
-		return status;
 	}
 
 	@GET

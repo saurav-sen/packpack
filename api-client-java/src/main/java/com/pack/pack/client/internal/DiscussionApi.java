@@ -169,7 +169,7 @@ class DiscussionApi extends BaseAPI {
 		dto.setComment(content);
 		dto.setEntityId(discussionId);
 		dto.setFromUserId(userId);
-		String url = getBaseUrl() + "discussion/" + discussionId;
+		String url = getBaseUrl() + "discussion/" + discussionId + "/usr/" + userId;
 		HttpPut PUT = new HttpPut(url);
 		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
