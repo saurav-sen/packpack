@@ -11,7 +11,6 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.pack.pack.IRssFeedService;
 import com.pack.pack.model.web.JRssFeed;
@@ -23,6 +22,7 @@ import com.squill.og.crawler.IHtmlContentHandler;
 import com.squill.og.crawler.ILink;
 import com.squill.og.crawler.IRobotScope;
 import com.squill.og.crawler.IWebSite;
+import com.squill.og.crawler.internal.AppContext;
 import com.squill.og.crawler.internal.WebSpiderService;
 
 public class Main {
@@ -33,9 +33,8 @@ public class Main {
 		WebSpiderService service = null;
 		try {
 			ServiceRegistry.INSTANCE.init();
-			ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-					"META-INF/beans.xml");
-			service = context.getBean(WebSpiderService.class);
+			AppContext appContext = AppContext.INSTANCE.init();
+			service = appContext.findService(WebSpiderService.class);
 			List<IWebSite> websites = new ArrayList<IWebSite>();
 			websites.add(new PhtographyCanvera());
 			service.crawlWebSites(websites);
