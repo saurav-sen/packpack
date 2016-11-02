@@ -187,6 +187,17 @@ public class Main {
 				public int getFlushFrequency() {
 					return 50;
 				}
+				
+				@Override
+				public void setFlushFrequency(int flushFrequency) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void setThresholdFrequency(int thresholdFrequency) {
+					// TODO Auto-generated method stub
+				}
 
 				@Override
 				public void flush() {

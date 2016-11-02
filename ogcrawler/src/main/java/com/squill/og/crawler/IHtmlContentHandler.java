@@ -18,4 +18,8 @@ public interface IHtmlContentHandler {
 	public int getFlushFrequency();
 	
 	public int getThresholdFrequency();
+	
+	public void setFlushFrequency(int flushFrequency);
+	
+	public void setThresholdFrequency(int thresholdFrequency);
 }
