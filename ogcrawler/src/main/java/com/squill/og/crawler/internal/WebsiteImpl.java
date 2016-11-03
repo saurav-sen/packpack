@@ -1,13 +1,18 @@
 package com.squill.og.crawler.internal;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.squill.og.crawler.ICrawlSchedule;
 import com.squill.og.crawler.IHtmlContentHandler;
+import com.squill.og.crawler.ILink;
 import com.squill.og.crawler.IRobotScope;
 import com.squill.og.crawler.IWebSite;
-import com.squill.og.crawler.model.Scheduler;
-import com.squill.og.crawler.model.ScopeDef;
+import com.squill.og.crawler.content.handlers.ExpressionContext;
+import com.squill.og.crawler.content.handlers.ExpressionContext.EvalContext;
+import com.squill.og.crawler.model.LinkFilter;
+import com.squill.og.crawler.model.WebCrawler;
 
 /**
  * 
@@ -16,52 +21,47 @@ import com.squill.og.crawler.model.ScopeDef;
  */
 public class WebsiteImpl implements IWebSite {
 
-	private String domainUrl;
+	private WebCrawler crawlerDef;
 
-	private ScopeDef scopeDef;
-
-	private String contentHandler;
-
-	private Scheduler scheduler;
-
-	private boolean historyTracking;
-
-	private boolean robotRulesExists;
-
-	public WebsiteImpl(String domainUrl, ScopeDef scopeDef,
-			String contentHandler, Scheduler scheduler) {
-		this(domainUrl, scopeDef, contentHandler, scheduler, false);
-	}
-
-	public WebsiteImpl(String domainUrl, ScopeDef scopeDef,
-			String contentHandler, Scheduler scheduler, boolean historyTracking) {
-		this(domainUrl, scopeDef, contentHandler, scheduler, false, true);
-	}
-
-	public WebsiteImpl(String domainUrl, ScopeDef scopeDef,
-			String contentHandler, Scheduler scheduler,
-			boolean historyTracking, boolean robotRulesExists) {
-		this.domainUrl = domainUrl;
-		this.scopeDef = scopeDef;
-		this.scheduler = scheduler;
-		this.historyTracking = historyTracking;
-		this.robotRulesExists = robotRulesExists;
+	public WebsiteImpl(WebCrawler crawlerDef) {
+		this.crawlerDef = crawlerDef;
 	}
 
 	@Override
 	public String getDomainUrl() {
-		return domainUrl;
+		return crawlerDef.getDomainUrl();
 	}
 
 	@Override
 	public IRobotScope getRobotScope() {
-		// TODO Auto-generated method stub
-		return null;
+		return new IRobotScope() {
+
+			@Override
+			public boolean isScoped(String link) {
+				LinkFilter linkFilter = crawlerDef.getLinkFilter();
+				if (linkFilter == null)
+					return true;
+				EvalContext ctx = new EvalContext(link);
+				ExpressionContext.set(ctx);
+				return new LinkFilterConditionEvaluator().evalExp(linkFilter
+						.getCondition());
+			}
+
+			@Override
+			public int getDefaultCrawlDelay() {
+				return 2;
+			}
+
+			@Override
+			public List<? extends ILink> getAnyLeftOverLinks() {
+				return Collections.emptyList();
+			}
+		};
 	}
 
 	@Override
 	public IHtmlContentHandler getContentHandler() {
-		return AppContext.INSTANCE.findService(contentHandler,
+		return AppContext.INSTANCE.findService(crawlerDef.getContentHandler(),
 				IHtmlContentHandler.class);
 	}
 
@@ -71,7 +71,7 @@ public class WebsiteImpl implements IWebSite {
 
 			@Override
 			public TimeUnit getTimeUnit() {
-				String timeUnit = scheduler.getTimeUnit().toUpperCase();
+				String timeUnit = crawlerDef.getScheduler().getTimeUnit().toUpperCase();
 				TimeUnit unit = null;
 				try {
 					unit = TimeUnit.valueOf(timeUnit);
@@ -83,23 +83,23 @@ public class WebsiteImpl implements IWebSite {
 
 			@Override
 			public long getPeriodicDelay() {
-				return scheduler.getPeriodicDelay();
+				return crawlerDef.getScheduler().getPeriodicDelay();
 			}
 
 			@Override
 			public long getInitialDelay() {
-				return scheduler.getInitialDelay();
+				return crawlerDef.getScheduler().getInitialDelay();
 			}
 		};
 	}
 
 	@Override
 	public boolean needToTrackCrawlingHistory() {
-		return historyTracking;
+		return crawlerDef.isHistoryTracking();
 	}
 
 	@Override
 	public boolean shouldCheckRobotRules() {
-		return robotRulesExists;
+		return crawlerDef.isRobotRulesExists();
 	}
 }
