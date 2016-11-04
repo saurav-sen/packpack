@@ -1,33 +1,33 @@
 package com.squill.og.crawler.app;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 
-import com.pack.pack.IRssFeedService;
-import com.pack.pack.model.web.JRssFeed;
-import com.pack.pack.model.web.TTL;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
-import com.squill.og.crawler.ICrawlSchedule;
-import com.squill.og.crawler.IHtmlContentHandler;
-import com.squill.og.crawler.ILink;
-import com.squill.og.crawler.IRobotScope;
 import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.internal.AppContext;
 import com.squill.og.crawler.internal.WebSpiderService;
+import com.squill.og.crawler.internal.WebsiteImpl;
+import com.squill.og.crawler.model.LinkFilter;
+import com.squill.og.crawler.model.Scheduler;
+import com.squill.og.crawler.model.WebCrawler;
+import com.squill.og.crawler.model.WebCrawlers;
 
 public class Main {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+	
+	private static final String WEB_CRAWLERS_CONFIG_FILE = "web.crawlers.config.file";
 
 	public static void main(String[] args) {
 		WebSpiderService service = null;
@@ -35,10 +35,16 @@ public class Main {
 			ServiceRegistry.INSTANCE.init();
 			AppContext appContext = AppContext.INSTANCE.init();
 			service = appContext.findService(WebSpiderService.class);
-			List<IWebSite> websites = new ArrayList<IWebSite>();
-			websites.add(new PhtographyCanvera());
+			List<IWebSite> websites = readCrawlerDefinition();
+			if(websites == null || websites.isEmpty())
+				return;
+			//List<IWebSite> websites = new ArrayList<IWebSite>();
+			//websites.add(new PhtographyCanvera());
 			service.crawlWebSites(websites);
 		} catch (BeansException e) {
+			e.printStackTrace();
+			LOG.debug(e.getMessage(), e);
+		} catch (JAXBException e) {
 			e.printStackTrace();
 			LOG.debug(e.getMessage(), e);
 		} finally {
@@ -51,8 +57,26 @@ public class Main {
 			}
 		}
 	}
+	
+	private static List<IWebSite> readCrawlerDefinition() throws JAXBException {
+		List<IWebSite> webSites = new ArrayList<IWebSite>();
+		String loc = System.getProperty(WEB_CRAWLERS_CONFIG_FILE);
+		File file = new File(loc);
+		JAXBContext jaxbInstance = JAXBContext.newInstance(
+				WebCrawlers.class, WebCrawler.class, Scheduler.class,
+				LinkFilter.class);
+		Unmarshaller unmarshaller = jaxbInstance.createUnmarshaller();
+		WebCrawlers crawlersDef = (WebCrawlers) unmarshaller.unmarshal(file);
+		List<WebCrawler> crawlers = crawlersDef.getWebCrawler();
+		for(WebCrawler crawler : crawlers) {
+			IWebSite webSite = new WebsiteImpl(crawler);
+			webSites.add(webSite);
+		}
+		return webSites;
+	}
+	
 
-	private static class PhtographyCanvera implements IWebSite {
+	/*private static class PhtographyCanvera implements IWebSite {
 
 		@Override
 		public String getDomainUrl() {
@@ -65,9 +89,6 @@ public class Main {
 
 				@Override
 				public boolean isScoped(String link) {
-					/*
-					 * if(link.contains("nature")) { return true; }
-					 */
 					if (link.contains("collections/")) {
 						return true;
 					}
@@ -142,10 +163,6 @@ public class Main {
 					feed.setOgType(type);
 
 					feeds.add(feed);
-					/*
-					 * try { System.out.println(JSONUtil.serialize(feed)); }
-					 * catch (PackPackException e) { e.printStackTrace(); }
-					 */
 				}
 
 				@Override
@@ -172,7 +189,6 @@ public class Main {
 								.findCompositeService(IRssFeedService.class);
 						service.upload(feed, ttl);
 					} catch (PackPackException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -189,13 +205,11 @@ public class Main {
 				
 				@Override
 				public void setFlushFrequency(int flushFrequency) {
-					// TODO Auto-generated method stub
 					
 				}
 				
 				@Override
 				public void setThresholdFrequency(int thresholdFrequency) {
-					// TODO Auto-generated method stub
 				}
 
 				@Override
@@ -236,5 +250,5 @@ public class Main {
 			return true;
 		}
 
-	}
+	}*/
 }
