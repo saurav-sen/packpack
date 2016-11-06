@@ -32,7 +32,7 @@ public class Main {
 	public static void main(String[] args) {
 		WebSpiderService service = null;
 		try {
-			ServiceRegistry.INSTANCE.init();
+			//ServiceRegistry.INSTANCE.init();
 			AppContext appContext = AppContext.INSTANCE.init();
 			service = appContext.findService(WebSpiderService.class);
 			List<IWebSite> websites = readCrawlerDefinition();

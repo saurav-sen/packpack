@@ -4,7 +4,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
  * 
@@ -28,12 +28,13 @@ public class AppContext {
 		if(lock.tryLock()) {
 			try {
 				if(!initializedBeans) {
-					appContext = new ClassPathXmlApplicationContext("META-INF/beans.xml");
+					appContext = new AnnotationConfigApplicationContext(AppConfig.class);
+					//appContext = new ClassPathXmlApplicationContext("META-INF/beans.xml");
 					if(appContext == null) {
 						throw new RuntimeException("Error initializing spring "
 								+ "context for repository services");
 					}
-					((ClassPathXmlApplicationContext)appContext).registerShutdownHook();
+					((AnnotationConfigApplicationContext)appContext).registerShutdownHook();
 					initializedBeans = true;
 				}
 			} finally {
