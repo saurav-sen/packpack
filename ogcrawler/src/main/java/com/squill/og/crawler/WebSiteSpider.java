@@ -57,13 +57,16 @@ public class WebSiteSpider implements Runnable {
 					contentHandler.flush();
 					count = 0;
 				}
-				WebSpiderTracker info = new WebSpiderTracker();
-				if(info != null) {
-					info.setLastCrawled(System.currentTimeMillis());
-					info.setLink(link.getUrl());
-					long ttlSeconds = 10*24*60*60;
-					tracker.addCrawledInfo(link.getUrl(), info, ttlSeconds);
+				if(webSite.needToTrackCrawlingHistory()) {
+					WebSpiderTracker info = new WebSpiderTracker();
+					if(info != null) {
+						info.setLastCrawled(System.currentTimeMillis());
+						info.setLink(link.getUrl());
+						long ttlSeconds = 10*24*60*60;
+						tracker.addCrawledInfo(link.getUrl(), info, ttlSeconds);
+					}
 				}
+				
 				if(link == null || link.getUrl() == null || "".equals(link.getUrl().trim()))
 					continue;
 				if(robotScope.isScoped(link.getUrl()) && needToCrawl(link.getUrl())) {
@@ -100,6 +103,9 @@ public class WebSiteSpider implements Runnable {
 	}
 	
 	private boolean needToCrawl(String link) {
+		if(!webSite.needToTrackCrawlingHistory()) {
+			return true;
+		}
 		WebSpiderTracker info = tracker.getTrackedInfo(link);
 		//TODO -- Read "If-Modified" flag in Http HEAD request.
 		return info == null;
