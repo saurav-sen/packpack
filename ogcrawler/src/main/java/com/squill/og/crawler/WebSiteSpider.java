@@ -1,10 +1,11 @@
 package com.squill.og.crawler;
 
-import java.sql.Date;
 import java.util.List;
 
+import com.squill.og.crawler.internal.WebSiteTrackerService;
 import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
 import com.squill.og.crawler.internal.utils.WebSpiderUtils;
+import com.squill.og.crawler.model.WebSpiderTracker;
 
 /**
  * 
@@ -14,10 +15,12 @@ import com.squill.og.crawler.internal.utils.WebSpiderUtils;
 public class WebSiteSpider implements Runnable {
 	
 	private IWebSite webSite;
+	private WebSiteTrackerService tracker;
 	
 	
-	public WebSiteSpider(IWebSite domain) {
+	public WebSiteSpider(IWebSite domain, WebSiteTrackerService tracker) {
 		this.webSite = domain;
+		this.tracker = tracker;
 	}
 
 	@Override
@@ -54,16 +57,16 @@ public class WebSiteSpider implements Runnable {
 					contentHandler.flush();
 					count = 0;
 				}
-				/*WebSpiderTracker info = webSite.createNewTracker(link.getUrl());
+				WebSpiderTracker info = new WebSpiderTracker();
 				if(info != null) {
-					info.setLastCrawled(new Date(System.currentTimeMillis()));
+					info.setLastCrawled(System.currentTimeMillis());
 					info.setLink(link.getUrl());
-					info.setVisited(false);
-					info = tracker.addForTracking(info);
-				}*/
+					long ttlSeconds = 10*24*60*60;
+					tracker.addCrawledInfo(link.getUrl(), info, ttlSeconds);
+				}
 				if(link == null || link.getUrl() == null || "".equals(link.getUrl().trim()))
 					continue;
-				if(robotScope.isScoped(link.getUrl())/* && tracker.needToCrawl(link.getUrl(), webSite)*/) {
+				if(robotScope.isScoped(link.getUrl()) && needToCrawl(link.getUrl())) {
 					System.out.println("Visiting " + link.getUrl());
 					contentHandler.preProcess(link);
 					String html = doCrawl(link.getUrl());
@@ -94,6 +97,12 @@ public class WebSiteSpider implements Runnable {
 				}
 			}
 		}
+	}
+	
+	private boolean needToCrawl(String link) {
+		WebSpiderTracker info = tracker.getTrackedInfo(link);
+		//TODO -- Read "If-Modified" flag in Http HEAD request.
+		return info == null;
 	}
 	
 	public String doCrawl(String link) throws Exception {

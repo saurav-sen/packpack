@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -23,8 +24,8 @@ public class WebSpiderService {
 	
 	private ScheduledExecutorService pool;
 	
-	/*@Autowired
-	private WebSpiderTrackingService tracker;*/
+	@Autowired
+	private WebSiteTrackerService tracker;
 
 	@PostConstruct
 	public void startup() throws PackPackException {
@@ -42,7 +43,7 @@ public class WebSpiderService {
 			return;
 		List<Future<?>> list = new ArrayList<Future<?>>();
 		for(IWebSite webSite : webSites) {
-			WebSiteSpider spider = new WebSiteSpider(webSite);//, tracker);
+			WebSiteSpider spider = new WebSiteSpider(webSite, tracker);
 			ICrawlSchedule schedule = webSite.getSchedule();
 			long period = schedule.getPeriodicDelay();
 			TimeUnit timeUnit = schedule.getTimeUnit();
