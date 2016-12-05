@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 
 import com.pack.pack.services.exception.PackPackException;
-import com.pack.pack.services.registry.ServiceRegistry;
 import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.internal.AppContext;
 import com.squill.og.crawler.internal.WebSpiderService;
@@ -32,7 +31,6 @@ public class Main {
 	public static void main(String[] args) {
 		WebSpiderService service = null;
 		try {
-			//ServiceRegistry.INSTANCE.init();
 			AppContext appContext = AppContext.INSTANCE.init();
 			service = appContext.findService(WebSpiderService.class);
 			List<IWebSite> websites = readCrawlerDefinition();

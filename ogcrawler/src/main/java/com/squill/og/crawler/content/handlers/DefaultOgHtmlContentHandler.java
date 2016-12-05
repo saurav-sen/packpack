@@ -1,20 +1,28 @@
 package com.squill.og.crawler.content.handlers;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.pack.pack.IRssFeedService;
+import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JRssFeed;
+import com.pack.pack.model.web.JRssFeeds;
 import com.pack.pack.model.web.TTL;
+import com.pack.pack.oauth.OAuthConstants;
 import com.pack.pack.services.exception.PackPackException;
-import com.pack.pack.services.registry.ServiceRegistry;
 import com.squill.og.crawler.IHtmlContentHandler;
 import com.squill.og.crawler.ILink;
 
@@ -96,23 +104,39 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 	}
 
 	private void uploadAll(List<JRssFeed> feeds) {
-		for (JRssFeed feed : feeds) {
-			upload(feed);
+		try {
+			JRssFeeds rssFeeds = new JRssFeeds();
+			for (JRssFeed feed : feeds) {
+				categorize(feed);
+				rssFeeds.getFeeds().add(feed);
+			}
+			DefaultHttpClient client = new DefaultHttpClient();
+			String baseUrl = System.getProperty("base.url");
+			baseUrl = baseUrl + "/home/bulk_upload";
+			HttpPut PUT = new HttpPut(baseUrl);
+			PUT.addHeader(OAuthConstants.AUTHORIZATION_HEADER, OAuthConstants.RSS_FEED_UPLOAD_API_KEY);
+			String json = JSONUtil.serialize(rssFeeds);
+			PUT.setEntity(new StringEntity(json));
+			HttpResponse response = client.execute(PUT);
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+		} catch (PackPackException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
-	private void upload(JRssFeed feed) {
-		try {
-			TTL ttl = new TTL();
-			ttl.setTime((short) 1);
-			ttl.setUnit(TimeUnit.DAYS);
-			IRssFeedService service = ServiceRegistry.INSTANCE
-					.findCompositeService(IRssFeedService.class);
-			service.upload(feed, ttl);
-		} catch (PackPackException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	private void categorize(JRssFeed feed) {
+		TTL ttl = new TTL();
+		ttl.setTime((short) 1);
+		ttl.setUnit(TimeUnit.DAYS);
+		
+		/*IRssFeedService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IRssFeedService.class);
+		service.upload(feed, ttl);*/
 	}
 
 	@Override
