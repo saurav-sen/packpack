@@ -3,7 +3,15 @@
     <WebCrawler id="" domainUrl="http://www.burrard-lucas.com" historyTracking=false flushFrequency=50 thresholdFrequency=10 robotRulesExists=false>
         <name>burrard-lucas</name>
         <description>burrard-lucas Site</description>
-        <contentHandler>defaultOgHtmlContentHandler</contentHandler>
+        <contentHandler classifyFeeds="true">
+            <handler>defaultOgHtmlContentHandler</handler>
+            <feedUploader>
+                <uploader>defaultOgFeedUploader</uploader>
+                <config key="BASE_URL" value="${base.url}"/>
+                <config key="URL_PART" value="/home/bulk_upload"/>
+                <config key="API_KEY" value="${API_KEY}"/>
+            </feedUploader>
+        </contentHandler>
         <linkFilter>
             <condition>$_link.contains("collections/")</condition>
         </linkFilter>

@@ -22,4 +22,8 @@ public interface IHtmlContentHandler {
 	public void setFlushFrequency(int flushFrequency);
 	
 	public void setThresholdFrequency(int thresholdFrequency);
+	
+	public void setFeedUploader(IFeedUploader feedUploader);
+	
+	public boolean needToClassifyFeeds();
 }

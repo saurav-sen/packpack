@@ -13,7 +13,7 @@
 		<sequence>
 			<element name="name" type="string" maxOccurs="1"  minOccurs="1"/>
 			<element name="description" type="string" maxOccurs="1"  minOccurs="1"/>
-			<element name="contentHandler" type="string" maxOccurs="1"  minOccurs="1"/>
+			<element name="contentHandler" type="tns:ContentHandler" maxOccurs="1"  minOccurs="1"/>
 			<element name="linkFilter" type="tns:LinkFilter" maxOccurs="1" minOccurs="0"></element>
 			<element name="scheduler" type="tns:scheduler" maxOccurs="1" minOccurs="1"></element>
 		</sequence>
@@ -23,6 +23,26 @@
 		<attribute name="flushFrequency" type="int" use="optional"></attribute>
 		<attribute name="thresholdFrequency" type="int" use="optional"></attribute>
 		<attribute name="robotRulesExists" type="boolean" use="required"></attribute>
+	</complexType>
+	
+	<complexType name="ContentHandler">
+		<sequence>
+			<element name="handler" type="string" maxOccurs="1"  minOccurs="1"/>
+			<element name="feedUploader" type="tns:FeedUploader" maxOccurs="1"  minOccurs="1"/>
+		</sequence>
+		<attribute name="classifyFeeds" type="boolean" use="optional"></attribute>
+	</complexType>
+	
+	<complexType name="FeedUploader">
+		<sequence>
+			<element name="uploader" type="string" maxOccurs="1"  minOccurs="1"/>
+			<element name="config" type="tns:Config" maxOccurs="unbounded"  minOccurs="0"/>
+		</sequence>
+	</complexType>
+	
+	<complexType name="Config">
+		<attribute name="key" type="string" use="required"></attribute>
+		<attribute name="value" type="string" use="required"></attribute>
 	</complexType>
 	
 	<complexType name="LinkFilter">

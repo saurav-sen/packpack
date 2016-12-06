@@ -4,13 +4,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+
 import com.squill.og.crawler.ICrawlSchedule;
+import com.squill.og.crawler.IFeedUploader;
 import com.squill.og.crawler.IHtmlContentHandler;
 import com.squill.og.crawler.ILink;
 import com.squill.og.crawler.IRobotScope;
 import com.squill.og.crawler.IWebSite;
+import com.squill.og.crawler.content.handlers.DefaultOgHtmlContentHandler;
 import com.squill.og.crawler.content.handlers.ExpressionContext;
 import com.squill.og.crawler.content.handlers.ExpressionContext.EvalContext;
+import com.squill.og.crawler.model.Config;
+import com.squill.og.crawler.model.ContentHandler;
+import com.squill.og.crawler.model.FeedUploader;
 import com.squill.og.crawler.model.LinkFilter;
 import com.squill.og.crawler.model.WebCrawler;
 
@@ -22,6 +29,8 @@ import com.squill.og.crawler.model.WebCrawler;
 public class WebsiteImpl implements IWebSite {
 
 	private WebCrawler crawlerDef;
+	
+	private IHtmlContentHandler contentHandler;
 
 	public WebsiteImpl(WebCrawler crawlerDef) {
 		this.crawlerDef = crawlerDef;
@@ -61,8 +70,102 @@ public class WebsiteImpl implements IWebSite {
 
 	@Override
 	public IHtmlContentHandler getContentHandler() {
-		return AppContext.INSTANCE.findService(crawlerDef.getContentHandler(),
-				IHtmlContentHandler.class);
+		if (contentHandler != null) {
+			return contentHandler;
+		}
+		ContentHandler contentHandlerDef = crawlerDef.getContentHandler();
+		contentHandler = loadContentHandler(contentHandlerDef);
+		if (contentHandler != null) {
+			if (contentHandler instanceof DefaultOgHtmlContentHandler) {
+				Boolean isClassifyFeeds = contentHandlerDef.isClassifyFeeds();
+				if (isClassifyFeeds == null) {
+					isClassifyFeeds = false;
+				}
+				((DefaultOgHtmlContentHandler) contentHandler)
+						.setNeedToClassifyFeeds(isClassifyFeeds);
+			}
+			FeedUploader feedUploaderDef = contentHandlerDef.getFeedUploader();
+			IFeedUploader feedUploader = loadFeedUploader(feedUploaderDef);
+			if (feedUploader != null) {
+				contentHandler.setFeedUploader(feedUploader);
+			}
+		}
+		return contentHandler;
+	}
+
+	private IFeedUploader loadFeedUploader(FeedUploader feedUploaderDef) {
+		IFeedUploader feedUploader = null;
+		String uploader = feedUploaderDef.getUploader();
+		try {
+			feedUploader = AppContext.INSTANCE.findService(
+					uploader, IFeedUploader.class);
+		} catch (NoSuchBeanDefinitionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if(feedUploader == null) {
+			try {
+				Object newInstance = Class.forName(uploader).newInstance();
+				if(newInstance instanceof IFeedUploader) {
+					feedUploader = (IFeedUploader)newInstance;
+				}
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		if(feedUploader != null) {
+			List<Config> configs = feedUploaderDef.getConfig();
+			if(configs != null && !configs.isEmpty()) {
+				for(Config config : configs) {
+					String key = config.getKey();
+					String value = config.getValue();
+					if(value != null && !value.isEmpty() && value.startsWith("${") && value.endsWith("}")) {
+						value = value.substring(value.length() - 2);
+						value = value.replaceFirst("${", "");
+						value = System.getProperty(value);
+					}
+					feedUploader.addConfig(key, value);
+				}
+			}
+		}
+		return feedUploader;
+	}
+	
+	private IHtmlContentHandler loadContentHandler(ContentHandler contentHandlerDef) {
+		IHtmlContentHandler contentHandler = null;
+		String handler = contentHandlerDef.getHandler();
+		try {
+			contentHandler = AppContext.INSTANCE.findService(
+					handler, IHtmlContentHandler.class);
+		} catch (NoSuchBeanDefinitionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if(contentHandler == null) {
+			try {
+				Object newInstance = Class.forName(handler).newInstance();
+				if(newInstance instanceof IHtmlContentHandler) {
+					contentHandler = (IHtmlContentHandler)newInstance;
+				}
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return contentHandler;
 	}
 
 	@Override

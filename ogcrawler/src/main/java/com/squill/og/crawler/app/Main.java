@@ -22,6 +22,11 @@ import com.squill.og.crawler.model.Scheduler;
 import com.squill.og.crawler.model.WebCrawler;
 import com.squill.og.crawler.model.WebCrawlers;
 
+/**
+ * 
+ * @author Saurav
+ *
+ */
 public class Main {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Main.class);

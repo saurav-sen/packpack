@@ -17,16 +17,17 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for WebCrawlers complex type.
+ * <p>Java class for FeedUploader complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="WebCrawlers">
+ * &lt;complexType name="FeedUploader">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="WebCrawler" type="{http://www.example.org/WebCrawlers}WebCrawler" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="uploader" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="config" type="{http://www.example.org/WebCrawlers}Config" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -36,41 +37,67 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "WebCrawlers", propOrder = {
-    "webCrawler"
+@XmlType(name = "FeedUploader", propOrder = {
+    "uploader",
+    "config"
 })
-public class WebCrawlers {
+public class FeedUploader {
 
-    @XmlElement(name = "WebCrawler")
-    protected List<WebCrawler> webCrawler;
+    @XmlElement(required = true)
+    protected String uploader;
+    protected List<Config> config;
 
     /**
-     * Gets the value of the webCrawler property.
+     * Gets the value of the uploader property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUploader() {
+        return uploader;
+    }
+
+    /**
+     * Sets the value of the uploader property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setUploader(String value) {
+        this.uploader = value;
+    }
+
+    /**
+     * Gets the value of the config property.
      * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the webCrawler property.
+     * This is why there is not a <CODE>set</CODE> method for the config property.
      * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
-     *    getWebCrawler().add(newItem);
+     *    getConfig().add(newItem);
      * </pre>
      * 
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link WebCrawler }
+     * {@link Config }
      * 
      * 
      */
-    public List<WebCrawler> getWebCrawler() {
-        if (webCrawler == null) {
-            webCrawler = new ArrayList<WebCrawler>();
+    public List<Config> getConfig() {
+        if (config == null) {
+            config = new ArrayList<Config>();
         }
-        return this.webCrawler;
+        return this.config;
     }
 
 }

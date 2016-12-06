@@ -1,0 +1,28 @@
+package com.squill.og.crawler;
+
+/**
+ * 
+ * @author Saurav
+ *
+ */
+public enum FeedClassifier {
+
+	MUSIC_CLASSICAL,
+	MUSIC_POP,
+	SPIRITUAL_YOUTH,
+	SPIRITUAL_AGED,
+	PAINTING,
+	TRAVEL,
+	JOKE_KIDS,
+	JOKE_ADULT,
+	JOKE_AGED,
+	SPORTS,
+	FINANCIAL,
+	POLITICS,
+	SCIENCE_TECHNOLOGY,
+	CARS_BIKES,
+	BOOK_FICTION,
+	BOOK_RELIGION,
+	BOOK_HISTORY,
+	ECOMMERCE
+}
