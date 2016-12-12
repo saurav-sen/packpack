@@ -12,6 +12,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.pack.pack.IRssFeedService;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.ml.rest.api.context.ClassificationEngine;
@@ -35,6 +38,8 @@ import com.pack.pack.services.registry.ServiceRegistry;
 @Provider
 @Path("/feeds")
 public class RssFeedClassifier {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(RssFeedClassifier.class);
 
 	/**
 	 * 
@@ -51,12 +56,15 @@ public class RssFeedClassifier {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public JStatus bulkUpload(String json) throws PackPackException {
+		LOG.info("Bulk Upload of feeds");
 		JRssFeeds bulk = JSONUtil.deserialize(json, JRssFeeds.class);
+		LOG.info("Submitting feeds to ClassificationEngine");
 		ClassificationEngine.INSTANCE.submitFeeds(bulk,
 				new FeedStatusListenerImpl());
 		JStatus status = new JStatus();
 		status.setStatus(StatusType.OK);
 		status.setInfo("Successfully Submitted Feeds for batch upload");
+		LOG.info("Successfully Submitted Feeds for batch upload");
 		return status;
 	}
 
@@ -64,6 +72,7 @@ public class RssFeedClassifier {
 
 		@Override
 		public void completed(JRssFeeds feeds) {
+			LOG.info("Classification done. Uploading feeds to DB");
 			try {
 				List<JRssFeed> list = new LinkedList<JRssFeed>();
 				List<JRssFeed> newFeeds = feeds.getFeeds();
@@ -80,9 +89,9 @@ public class RssFeedClassifier {
 					JRssFeeds result = new JRssFeeds();
 					result.setFeeds(list);
 				}
+				LOG.info("Successfully uploaded feeds in DB");
 			} catch (PackPackException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOG.error(e.getErrorCode() + "::" + e.getMessage(), e);
 			}
 		}
 

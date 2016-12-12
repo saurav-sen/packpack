@@ -1,11 +1,19 @@
 package com.pack.pack.ml.rest.api.context;
 
+import java.io.File;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import weka.core.Instances;
+import weka.core.converters.ArffSaver;
+import weka.core.converters.CSVLoader;
 
 import com.pack.pack.model.web.JRssFeeds;
 
@@ -20,6 +28,8 @@ public class ClassificationEngine {
 	
 	private ExecutorService executorsPool;
 	
+	private static final Logger LOG = LoggerFactory.getLogger(ClassificationEngine.class);
+	
 	private ClassificationEngine() {
 	}
 
@@ -32,8 +42,7 @@ public class ClassificationEngine {
 		try {
 			stopped = executorsPool.awaitTermination(30, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.error(e.getMessage(), e);
 		}
 		if(!stopped) {
 			executorsPool.shutdown();
@@ -53,23 +62,21 @@ public class ClassificationEngine {
 						Thread.sleep(100);
 						counter = counter + 100;
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						LOG.error(e.getMessage(), e);
 					}
 				}
 				if(counter >= timeout) {
+					LOG.debug("Timed Out while trying to classify feeds");
 					listener.failed(feeds);
 				} else {
 					try {
 						JRssFeeds newFeeds = status.get();
 						listener.completed(newFeeds);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						LOG.error(e.getMessage(), e);
 						listener.failed(feeds);
 					} catch (ExecutionException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						LOG.error(e.getMessage(), e);
 						listener.failed(feeds);
 					}
 				}
@@ -89,6 +96,18 @@ public class ClassificationEngine {
 		@Override
 		public JRssFeeds call() throws Exception {
 			// TODO Auto-generated method stub
+			File csvFile = null;
+			CSVLoader csvLoader = new CSVLoader();
+			csvLoader.setSource(csvFile);
+			Instances data = csvLoader.getDataSet();
+			
+			File arffFile = null;
+			ArffSaver arffSaver = new ArffSaver();
+			arffSaver.setInstances(data);
+			arffSaver.setFile(arffFile);
+			arffSaver.setDestination(arffFile);
+			arffSaver.writeBatch();
+			
 			return null;
 		}
 	}

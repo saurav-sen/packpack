@@ -7,9 +7,9 @@
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
-                <config key="BASE_URL" value="${base.url}"/>
-                <config key="URL_PART" value="/home/bulk_upload"/>
-                <config key="API_KEY" value="${API_KEY}"/>
+                <config key="BASE_URL" value="${base.url}"/> <!-- http://192.168.35.12:8080/RSS -->
+                <config key="URL_PART" value="/feeds/classify"/> <!-- /feeds/classify -->
+                <config key="API_KEY" value="${API_KEY}"/> <!-- 11a1bc16d14d-1521ee187121-1161ed1dd1c6-1861fc1b718c -->
             </feedUploader>
         </contentHandler>
         <linkFilter>
