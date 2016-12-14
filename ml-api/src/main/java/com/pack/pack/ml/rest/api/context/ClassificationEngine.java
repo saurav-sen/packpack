@@ -9,8 +9,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -20,7 +18,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,15 +25,10 @@ import org.slf4j.LoggerFactory;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.meta.FilteredClassifier;
-import weka.classifiers.trees.J48;
-import weka.core.Attribute;
-import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.SparseInstance;
 import weka.core.converters.ArffLoader.ArffReader;
 import weka.core.converters.ArffSaver;
 import weka.core.converters.CSVLoader;
-import weka.core.converters.ConverterUtils.DataSource;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
 import com.pack.pack.model.web.JRssFeeds;
@@ -56,19 +48,22 @@ public class ClassificationEngine {
 	
 	private FilteredClassifier classifier;
 	
+	private boolean initializationStatus = false;
+	
 	private static Lock lock_0 = new ReentrantLock();
 	
 	private ClassificationEngine() {
 	}
 
 	public void start() {
-		executorsPool = Executors.newCachedThreadPool();
 		reInitialize();
+		executorsPool = Executors.newCachedThreadPool();
+		LOG.info("======== ClassificationEngine Started Successfully =========");
 	}
 	
 	public void reInitialize() {
 		loadClassifier();
-		if(classifier == null) {
+		if(!initializationStatus) {
 			throw new RuntimeException("**ERROR:: Failed to initialize ClassificationEngine");
 		}
 	}
@@ -98,6 +93,7 @@ public class ClassificationEngine {
 				LOG.debug(e.getMessage(), e);
 			}
 		}
+		initializationStatus = true;
 		LOG.info("======== Successfully Classifier ========");
 	}
 	
@@ -167,6 +163,10 @@ public class ClassificationEngine {
 	}
 	
 	public void stop() {
+		if(!initializationStatus) {
+			// Nothing to stop
+			return;
+		}
 		boolean stopped = false;
 		try {
 			stopped = executorsPool.awaitTermination(30, TimeUnit.SECONDS);
@@ -176,9 +176,13 @@ public class ClassificationEngine {
 		if(!stopped) {
 			executorsPool.shutdown();
 		}
+		LOG.info("======== ClassificationEngine Stopped Successfully =========");
 	}
 	
 	public void submitFeeds(final JRssFeeds feeds, final FeedStatusListener listener) {
+		if(!initializationStatus) {
+			throw new RuntimeException("**ERROR:: Failed to initialize ClassificationEngine");
+		}
 		Future<JRssFeeds> status = executorsPool.submit(new ClassifierTask(feeds));
 		Thread statusReader = new Thread(new Runnable() {
 			
