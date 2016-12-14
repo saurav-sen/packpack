@@ -1,26 +1,43 @@
 package com.pack.pack.ml.rest.api.context;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import weka.classifiers.Evaluation;
+import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.meta.FilteredClassifier;
 import weka.classifiers.trees.J48;
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.SparseInstance;
+import weka.core.converters.ArffLoader.ArffReader;
 import weka.core.converters.ArffSaver;
 import weka.core.converters.CSVLoader;
 import weka.core.converters.ConverterUtils.DataSource;
+import weka.filters.unsupervised.attribute.StringToWordVector;
 
 import com.pack.pack.model.web.JRssFeeds;
 
@@ -37,11 +54,116 @@ public class ClassificationEngine {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(ClassificationEngine.class);
 	
+	private FilteredClassifier classifier;
+	
+	private static Lock lock_0 = new ReentrantLock();
+	
 	private ClassificationEngine() {
 	}
 
 	public void start() {
 		executorsPool = Executors.newCachedThreadPool();
+		reInitialize();
+	}
+	
+	public void reInitialize() {
+		loadClassifier();
+		if(classifier == null) {
+			throw new RuntimeException("**ERROR:: Failed to initialize ClassificationEngine");
+		}
+	}
+	
+	private void loadClassifier() {
+		String fileName = "";
+		LOG.info("======== Loading Classifier From Stored Model @ " + fileName + " ========");
+		ObjectInputStream inStream = null;
+		try {
+			inStream = new ObjectInputStream(new FileInputStream(new File(fileName)));
+			classifier = (FilteredClassifier)inStream.readObject();
+		} catch (FileNotFoundException e) {
+			LOG.error("Problem Loading Classifier", e);
+			return;
+		} catch (IOException e) {
+			LOG.error("Problem Loading Classifier", e);
+			return;
+		} catch (ClassNotFoundException e) {
+			LOG.error("Problem Loading Classifier", e);
+			return;
+		} finally {
+			try {
+				if(inStream != null) {
+					inStream.close();
+				}
+			} catch (IOException e) {
+				LOG.debug(e.getMessage(), e);
+			}
+		}
+		LOG.info("======== Successfully Classifier ========");
+	}
+	
+	public void trainEngine() {
+		LOG.info("Trying to train ClassificationEngine");
+		while(!lock_0.tryLock()) {
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				LOG.debug(e.getMessage(), e);
+			}
+		}
+		BufferedReader buffReader = null;
+		ObjectOutputStream outStream = null;
+		try {
+			String fileName = "";
+			buffReader = new BufferedReader(new FileReader(new File(fileName)));
+			ArffReader arffReader = new ArffReader(buffReader);
+			Instances trainedDataSet = arffReader.getData();
+			LOG.info("===== Loaded trained dataset @ " + fileName + " =====");
+			trainedDataSet.setClassIndex(0);
+			
+			StringToWordVector stringFilter = new StringToWordVector();
+			stringFilter.setAttributeIndices("last");
+			FilteredClassifier classifier = new FilteredClassifier();
+			classifier.setFilter(stringFilter);
+			classifier.setClassifier(new NaiveBayes());
+			
+			Evaluation eval = new Evaluation(trainedDataSet);
+			eval.crossValidateModel(classifier, trainedDataSet, 4, new Random(1));
+			
+			LOG.info(eval.toSummaryString());
+			LOG.info(eval.toClassDetailsString());
+			LOG.info("===== Evaluation on trained dataset completed =====");
+			
+			classifier.buildClassifier(trainedDataSet);
+			LOG.info("===== Training classifier done successfully =====");
+			
+			fileName = "";
+			outStream = new ObjectOutputStream(new FileOutputStream(new File(fileName)));
+			outStream.writeObject(classifier);
+ 			System.out.println("===== Saved trained classifier model @ " + fileName + " =====");
+		} catch (IOException e) {
+			LOG.error(e.getMessage(), e);
+		} catch(Exception e) {
+			LOG.error(e.getMessage(), e);
+		} finally {
+			try {
+				if(buffReader != null) {
+					buffReader.close();
+				}
+			} catch (IOException e) {
+				LOG.error("Problem reading training ARFF file", e);
+			}
+			
+			try {
+				if(outStream != null) {
+					outStream.close();
+				}
+			} catch (IOException e) {
+				LOG.error("Problem saving trained classifier model", e);
+			}
+			
+			lock_0.unlock();
+		}
+		LOG.info("Successfully trained ClassificationEngine");
 	}
 	
 	public void stop() {
@@ -117,71 +239,5 @@ public class ClassificationEngine {
 			
 			return null;
 		}
-	}
-	
-	public static void main(String[] args) throws Exception {
-		J48 tree = new J48();
-		DataSource source = new DataSource("D:/Saurav/Weka-3-8/data/iris_new.arff");
-		Instances data = source.getDataSet();
-		if(data.classIndex() == -1) {
-			data.setClassIndex(data.numAttributes() - 1);
-		}
-		tree.buildClassifier(data);
-		System.out.println(tree.toString());
-		
-		Attribute sepallength = new Attribute("sepallength");
-		Attribute sepalwidth = new Attribute("sepalwidth");
-		Attribute petallength = new Attribute("petallength");
-		Attribute petalwidth = new Attribute("petalwidth");
-		
-		List<String> l = new ArrayList<String>();
-		l.add("Iris-setosa");
-		l.add("Iris-versicolor");
-		l.add("Iris-virginica");
-		
-		Attribute classAttr = new Attribute("class", l);
-		
-		ArrayList<Attribute> attrList = new ArrayList<Attribute>();
-		attrList.add(sepallength);
-		attrList.add(sepalwidth);
-		attrList.add(petallength);
-		attrList.add(petalwidth);
-		attrList.add(classAttr);
-		
-		Instances newData = new Instances("to_clasify", attrList, 1);
-		
-		double[] attValues = new double[newData.numAttributes()];
-	    attValues[0] = 5.0;
-	    attValues[1] = 4.2;
-	    attValues[2] = 1.2;
-	    attValues[3] = 0.74;
-
-	    Instance newDataInstance = new SparseInstance(1.0, attValues);
-	    newDataInstance.setDataset(newData);
-	    newData.add(newDataInstance);
-	    newData.setClassIndex(newData.numAttributes()-1);
-	    
-	    double classifyInstance = tree.classifyInstance(newDataInstance);
-	    if(classifyInstance == 0) {
-	    	System.out.println("Iris-setosa");
-	    } else if(classifyInstance == 1) {
-	    	System.out.println("Iris-versicolor");
-	    } else if(classifyInstance == 2) {
-	    	System.out.println("Iris-virginica");
-	    }
-	}
-	
-	public static void main1(String[] args) throws Exception {
-		File csvFile = new File("D:/Saurav/Weka-3-8/data/iris.csv");
-		CSVLoader csvLoader = new CSVLoader();
-		csvLoader.setSource(csvFile);
-		Instances data = csvLoader.getDataSet();
-		
-		File arffFile = new File("D:/Saurav/Weka-3-8/data/iris_new.arff");
-		ArffSaver arffSaver = new ArffSaver();
-		arffSaver.setInstances(data);
-		arffSaver.setFile(arffFile);
-		//arffSaver.setDestination(arffFile);
-		arffSaver.writeBatch();
 	}
 }
