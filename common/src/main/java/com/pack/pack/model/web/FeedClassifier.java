@@ -1,4 +1,4 @@
-package com.squill.og.crawler;
+package com.pack.pack.model.web;
 
 /**
  * 

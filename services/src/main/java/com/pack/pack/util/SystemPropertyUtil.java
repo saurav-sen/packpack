@@ -74,6 +74,12 @@ public class SystemPropertyUtil {
 	
 	private static final String WEB_PAGES_ROOT_PATH = "web.pages.root.path";
 	
+	private static final String ML_WORKING_DIR = "ml.work.dir";
+	
+	public static String getMlWorkingDirectory() {
+		return System.getProperty(ML_WORKING_DIR);
+	}
+	
 	public static void init() {
 		try {
 			properties = new Properties();

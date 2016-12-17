@@ -2,6 +2,8 @@ package weka.test.sample.code;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import weka.classifiers.trees.J48;
@@ -20,6 +22,14 @@ import weka.core.converters.ConverterUtils.DataSource;
  */
 public class Main {
 
+	public static void main1(String[] args) throws Exception {
+		Date date = new Date();
+		Calendar calendar = Calendar.getInstance();
+		System.out.println(calendar.get(Calendar.DAY_OF_MONTH) + "_" + calendar.get(Calendar.MONTH) + "_" + calendar.get(Calendar.YEAR));
+		/*Thread.sleep(5000);
+		System.out.println(new Date().toString());*/
+	}
+	
 	public static void main(String[] args) throws Exception {		
 		File csvFile = new File("D:/Saurav/Weka-3-8/data/iris.csv");
 		CSVLoader csvLoader = new CSVLoader();
