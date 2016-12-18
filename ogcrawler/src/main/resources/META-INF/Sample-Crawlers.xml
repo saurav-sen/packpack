@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<WebCrawlers>
-    <WebCrawler id="" domainUrl="http://www.burrard-lucas.com" historyTracking=false flushFrequency=50 thresholdFrequency=10 robotRulesExists=false>
+<webCrawlers xmlns="http://www.squilla.co.in/WebCrawlers">
+    <WebCrawler id="" domainUrl="http://www.burrard-lucas.com" historyTracking="false" flushFrequency="50" thresholdFrequency="10" robotRulesExists="false">
         <name>burrard-lucas</name>
         <description>burrard-lucas Site</description>
         <contentHandler classifyFeeds="true">
@@ -15,6 +15,6 @@
         <linkFilter>
             <condition>$_link.contains("collections/")</condition>
         </linkFilter>
-        <scheduler initialDelay=0 periodicDelay=1 timeUnit="DAYS"/>
+        <scheduler initialDelay="0" periodicDelay="1" timeUnit="DAYS"/>
     </WebCrawler>
-</WebCrawlers>
+</webCrawlers>

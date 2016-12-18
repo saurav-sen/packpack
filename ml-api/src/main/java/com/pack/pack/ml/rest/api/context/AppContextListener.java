@@ -6,6 +6,8 @@ import javax.servlet.ServletContextListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pack.pack.util.SystemPropertyUtil;
+
 /**
  * 
  * @author Saurav
@@ -18,6 +20,7 @@ public class AppContextListener implements ServletContextListener {
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
 		LOG.info("Initializing ML Api Context");
+		SystemPropertyUtil.init();
 		ClassificationEngine.INSTANCE.start();
 		LOG.info("Initialized ClassificationEngine");
 	}

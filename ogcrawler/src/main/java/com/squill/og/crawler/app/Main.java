@@ -17,6 +17,9 @@ import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.internal.AppContext;
 import com.squill.og.crawler.internal.WebSpiderService;
 import com.squill.og.crawler.internal.WebsiteImpl;
+import com.squill.og.crawler.model.Config;
+import com.squill.og.crawler.model.ContentHandler;
+import com.squill.og.crawler.model.FeedUploader;
 import com.squill.og.crawler.model.LinkFilter;
 import com.squill.og.crawler.model.Scheduler;
 import com.squill.og.crawler.model.WebCrawler;
@@ -32,8 +35,9 @@ public class Main {
 	private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 	
 	private static final String WEB_CRAWLERS_CONFIG_FILE = "web.crawlers.config.file";
-
+	
 	public static void main(String[] args) {
+		System.setProperty("log.name", "abcdefg");
 		WebSpiderService service = null;
 		try {
 			AppContext appContext = AppContext.INSTANCE.init();
@@ -67,7 +71,8 @@ public class Main {
 		File file = new File(loc);
 		JAXBContext jaxbInstance = JAXBContext.newInstance(
 				WebCrawlers.class, WebCrawler.class, Scheduler.class,
-				LinkFilter.class);
+				LinkFilter.class, FeedUploader.class, Config.class, 
+				ContentHandler.class, Scheduler.class);
 		Unmarshaller unmarshaller = jaxbInstance.createUnmarshaller();
 		WebCrawlers crawlersDef = (WebCrawlers) unmarshaller.unmarshal(file);
 		List<WebCrawler> crawlers = crawlersDef.getWebCrawler();

@@ -31,7 +31,7 @@ public class LinkFilterConditionEvaluator {
 			return false;
 		}
 		String $_link = evalContext.get$_link();
-		String expressionNew = expression.replaceAll("$_link", $_link);
+		String expressionNew = expression.replaceAll("\\$_link", "\"" + $_link + "\"");
 		return eval0(expressionNew);
 	}
 

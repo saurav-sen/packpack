@@ -127,8 +127,8 @@ public class WebsiteImpl implements IWebSite {
 					String key = config.getKey();
 					String value = config.getValue();
 					if(value != null && !value.isEmpty() && value.startsWith("${") && value.endsWith("}")) {
-						value = value.substring(value.length() - 2);
-						value = value.replaceFirst("${", "");
+						value = value.substring(0, value.length()-1);
+						value = value.replaceFirst("\\$\\{", "");
 						value = System.getProperty(value);
 					}
 					feedUploader.addConfig(key, value);

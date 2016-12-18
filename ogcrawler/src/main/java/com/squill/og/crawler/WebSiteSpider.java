@@ -2,6 +2,9 @@ package com.squill.og.crawler;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.squill.og.crawler.internal.WebSiteTrackerService;
 import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
 import com.squill.og.crawler.internal.utils.WebSpiderUtils;
@@ -17,6 +20,7 @@ public class WebSiteSpider implements Runnable {
 	private IWebSite webSite;
 	private WebSiteTrackerService tracker;
 	
+	private static Logger LOG = LoggerFactory.getLogger(WebSiteSpider.class);	
 	
 	public WebSiteSpider(IWebSite domain, WebSiteTrackerService tracker) {
 		this.webSite = domain;
@@ -50,7 +54,7 @@ public class WebSiteSpider implements Runnable {
 				if(contentHandler.getThresholdFrequency() > 0 
 						&& max >= contentHandler.getThresholdFrequency()) {
 					contentHandler.flush();
-					System.out.println("Threshold value reached... crawler will hung up for next day.");
+					LOG.info("Threshold value reached... crawler will hung up for next day.");
 					return;
 				}
 				if(count >= contentHandler.getFlushFrequency()) {
@@ -70,13 +74,13 @@ public class WebSiteSpider implements Runnable {
 				if(link == null || link.getUrl() == null || "".equals(link.getUrl().trim()))
 					continue;
 				if(robotScope.isScoped(link.getUrl()) && needToCrawl(link.getUrl())) {
-					System.out.println("Visiting " + link.getUrl());
+					LOG.info("Visiting " + link.getUrl());
 					contentHandler.preProcess(link);
 					String html = doCrawl(link.getUrl());
 					try {
 						contentHandler.postProcess(html, link);
 					} catch (Exception e1) {
-						System.out.println(e1.getMessage());
+						LOG.info(e1.getMessage());
 						return;
 					}
 					/*if(info != null) {

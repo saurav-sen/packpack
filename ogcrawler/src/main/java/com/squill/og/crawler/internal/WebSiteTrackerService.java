@@ -33,10 +33,11 @@ public class WebSiteTrackerService {
 	private static final Logger LOG = LoggerFactory
 			.getLogger(WebSiteTrackerService.class);
 
-	@PostConstruct
 	private void init() {
-		client = RedisClient.create("redis://localhost");
-		connection = client.connect();
+		if (connection == null || !connection.isOpen()) {
+			client = RedisClient.create("redis://localhost");
+			connection = client.connect();
+		}
 	}
 
 	public void dispose() {
@@ -56,7 +57,9 @@ public class WebSiteTrackerService {
 		return connection;
 	}
 
-	public void addCrawledInfo(String link, WebSpiderTracker value, long ttlSeconds) {
+	public void addCrawledInfo(String link, WebSpiderTracker value,
+			long ttlSeconds) {
+		init();
 		RedisCommands<String, String> sync = null;
 		try {
 			String key = EncryptionUtil.generateMD5HashKey(link, false, false);
@@ -76,10 +79,11 @@ public class WebSiteTrackerService {
 	}
 
 	public WebSpiderTracker getTrackedInfo(String link) {
+		init();
 		RedisCommands<String, String> sync = null;
 		try {
 			String key = EncryptionUtil.generateMD5HashKey(link, false, false);
-			if(!isKeyExists(key)) {
+			if (!isKeyExists(key)) {
 				return null;
 			}
 			sync = getConnection().sync();
@@ -92,13 +96,14 @@ public class WebSiteTrackerService {
 			e.printStackTrace();
 			return null;
 		} finally {
-			if(sync != null) {
+			if (sync != null) {
 				sync.close();
 			}
 		}
 	}
 
 	public boolean isKeyExists(String key) {
+		init();
 		RedisCommands<String, String> sync = getConnection().sync();
 		String value = sync.get(key);
 		sync.close();
@@ -106,6 +111,7 @@ public class WebSiteTrackerService {
 	}
 
 	public void clearAll(String keyPrefix) throws PackPackException {
+		init();
 		RedisCommands<String, String> sync = getConnection().sync();
 		List<String> keys = sync.keys(keyPrefix + "*");
 		if (keys == null || keys.isEmpty())

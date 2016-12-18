@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.example.org/WebCrawlers" xmlns:tns="http://www.example.org/WebCrawlers" elementFormDefault="qualified">
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.squilla.co.in/WebCrawlers" xmlns:tns="http://www.squilla.co.in/WebCrawlers" elementFormDefault="qualified">
+	
+	<element name="WebCrawlers" type="tns:WebCrawlers"></element>
 	
 	<complexType name="WebCrawlers">
 		<sequence>
