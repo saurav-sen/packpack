@@ -1,21 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+    
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+  		<resetJUL>true</resetJUL> 
+  	</contextListener>
 
-	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-		<layout class="ch.qos.logback.classic.PatternLayout">
-			<Pattern>
-				%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
-			</Pattern>
-		</layout>
+    <property scope="system" name="defaultLevel" value="info" />
+    <property scope="system" name="defaultAppender" value="console" />
+    <property scope="system" name="defaultPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n" />
+    
+	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">		
+		<encoder>
+	      <pattern>${defaultPattern}</pattern>
+	    </encoder>
 	</appender>
 
-	<logger name="ogCrawler" level="info"
+	<logger name="ogCrawler" level="${defaultLevel}"
 		additivity="false">
-		<appender-ref ref="STDOUT" />
+		<appender-ref ref="${defaultAppender}" />
 	</logger>
 
-	<root level="error">
-		<appender-ref ref="STDOUT" />
+	<root level="${defaultLevel}">
+		<appender-ref ref="${defaultAppender}" />
 	</root>
 
 </configuration>
