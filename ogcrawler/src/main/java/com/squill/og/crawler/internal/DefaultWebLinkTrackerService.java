@@ -29,12 +29,15 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 	private RedisClient client;
 	private StatefulRedisConnection<String, String> connection;
 
+	private static final String REDIS_HISTORY_TRACKER_URI_CONFIG = "redis.history.tracker.uri";
+
 	private static final Logger LOG = LoggerFactory
 			.getLogger(DefaultWebLinkTrackerService.class);
 
 	private void init() {
 		if (connection == null || !connection.isOpen()) {
-			client = RedisClient.create("redis://localhost");
+			client = RedisClient.create(System
+					.getProperty(REDIS_HISTORY_TRACKER_URI_CONFIG));
 			connection = client.connect();
 		}
 	}
@@ -66,10 +69,10 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 			String json = JSONUtil.serialize(value);
 			sync.setex(key, ttlSeconds, json);
 		} catch (NoSuchAlgorithmException e) {
+			LOG.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		} catch (PackPackException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.error(e.getMessage(), e);
 		} finally {
 			if (sync != null) {
 				sync.close();
@@ -89,10 +92,10 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 			String json = sync.get(key);
 			return JSONUtil.deserialize(json, WebSpiderTracker.class);
 		} catch (NoSuchAlgorithmException e) {
+			LOG.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		} catch (PackPackException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.error(e.getMessage(), e);
 			return null;
 		} finally {
 			if (sync != null) {
@@ -108,12 +111,12 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 		sync.close();
 		return value != null;
 	}
-	
+
 	public void clearAll() {
-		
+
 	}
 
-	private void clearAll(String keyPrefix) throws PackPackException {
+	protected void clearAll(String keyPrefix) throws PackPackException {
 		init();
 		RedisCommands<String, String> sync = getConnection().sync();
 		List<String> keys = sync.keys(keyPrefix + "*");

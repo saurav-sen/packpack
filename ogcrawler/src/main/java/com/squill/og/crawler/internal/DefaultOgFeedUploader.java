@@ -27,8 +27,8 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 
 	private Map<String, String> configuration = new HashMap<String, String>(5);
 
-	private static final String BASE_URL_CONFIG = "BASE_URL";
-	private static final String URL_PART_CONFIG = "URL_PART";
+	private static final String BASE_URL_CONFIG = "base.url";
+	private static final String URL_PART_CONFIG = "url.part";
 	private static final String API_KEY_CONFIG = "API_KEY";
 
 	private static final Logger LOG = LoggerFactory

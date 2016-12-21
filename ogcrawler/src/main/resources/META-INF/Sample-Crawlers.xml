@@ -5,6 +5,7 @@
         <Property key="base.url" value="${ML_API_BASE_URL}"/>
         <Property key="url.part" value="/feeds/classify"/>
         <Property key="API_KEY" value="11a1bc16d14d-1521ee187121-1161ed1dd1c6-1861fc1b718c"/>
+        <Property key="redis.history.tracker.uri" value="redis://localhost"/>
     </Properties>
     
     <WebTracker>
