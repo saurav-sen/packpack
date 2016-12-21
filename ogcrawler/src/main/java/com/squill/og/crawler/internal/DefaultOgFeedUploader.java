@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JRssFeeds;
 import com.pack.pack.oauth.OAuthConstants;
-import com.squill.og.crawler.IFeedUploader;
+import com.squill.og.crawler.hooks.IFeedUploader;
 
 /**
  * 

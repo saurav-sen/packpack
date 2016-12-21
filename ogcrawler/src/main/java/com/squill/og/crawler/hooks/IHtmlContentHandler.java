@@ -1,4 +1,6 @@
-package com.squill.og.crawler;
+package com.squill.og.crawler.hooks;
+
+import com.squill.og.crawler.ILink;
 
 /**
  * 

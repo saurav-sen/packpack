@@ -1,5 +1,7 @@
 package com.squill.og.crawler;
 
+import com.squill.og.crawler.hooks.IHtmlContentHandler;
+
 
 /**
  * 

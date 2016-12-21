@@ -16,50 +16,50 @@ import com.pack.pack.services.exception.PackPackException;
 import com.squill.og.crawler.ICrawlSchedule;
 import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.WebSiteSpider;
+import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 
 @Component
 @Scope("singleton")
 public class WebSpiderService {
-	
+
 	private ScheduledExecutorService pool;
-	
+
+	private IWebLinkTrackerService trackerService;
+
 	@PostConstruct
 	public void startup() throws PackPackException {
-		pool = Executors.newScheduledThreadPool(1, new ControlledInstantiator());
+		pool = Executors
+				.newScheduledThreadPool(1, new ControlledInstantiator());
 	}
 
 	public void shutdown() throws PackPackException {
-		if(pool != null) {
+		if (pool != null) {
 			pool.shutdown();
 		}
 	}
-	
+
 	public void crawlWebSites(List<IWebSite> webSites) {
-		if(webSites == null || webSites.isEmpty())
+		if (webSites == null || webSites.isEmpty())
 			return;
 		List<Future<?>> list = new ArrayList<Future<?>>();
-		for(IWebSite webSite : webSites) {
-			WebSiteTrackerService trackerService = null;
-			if (webSite.needToTrackCrawlingHistory()) {
-				trackerService = AppContext.INSTANCE
-						.findService(WebSiteTrackerService.class);
-			}
+		for (IWebSite webSite : webSites) {
 			WebSiteSpider spider = new WebSiteSpider(webSite, trackerService);
 			ICrawlSchedule schedule = webSite.getSchedule();
 			long period = schedule.getPeriodicDelay();
 			TimeUnit timeUnit = schedule.getTimeUnit();
-			if(period < 0 || timeUnit == null) {
+			if (period < 0 || timeUnit == null) {
 				period = 0;
-				if(timeUnit == null) {
+				if (timeUnit == null) {
 					period = 2;
 					timeUnit = TimeUnit.SECONDS;
 				}
 			}
-			Future<?> future = pool.scheduleAtFixedRate(spider, schedule.getInitialDelay(), period, timeUnit);
+			Future<?> future = pool.scheduleAtFixedRate(spider,
+					schedule.getInitialDelay(), period, timeUnit);
 			list.add(future);
 		}
-		for(Future<?> future : list) {
-			while(!future.isDone()) {
+		for (Future<?> future : list) {
+			while (!future.isDone()) {
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
@@ -69,11 +69,7 @@ public class WebSpiderService {
 		}
 	}
 
-	/*public WebSpiderTrackingService getTracker() {
-		return tracker;
+	public void setTrackerService(IWebLinkTrackerService trackerService) {
+		this.trackerService = trackerService;
 	}
-
-	public void setTracker(WebSpiderTrackingService tracker) {
-		this.tracker = tracker;
-	}*/
 }

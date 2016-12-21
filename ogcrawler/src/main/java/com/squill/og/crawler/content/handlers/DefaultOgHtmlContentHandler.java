@@ -12,9 +12,9 @@ import org.springframework.stereotype.Component;
 import com.pack.pack.model.web.FeedClassifier;
 import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.JRssFeeds;
-import com.squill.og.crawler.IFeedUploader;
-import com.squill.og.crawler.IHtmlContentHandler;
 import com.squill.og.crawler.ILink;
+import com.squill.og.crawler.hooks.IFeedUploader;
+import com.squill.og.crawler.hooks.IHtmlContentHandler;
 import com.squill.og.crawler.internal.utils.FeedClassifierUtil;
 
 /**

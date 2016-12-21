@@ -17,17 +17,16 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for FeedUploader complex type.
+ * <p>Java class for Properties complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="FeedUploader">
+ * &lt;complexType name="Properties">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="uploader" type="{http://www.w3.org/2001/XMLSchema}string"/>
- *         &lt;element name="config" type="{http://www.squilla.co.in/WebCrawlers}Config" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element name="Property" type="{http://www.squilla.co.in/WebCrawlers}Property" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -37,67 +36,41 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "FeedUploader", propOrder = {
-    "uploader",
-    "config"
+@XmlType(name = "Properties", propOrder = {
+    "property"
 })
-public class FeedUploader {
+public class Properties {
 
-    @XmlElement(required = true)
-    protected String uploader;
-    protected List<Config> config;
-
-    /**
-     * Gets the value of the uploader property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getUploader() {
-        return uploader;
-    }
+    @XmlElement(name = "Property")
+    protected List<Property> property;
 
     /**
-     * Sets the value of the uploader property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setUploader(String value) {
-        this.uploader = value;
-    }
-
-    /**
-     * Gets the value of the config property.
+     * Gets the value of the property property.
      * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the config property.
+     * This is why there is not a <CODE>set</CODE> method for the property property.
      * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
-     *    getConfig().add(newItem);
+     *    getProperty().add(newItem);
      * </pre>
      * 
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link Config }
+     * {@link Property }
      * 
      * 
      */
-    public List<Config> getConfig() {
-        if (config == null) {
-            config = new ArrayList<Config>();
+    public List<Property> getProperty() {
+        if (property == null) {
+            property = new ArrayList<Property>();
         }
-        return this.config;
+        return this.property;
     }
 
 }

@@ -15,16 +15,16 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for LinkFilter complex type.
+ * <p>Java class for WebTracker complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="LinkFilter">
+ * &lt;complexType name="WebTracker">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="condition" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="serviceId" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -34,36 +34,36 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "LinkFilter", propOrder = {
-    "condition"
+@XmlType(name = "WebTracker", propOrder = {
+    "serviceId"
 })
-public class LinkFilter {
+public class WebTracker {
 
     @XmlElement(required = true)
-    protected String condition;
+    protected String serviceId;
 
     /**
-     * Gets the value of the condition property.
+     * Gets the value of the serviceId property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getCondition() {
-        return condition;
+    public String getServiceId() {
+        return serviceId;
     }
 
     /**
-     * Sets the value of the condition property.
+     * Sets the value of the serviceId property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setCondition(String value) {
-        this.condition = value;
+    public void setServiceId(String value) {
+        this.serviceId = value;
     }
 
 }

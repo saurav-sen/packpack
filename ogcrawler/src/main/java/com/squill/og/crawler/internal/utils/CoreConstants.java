@@ -52,4 +52,10 @@ public interface CoreConstants {
 			"squill@gmail.com", "http://www.squill.co.in"); //$NON-NLS-1$ //$NON-NLS-2$
 	
 	public static final String SQUILL_ROBOT_USER_AGENT_STRING = "SquillBot; +http://www.squill.co.in; email: squill@gmail.com"; //$NON-NLS-1$
+	
+	public static final String SKIP = "SKIP";
+	
+	public static final String LAST_MODIFIED_CACHE_CONTROL_HEADER = "Last-Modified";
+	public static final String IF_MODIFIED_SINCE_CACHE_CONTROL_HEADER = "If-Modified-Since";
+	public static final String NOT_MODIFIED = "Not Modified";
 }

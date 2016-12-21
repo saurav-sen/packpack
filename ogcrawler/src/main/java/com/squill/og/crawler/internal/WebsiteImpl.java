@@ -7,14 +7,14 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import com.squill.og.crawler.ICrawlSchedule;
-import com.squill.og.crawler.IFeedUploader;
-import com.squill.og.crawler.IHtmlContentHandler;
 import com.squill.og.crawler.ILink;
 import com.squill.og.crawler.IRobotScope;
 import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.content.handlers.DefaultOgHtmlContentHandler;
 import com.squill.og.crawler.content.handlers.ExpressionContext;
 import com.squill.og.crawler.content.handlers.ExpressionContext.EvalContext;
+import com.squill.og.crawler.hooks.IFeedUploader;
+import com.squill.og.crawler.hooks.IHtmlContentHandler;
 import com.squill.og.crawler.model.Config;
 import com.squill.og.crawler.model.ContentHandler;
 import com.squill.og.crawler.model.FeedUploader;
@@ -31,9 +31,12 @@ public class WebsiteImpl implements IWebSite {
 	private WebCrawler crawlerDef;
 	
 	private IHtmlContentHandler contentHandler;
+	
+	private boolean historyTracking;
 
-	public WebsiteImpl(WebCrawler crawlerDef) {
+	public WebsiteImpl(WebCrawler crawlerDef, boolean historyTracking) {
 		this.crawlerDef = crawlerDef;
+		this.historyTracking = historyTracking;
 	}
 
 	@Override
@@ -198,7 +201,7 @@ public class WebsiteImpl implements IWebSite {
 
 	@Override
 	public boolean needToTrackCrawlingHistory() {
-		return crawlerDef.isHistoryTracking();
+		return historyTracking;
 	}
 
 	@Override

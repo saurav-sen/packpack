@@ -10,6 +10,8 @@ public class WebSpiderTracker {
 	private long lastCrawled;
 	
 	private String link;
+	
+	private String lastModifiedSince;
 
 	public long getLastCrawled() {
 		return lastCrawled;
@@ -25,5 +27,13 @@ public class WebSpiderTracker {
 
 	public void setLink(String link) {
 		this.link = link;
+	}
+
+	public String getLastModifiedSince() {
+		return lastModifiedSince;
+	}
+
+	public void setLastModifiedSince(String lastModifiedSince) {
+		this.lastModifiedSince = lastModifiedSince;
 	}
 }

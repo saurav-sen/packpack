@@ -1,4 +1,4 @@
-package com.squill.og.crawler;
+package com.squill.og.crawler.hooks;
 
 import com.pack.pack.model.web.JRssFeeds;
 

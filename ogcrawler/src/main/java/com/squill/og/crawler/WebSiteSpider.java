@@ -5,7 +5,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.squill.og.crawler.internal.WebSiteTrackerService;
+import com.squill.og.crawler.hooks.IHtmlContentHandler;
+import com.squill.og.crawler.hooks.IWebLinkTrackerService;
+import com.squill.og.crawler.internal.DefaultWebLinkTrackerService;
+import com.squill.og.crawler.internal.utils.CoreConstants;
 import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
 import com.squill.og.crawler.internal.utils.WebSpiderUtils;
 import com.squill.og.crawler.model.WebSpiderTracker;
@@ -18,11 +21,11 @@ import com.squill.og.crawler.model.WebSpiderTracker;
 public class WebSiteSpider implements Runnable {
 	
 	private IWebSite webSite;
-	private WebSiteTrackerService tracker;
+	private IWebLinkTrackerService tracker;
 	
 	private static Logger LOG = LoggerFactory.getLogger(WebSiteSpider.class);	
 	
-	public WebSiteSpider(IWebSite domain, WebSiteTrackerService tracker) {
+	public WebSiteSpider(IWebSite domain, IWebLinkTrackerService tracker) {
 		this.webSite = domain;
 		this.tracker = tracker;
 	}
@@ -61,22 +64,27 @@ public class WebSiteSpider implements Runnable {
 					contentHandler.flush();
 					count = 0;
 				}
+				WebSpiderTracker info = null;
 				if(webSite.needToTrackCrawlingHistory()) {
-					WebSpiderTracker info = new WebSpiderTracker();
-					if(info != null) {
-						info.setLastCrawled(System.currentTimeMillis());
-						info.setLink(link.getUrl());
-						long ttlSeconds = 10*24*60*60;
-						tracker.addCrawledInfo(link.getUrl(), info, ttlSeconds);
+					info = tracker.getTrackedInfo(link.getUrl());
+					if(info == null) {
+						info = new WebSpiderTracker();
 					}
+					info.setLastCrawled(System.currentTimeMillis());
+					info.setLink(link.getUrl());
+					long ttlSeconds = 10*24*60*60;
+					tracker.addCrawledInfo(link.getUrl(), info, ttlSeconds);
 				}
 				
 				if(link == null || link.getUrl() == null || "".equals(link.getUrl().trim()))
 					continue;
-				if(robotScope.isScoped(link.getUrl()) && needToCrawl(link.getUrl())) {
+				if(robotScope.isScoped(link.getUrl())) {
 					LOG.info("Visiting " + link.getUrl());
 					contentHandler.preProcess(link);
-					String html = doCrawl(link.getUrl());
+					String html = doCrawl(link.getUrl(), info);
+					if(CoreConstants.SKIP.equalsIgnoreCase(html)) {
+						continue;
+					}
 					try {
 						contentHandler.postProcess(html, link);
 					} catch (Exception e1) {
@@ -106,16 +114,7 @@ public class WebSiteSpider implements Runnable {
 		}
 	}
 	
-	private boolean needToCrawl(String link) {
-		if(!webSite.needToTrackCrawlingHistory()) {
-			return true;
-		}
-		WebSpiderTracker info = tracker.getTrackedInfo(link);
-		//TODO -- Read "If-Modified" flag in Http HEAD request.
-		return info == null;
-	}
-	
-	public String doCrawl(String link) throws Exception {
+	public String doCrawl(String link, WebSpiderTracker info) throws Exception {
 		/*DefaultHttpClient client = new DefaultHttpClient();
 		HttpParams params = client.getParams();
 		HttpConnectionParams.setConnectionTimeout(params, 200000);
@@ -128,6 +127,6 @@ public class WebSiteSpider implements Runnable {
 		if(response.getStatusLine().getStatusCode() == 200) {
 			return EntityUtils.toString(response.getEntity());
 		}*/
-		return new HttpRequestExecutor().GET(link);
+		return new HttpRequestExecutor().GET(link, info);
 	}
 }

@@ -3,8 +3,6 @@ package com.squill.og.crawler.internal;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
@@ -16,6 +14,7 @@ import com.lambdaworks.redis.api.sync.RedisCommands;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.security.util.EncryptionUtil;
 import com.pack.pack.services.exception.PackPackException;
+import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.model.WebSpiderTracker;
 
 /**
@@ -23,15 +22,15 @@ import com.squill.og.crawler.model.WebSpiderTracker;
  * @author Saurav
  *
  */
-@Component("webSiteTrackerService")
+@Component("defaultWebLinkTrackerService")
 @Scope("singleton")
-public class WebSiteTrackerService {
+public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 
 	private RedisClient client;
 	private StatefulRedisConnection<String, String> connection;
 
 	private static final Logger LOG = LoggerFactory
-			.getLogger(WebSiteTrackerService.class);
+			.getLogger(DefaultWebLinkTrackerService.class);
 
 	private void init() {
 		if (connection == null || !connection.isOpen()) {
@@ -102,15 +101,19 @@ public class WebSiteTrackerService {
 		}
 	}
 
-	public boolean isKeyExists(String key) {
+	private boolean isKeyExists(String key) {
 		init();
 		RedisCommands<String, String> sync = getConnection().sync();
 		String value = sync.get(key);
 		sync.close();
 		return value != null;
 	}
+	
+	public void clearAll() {
+		
+	}
 
-	public void clearAll(String keyPrefix) throws PackPackException {
+	private void clearAll(String keyPrefix) throws PackPackException {
 		init();
 		RedisCommands<String, String> sync = getConnection().sync();
 		List<String> keys = sync.keys(keyPrefix + "*");
