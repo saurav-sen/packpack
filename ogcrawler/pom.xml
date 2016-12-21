@@ -10,11 +10,11 @@
 		<version>1.0-DEV</version>
   </parent>
   <dependencies>
-        <dependency>
+        <!--dependency>
 			<groupId>com.pack.pack</groupId>
 			<artifactId>model</artifactId>
 			<version>${packpack.release}</version>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>com.pack.pack</groupId>
 			<artifactId>common</artifactId>
