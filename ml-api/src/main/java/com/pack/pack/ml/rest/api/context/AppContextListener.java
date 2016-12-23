@@ -14,14 +14,20 @@ import com.pack.pack.util.SystemPropertyUtil;
  *
  */
 public class AppContextListener implements ServletContextListener {
-	
-	private static Logger LOG = LoggerFactory.getLogger(AppContextListener.class);
+
+	private static Logger LOG = LoggerFactory
+			.getLogger(AppContextListener.class);
 
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
 		LOG.info("Initializing ML Api Context");
 		SystemPropertyUtil.init();
-		ClassificationEngine.INSTANCE.start();
+		String mlServerMode = SystemPropertyUtil.getMlServerMode();
+		if (mlServerMode != null
+				&& SystemPropertyUtil.ML_SERVER_CLASSIFY_MODE
+						.equalsIgnoreCase(mlServerMode.trim())) {
+			ClassificationEngine.INSTANCE.start();
+		}
 		LOG.info("Initialized ClassificationEngine");
 	}
 

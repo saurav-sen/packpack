@@ -106,7 +106,7 @@ public class WebSpiderUtils {
 							response = client2.execute(GET);
 							if(response.getStatusLine().getStatusCode() == 200) {
 								InputStream inStream = null;
-								if(response.getEntity().getContentType().getValue().equals("text/xml")) {
+								if(response.getEntity().getContentType().getValue().startsWith("text/xml")) {
 									inStream = response.getEntity().getContent();
 								} else {
 									GZIPInputStream gzipStream = new GZIPInputStream(response.getEntity().getContent());

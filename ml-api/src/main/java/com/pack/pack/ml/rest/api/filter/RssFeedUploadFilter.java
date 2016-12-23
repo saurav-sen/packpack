@@ -23,13 +23,18 @@ public class RssFeedUploadFilter implements ContainerRequestFilter {
 	public void filter(ContainerRequestContext requestContext)
 			throws IOException {
 		boolean allow = true;
-		String path = requestContext.getUriInfo().getPath();
+		/*String path = requestContext.getUriInfo().getPath();
 		if(path.endsWith("/feeds/classify")) {
 			String apiKey = requestContext
 					.getHeaderString(OAuthConstants.AUTHORIZATION_HEADER);
 			if(!OAuthConstants.RSS_FEED_UPLOAD_API_KEY.equals(apiKey)) {
 				allow = false;
 			}
+		}*/
+		String apiKey = requestContext
+				.getHeaderString(OAuthConstants.AUTHORIZATION_HEADER);
+		if(!OAuthConstants.RSS_FEED_UPLOAD_API_KEY.equals(apiKey)) {
+			allow = false;
 		}
 		
 		if (!allow) {

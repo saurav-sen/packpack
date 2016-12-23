@@ -27,9 +27,12 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 
 	private Map<String, String> configuration = new HashMap<String, String>(5);
 
-	private static final String BASE_URL_CONFIG = "base.url";
-	private static final String URL_PART_CONFIG = "url.part";
+	private static final String BASE_URL_CONFIG = "BASE_URL";
+	private static final String URL_PART_CONFIG = "URL_PART";
 	private static final String API_KEY_CONFIG = "API_KEY";
+	
+	private static final String CONTENT_TYPE_HEADER = "Content-Type";
+	private static final String APPLICATION_JSON = "application/json";
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(DefaultOgFeedUploader.class);
@@ -38,10 +41,16 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 	public void uploadBulk(JRssFeeds rssFeeds) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
 		String url = configuration.get(BASE_URL_CONFIG);
+		if(url != null && !url.isEmpty() && url.startsWith("${") && url.endsWith("}")) {
+			url = url.substring(0, url.length()-1);
+			url = url.replaceFirst("\\$\\{", "");
+			url = System.getProperty(url);
+		}
 		url = url + configuration.get(URL_PART_CONFIG);
 		HttpPut PUT = new HttpPut(url);
 		PUT.addHeader(OAuthConstants.AUTHORIZATION_HEADER,
 				configuration.get(API_KEY_CONFIG));
+		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
 		String json = JSONUtil.serialize(rssFeeds);
 		PUT.setEntity(new StringEntity(json));
 		LOG.info("Invoking 'PUT " + url

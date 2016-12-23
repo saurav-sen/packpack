@@ -19,8 +19,6 @@ import com.pack.pack.IRssFeedService;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.ml.rest.api.context.ClassificationEngine;
 import com.pack.pack.ml.rest.api.context.FeedStatusListener;
-import com.pack.pack.ml.rest.api.reader.CompressRead;
-import com.pack.pack.ml.rest.api.writer.CompressWrite;
 import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.JRssFeeds;
 import com.pack.pack.model.web.JStatus;
@@ -50,8 +48,6 @@ public class RssFeedClassifier {
 	 * @throws PackPackException
 	 */
 	@PUT
-	@CompressRead
-	@CompressWrite
 	@Path("classify")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -65,6 +61,21 @@ public class RssFeedClassifier {
 		status.setStatus(StatusType.OK);
 		status.setInfo("Successfully Submitted Feeds for batch upload");
 		LOG.info("Successfully Submitted Feeds for batch upload");
+		return status;
+	}
+	
+	@PUT
+	@Path("train")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public JStatus updateTrainingData(String json) throws PackPackException {
+		LOG.info("Bulk Upload of feeds to be trained");
+		JRssFeeds bulk = JSONUtil.deserialize(json, JRssFeeds.class, true);
+		ClassificationEngine.INSTANCE.updateCsvTrainingData(bulk.getFeeds());
+		JStatus status = new JStatus();
+		status.setStatus(StatusType.OK);
+		status.setInfo("Successfully Uploaded Training data");
+		LOG.info("Successfully Uploaded Training data");
 		return status;
 	}
 

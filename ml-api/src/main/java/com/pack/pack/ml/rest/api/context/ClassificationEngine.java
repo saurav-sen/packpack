@@ -280,7 +280,7 @@ public class ClassificationEngine {
 		statusReader.start();
 	}
 
-	private void updateCsvTrainingData(List<JRssFeed> feeds) {
+	public void updateCsvTrainingData(List<JRssFeed> feeds) {
 		if (feeds == null || feeds.isEmpty())
 			return;
 		FileWriter csvFileWriter = null;

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<webCrawlers xmlns="http://www.squilla.co.in/WebCrawlers" historyTracking="false" >
+<webCrawlers xmlns="http://www.squilla.co.in/WebCrawlers" >
 
     <Properties>
         <Property key="base.url" value="${ML_API_BASE_URL}"/>
-        <Property key="url.part" value="/feeds/classify"/>
+        <Property key="url.part" value="/feeds/train"/>
         <Property key="API_KEY" value="11a1bc16d14d-1521ee187121-1161ed1dd1c6-1861fc1b718c"/>
-        <Property key="redis.history.tracker.uri" value="redis://localhost"/>
+        <Property key="redis.history.tracker.uri" value="redis://192.168.35.15"/>
     </Properties>
     
     <WebTracker>

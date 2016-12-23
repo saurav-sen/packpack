@@ -1,6 +1,7 @@
 package com.squill.og.crawler.internal;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -29,7 +30,7 @@ public class WebSpiderService {
 	@PostConstruct
 	public void startup() throws PackPackException {
 		pool = Executors
-				.newScheduledThreadPool(1, new ControlledInstantiator());
+				.newScheduledThreadPool(2, new ControlledInstantiator());
 	}
 
 	public void shutdown() throws PackPackException {
@@ -42,7 +43,10 @@ public class WebSpiderService {
 		if (webSites == null || webSites.isEmpty())
 			return;
 		List<Future<?>> list = new ArrayList<Future<?>>();
-		for (IWebSite webSite : webSites) {
+		int count = 0;
+		int len = webSites.size();
+		for(int i=0; i<len; i++) {
+			IWebSite webSite = webSites.get(i);
 			WebSiteSpider spider = new WebSiteSpider(webSite, trackerService);
 			ICrawlSchedule schedule = webSite.getSchedule();
 			long period = schedule.getPeriodicDelay();
@@ -51,14 +55,24 @@ public class WebSpiderService {
 				period = 0;
 				if (timeUnit == null) {
 					period = 2;
-					timeUnit = TimeUnit.SECONDS;
+					timeUnit = TimeUnit.DAYS;
 				}
 			}
 			Future<?> future = pool.scheduleAtFixedRate(spider,
 					schedule.getInitialDelay(), period, timeUnit);
 			list.add(future);
+			count++;
+			if(count == 20) { // Max concurrent submission allowed
+				waitFor(list.subList(0, 20/2));
+				count = 0;
+			}
 		}
-		for (Future<?> future : list) {
+	}
+	
+	private void waitFor(List<Future<?>> list) {
+		Iterator<Future<?>> itr = list.iterator();
+		while (itr.hasNext()) {
+			Future<?> future = itr.next();
 			while (!future.isDone()) {
 				try {
 					Thread.sleep(1000);
@@ -66,6 +80,7 @@ public class WebSpiderService {
 					e.printStackTrace();
 				}
 			}
+			itr.remove();
 		}
 	}
 
