@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
-import com.squill.og.crawler.internal.DefaultWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.CoreConstants;
 import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
 import com.squill.og.crawler.internal.utils.WebSpiderUtils;
@@ -23,7 +22,11 @@ public class WebSiteSpider implements Runnable {
 	private IWebSite webSite;
 	private IWebLinkTrackerService tracker;
 	
-	private static Logger LOG = LoggerFactory.getLogger(WebSiteSpider.class);	
+	private static Logger LOG = LoggerFactory.getLogger(WebSiteSpider.class);
+	
+	private int index = 0;
+	
+	private List<? extends ILink> links;
 	
 	public WebSiteSpider(IWebSite domain, IWebLinkTrackerService tracker) {
 		this.webSite = domain;
@@ -34,16 +37,19 @@ public class WebSiteSpider implements Runnable {
 	public void run() {
 		IHtmlContentHandler contentHandler = webSite.getContentHandler();
 		try {
-			List<? extends ILink> links = WebSpiderUtils
-					.parseCrawlableURLs(webSite);
+			if (links == null && links.isEmpty()) {
+				links = WebSpiderUtils.parseCrawlableURLs(webSite);
+				index = 0;
+			}
 			IRobotScope robotScope = webSite.getRobotScope();
 			doCrawl(links, robotScope, contentHandler);
 			links = robotScope.getAnyLeftOverLinks();
 			doCrawl(links, robotScope, contentHandler);
 		} catch (Throwable e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.error(e.getMessage(), e);
 		} finally {
+			links.clear();
+			index = 0;
 			contentHandler.postComplete();
 		}
 	}
@@ -53,11 +59,14 @@ public class WebSiteSpider implements Runnable {
 		if(links != null && !links.isEmpty()) {
 			int count = 0;
 			int max = 0;
-			for(ILink link : links) {
+			int i = index;
+			int len = links.size(); 
+			for(; i<len; i++) {
+				ILink link = links.get(i);
 				if(contentHandler.getThresholdFrequency() > 0 
 						&& max >= contentHandler.getThresholdFrequency()) {
 					contentHandler.flush();
-					LOG.info("Threshold value reached... crawler will hung up for next day.");
+					LOG.info("Threshold value reached... crawler will hung up for next scheduled time.");
 					return;
 				}
 				if(count >= contentHandler.getFlushFrequency()) {
@@ -65,23 +74,26 @@ public class WebSiteSpider implements Runnable {
 					count = 0;
 				}
 				WebSpiderTracker info = null;
-				if(webSite.needToTrackCrawlingHistory()) {
-					info = tracker.getTrackedInfo(link.getUrl());
-					if(info == null) {
-						info = new WebSpiderTracker();
-					}
-					info.setLastCrawled(System.currentTimeMillis());
-					info.setLink(link.getUrl());
-					long ttlSeconds = 10*24*60*60;
-					tracker.addCrawledInfo(link.getUrl(), info, ttlSeconds);
-				}
+				
 				
 				if(link == null || link.getUrl() == null || "".equals(link.getUrl().trim()))
 					continue;
 				if(robotScope.isScoped(link.getUrl())) {
 					LOG.info("Visiting " + link.getUrl());
 					contentHandler.preProcess(link);
+					if(webSite.needToTrackCrawlingHistory()) {
+						info = tracker.getTrackedInfo(link.getUrl());
+						if(info == null) {
+							info = new WebSpiderTracker();
+						}
+						info.setLastCrawled(System.currentTimeMillis());
+						info.setLink(link.getUrl());
+					}
 					String html = doCrawl(link.getUrl(), info);
+					if (webSite.needToTrackCrawlingHistory()) {
+						long ttlSeconds = 10 * 24 * 60 * 60;
+						tracker.addCrawledInfo(link.getUrl(), info, ttlSeconds);
+					}
 					if(CoreConstants.SKIP.equalsIgnoreCase(html)) {
 						continue;
 					}
@@ -104,8 +116,7 @@ public class WebSiteSpider implements Runnable {
 						}
 						Thread.sleep(2000);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						LOG.error(e.getMessage(), e);
 					}
 					count++;
 					max++;
