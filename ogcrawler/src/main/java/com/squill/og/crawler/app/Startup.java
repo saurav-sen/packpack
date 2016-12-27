@@ -41,9 +41,9 @@ import com.squill.og.crawler.model.WebTracker;
  * @author Saurav
  *
  */
-public class Main {
+public class Startup {
 
-	private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+	private static final Logger LOG = LoggerFactory.getLogger(Startup.class);
 	
 	private static final String WEB_CRAWLERS_CONFIG_FILE = "web.crawlers.config.file";
 	
@@ -52,7 +52,7 @@ public class Main {
 	
 	private IWebLinkTrackerService historyTracker;
 	
-	public Main(String[] args) {
+	public Startup(String[] args) {
 		this.args = args;
 		options.addOption("h", "help", false, "Show Help");
 		options.addOption("f", "file", true, "Configuration File For Crawler Definition");
@@ -60,7 +60,7 @@ public class Main {
 	
 	public static void main(String[] args) {
 		try {
-			new Main(args).startApp();
+			new Startup(args).startApp();
 		} catch (BeansException e) {
 			LOG.debug(e.getMessage(), e);
 		} catch (JAXBException e) {

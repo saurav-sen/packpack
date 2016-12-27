@@ -200,7 +200,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>com.squill.og.crawler.app.Main</mainClass>
+							<mainClass>com.squill.og.crawler.app.Startup</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>
