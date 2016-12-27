@@ -20,7 +20,5 @@ public interface IWebSite {
 	
 	public ICrawlSchedule getSchedule();
 	
-	public boolean needToTrackCrawlingHistory();
-	
 	public boolean shouldCheckRobotRules();
 }

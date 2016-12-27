@@ -1,6 +1,6 @@
 package com.squill.og.crawler.internal;
 
-import com.squill.og.crawler.IContentFilter;
+import com.squill.og.crawler.IRobotScope;
 
 /**
  *
@@ -12,9 +12,9 @@ public class PageLinkFilter {
 	
 	//private List<String> listOfCrawlableDomains = new ArrayList<String>(10);
 	
-	private IContentFilter contentFilter;
+	private IRobotScope contentFilter;
 	
-	public PageLinkFilter(IContentFilter contentFilter) {
+	public PageLinkFilter(IRobotScope contentFilter) {
 		this.contentFilter = contentFilter;
 		/*if(supportedDomainNames != null) {
 			listOfCrawlableDomains = Arrays.asList(supportedDomainNames);
@@ -25,7 +25,7 @@ public class PageLinkFilter {
 		String str = pageLink.getLink();
 		if(contentFilter == null)
 			return true;
-		return contentFilter.isCrawlable(str);
+		return contentFilter.isScoped(str);
 		/*if(!str.startsWith(CoreConstants.HTTP))
 			return false;
 		String str1 = str.replace(CoreConstants.HTTP, "");

@@ -134,9 +134,8 @@ public class Main {
 		}
 		List<WebCrawler> crawlers = crawlersDef.getWebCrawler();
 		historyTracker = loadWebHistoryTracker(crawlersDef.getWebTracker());
-		boolean needToTrackHistory = (historyTracker != null ? true : false);
 		for (WebCrawler crawler : crawlers) {
-			IWebSite webSite = new WebsiteImpl(crawler, needToTrackHistory);
+			IWebSite webSite = new WebsiteImpl(crawler);
 			webSites.add(webSite);
 		}
 		return webSites;

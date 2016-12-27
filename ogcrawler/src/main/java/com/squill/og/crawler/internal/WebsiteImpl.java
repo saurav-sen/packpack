@@ -32,11 +32,8 @@ public class WebsiteImpl implements IWebSite {
 	
 	private IHtmlContentHandler contentHandler;
 	
-	private boolean historyTracking;
-
-	public WebsiteImpl(WebCrawler crawlerDef, boolean historyTracking) {
+	public WebsiteImpl(WebCrawler crawlerDef) {
 		this.crawlerDef = crawlerDef;
-		this.historyTracking = historyTracking;
 	}
 
 	@Override
@@ -197,11 +194,6 @@ public class WebsiteImpl implements IWebSite {
 				return crawlerDef.getScheduler().getInitialDelay();
 			}
 		};
-	}
-
-	@Override
-	public boolean needToTrackCrawlingHistory() {
-		return historyTracking;
 	}
 
 	@Override

@@ -12,8 +12,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import com.squill.og.crawler.DefaultNonAjaxLinkResolver;
-import com.squill.og.crawler.IContentFilter;
 import com.squill.og.crawler.ILinkResolver;
+import com.squill.og.crawler.IRobotScope;
 import com.squill.og.crawler.internal.utils.CoreConstants;
 
 /**
@@ -30,7 +30,7 @@ public class PageLinkExtractor {
 		this(null, null);
 	}
 
-	public PageLinkExtractor(IContentFilter contentFilter, ILinkResolver linkResolver) {
+	public PageLinkExtractor(IRobotScope contentFilter, ILinkResolver linkResolver) {
 		linkFilter = new PageLinkFilter(contentFilter);
 		this.linkResolver = linkResolver;
 	}
@@ -44,7 +44,7 @@ public class PageLinkExtractor {
 	 * @throws ScriptException 
 	 * @throws NoSuchMethodException 
 	 */
-	public List<PageLink> extractAllPageLinks(HtmlPage htmlPage, CrawlContext ctx) throws NoSuchMethodException, ScriptException {
+	public List<PageLink> extractAllPageLinks(HtmlPage htmlPage) throws NoSuchMethodException, ScriptException {
 		List<PageLink> result = new ArrayList<PageLink>();
 		String html = htmlPage.getHtmlContent();
 		Invocable jsEngine = htmlPage.getJsEngine();
@@ -79,7 +79,7 @@ public class PageLinkExtractor {
 			}
 			String text = linkElement.text();
 			PageLink pageLink = new PageLink(link, text);
-			pageLink.setContext(ctx);
+			//pageLink.setContext(ctx);
 			pageLink.setParent(htmlPage);
 			if (linkFilter.isCrawlable(pageLink)) {
 				result.add(pageLink);
@@ -89,7 +89,7 @@ public class PageLinkExtractor {
 		if(computeNonHrefLinks != null && !computeNonHrefLinks.isEmpty()) {
 			for(String computedNonHrefLink : computeNonHrefLinks) {
 				PageLink pageLink = new PageLink(computedNonHrefLink, null);
-				pageLink.setContext(ctx);
+				//pageLink.setContext(ctx);
 				pageLink.setParent(htmlPage);
 				if (linkFilter.isCrawlable(pageLink)) {
 					result.add(pageLink);

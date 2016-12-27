@@ -18,8 +18,6 @@ public class PageLink implements ILink {
 	private String link;
 	private String text;
 	
-	private CrawlContext context;
-	
 	private HtmlPage parent;
 	
 	public PageLink() {
@@ -85,14 +83,6 @@ public class PageLink implements ILink {
 		this.text = text;
 	}
 	
-	public CrawlContext getContext() {
-		return context;
-	}
-
-	public void setContext(CrawlContext context) {
-		this.context = context;
-	}
-
 	private String replaceInvalidChar(String link) {
 		link = link.replaceAll("'", "");
 		link = link.replaceAll("\"", "");

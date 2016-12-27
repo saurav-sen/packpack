@@ -47,17 +47,19 @@ public class WebSpiderService {
 		int len = webSites.size();
 		for(int i=0; i<len; i++) {
 			IWebSite webSite = webSites.get(i);
-			WebSiteSpider spider = new WebSiteSpider(webSite, trackerService);
+			
 			ICrawlSchedule schedule = webSite.getSchedule();
 			long period = schedule.getPeriodicDelay();
 			TimeUnit timeUnit = schedule.getTimeUnit();
 			if (period < 0 || timeUnit == null) {
 				period = 0;
 				if (timeUnit == null) {
-					period = 2;
+					period = 1;
 					timeUnit = TimeUnit.DAYS;
 				}
 			}
+			long crawlSchedulePeriodicTimeInMillis = crawlSchedulePeriodicTimeInMillis(period, timeUnit);
+			WebSiteSpider spider = new WebSiteSpider(webSite, crawlSchedulePeriodicTimeInMillis, trackerService);
 			Future<?> future = pool.scheduleAtFixedRate(spider,
 					schedule.getInitialDelay(), period, timeUnit);
 			list.add(future);
@@ -67,6 +69,22 @@ public class WebSpiderService {
 				count = 0;
 			}
 		}
+	}
+	
+	private long crawlSchedulePeriodicTimeInMillis(long period, TimeUnit timeUnit) {
+		long result = period;
+		switch (timeUnit) {
+		case DAYS:
+			result = result*24*60*60*1000;
+			break;
+		case HOURS:
+			result = result*60*60*1000;
+			break;
+		default:
+			result = result*24*60*60*1000;
+			break;
+		}
+		return result;
 	}
 	
 	private void waitFor(List<Future<?>> list) {

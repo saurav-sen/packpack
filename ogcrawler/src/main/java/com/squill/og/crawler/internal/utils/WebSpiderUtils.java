@@ -64,7 +64,7 @@ public class WebSpiderUtils {
 		String html = executor.GET(domainUrl, "");
 		HtmlPage page = ResponseUtil.getParseableHtml(html, domainUrl);
 		PageLinkExtractor extractor = new PageLinkExtractor();
-		return extractor.extractAllPageLinks(page, null);
+		return extractor.extractAllPageLinks(page);
 		/*DefaultHttpClient client = new DefaultHttpClient();
 		HttpGet getRobotRules = new HttpGet("http://www.medindia.net/robots.txt");
 		getRobotRules.setHeader("User-agent", "Mozilla");
