@@ -44,7 +44,7 @@ public class WebSiteSpider implements Runnable {
 	public void run() {
 		IHtmlContentHandler contentHandler = webSite.getContentHandler();
 		try {
-			if (links == null && links.isEmpty()) {
+			if (links.isEmpty()) {
 				List<? extends ILink> parseCrawlableURLs = WebSpiderUtils.parseCrawlableURLs(webSite);
 				for(ILink parseCrawlableURL : parseCrawlableURLs) {
 					links.offer(parseCrawlableURL);
@@ -102,21 +102,21 @@ public class WebSiteSpider implements Runnable {
 				LOG.info("Visiting " + url);
 				contentHandler.preProcess(link);
 				
-				String html = doCrawl(url, info);
+				String html = new HttpRequestExecutor().GET(url, info);
 				
 				HtmlPage htmlPage = ResponseUtil.getParseableHtml(html, link.getUrl());
 				List<PageLink> extractAllPageLinks = new PageLinkExtractor(
 						robotScope, null).extractAllPageLinks(htmlPage);
-				LOG.debug("*** Extracted Page Links ***");
+				LOG.info("*** Extracted Page Links ***");
 				if(extractAllPageLinks != null && !extractAllPageLinks.isEmpty()) {
 					links.addAll(extractAllPageLinks);
 					if(LOG.isDebugEnabled()) {
 						for(PageLink extractAllPageLink : extractAllPageLinks) {
-							LOG.debug(extractAllPageLink.getLink());
+							LOG.info(extractAllPageLink.getLink());
 						}
 					}
 				}
-				LOG.debug("********************************");
+				LOG.info("********************************");
 				
 				long ttlSeconds = 10 * 24 * 60 * 60;
 				tracker.addCrawledInfo(link.getUrl(), info, ttlSeconds);
@@ -130,11 +130,6 @@ public class WebSiteSpider implements Runnable {
 					LOG.error(e1.getMessage());
 					return;
 				}
-				/*if(info != null) {
-					info.setLastCrawled(new Date(System.currentTimeMillis()));
-					info.setVisited(true);
-					tracker.trackLink(info);
-				}*/
 				try {
 					//Default crawl delay
 					int delay = robotScope != null ? robotScope.getDefaultCrawlDelay() : 2000;
@@ -149,21 +144,5 @@ public class WebSiteSpider implements Runnable {
 				max++;
 			}
 		}
-	}
-	
-	public String doCrawl(String link, WebSpiderTracker info) throws Exception {
-		/*DefaultHttpClient client = new DefaultHttpClient();
-		HttpParams params = client.getParams();
-		HttpConnectionParams.setConnectionTimeout(params, 200000);
-		HttpConnectionParams.setSoTimeout(params, 200000);
-		HttpGet GET = new HttpGet(link);
-		HttpContext HTTP_CONTEXT = new BasicHttpContext();
-		HTTP_CONTEXT.setAttribute(CoreProtocolPNames.USER_AGENT, 
-				CoreConstants.TROVE_ROBOT_USER_AGENT_STRING);
-		HttpResponse response = client.execute(GET, HTTP_CONTEXT);
-		if(response.getStatusLine().getStatusCode() == 200) {
-			return EntityUtils.toString(response.getEntity());
-		}*/
-		return new HttpRequestExecutor().GET(link, info);
 	}
 }

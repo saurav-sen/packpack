@@ -11,10 +11,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.pack.pack.common.util.JSONUtil;
-import com.pack.pack.model.web.JRssFeeds;
-import com.pack.pack.oauth.OAuthConstants;
 import com.squill.og.crawler.hooks.IFeedUploader;
+import com.squill.og.crawler.internal.utils.CoreConstants;
+import com.squill.og.crawler.internal.utils.JSONUtil;
+import com.squill.og.crawler.model.web.JRssFeeds;
 
 /**
  * 
@@ -48,7 +48,7 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		}
 		url = url + configuration.get(URL_PART_CONFIG);
 		HttpPut PUT = new HttpPut(url);
-		PUT.addHeader(OAuthConstants.AUTHORIZATION_HEADER,
+		PUT.addHeader(CoreConstants.AUTHORIZATION_HEADER,
 				configuration.get(API_KEY_CONFIG));
 		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
 		String json = JSONUtil.serialize(rssFeeds);

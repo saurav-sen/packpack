@@ -1,7 +1,7 @@
 package com.squill.og.crawler.internal.utils;
 
-import com.pack.pack.model.web.FeedClassifier;
-import com.pack.pack.model.web.JRssFeed;
+import com.squill.og.crawler.model.web.FeedClassifier;
+import com.squill.og.crawler.model.web.JRssFeed;
 
 /**
  * 

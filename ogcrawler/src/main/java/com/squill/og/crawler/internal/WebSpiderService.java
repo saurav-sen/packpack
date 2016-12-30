@@ -13,11 +13,11 @@ import javax.annotation.PostConstruct;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.pack.pack.services.exception.PackPackException;
 import com.squill.og.crawler.ICrawlSchedule;
 import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.WebSiteSpider;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
+import com.squill.services.exception.PackPackException;
 
 @Component
 @Scope("singleton")
@@ -61,7 +61,7 @@ public class WebSpiderService {
 			long crawlSchedulePeriodicTimeInMillis = crawlSchedulePeriodicTimeInMillis(period, timeUnit);
 			WebSiteSpider spider = new WebSiteSpider(webSite, crawlSchedulePeriodicTimeInMillis, trackerService);
 			Future<?> future = pool.scheduleAtFixedRate(spider,
-					schedule.getInitialDelay(), period, timeUnit);
+					schedule.getInitialDelay(), period, TimeUnit.MILLISECONDS);
 			list.add(future);
 			count++;
 			if(count == 20) { // Max concurrent submission allowed

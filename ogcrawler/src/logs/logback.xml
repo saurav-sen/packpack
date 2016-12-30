@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+  		<resetJUL>true</resetJUL> 
+  	</contextListener>
+
+    <property scope="system" name="defaultLevel" value="info" />
+    <property scope="system" name="defaultAppender" value="FILE_APPENDER" />
+    <property scope="system" name="defaultPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n" />
+    
+    <appender name="FILE_APPENDER" class="ch.qos.logback.classic.sift.SiftingAppender">
+ 
+         <discriminator>
+			<key>logFile</key>
+			<defaultValue>ogcrawler</defaultValue>
+		  </discriminator>
+ 
+		  <sift>
+			<appender name="FILE-${logFile}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+				<layout class="ch.qos.logback.classic.PatternLayout">
+					<Pattern>%d{MMM-dd-yyyy HH:mm:ss} [%level] %logger{36} - %msg%n
+					</Pattern>
+				</layout>
+				<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+					<fileNamePattern>../logs/${logFile}.%d{yyyy-MM-dd}.log</fileNamePattern>
+					<maxHistory>60</maxHistory>
+				</rollingPolicy>
+				
+				<!--rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+					<FileNamePattern>../logs/rest-api.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+					<MinIndex>1</MinIndex>
+					<MaxIndex>100</MaxIndex>
+				</rollingPolicy-->
+		
+				<triggeringPolicy
+					class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+					<MaxFileSize>2GB</MaxFileSize>
+				</triggeringPolicy>
+			</appender>
+		</sift>
+	</appender>
+    
+	<appender name="console" class="ch.qos.logback.core.ConsoleAppender">		
+		<encoder>
+	      <pattern>${defaultPattern}</pattern>
+	    </encoder>
+	</appender>
+
+	<logger name="ogCrawler" level="${defaultLevel}"
+		additivity="false">
+		<appender-ref ref="${defaultAppender}" />
+	</logger>
+
+	<root level="${defaultLevel}">
+		<appender-ref ref="${defaultAppender}" />
+		<appender-ref ref="console" />
+	</root>
+
+</configuration>

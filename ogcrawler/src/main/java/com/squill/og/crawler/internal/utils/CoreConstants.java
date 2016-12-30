@@ -58,4 +58,6 @@ public interface CoreConstants {
 	public static final String LAST_MODIFIED_CACHE_CONTROL_HEADER = "Last-Modified";
 	public static final String IF_MODIFIED_SINCE_CACHE_CONTROL_HEADER = "If-Modified-Since";
 	public static final String NOT_MODIFIED = "Not Modified";
+	
+	public static final String AUTHORIZATION_HEADER = "Authorization";
 }

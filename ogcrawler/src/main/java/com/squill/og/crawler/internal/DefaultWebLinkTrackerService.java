@@ -11,11 +11,11 @@ import org.springframework.stereotype.Component;
 import com.lambdaworks.redis.RedisClient;
 import com.lambdaworks.redis.api.StatefulRedisConnection;
 import com.lambdaworks.redis.api.sync.RedisCommands;
-import com.pack.pack.common.util.JSONUtil;
-import com.pack.pack.security.util.EncryptionUtil;
-import com.pack.pack.services.exception.PackPackException;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
+import com.squill.og.crawler.internal.utils.EncryptionUtil;
+import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.og.crawler.model.WebSpiderTracker;
+import com.squill.services.exception.PackPackException;
 
 /**
  * 

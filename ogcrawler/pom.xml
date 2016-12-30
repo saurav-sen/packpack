@@ -10,26 +10,6 @@
 		<version>1.0-DEV</version>
   </parent>
   <dependencies>
-        <!--dependency>
-			<groupId>com.pack.pack</groupId>
-			<artifactId>model</artifactId>
-			<version>${packpack.release}</version>
-		</dependency-->
-		<dependency>
-			<groupId>com.pack.pack</groupId>
-			<artifactId>common</artifactId>
-			<version>${packpack.release}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.pack.pack</groupId>
-			<artifactId>oauth</artifactId>
-			<version>${packpack.release}</version>
-		</dependency>
-		<!--dependency>
-			<groupId>com.pack.pack</groupId>
-			<artifactId>services</artifactId>
-			<version>${packpack.release}</version>
-		</dependency-->
 		<dependency>		  
 		  <groupId>org.jsoup</groupId>
 		  <artifactId>jsoup</artifactId>
@@ -55,11 +35,6 @@
 		  <artifactId>httpmime</artifactId>
 		  <version>4.2.2</version>
 		</dependency>
-		<!--dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-			<version>1.1.3</version>
-		</dependency-->
 		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
@@ -70,7 +45,6 @@
 			<artifactId>crawler-commons</artifactId>
 			<version>0.3</version>
 		</dependency>
-		
 		<dependency>
 		    <groupId>cglib</groupId>
 		    <artifactId>cglib</artifactId>
@@ -131,8 +105,67 @@
 		    <artifactId>commons-cli</artifactId>
 		    <version>${commons.cli}</version>
 		</dependency>
-		        
+		
+		<dependency>
+			  <groupId>biz.paluch.redis</groupId>
+			  <artifactId>lettuce</artifactId>
+			  <version>4.2.2.Final</version>
+			  <classifier>shaded</classifier>
+			  <exclusions>
+			    <exclusion>
+			      <groupId>io.reactivex</groupId>
+			      <artifactId>rxjava</artifactId>
+			    </exclusion>
+			    <exclusion>
+			      <groupId>org.latencyutils</groupId>
+			      <artifactId>LatencyUtils</artifactId>
+			    </exclusion>
+			    <exclusion>
+			      <groupId>io.netty</groupId>
+			      <artifactId>netty-common</artifactId>
+			    </exclusion>
+			    <exclusion>
+			      <groupId>io.netty</groupId>
+			      <artifactId>netty-transport</artifactId>
+			    </exclusion>
+			    <exclusion>
+			      <groupId>io.netty</groupId>
+			      <artifactId>netty-handler</artifactId>
+			    </exclusion>
+			    <exclusion>
+			      <groupId>io.netty</groupId>
+			      <artifactId>netty-codec</artifactId>
+			    </exclusion>
+			    <exclusion>
+			      <groupId>com.google.guava</groupId>
+			      <artifactId>guava</artifactId>
+			    </exclusion>
+			    <exclusion>
+			      <groupId>io.netty</groupId>
+			      <artifactId>netty-transport-native-epoll</artifactId>
+			    </exclusion>
+			    <exclusion>
+			      <groupId>org.apache.commons</groupId>
+			      <artifactId>commons-pool2</artifactId>
+			    </exclusion>
+			  </exclusions>
+		</dependency>     
 				
+		<dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.2.2</version>
+        </dependency>
 	</dependencies>
 	<build>
 		<finalName>${project.artifactId}-${project.version}</finalName>
@@ -175,7 +208,7 @@
 			<plugin>
 				<artifactId>maven-clean-plugin</artifactId>
 				<version>2.4.1</version>
-				<!--configuration>
+				<configuration>
 					<filesets>
 						<fileset>
 							<directory>${basedir}/lib</directory>
@@ -185,7 +218,7 @@
 							<followSymlinks>false</followSymlinks>
 						</fileset>
 					</filesets>
-				</configuration-->
+				</configuration>
 			</plugin>
 			<plugin>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -196,27 +229,22 @@
 				</configuration-->
 			</plugin>
 			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifest>
-							<mainClass>com.squill.og.crawler.app.Startup</mainClass>
-						</manifest>
-					</archive>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-				</configuration>
-				<executions>
-				  <execution>
-					<id>make-assembly</id>
-					<phase>package</phase>
-					<goals>
-						<goal>single</goal>
-					</goals>
-				  </execution>
-				</executions>
-			</plugin>	       
+				  <groupId>org.apache.maven.plugins</groupId>
+				  <artifactId>maven-assembly-plugin</artifactId>
+				  <configuration>
+				     <descriptor>src/assembly/packager.xml</descriptor>
+				     <finalName>${project.artifactId}-${project.version}</finalName>
+				   </configuration>
+				   <executions>
+				    <execution>
+				      <id>make-assembly</id> 
+				      <phase>package</phase> 
+				      <goals>
+				        <goal>single</goal>
+				      </goals>
+				    </execution>
+				  </executions>
+			</plugin>       
 		</plugins>
 		<pluginManagement>
 			<plugins>

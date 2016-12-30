@@ -1,6 +1,6 @@
 package com.squill.og.crawler.hooks;
 
-import com.pack.pack.model.web.JRssFeeds;
+import com.squill.og.crawler.model.web.JRssFeeds;
 
 /**
  * 

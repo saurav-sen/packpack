@@ -9,13 +9,13 @@ import org.jsoup.select.Elements;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.pack.pack.model.web.FeedClassifier;
-import com.pack.pack.model.web.JRssFeed;
-import com.pack.pack.model.web.JRssFeeds;
 import com.squill.og.crawler.ILink;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
 import com.squill.og.crawler.internal.utils.FeedClassifierUtil;
+import com.squill.og.crawler.model.web.FeedClassifier;
+import com.squill.og.crawler.model.web.JRssFeed;
+import com.squill.og.crawler.model.web.JRssFeeds;
 
 /**
  * 
