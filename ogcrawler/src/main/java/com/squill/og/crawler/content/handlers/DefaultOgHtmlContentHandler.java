@@ -1,7 +1,9 @@
 package com.squill.og.crawler.content.handlers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Component;
 import com.squill.og.crawler.ILink;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
+import com.squill.og.crawler.internal.utils.CoreConstants;
 import com.squill.og.crawler.internal.utils.FeedClassifierUtil;
 import com.squill.og.crawler.model.web.FeedClassifier;
 import com.squill.og.crawler.model.web.JRssFeed;
@@ -34,8 +37,8 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 
 	private IFeedUploader feedUploader;
 	
-	private boolean needToClassifyFeeds;
-
+	private Map<String, Object> metaInfoMap = new HashMap<String, Object>(2);
+	
 	@Override
 	public void preProcess(ILink link) {
 	}
@@ -81,6 +84,11 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 		feed.setOgUrl(hrefUrl);
 		feed.setHrefSource(hrefUrl);
 		feed.setOgType(type);
+		
+		String preClassifiedFeedType = (String) getMetaInfo(CoreConstants.PRE_CLASSIFIED_FEED_TYPE);
+		if (preClassifiedFeedType != null) {
+			feed.setPreClassifiedType(preClassifiedFeedType);
+		}
 
 		feeds.add(feed);
 		/*
@@ -149,13 +157,13 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 	public void setFeedUploader(IFeedUploader feedUploader) {
 		this.feedUploader = feedUploader;
 	}
-	
-	@Override
-	public boolean needToClassifyFeeds() {
-		return needToClassifyFeeds;
+
+	protected Object getMetaInfo(String key) {
+		return metaInfoMap.get(key);
 	}
-	
-	public void setNeedToClassifyFeeds(boolean needToClassifyFeeds) {
-		this.needToClassifyFeeds = needToClassifyFeeds;
+
+	@Override
+	public void addMetaInfo(String key, Object value) {
+		metaInfoMap.put(key, value);
 	}
 }

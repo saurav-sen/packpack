@@ -1,5 +1,7 @@
 package com.squill.og.crawler.model.web;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * 
  * @author Saurav
@@ -20,6 +22,9 @@ public class JRssFeed {
 	private String hrefSource;
 	
 	private String id;
+	
+	@JsonIgnore
+	private String preClassifiedType;
 
 	public String getOgTitle() {
 		return ogTitle;
@@ -75,5 +80,13 @@ public class JRssFeed {
 
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	public String getPreClassifiedType() {
+		return preClassifiedType;
+	}
+
+	public void setPreClassifiedType(String preClassifiedType) {
+		this.preClassifiedType = preClassifiedType;
 	}
 }

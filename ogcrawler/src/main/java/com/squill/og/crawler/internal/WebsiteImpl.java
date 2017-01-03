@@ -10,11 +10,11 @@ import com.squill.og.crawler.ICrawlSchedule;
 import com.squill.og.crawler.ILink;
 import com.squill.og.crawler.IRobotScope;
 import com.squill.og.crawler.IWebSite;
-import com.squill.og.crawler.content.handlers.DefaultOgHtmlContentHandler;
 import com.squill.og.crawler.content.handlers.ExpressionContext;
 import com.squill.og.crawler.content.handlers.ExpressionContext.EvalContext;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
+import com.squill.og.crawler.internal.utils.CoreConstants;
 import com.squill.og.crawler.model.Config;
 import com.squill.og.crawler.model.ContentHandler;
 import com.squill.og.crawler.model.FeedUploader;
@@ -76,13 +76,11 @@ public class WebsiteImpl implements IWebSite {
 		ContentHandler contentHandlerDef = crawlerDef.getContentHandler();
 		contentHandler = loadContentHandler(contentHandlerDef);
 		if (contentHandler != null) {
-			if (contentHandler instanceof DefaultOgHtmlContentHandler) {
-				Boolean isClassifyFeeds = contentHandlerDef.isClassifyFeeds();
-				if (isClassifyFeeds == null) {
-					isClassifyFeeds = false;
-				}
-				((DefaultOgHtmlContentHandler) contentHandler)
-						.setNeedToClassifyFeeds(isClassifyFeeds);
+			String preClassifiedType = contentHandlerDef.getPreClassifiedType();
+			if (preClassifiedType != null) {
+				contentHandler.addMetaInfo(
+						CoreConstants.PRE_CLASSIFIED_FEED_TYPE,
+						preClassifiedType);
 			}
 			FeedUploader feedUploaderDef = contentHandlerDef.getFeedUploader();
 			IFeedUploader feedUploader = loadFeedUploader(feedUploaderDef);

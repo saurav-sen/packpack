@@ -5,7 +5,6 @@
         <Property key="base.url" value="${ML_API_BASE_URL}"/>
         <Property key="url.part" value="/feeds/train"/>
         <Property key="API_KEY" value="11a1bc16d14d-1521ee187121-1161ed1dd1c6-1861fc1b718c"/>
-        <Property key="redis.history.tracker.uri" value="redis://192.168.35.15"/>
     </Properties>
     
     <WebTracker>
@@ -15,7 +14,7 @@
     <WebCrawler id="burrard-lucas" domainUrl="http://www.burrard-lucas.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="false">
         <name>burrard-lucas</name>
         <description>burrard-lucas Site</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="PHOTOGRAPHY_WILD_LIFE">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -34,7 +33,7 @@
     <WebCrawler id="rangandatta" domainUrl="https://rangandatta.wordpress.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Rangan Datta</name>
         <description>Rangan Datta Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -50,7 +49,7 @@
     <WebCrawler id="calcuttawalks" domainUrl="http://calcuttawalks.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Calcutta Walks</name>
         <description>Calcutta Walks Travel Site</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -66,7 +65,7 @@
     <WebCrawler id="inditales" domainUrl="http://www.inditales.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Inditales</name>
         <description>Inditales Travel Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -82,7 +81,7 @@
     <WebCrawler id="anushankarn" domainUrl="https://anushankarn.blogspot.in" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Anuradha Shankar</name>
         <description>Anuradha Shankar Travel Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -98,7 +97,7 @@
     <WebCrawler id="travelmax" domainUrl="http://www.travelmax.in" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Umang Trivedi</name>
         <description>Umang Trivedi Travel Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -114,7 +113,7 @@
     <WebCrawler id="oindrilade" domainUrl="https://oindrilade.wordpress.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>OINDRILA GOES FOOTLOOSE</name>
         <description>OINDRILA Travel Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -130,7 +129,7 @@
     <WebCrawler id="travelescape" domainUrl="http://www.travelescape.in" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>travelescape.in</name>
         <description>travelescape.in Travel Site</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -146,7 +145,7 @@
     <WebCrawler id="ghoomleyaar" domainUrl="http://ghoomleyaar.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>ghoomleyaar.com</name>
         <description>ghoomleyaar.com Travel Site</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -162,7 +161,7 @@
     <WebCrawler id="travellingisblog" domainUrl="https://travellingisblog.wordpress.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>TRAVELLINGIS</name>
         <description>TRAVELLINGIS Travel Site</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -178,7 +177,7 @@
     <WebCrawler id="traveldiaryparnashree" domainUrl="http://www.traveldiaryparnashree.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Parnashree</name>
         <description>parnashree Travel Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -194,7 +193,7 @@
     <WebCrawler id="travelseewrite" domainUrl="http://www.travelseewrite.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>travel see write</name>
         <description>travel see write Travel Site</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -210,7 +209,7 @@
      <WebCrawler id="getsetandgo" domainUrl="https://getsetandgo.wordpress.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Get Set ANd Go</name>
         <description>Get Set ANd Go Travel Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -226,7 +225,7 @@
      <WebCrawler id="lemonicks" domainUrl="http://www.lemonicks.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="false">
         <name>IndianWomen</name>
         <description>IndianWomen Travel Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -245,7 +244,7 @@
      <WebCrawler id="obsessivecompulsivetraveller" domainUrl="https://obsessivecompulsivetraveller.wordpress.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Obsessive Compulsive Traveller</name>
         <description>Obsessive Compulsive Traveller Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -261,7 +260,7 @@
      <WebCrawler id="travelshoebum" domainUrl="https://travelshoebum.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>shoebum</name>
         <description>Shoebume Travel Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -277,7 +276,7 @@
      <WebCrawler id="thrillingtravel" domainUrl="http://thrillingtravel.in" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Ami Bhat</name>
         <description>Ami Bhat Travel Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -293,7 +292,7 @@
      <WebCrawler id="flight-of-a-little-bird" domainUrl="http://www.flight-of-a-little-bird.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Shailza</name>
         <description>Shailza Travel Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -309,7 +308,7 @@
      <WebCrawler id="writergitanjali" domainUrl="http://www.writergitanjali.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Travel By Karma</name>
         <description>Travel By Karma Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -325,7 +324,7 @@
      <WebCrawler id="the-shooting-star" domainUrl="https://the-shooting-star.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>The Shooting Star</name>
         <description>The Shooting Star Travel Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -341,7 +340,7 @@
      <WebCrawler id="ankionthemove" domainUrl="http://www.ankionthemove.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Anki On The Move</name>
         <description>Anki On The Move Travel Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -357,7 +356,7 @@
      <WebCrawler id="paintedstork" domainUrl="http://travel.paintedstork.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Arun Bhat</name>
         <description>Arun Bhat Travel Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -373,7 +372,7 @@
      <WebCrawler id="nomadicthunker" domainUrl="https://nomadicthunker.blogspot.in" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>An Indian female (solo) traveler in India</name>
         <description>An Indian female (solo) traveler in India Travel Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -389,7 +388,7 @@
      <WebCrawler id="datravelography" domainUrl="http://datravelography.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>DA Travelography</name>
         <description>DA Travelography Travel Site</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -405,7 +404,7 @@
      <WebCrawler id="radicallyeverafter" domainUrl="https://radicallyeverafter.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Namita Kulkarni</name>
         <description>Namita Kulkarni Travel Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -421,7 +420,7 @@
      <WebCrawler id="priyankawriting" domainUrl="http://travel.priyankawriting.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>priyanka</name>
         <description>priyanka Travel Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="TRAVEL">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -437,7 +436,7 @@
      <WebCrawler id="naturallyella" domainUrl="https://naturallyella.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Naturally Ella</name>
         <description>Naturally Ella Kitchen Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="KITCHEN">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -453,7 +452,7 @@
      <WebCrawler id="minimalistbaker" domainUrl="http://minimalistbaker.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Dana</name>
         <description>Dana Kitchen Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="KITCHEN">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -469,7 +468,7 @@
      <WebCrawler id="foodheavenmadeeasy" domainUrl="http://www.foodheavenmadeeasy.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Food Heaven Made Easy</name>
         <description>Food Heaven Made Easy Kitchen Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="KITCHEN">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -485,7 +484,7 @@
      <WebCrawler id="101cookbooks" domainUrl="http://www.101cookbooks.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>101 Cookbooks</name>
         <description>101 Cookbooks Kitchen Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="KITCHEN">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -501,7 +500,7 @@
      <WebCrawler id="greenkitchenstories" domainUrl="http://www.greenkitchenstories.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Green Kitchen Stories</name>
         <description>Green Kitchen Stories Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="KITCHEN">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -517,7 +516,7 @@
      <WebCrawler id="mynewroots" domainUrl="http://www.mynewroots.org" flushFrequency="50" thresholdFrequency="10" robotRulesExists="false">
         <name>My New Roots</name>
         <description>My New Roots Kitchen Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="KITCHEN">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -536,7 +535,7 @@
      <WebCrawler id="golubkakitchen" domainUrl="http://golubkakitchen.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="false">
         <name>Golub Ka Kitchen</name>
         <description>Golub Ka Kitchen Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="KITCHEN">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -552,7 +551,7 @@
      <WebCrawler id="deliciouslyella" domainUrl="https://deliciouslyella.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Deliciously Ella</name>
         <description>Deliciously Ella Kitchen Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="KITCHEN">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -568,7 +567,7 @@
      <WebCrawler id="mydarlinglemonthyme" domainUrl="http://www.mydarlinglemonthyme.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>My Darling Lemon Thyme</name>
         <description>My Darling Lemon Thyme Kitchen Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="KITCHEN">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -584,7 +583,7 @@
      <WebCrawler id="sailusfood" domainUrl="http://www.sailusfood.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Sailu's Food</name>
         <description>Sailu's Food Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="KITCHEN">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -600,7 +599,7 @@
      <WebCrawler id="monsoonspice" domainUrl="http://www.monsoonspice.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Monsoon Spice</name>
         <description>Monsoon Spice Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="KITCHEN">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -616,7 +615,7 @@
      <WebCrawler id="bongcookbook" domainUrl="http://www.bongcookbook.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Bong Mom's Cookbook</name>
         <description>Bong Mom's Cookbook Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="KITCHEN">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -632,7 +631,7 @@
       <WebCrawler id="mydiversekitchen" domainUrl="http://www.mydiversekitchen.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>My Diverse Kitchen</name>
         <description>My Diverse Kitchen Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="KITCHEN">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -648,7 +647,7 @@
       <WebCrawler id="padhuskitchen" domainUrl="http://www.padhuskitchen.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Padhus Kitchen</name>
         <description>Padhus Kitchen Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="KITCHEN">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -664,7 +663,7 @@
       <WebCrawler id="cookingandme" domainUrl="http://www.cookingandme.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Edible Garden</name>
         <description>Edible Garden Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="KITCHEN">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -680,7 +679,7 @@
       <WebCrawler id="simplytadka" domainUrl="http://www.simplytadka.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Simply Tadka</name>
         <description>Simply Tadka Kitchen Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="KITCHEN">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -696,7 +695,7 @@
       <WebCrawler id="archanaskitchen" domainUrl="http://www.archanaskitchen.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Archana's Kitchen</name>
         <description>Archana's Kitchen Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="KITCHEN">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -712,7 +711,7 @@
       <WebCrawler id="pittarak" domainUrl="http://www.pittarak.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="false">
         <name>Erik Boomer</name>
         <description>Erik Boomer Photography Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="PHOTOGRAPHY">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>
@@ -728,7 +727,7 @@
       <WebCrawler id="gerdludwig" domainUrl="http://www.gerdludwig.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true">
         <name>Gerd Ludwig Photography</name>
         <description>Gerd Ludwig Photography Blog</description>
-        <contentHandler classifyFeeds="true">
+        <contentHandler preClassifiedType="PHOTOGRAPHY">
             <handler>defaultOgHtmlContentHandler</handler>
             <feedUploader>
                 <uploader>defaultOgFeedUploader</uploader>

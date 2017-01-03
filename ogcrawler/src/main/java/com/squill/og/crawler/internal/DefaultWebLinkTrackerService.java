@@ -33,16 +33,56 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(DefaultWebLinkTrackerService.class);
+	
+	private RedisCommands<String, String> sync;
+	
+	private boolean initialized = false;
+	
+	/*public static void main(String[] args) {
+		System.setProperty(REDIS_HISTORY_TRACKER_URI_CONFIG, "redis://192.168.35.15");
+		DefaultWebLinkTrackerService a1 = new DefaultWebLinkTrackerService();
+		a1.abc();
+		DefaultWebLinkTrackerService a2 = new DefaultWebLinkTrackerService();
+		a2.xyz();
+		a1.dispose();
+		a2.dispose();
+	}
+	
+	private void abc() {
+		init();
+		sync.set("myKey", "myValue");
+		System.out.println(sync.get("myKey"));
+		dispose();
+	}
+	
+	private void xyz() {
+		init();
+		System.out.println(sync.get("myKey"));
+		dispose();
+	}*/
 
 	private void init() {
+		if(initialized) {
+			return;
+		}
 		if (connection == null || !connection.isOpen()) {
 			client = RedisClient.create(System
 					.getProperty(REDIS_HISTORY_TRACKER_URI_CONFIG));
 			connection = client.connect();
 		}
+		if(sync == null) {
+			sync = sync();
+		}
+		initialized = true;
 	}
 
 	public void dispose() {
+		if(!initialized) {
+			return;
+		}
+		if(sync != null) {
+			sync.close();
+		}
 		if (connection != null && connection.isOpen()) {
 			/*
 			 * try { clearAll(""); } catch (PackPackException e) {
@@ -50,22 +90,22 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 			 */
 			connection.close();
 		}
+		initialized = false;
 	}
 
-	private StatefulRedisConnection<String, String> getConnection() {
-		if (connection == null || !connection.isOpen()) {
-			connection = client.connect();
+	private RedisCommands<String, String> sync() {
+		if(!initialized) {
+			init();
 		}
-		return connection;
+		return sync;
 	}
 
 	public void addCrawledInfo(String link, WebSpiderTracker value,
 			long ttlSeconds) {
-		init();
 		RedisCommands<String, String> sync = null;
 		try {
 			String key = EncryptionUtil.generateMD5HashKey(link, false, false);
-			sync = getConnection().sync();
+			sync = sync();
 			String json = JSONUtil.serialize(value);
 			sync.setex(key, ttlSeconds, json);
 		} catch (NoSuchAlgorithmException e) {
@@ -81,14 +121,13 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 	}
 
 	public WebSpiderTracker getTrackedInfo(String link) {
-		init();
 		RedisCommands<String, String> sync = null;
 		try {
 			String key = EncryptionUtil.generateMD5HashKey(link, false, false);
 			if (!isKeyExists(key)) {
 				return null;
 			}
-			sync = getConnection().sync();
+			sync = sync();
 			String json = sync.get(key);
 			return JSONUtil.deserialize(json, WebSpiderTracker.class);
 		} catch (NoSuchAlgorithmException e) {
@@ -105,8 +144,7 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 	}
 
 	private boolean isKeyExists(String key) {
-		init();
-		RedisCommands<String, String> sync = getConnection().sync();
+		RedisCommands<String, String> sync = sync();
 		String value = sync.get(key);
 		sync.close();
 		return value != null;
@@ -117,8 +155,7 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 	}
 
 	protected void clearAll(String keyPrefix) throws PackPackException {
-		init();
-		RedisCommands<String, String> sync = getConnection().sync();
+		RedisCommands<String, String> sync = sync();
 		List<String> keys = sync.keys(keyPrefix + "*");
 		if (keys == null || keys.isEmpty())
 			return;

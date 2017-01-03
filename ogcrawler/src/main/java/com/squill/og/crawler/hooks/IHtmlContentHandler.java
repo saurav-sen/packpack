@@ -27,5 +27,5 @@ public interface IHtmlContentHandler {
 	
 	public void setFeedUploader(IFeedUploader feedUploader);
 	
-	public boolean needToClassifyFeeds();
+	public void addMetaInfo(String key, Object value);
 }

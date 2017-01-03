@@ -60,4 +60,6 @@ public interface CoreConstants {
 	public static final String NOT_MODIFIED = "Not Modified";
 	
 	public static final String AUTHORIZATION_HEADER = "Authorization";
+	
+	public static final String PRE_CLASSIFIED_FEED_TYPE = "preClassifiedType";
 }

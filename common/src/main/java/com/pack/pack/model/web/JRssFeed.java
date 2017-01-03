@@ -1,5 +1,6 @@
 package com.pack.pack.model.web;
 
+
 /**
  * 
  * @author Saurav
@@ -20,7 +21,7 @@ public class JRssFeed {
 	private String hrefSource;
 	
 	private String id;
-
+	
 	public String getOgTitle() {
 		return ogTitle;
 	}
