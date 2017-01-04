@@ -23,28 +23,28 @@ public class RssFeedUploadFilter implements ContainerRequestFilter {
 	public void filter(ContainerRequestContext requestContext)
 			throws IOException {
 		boolean allow = true;
-		/*String path = requestContext.getUriInfo().getPath();
-		if(path.endsWith("/feeds/classify")) {
+		String path = requestContext.getUriInfo().getPath();
+		if (path.contains("/feeds")) {
 			String apiKey = requestContext
 					.getHeaderString(OAuthConstants.AUTHORIZATION_HEADER);
-			if(!OAuthConstants.RSS_FEED_UPLOAD_API_KEY.equals(apiKey)) {
+			if (!OAuthConstants.RSS_FEED_UPLOAD_API_KEY.equals(apiKey)) {
 				allow = false;
 			}
-		}*/
+		}
 		String apiKey = requestContext
 				.getHeaderString(OAuthConstants.AUTHORIZATION_HEADER);
-		if(!OAuthConstants.RSS_FEED_UPLOAD_API_KEY.equals(apiKey)) {
+		if (!OAuthConstants.RSS_FEED_UPLOAD_API_KEY.equals(apiKey)) {
 			allow = false;
 		}
-		
+
 		if (!allow) {
 			JStatus status = new JStatus();
 			status.setStatus(StatusType.ERROR);
 			status.setInfo("Unauthorized access: Permission denied");
 			requestContext.abortWith(Response
 					.status(Response.Status.UNAUTHORIZED)
-					.header("Content-Type", "application/json")
-					.entity(status).build());
+					.header("Content-Type", "application/json").entity(status)
+					.build());
 		}
 	}
 }

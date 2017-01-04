@@ -151,7 +151,7 @@ public class SystemPropertyUtil {
 		return getBaseURL();
 	}
 	
-	private static String getBaseURL() {
+	public static String getBaseURL() {
 		return getPropertyValue(BASE_URL);
 	}
 	

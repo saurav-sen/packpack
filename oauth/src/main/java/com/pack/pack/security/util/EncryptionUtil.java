@@ -39,12 +39,12 @@ public class EncryptionUtil {
 		System.out.println(encryptPassword("password"));
 	}*/
 	
-	public static String encryptPasswordUsingSystemKey(String plainTextPassword) {
+	public static String encryptTextUsingSystemKey(String plainTextPassword) {
 		return encryptDecryptPassword(SYSTEM_KEY, plainTextPassword,
 				Cipher.ENCRYPT_MODE);
 	}
 
-	public static String decryptPasswordWithSystemKey(String encryptedPassword) {
+	public static String decryptTextWithSystemKey(String encryptedPassword) {
 		return encryptDecryptPassword(SYSTEM_KEY, encryptedPassword,
 				Cipher.DECRYPT_MODE);
 	}
@@ -63,7 +63,8 @@ public class EncryptionUtil {
 				return new String(Base64.getEncoder().encode(cipher
 						.doFinal(plainTextPassword.getBytes())));
 			} else {
-				throw new UnsupportedOperationException("Decrypt password is not supported");
+				return new String(cipher.doFinal(Base64.getDecoder().decode(
+						plainTextPassword)));
 			}
 		} catch (InvalidKeyException e) {
 			throw new RuntimeException(e);

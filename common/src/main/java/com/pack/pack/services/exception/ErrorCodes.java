@@ -38,8 +38,8 @@ public interface ErrorCodes {
 	public static final String PACK_ERR_60 = "pack_err_60"; // RMI error (Remote function returned null value)
 	
 	public static final String PACK_ERR_61 = "pack_err_61"; //Internal Some other runtime error.
-	public static final String PACK_ERR_62 = "pack_err_62"; //Wrapped MMFException.
-	public static final String PACK_ERR_63 = "pack_err_63"; //Wrapped MMFException. But, with this server 
+	public static final String PACK_ERR_62 = "pack_err_62"; //Wrapped PackPackException.
+	public static final String PACK_ERR_63 = "pack_err_63"; //Wrapped PackPackException. But, with this server 
 														  //should not unwrap it further to return wrapped cause to client 
 														  //(as that may not be wise or make any sense for user/client)
 	
@@ -59,7 +59,6 @@ public interface ErrorCodes {
 	public static final String PACK_ERR_80 = "pack_err_80"; //Old password doesn't match (in update info)
 	public static final String PACK_ERR_81 = "pack_err_81"; //Invalid time range
 	public static final String PACK_ERR_82 = "pack_err_82"; //Patient with same name is already related to owner.
-	public static final String PACK_ERR_83 = "pack_err_83"; //Duplicate relationship of type other than that of type SON, DAUGHTER is not allowed.
 	public static final String PACK_ERR_84 = "pack_err_84"; //Unsupported or Unimplemented operation exception.
 	public static final String PACK_ERR_85 = "pack_err_85"; //Invalid date format, failed to parse.
 	
@@ -72,6 +71,6 @@ public interface ErrorCodes {
 	public static final String PACK_ERR_90 = "pack_err_90"; // RMI error (GET is not supported for void type return of function)
 	public static final String PACK_ERR_91 = "pack_err_91"; // Doctor with same email or phone number is found but having different name.
 	
-	public static final String PACK_ERR_92 = "pack_err_92"; // systolic more than diastolic pressure (Bad Request)
+	public static final String PACK_ERR_92 = "pack_err_92"; // (Bad Request)
 	public static final String PACK_ERR_93 = "pack_err_93"; // Forbidden to access details of some other member.
 }
