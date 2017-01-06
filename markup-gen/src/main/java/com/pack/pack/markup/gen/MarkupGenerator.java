@@ -3,6 +3,7 @@ package com.pack.pack.markup.gen;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JTopic;
 
 /**
@@ -17,6 +18,8 @@ public class MarkupGenerator {
 	private static Map<String, IMarkupGenerator> generatorsMap = new HashMap<String, IMarkupGenerator>();
 	static {
 		generatorsMap.put(JTopic.class.getName(), new TopicPageGenerator());
+		generatorsMap.put(JPackAttachment.class.getName(),
+				new PackAttachmentPageGenerator());
 	}
 
 	MarkupGenerator() {
