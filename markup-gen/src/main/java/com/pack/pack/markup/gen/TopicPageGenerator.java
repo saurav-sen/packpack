@@ -19,12 +19,13 @@ import com.pack.pack.ITopicService;
 import com.pack.pack.IUserService;
 import com.pack.pack.markup.gen.model.AttachmentModel;
 import com.pack.pack.markup.gen.model.PackModel;
-import com.pack.pack.markup.gen.util.PathUtil;
+import com.pack.pack.markup.gen.util.PromotedFileUtil;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.Pagination;
+import com.pack.pack.security.util.EncryptionUtil;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.SystemPropertyUtil;
 
@@ -53,7 +54,8 @@ public class TopicPageGenerator implements IMarkupGenerator {
 			Template template = cfg.getTemplate("topic_detail.ftl");
 			String topicId = (String) dataModel.get("topicId");
 			String topicCategory = (String) dataModel.get("topicCategory");
-			String path = PathUtil.calculatePathForTopicDetailsPage(topicId,
+			String encryptedTopicId = EncryptionUtil.encryptTextUsingSystemKey(topicId);
+			String path = PromotedFileUtil.calculatePathForTopicDetailsPage(encryptedTopicId,
 					topicCategory);
 			if (path != null) {
 				writer = new FileWriter(new File(path));
