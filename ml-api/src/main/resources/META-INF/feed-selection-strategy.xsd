@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.squilla.co.in/Strategies"
+	xmlns:tns="http://www.squilla.co.in/Strategies" elementFormDefault="qualified">
+
+	<element name="Strategies" type="tns:Strategies"></element>
+	
+	<complexType name="Strategies">
+		<sequence>
+			<element name="Strategy" type="tns:Strategy"
+				maxOccurs="unbounded" minOccurs="1">
+			</element>
+		</sequence>
+	</complexType>
+
+	<complexType name="Strategy">
+		<attribute name="name" type="string" use="required"></attribute>
+		<attribute name="implementation" type="string" use="required"></attribute>
+	</complexType>
+</schema>

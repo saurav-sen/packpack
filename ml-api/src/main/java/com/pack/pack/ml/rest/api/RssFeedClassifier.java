@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pack.pack.common.util.JSONUtil;
+import com.pack.pack.data.upload.FeedUploadUtil;
 import com.pack.pack.ml.rest.api.context.ClassificationEngine;
 import com.pack.pack.ml.rest.api.context.FeedStatusListener;
 import com.pack.pack.model.web.JRssFeeds;
@@ -31,7 +32,7 @@ import com.pack.pack.util.RssFeedUtil;
 public class RssFeedClassifier {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(RssFeedClassifier.class);
-
+	
 	/**
 	 * 
 	 * Should be protected by API key
@@ -64,7 +65,8 @@ public class RssFeedClassifier {
 	public JStatus updateTrainingData(String json) throws PackPackException {
 		LOG.info("Bulk Upload of feeds to be trained");
 		JRssFeeds bulk = JSONUtil.deserialize(json, JRssFeeds.class, true);
-		ClassificationEngine.INSTANCE.updateCsvTrainingData(bulk.getFeeds());
+		ClassificationEngine.INSTANCE.uploadPreClassifiedFeeds(bulk,
+				new FeedStatusListenerImpl());
 		JStatus status = new JStatus();
 		status.setStatus(StatusType.OK);
 		status.setInfo("Successfully Uploaded Training data");
@@ -76,7 +78,8 @@ public class RssFeedClassifier {
 
 		@Override
 		public void completed(JRssFeeds feeds) {
-			RssFeedUtil.uploadNewFeeds(feeds);
+			JRssFeeds jRssFeeds = FeedUploadUtil.reloadSelectiveFeeds();
+			RssFeedUtil.uploadNewFeeds(jRssFeeds);
 		}
 
 		@Override
@@ -84,6 +87,5 @@ public class RssFeedClassifier {
 			// TODO Auto-generated method stub
 
 		}
-
 	}
 }

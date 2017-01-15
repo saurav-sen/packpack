@@ -38,6 +38,8 @@ import weka.core.converters.ArffSaver;
 import weka.core.converters.CSVLoader;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
+import com.pack.pack.data.upload.CsvUtil;
+import com.pack.pack.data.upload.FeedUploadUtil;
 import com.pack.pack.model.web.FeedClassifier;
 import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.JRssFeeds;
@@ -78,18 +80,14 @@ public class ClassificationEngine {
 	private static final String CSV_FILE_NAME = OG_CLASSIFIER
 			+ CSV_FILE_EXTENSION;
 
-	private static final String CSV_COL_SEPARATOR = ",";
-	private static final String CSV_ROW_SEPARATOR = "\n";
 	private static final String UNDERSCORE = "_";
-
-	private static final String EMPTY_SPACE = " ";
-
+	
 	private ClassificationEngine() {
+		executorsPool = Executors.newCachedThreadPool();
 	}
 
 	public void start() {
 		reInitialize();
-		executorsPool = Executors.newCachedThreadPool();
 		LOG.info("======== ClassificationEngine Started Successfully =========");
 	}
 
@@ -280,7 +278,45 @@ public class ClassificationEngine {
 		statusReader.start();
 	}
 
-	public void updateCsvTrainingData(List<JRssFeed> feeds) {
+	public void uploadPreClassifiedFeeds(final JRssFeeds feeds,
+			final FeedStatusListener listener) {
+		Future<JRssFeeds> status = executorsPool
+				.submit(new PreClassifiedFeedUploadTask(feeds));
+		Thread statusReader = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				long timeout = 2 * 60 * 60 * 1000;
+				long counter = 0;
+				while (!status.isDone() && counter < timeout) {
+					try {
+						Thread.sleep(100);
+						counter = counter + 100;
+					} catch (InterruptedException e) {
+						LOG.error(e.getMessage(), e);
+					}
+				}
+				if (counter >= timeout) {
+					LOG.debug("Timed Out while trying to upload pre-classified feeds");
+					listener.failed(feeds);
+				} else {
+					try {
+						JRssFeeds newFeeds = status.get();
+						listener.completed(newFeeds);
+					} catch (InterruptedException e) {
+						LOG.error(e.getMessage(), e);
+						listener.failed(feeds);
+					} catch (ExecutionException e) {
+						LOG.error(e.getMessage(), e);
+						listener.failed(feeds);
+					}
+				}
+			}
+		});
+		statusReader.start();
+	}
+
+	private void updateCsvTrainingData(List<JRssFeed> feeds) {
 		if (feeds == null || feeds.isEmpty())
 			return;
 		FileWriter csvFileWriter = null;
@@ -288,6 +324,7 @@ public class ClassificationEngine {
 		try {
 			Calendar calendar = Calendar.getInstance();
 			String csvFileName = new StringBuilder()
+					.append(FeedUploadUtil.PRE_CLASSIFIED_FILE_PREFIX)
 					.append(calendar.get(Calendar.DAY_OF_MONTH))
 					.append(UNDERSCORE).append(calendar.get(Calendar.MONTH))
 					.append(UNDERSCORE).append(calendar.get(Calendar.YEAR))
@@ -296,12 +333,13 @@ public class ClassificationEngine {
 					+ File.separator + csvFileName;
 			csvFileWriter = new FileWriter(csvFilePath, true);
 			for (JRssFeed feed : feeds) {
-				String text = new StringBuilder().append(feed.getOgUrl())
+				/*String text = new StringBuilder().append(feed.getOgUrl())
 						.append(EMPTY_SPACE).append(feed.getOgTitle())
 						.toString();
 				csvFileWriter.append(feed.getOgType())
 						.append(CSV_COL_SEPARATOR).append(text)
-						.append(CSV_ROW_SEPARATOR);
+						.append(CSV_ROW_SEPARATOR);*/
+				csvFileWriter.append(CsvUtil.toString(feed));
 			}
 			csvFileWriter.flush();
 		} catch (IOException e) {
@@ -352,7 +390,7 @@ public class ClassificationEngine {
 				for (int i = 0; i < len; i++) {
 					JRssFeed feed = list.get(i);
 					String text = new StringBuilder().append(feed.getOgUrl())
-							.append(EMPTY_SPACE).append(feed.getOgTitle())
+							.append(CsvUtil.EMPTY_SPACE).append(feed.getOgTitle())
 							.toString();
 
 					Instance dataInstance = new DenseInstance(2);
@@ -369,6 +407,24 @@ public class ClassificationEngine {
 					JRssFeed feed = list.get(i);
 					feed.setOgType(predictedClass);
 				}
+				updateCsvTrainingData(list);
+			}
+			return feeds;
+		}
+	}
+
+	private class PreClassifiedFeedUploadTask implements Callable<JRssFeeds> {
+
+		private JRssFeeds feeds;
+
+		PreClassifiedFeedUploadTask(JRssFeeds feeds) {
+			this.feeds = feeds;
+		}
+
+		@Override
+		public JRssFeeds call() throws Exception {
+			List<JRssFeed> list = feeds.getFeeds();
+			if (list != null && !list.isEmpty()) {
 				updateCsvTrainingData(list);
 			}
 			return feeds;

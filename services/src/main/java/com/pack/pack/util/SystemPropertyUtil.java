@@ -33,7 +33,7 @@ public class SystemPropertyUtil {
 	private static final String EGIFT_IMAGE_HOME = "egift.home";
 
 	private static final String PROFILE_PICTURE_HOME = "profile.picture.home";
-	
+
 	private static final String TOPIC_WALLAPER_HOME = "topic.wallpaper.home";
 
 	public static final String URL_SEPARATOR = "/";
@@ -51,42 +51,47 @@ public class SystemPropertyUtil {
 			+ VIDEO + URL_SEPARATOR;
 	public static final String PROFILE_IMAGE_URL_SUFFIX = ATTACHMENT_URL_SUFFIX
 			+ PROFILE + URL_SEPARATOR + IMAGE + URL_SEPARATOR;
-	
+
 	public static final String TOPIC_WALLPAPER_URL_SUFFIX = ATTACHMENT_URL_SUFFIX
 			+ TOPIC + URL_SEPARATOR + IMAGE + URL_SEPARATOR;
 
 	private static final String CONFIG_FILE = "../conf/system_internal.properties";
 
 	private static final String DEFAULT_TOPIC_ID_VALUE = "home.topic";
-	
+
 	public static final String HIGH_UNICODE_CHARACTER = "\ufff0";
-	
+
 	private static final String PRODUCTION_ENVIRONMENT = "prod.env";
-	
+
 	private static final String AWS_S3_ACCESS_KEY = "aws.s3.access.key";
 	private static final String AWS_S3_ACCESS_SECRET = "aws.s3.access.secret";
 	private static final String AWS_S3_ROOT_BUCKET = "aws.s3.root.bucket";
 	private static final String AWS_S3_BASE_URL = "aws.s3.base.url";
-	
+
 	private static final String FFMPEG_COMMAND = "ffmpeg.cmd";
-	
+
 	private static final String GOOGLE_GEO_CODING_API_KEY = "google.geo.coding.api_key";
-	
+
 	private static final String WEB_PAGES_ROOT_PATH = "web.pages.root.path";
-	
+
 	private static final String ML_WORKING_DIR = "ml.work.dir";
 	private static final String ML_SERVER_START_MODE = "ml.server.mode";
-	
+
 	public static final String ML_SERVER_TEST_MODE = "test";
 	public static final String ML_SERVER_CLASSIFY_MODE = "classify";
-	
+
+	private static final String FEED_SELECTION_STRATEGY_KEY = "feed.selection.strategy.name";
+	private static final String FEED_DEFAULT_SELECTION_STRATEGY_NAME = "default";
+	private static final String FEED_SELECTION_STRATEGY_CONFIG = "feed.selection.config.file";
+	private static final String FEED_SELECTION_STRATEGY_DEFAULT_CONFIG = "../conf/feed-selection-strategy.xml";
+
 	public static void init() {
 		try {
 			properties = new Properties();
 			properties.load(new FileInputStream(new File(CONFIG_FILE)));
 			// TODO -- call an check this once we add ES infrastructure
-			//String esBaseUrl = properties.getProperty(Constants.ES_BASE_URL);
-			//System.setProperty(Constants.ES_BASE_URL, esBaseUrl);
+			// String esBaseUrl = properties.getProperty(Constants.ES_BASE_URL);
+			// System.setProperty(Constants.ES_BASE_URL, esBaseUrl);
 		} catch (FileNotFoundException e) {
 			logger.info(e.getMessage(), e);
 			throw new RuntimeException(e);
@@ -99,19 +104,19 @@ public class SystemPropertyUtil {
 	private static String getPropertyValue(String key) {
 		return properties.getProperty(key);
 	}
-	
+
 	public static String getMlServerMode() {
 		return getPropertyValue(ML_SERVER_START_MODE);
 	}
-	
+
 	public static String getMlWorkingDirectory() {
 		return getPropertyValue(ML_WORKING_DIR);
 	}
-	
+
 	public static String getFFmpegCommand() {
 		return getPropertyValue(FFMPEG_COMMAND);
 	}
-	
+
 	public static String getGoogleGeoCodingApiKey() {
 		return getPropertyValue(GOOGLE_GEO_CODING_API_KEY);
 	}
@@ -139,25 +144,25 @@ public class SystemPropertyUtil {
 	public static String getProfilePictureHome() {
 		return getPropertyValue(PROFILE_PICTURE_HOME);
 	}
-	
+
 	public static String getTopicWallpaperHome() {
 		return getPropertyValue(TOPIC_WALLAPER_HOME);
 	}
 
 	private static String getAttachmentBaseURL() {
-		if(isProductionEnvironment()) {
+		if (isProductionEnvironment()) {
 			return getPropertyValue(AWS_S3_BASE_URL);
 		}
 		return getBaseURL();
 	}
-	
+
 	public static String getBaseURL() {
 		return getPropertyValue(BASE_URL);
 	}
-	
+
 	public static boolean isProductionEnvironment() {
 		String propertyValue = getPropertyValue(PRODUCTION_ENVIRONMENT);
-		if(propertyValue == null || propertyValue.trim().isEmpty())
+		if (propertyValue == null || propertyValue.trim().isEmpty())
 			return false;
 		try {
 			return Boolean.parseBoolean(propertyValue.trim());
@@ -165,19 +170,19 @@ public class SystemPropertyUtil {
 			return false;
 		}
 	}
-	
+
 	public static final String getAwsS3AccessKey() {
 		return getPropertyValue(AWS_S3_ACCESS_KEY);
 	}
-	
+
 	public static final String getAwsS3AccessSecret() {
 		return getPropertyValue(AWS_S3_ACCESS_SECRET);
 	}
-	
+
 	public static final String getAwsS3RootBucketName() {
 		return getPropertyValue(AWS_S3_ROOT_BUCKET);
 	}
-	
+
 	public static final String getWebPagesRootPath() {
 		return getPropertyValue(WEB_PAGES_ROOT_PATH);
 	}
@@ -187,7 +192,7 @@ public class SystemPropertyUtil {
 		if (!baseURL.endsWith(URL_SEPARATOR)) {
 			baseURL = baseURL + URL_SEPARATOR;
 		}
-		if(isProductionEnvironment()) {
+		if (isProductionEnvironment()) {
 			return baseURL;
 		}
 		return baseURL + IMAGE_ATTACHMENT_URL_SUFFIX;
@@ -198,7 +203,7 @@ public class SystemPropertyUtil {
 		if (!baseURL.endsWith(URL_SEPARATOR)) {
 			baseURL = baseURL + URL_SEPARATOR;
 		}
-		if(isProductionEnvironment()) {
+		if (isProductionEnvironment()) {
 			return baseURL;
 		}
 		return baseURL + VIDEO_ATTACHMENT_URL_SUFFIX;
@@ -209,18 +214,18 @@ public class SystemPropertyUtil {
 		if (!baseURL.endsWith(URL_SEPARATOR)) {
 			baseURL = baseURL + URL_SEPARATOR;
 		}
-		if(isProductionEnvironment()) {
+		if (isProductionEnvironment()) {
 			return baseURL;
 		}
 		return baseURL + PROFILE_IMAGE_URL_SUFFIX;
 	}
-	
+
 	public static String getTopicWallpaperBaseURL() {
 		String baseURL = getAttachmentBaseURL();
 		if (!baseURL.endsWith(URL_SEPARATOR)) {
 			baseURL = baseURL + URL_SEPARATOR;
 		}
-		if(isProductionEnvironment()) {
+		if (isProductionEnvironment()) {
 			return baseURL;
 		}
 		return baseURL + TOPIC_WALLPAPER_URL_SUFFIX;
@@ -229,8 +234,19 @@ public class SystemPropertyUtil {
 	public static String getDefaultSystemTopicId() {
 		return DEFAULT_TOPIC_ID_VALUE;
 	}
-	
+
 	public static boolean isCacheEnabled() {
 		return true;
+	}
+
+	public static String getFeedSelectionStrategyName() {
+		String value = getPropertyValue(FEED_SELECTION_STRATEGY_KEY);
+		return value != null ? value.trim()
+				: FEED_DEFAULT_SELECTION_STRATEGY_NAME;
+	}
+
+	public static String getFeedSelectionStrategyConfigFileLocation() {
+		String value = getPropertyValue(FEED_SELECTION_STRATEGY_CONFIG);
+		return value != null ? value : FEED_SELECTION_STRATEGY_DEFAULT_CONFIG;
 	}
 }

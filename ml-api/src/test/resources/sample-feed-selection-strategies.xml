@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Strategies xmlns="http://www.squilla.co.in/Strategies">
+
+	<Strategy name="default"
+		implementation="com.pack.pack.feed.selection.strategy.impl.RandomFeedSelectionStrategy" />
+</Strategies>
