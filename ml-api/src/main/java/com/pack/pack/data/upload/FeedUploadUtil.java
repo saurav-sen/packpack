@@ -76,6 +76,8 @@ public class FeedUploadUtil {
 		while (itr.hasNext()) {
 			arrayList.addAll(itr.next());
 		}
+		strategy = null;
+		map = null;
 		JRssFeeds result = new JRssFeeds();
 		result.setFeeds(arrayList);
 		return result;
