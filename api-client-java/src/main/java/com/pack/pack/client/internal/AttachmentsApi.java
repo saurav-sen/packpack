@@ -7,12 +7,14 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
@@ -26,7 +28,10 @@ import com.pack.pack.client.api.MultipartRequestProgressListener;
 import com.pack.pack.client.internal.multipart.ProgressTrackedMultipartEntity;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JPack;
+import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JStatus;
+import com.pack.pack.model.web.PromoteStatus;
+import com.pack.pack.model.web.dto.EntityPromoteDTO;
 import com.pack.pack.services.exception.PackPackException;
 
 /**
@@ -249,6 +254,23 @@ class AttachmentsApi extends BaseAPI {
 		return JSONUtil.deserialize(EntityUtils.toString(GZipUtil.decompress(response.getEntity())),
 				JPack.class);
 	}
+	
+	private PromoteStatus promotePackAttachment(String packAttachmentId, String userId,
+			String oAuthToken) throws Exception {
+		String url = getBaseUrl() + "promote/usr/" + userId;
+		DefaultHttpClient client = new DefaultHttpClient();
+		HttpPut PUT = new HttpPut(url);
+		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		EntityPromoteDTO dto = new EntityPromoteDTO();
+		dto.setId(packAttachmentId);
+		dto.setType(JPackAttachment.class.getName());
+		String json = JSONUtil.serialize(dto);
+		HttpEntity jsonBody = new StringEntity(json);
+		PUT.setEntity(jsonBody);
+		HttpResponse response = client.execute(PUT);
+		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
+				PromoteStatus.class);
+	}
 
 	private class Invoker implements ApiInvoker {
 
@@ -313,6 +335,10 @@ class AttachmentsApi extends BaseAPI {
 				result = uploadVideoPack(params, oAuthToken, listener);
 			} else if (COMMAND.ADD_VIDEO_TO_PACK.equals(action)) {
 				result = addVideoToPack(params, oAuthToken, listener);
+			} else if(action == COMMAND.PROMOTE_PACK_ATTACHMENT) {
+				String packAttachmentId = (String) params.get(APIConstants.PackAttachment.ID);
+				String userId = (String) params.get(APIConstants.User.ID);
+				result = promotePackAttachment(packAttachmentId, userId, oAuthToken);
 			}
 			return result;
 		}

@@ -32,6 +32,8 @@ import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.JTopics;
 import com.pack.pack.model.web.Pagination;
+import com.pack.pack.model.web.PromoteStatus;
+import com.pack.pack.model.web.dto.EntityPromoteDTO;
 import com.pack.pack.model.web.dto.TopicFollowDTO;
 
 /**
@@ -115,6 +117,23 @@ class TopicApi extends BaseAPI {
 		return JSONUtil
 				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
 						.getEntity())), JTopic.class);
+	}
+	
+	private PromoteStatus promoteTopic(String topicId, String userId,
+			String oAuthToken) throws Exception {
+		String url = getBaseUrl() + "promote/usr/" + userId;
+		DefaultHttpClient client = new DefaultHttpClient();
+		HttpPut PUT = new HttpPut(url);
+		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		EntityPromoteDTO dto = new EntityPromoteDTO();
+		dto.setId(topicId);
+		dto.setType(JTopic.class.getName());
+		String json = JSONUtil.serialize(dto);
+		HttpEntity jsonBody = new StringEntity(json);
+		PUT.setEntity(jsonBody);
+		HttpResponse response = client.execute(PUT);
+		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
+				PromoteStatus.class);
 	}
 	
 	private List<JTopic> getUserOwnedTopics(String userId, String oAuthToken)
@@ -264,6 +283,10 @@ class TopicApi extends BaseAPI {
 						.get(APIConstants.TopicSettings.VALUE);
 				result = editTopicSettings(topicId, userId, key, value,
 						oAuthToken);
+			} else if(action == COMMAND.PROMOTE_TOPIC) {
+				String topicId = (String) params.get(APIConstants.Topic.ID);
+				String userId = (String) params.get(APIConstants.User.ID);
+				result = promoteTopic(topicId, userId, oAuthToken);
 			}
 			return result;
 		}

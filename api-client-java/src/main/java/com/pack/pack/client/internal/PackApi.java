@@ -27,7 +27,9 @@ import com.pack.pack.model.web.JPackAttachments;
 import com.pack.pack.model.web.JPacks;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.Pagination;
+import com.pack.pack.model.web.PromoteStatus;
 import com.pack.pack.model.web.dto.CommentDTO;
+import com.pack.pack.model.web.dto.EntityPromoteDTO;
 import com.pack.pack.model.web.dto.ForwardDTO;
 import com.pack.pack.model.web.dto.LikeDTO;
 import com.pack.pack.model.web.dto.PackDTO;
@@ -219,6 +221,23 @@ class PackApi extends BaseAPI {
 				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
 						.getEntity())), JStatus.class);
 	}
+	
+	private PromoteStatus promotePack(String packId, String userId,
+			String oAuthToken) throws Exception {
+		String url = getBaseUrl() + "promote/usr/" + userId;
+		DefaultHttpClient client = new DefaultHttpClient();
+		HttpPut PUT = new HttpPut(url);
+		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		EntityPromoteDTO dto = new EntityPromoteDTO();
+		dto.setId(packId);
+		dto.setType(JPack.class.getName());
+		String json = JSONUtil.serialize(dto);
+		HttpEntity jsonBody = new StringEntity(json);
+		PUT.setEntity(jsonBody);
+		HttpResponse response = client.execute(PUT);
+		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
+				PromoteStatus.class);
+	}
 
 	private class Invoker implements ApiInvoker {
 
@@ -348,6 +367,10 @@ class PackApi extends BaseAPI {
 				dto.setTopicId(topicId);
 				dto.setUserId(userId);
 				result = createNewPack(dto, oAuthToken);
+			} else if(action == COMMAND.PROMOTE_PACK) {
+				String packId = (String) params.get(APIConstants.Pack.ID);
+				String userId = (String) params.get(APIConstants.User.ID);
+				result = promotePack(packId, userId, oAuthToken);
 			}
 			return result;
 		}

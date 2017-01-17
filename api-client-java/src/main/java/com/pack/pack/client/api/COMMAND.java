@@ -17,7 +17,8 @@ public enum COMMAND {
 			APIConstants.User.ID, APIConstants.User.Settings.KEY,
 			APIConstants.User.Settings.VALUE), GET_USER_FOLLOWED_TOPIC_LIST(
 			APIConstants.PageInfo.PAGE_LINK, APIConstants.User.ID), FOLLOW_TOPIC(
-			APIConstants.User.ID, APIConstants.Topic.ID), NEGLECT_TOPIC(
+			APIConstants.User.ID, APIConstants.Topic.ID), PROMOTE_TOPIC(
+			APIConstants.Topic.ID, APIConstants.User.ID), NEGLECT_TOPIC(
 			APIConstants.Topic.ID, APIConstants.User.ID), GET_TOPIC_BY_ID(
 			APIConstants.Topic.ID), CREATE_NEW_TOPIC(
 			APIConstants.Topic.OWNER_ID, APIConstants.Topic.OWNER_NAME,
@@ -30,9 +31,11 @@ public enum COMMAND {
 			APIConstants.PackAttachment.ID), GET_ALL_PACKS_IN_DEFAULT_TOPICS(
 			APIConstants.User.ID, APIConstants.PageInfo.PAGE_LINK), GET_ALL_PACKS_IN_TOPIC(
 			APIConstants.User.ID, APIConstants.Topic.ID,
-			APIConstants.PageInfo.PAGE_LINK), GET_ALL_ATTACHMENTS_IN_PACK(
+			APIConstants.PageInfo.PAGE_LINK), PROMOTE_PACK_ATTACHMENT(
+			APIConstants.PackAttachment.ID, APIConstants.User.ID), GET_ALL_ATTACHMENTS_IN_PACK(
 			APIConstants.Pack.ID, APIConstants.Topic.ID, APIConstants.User.ID,
-			APIConstants.PageInfo.PAGE_LINK), FORWARD_PACK(
+			APIConstants.PageInfo.PAGE_LINK), PROMOTE_PACK(
+			APIConstants.Pack.ID, APIConstants.User.ID), FORWARD_PACK(
 			APIConstants.Pack.ID, APIConstants.ForwardPack.FROM_USER_ID,
 			APIConstants.ForwardPack.TO_USER_ID), FORWARD_PACK_OVER_EMAIL(
 			APIConstants.Pack.ID, APIConstants.ForwardPack.FROM_USER_ID,
