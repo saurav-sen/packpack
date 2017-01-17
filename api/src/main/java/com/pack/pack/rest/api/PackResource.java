@@ -1,7 +1,5 @@
 package com.pack.pack.rest.api;
 
-import java.util.List;
-
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -27,7 +25,6 @@ import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.StatusType;
 import com.pack.pack.model.web.dto.CommentDTO;
-import com.pack.pack.model.web.dto.ForwardDTO;
 import com.pack.pack.model.web.dto.LikeDTO;
 import com.pack.pack.model.web.dto.PackDTO;
 import com.pack.pack.model.web.dto.PackReceipent;
@@ -123,7 +120,7 @@ public class PackResource {
 		return service.getPackAttachmentById(id);
 	}
 
-	@PUT	
+	/*@PUT	
 	@Path("{id}")
 	@CompressRead
 	@Produces(MediaType.APPLICATION_JSON)
@@ -140,7 +137,7 @@ public class PackResource {
 		status.setStatus(StatusType.OK);
 		status.setInfo("Successfully forwarded");
 		return status;
-	}
+	}*/
 
 	@PUT
 	@Path("{id}/email/{from}/{to}")

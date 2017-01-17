@@ -17,36 +17,25 @@ import org.springframework.stereotype.Component;
 
 import com.pack.pack.IPackService;
 import com.pack.pack.common.util.CommonConstants;
-import com.pack.pack.message.FwdPack;
 import com.pack.pack.model.AttachmentType;
-import com.pack.pack.model.Comment;
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.PackAttachment;
 import com.pack.pack.model.Topic;
 import com.pack.pack.model.TopicPackMap;
-import com.pack.pack.model.User;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.PackAttachmentType;
 import com.pack.pack.model.web.Pagination;
-import com.pack.pack.model.web.dto.PackReceipent;
-import com.pack.pack.model.web.dto.PackReceipentType;
 import com.pack.pack.services.couchdb.PackAttachmentRepositoryService;
 import com.pack.pack.services.couchdb.PackRepositoryService;
 import com.pack.pack.services.couchdb.TopicPackMapRepositoryService;
 import com.pack.pack.services.couchdb.TopicRepositoryService;
-import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.couchdb.UserTopicMapRepositoryService;
-import com.pack.pack.services.email.EmailSender;
 import com.pack.pack.services.exception.PackPackException;
-import com.pack.pack.services.rabbitmq.MessagePublisher;
-import com.pack.pack.services.rabbitmq.objects.BroadcastCriteria;
-import com.pack.pack.services.rabbitmq.objects.BroadcastPack;
 import com.pack.pack.services.redis.PackAttachmentPage;
 import com.pack.pack.services.redis.PackPage;
 import com.pack.pack.services.redis.RedisCacheService;
 import com.pack.pack.services.registry.ServiceRegistry;
-import com.pack.pack.services.sms.SMSSender;
 import com.pack.pack.util.AttachmentUtil;
 import com.pack.pack.util.ModelConverter;
 import com.pack.pack.util.S3Path;
@@ -118,7 +107,7 @@ public class PackServiceImpl implements IPackService {
 		return service.get(id);
 	}
 
-	@Override
+	/*@Override
 	public void forwardPack(String packId, String fromUserId,
 			PackReceipent... receipents) throws PackPackException {
 		if (receipents == null || receipents.length == 0)
@@ -180,7 +169,7 @@ public class PackServiceImpl implements IPackService {
 				break;
 			}
 		}
-	}
+	}*/
 
 	@Override
 	public Pagination<JPack> loadLatestPack(String userId, String topicId,
@@ -296,9 +285,8 @@ public class PackServiceImpl implements IPackService {
 		topic.getPackIds().add(pack.getId());
 		service2.update(topic);
 		JPack jPack = ModelConverter.convert(pack);
-		if (publish) {
+		/*if (publish) {
 			FwdPack fwdPack = new FwdPack();
-			// TODO fwdPack.setAccessUrl(null);
 			fwdPack.setFromUserId(userId);
 			UserRepositoryService userService = ServiceRegistry.INSTANCE
 					.findService(UserRepositoryService.class);
@@ -313,7 +301,7 @@ public class PackServiceImpl implements IPackService {
 			MessagePublisher messagePublisher = ServiceRegistry.INSTANCE
 					.findService(MessagePublisher.class);
 			messagePublisher.notifyPackModify(fwdPack, topic, user);
-		}
+		}*/
 		return jPack;
 	}
 
@@ -399,11 +387,10 @@ public class PackServiceImpl implements IPackService {
 					.findService(RedisCacheService.class);
 			cacheService.removeFromCache(keyPrefix);
 		}
-		TopicRepositoryService topicService = ServiceRegistry.INSTANCE
+		/*TopicRepositoryService topicService = ServiceRegistry.INSTANCE
 				.findService(TopicRepositoryService.class);
 		Topic topic = topicService.get(topicId);
 		FwdPack fwdPack = new FwdPack();
-		// TODO fwdPack.setAccessUrl(null);
 		fwdPack.setFromUserId(userId);
 		UserRepositoryService userService = ServiceRegistry.INSTANCE
 				.findService(UserRepositoryService.class);
@@ -417,11 +404,11 @@ public class PackServiceImpl implements IPackService {
 				+ " :: has been updated by " + user.getName());
 		MessagePublisher messagePublisher = ServiceRegistry.INSTANCE
 				.findService(MessagePublisher.class);
-		messagePublisher.notifyPackModify(fwdPack, topic, user);
+		messagePublisher.notifyPackModify(fwdPack, topic, user);*/
 		return ModelConverter.convert(pack);
 	}
 
-	@Override
+	/*@Override
 	public void broadcastPack(BroadcastCriteria criteria, String packId,
 			String userId) throws PackPackException {
 		PackRepositoryService service = ServiceRegistry.INSTANCE
@@ -463,13 +450,13 @@ public class PackServiceImpl implements IPackService {
 		MessagePublisher publisher = ServiceRegistry.INSTANCE
 				.findService(MessagePublisher.class);
 		publisher.broadcast(bPack);
-	}
+	}*/
 
-	@Override
+	/*@Override
 	public void broadcastSystemPack(BroadcastCriteria criteria, String packId)
 			throws PackPackException {
 		broadcastPack(criteria, packId, null);
-	}
+	}*/
 
 	@Override
 	public JPack createNewPack(Pack pack) throws PackPackException {

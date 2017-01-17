@@ -1,15 +1,7 @@
 package com.pack.pack.services.rabbitmq;
 
-import java.io.IOException;
-import java.util.concurrent.TimeoutException;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import com.pack.pack.model.User;
-import com.pack.pack.services.exception.PackPackException;
-import com.rabbitmq.client.Channel;
 
 /**
  * 
@@ -20,10 +12,10 @@ import com.rabbitmq.client.Channel;
 @Scope("singleton")
 public class MessageSubscriber {
 	
-	@Autowired
-	private MsgConnectionManager connectionManager;
+	/*@Autowired
+	private MsgConnectionManager connectionManager;*/
 
-	public void subscribeToChannel(User user) throws PackPackException {
+	/*public void subscribeToChannel(User user) throws PackPackException {
 		try {
 			MsgConnection connection = connectionManager.openConnection();
 			Channel channel = connection.getChannel();
@@ -35,7 +27,7 @@ public class MessageSubscriber {
 		} catch (TimeoutException e) {
 			throw new PackPackException("", e.getMessage(), e);
 		}
-	}
+	}*/
 	
 	/*public void subscribeToGroup(Group group, User user) throws PackPackException {
 		try {

@@ -1,13 +1,7 @@
 package com.pack.pack.services.rabbitmq;
 
-import java.io.IOException;
-import java.util.concurrent.TimeoutException;
-
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
 
 /**
  * 
@@ -18,7 +12,7 @@ import com.rabbitmq.client.ConnectionFactory;
 @Scope("singleton")
 public class MsgConnectionManager {
 	
-	private ConnectionFactory connectionFactory;
+	/*private ConnectionFactory connectionFactory;
 	
 	private ThreadLocal<MsgConnection> context = new ThreadLocal<MsgConnection>();
 	
@@ -44,5 +38,5 @@ public class MsgConnectionManager {
 			msgConnection.close();
 			context.remove();
 		}
-	}
+	}*/
 }

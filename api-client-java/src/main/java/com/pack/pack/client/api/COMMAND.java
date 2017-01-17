@@ -35,11 +35,25 @@ public enum COMMAND {
 			APIConstants.PackAttachment.ID, APIConstants.User.ID), GET_ALL_ATTACHMENTS_IN_PACK(
 			APIConstants.Pack.ID, APIConstants.Topic.ID, APIConstants.User.ID,
 			APIConstants.PageInfo.PAGE_LINK), PROMOTE_PACK(
-			APIConstants.Pack.ID, APIConstants.User.ID), FORWARD_PACK(
-			APIConstants.Pack.ID, APIConstants.ForwardPack.FROM_USER_ID,
-			APIConstants.ForwardPack.TO_USER_ID), FORWARD_PACK_OVER_EMAIL(
-			APIConstants.Pack.ID, APIConstants.ForwardPack.FROM_USER_ID,
-			APIConstants.ForwardPack.TO_USER_EMAIL), ADD_COMMENT_TO_PACK(
+			APIConstants.Pack.ID, APIConstants.User.ID), /*
+														 * FORWARD_PACK(
+														 * APIConstants.Pack.ID,
+														 * APIConstants
+														 * .ForwardPack
+														 * .FROM_USER_ID,
+														 * APIConstants
+														 * .ForwardPack
+														 * .TO_USER_ID),
+														 * FORWARD_PACK_OVER_EMAIL
+														 * (
+														 * APIConstants.Pack.ID,
+														 * APIConstants
+														 * .ForwardPack
+														 * .FROM_USER_ID,
+														 * APIConstants
+														 * .ForwardPack
+														 * .TO_USER_EMAIL),
+														 */ADD_COMMENT_TO_PACK(
 			APIConstants.Pack.ID, APIConstants.Comment.FROM_USER_ID,
 			APIConstants.Comment.COMMENT), ADD_COMMENT_TO_PACK_ATTACHMENT(
 			APIConstants.PackAttachment.ID, APIConstants.Comment.FROM_USER_ID,

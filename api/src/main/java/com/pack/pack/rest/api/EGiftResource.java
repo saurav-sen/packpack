@@ -1,28 +1,8 @@
 package com.pack.pack.rest.api;
 
-import java.util.List;
-
 import javax.inject.Singleton;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
-
-import com.pack.pack.IeGiftService;
-import com.pack.pack.model.web.JStatus;
-import com.pack.pack.model.web.JeGift;
-import com.pack.pack.model.web.Pagination;
-import com.pack.pack.model.web.StatusType;
-import com.pack.pack.model.web.dto.EGiftForwardDTO;
-import com.pack.pack.model.web.dto.PackReceipent;
-import com.pack.pack.rest.api.security.interceptors.CompressRead;
-import com.pack.pack.rest.api.security.interceptors.CompressWrite;
-import com.pack.pack.services.exception.PackPackException;
-import com.pack.pack.services.registry.ServiceRegistry;
 
 /**
  * 
@@ -34,7 +14,7 @@ import com.pack.pack.services.registry.ServiceRegistry;
 @Path("/egifts")
 public class EGiftResource {
 
-	@GET
+	/*@GET
 	@CompressWrite
 	@Path("{id}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -87,5 +67,5 @@ public class EGiftResource {
 		status.setStatus(StatusType.OK);
 		status.setInfo("Successfully sent the eGift");
 		return status;
-	}
+	}*/
 }

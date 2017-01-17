@@ -1,40 +1,9 @@
 package com.pack.pack.services;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.pack.pack.IeGiftService;
-import com.pack.pack.common.util.CommonConstants;
-import com.pack.pack.message.FwdPack;
-import com.pack.pack.model.AttachmentType;
-import com.pack.pack.model.EGift;
-import com.pack.pack.model.Pack;
-import com.pack.pack.model.PackAttachment;
-import com.pack.pack.model.User;
-import com.pack.pack.model.web.JPackAttachment;
-import com.pack.pack.model.web.JeGift;
-import com.pack.pack.model.web.PackAttachmentType;
-import com.pack.pack.model.web.Pagination;
-import com.pack.pack.model.web.dto.PackReceipent;
-import com.pack.pack.model.web.dto.PackReceipentType;
-import com.pack.pack.services.couchdb.EGiftRepositoryService;
-import com.pack.pack.services.couchdb.PackAttachmentRepositoryService;
-import com.pack.pack.services.couchdb.PackRepositoryService;
-import com.pack.pack.services.couchdb.UserRepositoryService;
-import com.pack.pack.services.email.EmailSender;
-import com.pack.pack.services.exception.PackPackException;
-import com.pack.pack.services.rabbitmq.MessagePublisher;
-import com.pack.pack.services.registry.ServiceRegistry;
-import com.pack.pack.services.sms.SMSSender;
-import com.pack.pack.util.ModelConverter;
-import com.pack.pack.util.SystemPropertyUtil;
 
 /**
  * 
@@ -45,16 +14,16 @@ import com.pack.pack.util.SystemPropertyUtil;
 @Scope("singleton")
 public class EGiftServiceImpl implements IeGiftService {
 
-	@Override
+	/*@Override
 	public JeGift getEGiftById(String id) throws PackPackException {
 		EGiftRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(EGiftRepositoryService.class);
 		EGift eGift = service.get(id);
 		JeGift jeGift = ModelConverter.convert(eGift);
 		return jeGift;
-	}
+	}*/
 
-	@Override
+	/*@Override
 	public JeGift uploadEGift(String title, String category, String brandId,
 			String brandInfo, InputStream file, String fileName, String userId)
 			throws PackPackException {
@@ -71,22 +40,22 @@ public class EGiftServiceImpl implements IeGiftService {
 			f.mkdir();
 		}
 		location = location + fileName;
-		/*File originalFile = AttachmentUtil.storeUploadedAttachment(file,
+		File originalFile = AttachmentUtil.storeUploadedAttachment(file,
 				location);
 		File thumbnailFile = AttachmentUtil
 				.createThumnailForImage(originalFile);
-		String thumbnailFileLocation = thumbnailFile.getAbsolutePath();*/
+		String thumbnailFileLocation = thumbnailFile.getAbsolutePath();
 		eGift.setImageUrl(location.substring(home.length()));
-		/*eGift.setImageThumbnailUrl(thumbnailFileLocation.substring(home
-				.length()));*/
+		eGift.setImageThumbnailUrl(thumbnailFileLocation.substring(home
+				.length()));
 		EGiftRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(EGiftRepositoryService.class);
 		service.update(eGift);
 		JeGift jeGift = ModelConverter.convert(eGift);
 		return jeGift;
-	}
+	}*/
 
-	private EGift addNewEGift(String title, String category, String brandId,
+	/*private EGift addNewEGift(String title, String category, String brandId,
 			String brandInfo) {
 		EGift eGift = new EGift();
 		eGift.setTitle(title);
@@ -97,9 +66,9 @@ public class EGiftServiceImpl implements IeGiftService {
 				.findService(EGiftRepositoryService.class);
 		service.add(eGift);
 		return eGift;
-	}
+	}*/
 
-	@Override
+	/*@Override
 	public void sendEGift(String eGiftId, String fromUserId, String title,
 			String message, PackReceipent... receipents)
 			throws PackPackException {
@@ -163,9 +132,9 @@ public class EGiftServiceImpl implements IeGiftService {
 				break;
 			}
 		}
-	}
+	}*/
 
-	private Pack createPack(EGift eGift, String creatorId, String title,
+	/*private Pack createPack(EGift eGift, String creatorId, String title,
 			String message, String topicId) {
 		Pack pack = new Pack();
 		pack.setCreatorId(creatorId);
@@ -185,9 +154,9 @@ public class EGiftServiceImpl implements IeGiftService {
 				.findService(PackAttachmentRepositoryService.class);
 		service2.add(packAttachment);
 		return pack;
-	}
+	}*/
 
-	@Override
+	/*@Override
 	public Pagination<JeGift> loadeGiftsByCategory(String category,
 			String pageLink) throws PackPackException {
 		EGiftRepositoryService service = ServiceRegistry.INSTANCE
@@ -202,9 +171,9 @@ public class EGiftServiceImpl implements IeGiftService {
 			jeGifts.add(jeGift);
 		}
 		return new Pagination<JeGift>(previousLink, nextLink, jeGifts);
-	}
+	}*/
 
-	@Override
+	/*@Override
 	public Pagination<JeGift> loadeGiftsByBrand(String brandId, String pageLink)
 			throws PackPackException {
 		EGiftRepositoryService service = ServiceRegistry.INSTANCE
@@ -219,5 +188,5 @@ public class EGiftServiceImpl implements IeGiftService {
 			jeGifts.add(jeGift);
 		}
 		return new Pagination<JeGift>(previousLink, nextLink, jeGifts);
-	}
+	}*/
 }

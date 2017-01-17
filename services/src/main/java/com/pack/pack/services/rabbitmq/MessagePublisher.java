@@ -1,23 +1,7 @@
 package com.pack.pack.services.rabbitmq;
 
-import java.io.IOException;
-import java.util.concurrent.TimeoutException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import com.pack.pack.common.util.JSONUtil;
-import com.pack.pack.message.FwdPack;
-import com.pack.pack.model.Topic;
-import com.pack.pack.model.User;
-import com.pack.pack.services.exception.PackPackException;
-import com.pack.pack.services.rabbitmq.objects.BroadcastCriteria;
-import com.pack.pack.services.rabbitmq.objects.BroadcastPack;
-import com.rabbitmq.client.AMQP.BasicProperties;
-import com.rabbitmq.client.Channel;
 
 /**
  * 
@@ -28,7 +12,7 @@ import com.rabbitmq.client.Channel;
 @Scope("singleton")
 public class MessagePublisher {
 	
-	@Autowired
+	/*@Autowired
 	private MsgConnectionManager connectionManager;
 	
 	private static Logger logger = LoggerFactory.getLogger(MessagePublisher.class);
@@ -73,10 +57,8 @@ public class MessagePublisher {
 			try {
 				connectionManager.closeConnection();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (TimeoutException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -98,5 +80,5 @@ public class MessagePublisher {
 		} catch (TimeoutException e) {
 			throw new PackPackException("", e.getMessage(), e);
 		}
-	}
+	}*/
 }

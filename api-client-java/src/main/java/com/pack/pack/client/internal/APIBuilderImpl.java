@@ -59,7 +59,8 @@ public class APIBuilderImpl extends APIBuilder {
 				|| action == COMMAND.GET_TOPIC_BY_ID
 				|| action == COMMAND.CREATE_NEW_TOPIC
 				|| action == COMMAND.GET_USER_OWNED_TOPICS
-				|| action == COMMAND.EDIT_TOPIC_SETTINGS) {
+				|| action == COMMAND.EDIT_TOPIC_SETTINGS
+				|| action == COMMAND.PROMOTE_TOPIC) {
 			api = new APIWrapper(new TopicApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
 		} else if (action == COMMAND.GET_PACK_BY_ID
@@ -67,19 +68,20 @@ public class APIBuilderImpl extends APIBuilder {
 				|| action == COMMAND.GET_ALL_PACKS_IN_DEFAULT_TOPICS
 				|| action == COMMAND.GET_ALL_PACKS_IN_TOPIC
 				|| action == COMMAND.GET_ALL_ATTACHMENTS_IN_PACK
-				|| action == COMMAND.FORWARD_PACK
-				|| action == COMMAND.FORWARD_PACK_OVER_EMAIL
+				/*|| action == COMMAND.FORWARD_PACK
+				|| action == COMMAND.FORWARD_PACK_OVER_EMAIL*/
 				|| action == COMMAND.ADD_COMMENT_TO_PACK
 				|| action == COMMAND.ADD_LIKE_TO_PACK
 				|| action == COMMAND.ADD_LIKE_TO_PACK_ATTACHMENT
-				|| action == COMMAND.CREATE_NEW_PACK) {
+				|| action == COMMAND.CREATE_NEW_PACK
+				|| action == COMMAND.PROMOTE_PACK) {
 			api = new APIWrapper(new PackApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
 		} else if (action == COMMAND.GET_EGIFT_BY_ID
 				|| action == COMMAND.GET_EGIFTS_BY_BRAND_ID
 				|| action == COMMAND.GET_EGIFTS_BY_CATEGORY
 				|| action == COMMAND.FORWARD_EGIFT
-				|| action == COMMAND.FORWARD_PACK_OVER_EMAIL
+				/*|| action == COMMAND.FORWARD_PACK_OVER_EMAIL*/
 				|| action == COMMAND.ADD_COMMENT_TO_PACK
 				|| action == COMMAND.ADD_LIKE_TO_PACK) {
 			api = new APIWrapper(new EGiftApi(baseUrl));
@@ -94,7 +96,8 @@ public class APIBuilderImpl extends APIBuilder {
 				|| action == COMMAND.UPLOAD_IMAGE_PACK
 				|| action == COMMAND.ADD_IMAGE_TO_PACK
 				|| action == COMMAND.UPLOAD_VIDEO_PACK
-				|| action == COMMAND.ADD_VIDEO_TO_PACK) {
+				|| action == COMMAND.ADD_VIDEO_TO_PACK
+				|| action == COMMAND.PROMOTE_PACK_ATTACHMENT) {
 			api = new APIWrapper(new AttachmentsApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
 		} else if (action == COMMAND.LOAD_RESOURCE

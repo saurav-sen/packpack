@@ -7,9 +7,7 @@ import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.PackAttachmentType;
 import com.pack.pack.model.web.Pagination;
-import com.pack.pack.model.web.dto.PackReceipent;
 import com.pack.pack.services.exception.PackPackException;
-import com.pack.pack.services.rabbitmq.objects.BroadcastCriteria;
 
 /**
  * 
@@ -42,8 +40,8 @@ public interface IPackService {
 	 * @param receipents
 	 * @throws PackPackException
 	 */
-	public void forwardPack(String packId, String fromUserId,
-			PackReceipent... receipents) throws PackPackException;
+	/*public void forwardPack(String packId, String fromUserId,
+			PackReceipent... receipents) throws PackPackException;*/
 
 	/**
 	 * 
@@ -114,8 +112,8 @@ public interface IPackService {
 	 * @param userId
 	 * @throws PackPackException
 	 */
-	public void broadcastPack(BroadcastCriteria criteria, String packId,
-			String userId) throws PackPackException;
+	/*public void broadcastPack(BroadcastCriteria criteria, String packId,
+			String userId) throws PackPackException;*/
 
 	/**
 	 * 
@@ -123,8 +121,8 @@ public interface IPackService {
 	 * @param packId
 	 * @throws PackPackException
 	 */
-	public void broadcastSystemPack(BroadcastCriteria criteria, String packId)
-			throws PackPackException;
+	/*public void broadcastSystemPack(BroadcastCriteria criteria, String packId)
+			throws PackPackException;*/
 
 	/**
 	 * 

@@ -14,6 +14,7 @@ import com.lambdaworks.redis.api.StatefulRedisConnection;
 import com.lambdaworks.redis.api.sync.RedisCommands;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.services.exception.PackPackException;
+import com.pack.pack.util.SystemPropertyUtil;
 
 /**
  * 
@@ -32,7 +33,7 @@ public class RedisCacheService {
 
 	@PostConstruct
 	private void init() {
-		client = RedisClient.create("redis://localhost");
+		client = RedisClient.create(SystemPropertyUtil.getRedisURI());
 		connection = client.connect();
 	}
 
@@ -135,6 +136,7 @@ public class RedisCacheService {
 		sync.close();
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T> T getFromCache(String key, Class<T> targetType)
 			throws PackPackException {
 		RedisCommands<String, String> sync = getConnection().sync();

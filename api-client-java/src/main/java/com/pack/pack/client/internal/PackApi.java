@@ -299,7 +299,7 @@ class PackApi extends BaseAPI {
 			} else if (COMMAND.GET_PACK_ATTACHMENT_BY_ID.equals(action)) {
 				String id = (String) params.get(APIConstants.PackAttachment.ID);
 				result = getPackAttachmentById(id, oAuthToken);
-			} else if (COMMAND.FORWARD_PACK.equals(action)) {
+			} /*else if (COMMAND.FORWARD_PACK.equals(action)) {
 				String packId = (String) params.get(APIConstants.Pack.ID);
 				String fromUserId = (String) params
 						.get(APIConstants.ForwardPack.FROM_USER_ID);
@@ -314,7 +314,7 @@ class PackApi extends BaseAPI {
 						.get(APIConstants.ForwardPack.TO_USER_EMAIL);
 				result = forwardPackOverEMail(packId, fromUserId, toUserEmail,
 						oAuthToken);
-			} else if (COMMAND.ADD_COMMENT_TO_PACK.equals(action)) {
+			}*/ else if (COMMAND.ADD_COMMENT_TO_PACK.equals(action)) {
 				String packId = (String) params.get(APIConstants.Pack.ID);
 				String fromUserId = (String) params
 						.get(APIConstants.Comment.FROM_USER_ID);

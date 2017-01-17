@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * @author Saurav
  *
  */
-public class SystemPropertyUtil {
+public final class SystemPropertyUtil {
 
 	private static Properties properties;
 
@@ -84,6 +84,13 @@ public class SystemPropertyUtil {
 	private static final String FEED_DEFAULT_SELECTION_STRATEGY_NAME = "default";
 	private static final String FEED_SELECTION_STRATEGY_CONFIG = "feed.selection.config.file";
 	private static final String FEED_SELECTION_STRATEGY_DEFAULT_CONFIG = "../conf/feed-selection-strategy.xml";
+	
+	private static final String REDIS_URI_KEY = "redis.uri";
+	
+	private static final String REDIS_URI_DEFAULT_VALUE = "redis://localhost";
+	
+	private SystemPropertyUtil() {
+	}
 
 	public static void init() {
 		try {
@@ -248,5 +255,10 @@ public class SystemPropertyUtil {
 	public static String getFeedSelectionStrategyConfigFileLocation() {
 		String value = getPropertyValue(FEED_SELECTION_STRATEGY_CONFIG);
 		return value != null ? value : FEED_SELECTION_STRATEGY_DEFAULT_CONFIG;
+	}
+	
+	public static String getRedisURI() {
+		String uri = getPropertyValue(REDIS_URI_KEY);
+		return uri != null ? uri : REDIS_URI_DEFAULT_VALUE;
 	}
 }

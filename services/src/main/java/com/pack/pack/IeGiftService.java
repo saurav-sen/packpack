@@ -1,11 +1,5 @@
 package com.pack.pack;
 
-import java.io.InputStream;
-
-import com.pack.pack.model.web.JeGift;
-import com.pack.pack.model.web.Pagination;
-import com.pack.pack.model.web.dto.PackReceipent;
-import com.pack.pack.services.exception.PackPackException;
 
 /**
  * 
@@ -20,7 +14,7 @@ public interface IeGiftService {
 	 * @return
 	 * @throws PackPackException
 	 */
-	public JeGift getEGiftById(String id) throws PackPackException;
+	//public JeGift getEGiftById(String id) throws PackPackException;
 
 	/**
 	 * 
@@ -34,9 +28,9 @@ public interface IeGiftService {
 	 * @return
 	 * @throws PackPackException
 	 */
-	public JeGift uploadEGift(String title, String category, String brandId,
+	/*public JeGift uploadEGift(String title, String category, String brandId,
 			String brandInfo, InputStream file, String fileName, String userId)
-			throws PackPackException;
+			throws PackPackException;*/
 
 	/**
 	 * 
@@ -47,8 +41,8 @@ public interface IeGiftService {
 	 * @param receipents
 	 * @throws PackPackException
 	 */
-	public void sendEGift(String eGiftId, String fromUserId, String title,
-			String message, PackReceipent... receipents) throws PackPackException;
+	/*public void sendEGift(String eGiftId, String fromUserId, String title,
+			String message, PackReceipent... receipents) throws PackPackException;*/
 
 	/**
 	 * 
@@ -57,8 +51,8 @@ public interface IeGiftService {
 	 * @return
 	 * @throws PackPackException
 	 */
-	public Pagination<JeGift> loadeGiftsByCategory(String category,
-			String pageLink) throws PackPackException;
+	/*public Pagination<JeGift> loadeGiftsByCategory(String category,
+			String pageLink) throws PackPackException;*/
 
 	/**
 	 * 
@@ -67,6 +61,6 @@ public interface IeGiftService {
 	 * @return
 	 * @throws PackPackException
 	 */
-	public Pagination<JeGift> loadeGiftsByBrand(String brandId, String pageLink)
-			throws PackPackException;
+	/*public Pagination<JeGift> loadeGiftsByBrand(String brandId, String pageLink)
+			throws PackPackException;*/
 }
