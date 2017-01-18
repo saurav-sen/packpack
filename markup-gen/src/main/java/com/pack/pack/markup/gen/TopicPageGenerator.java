@@ -75,6 +75,7 @@ public class TopicPageGenerator implements IMarkupGenerator {
 		dataModel.put("topicId", topic.getId());
 		dataModel.put("topicName", topic.getName());
 		dataModel.put("topicCategory", topic.getCategory());
+		dataModel.put("topicWallpaperUrl", topic.getWallpaperUrl());
 		dataModel.put("topicDescription", topic.getDescription());
 		dataModel.put("topiclongitude", topic.getLongitude());
 		dataModel.put("topicLatitude", topic.getLatitude());

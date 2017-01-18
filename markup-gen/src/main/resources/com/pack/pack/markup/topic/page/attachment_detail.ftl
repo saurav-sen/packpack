@@ -3,6 +3,11 @@
     <head>
         <meta charset="utf-8" />
         <title>${model.title}</title>
+        
+        <meta name="og:title" content="${model.title}">
+        <meta property="og:type" content="website" />
+        <meta property="og:image" itemprop="image primaryImageOfPage" content="${model.attachmentUrl}" />
+        
         <meta name="description" content="${model.title}">
         <meta name="author" content="Squill">
         <meta name="viewport" content="width=device-width, initial-scale=1">
