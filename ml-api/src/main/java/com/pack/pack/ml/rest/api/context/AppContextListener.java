@@ -6,6 +6,8 @@ import javax.servlet.ServletContextListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pack.pack.data.upload.PeriodicFeedUploader;
+import com.pack.pack.feed.selection.strategy.FeedSelector;
 import com.pack.pack.util.SystemPropertyUtil;
 
 /**
@@ -28,6 +30,8 @@ public class AppContextListener implements ServletContextListener {
 						.equalsIgnoreCase(mlServerMode.trim())) {
 			ClassificationEngine.INSTANCE.start();
 		}
+		FeedSelector.INSTANCE.load();
+		PeriodicFeedUploader.INSTANCE.start();
 		LOG.info("Initialized ClassificationEngine");
 	}
 
@@ -35,6 +39,7 @@ public class AppContextListener implements ServletContextListener {
 	public void contextDestroyed(ServletContextEvent sce) {
 		LOG.info("Destroying ML Api Context");
 		ClassificationEngine.INSTANCE.stop();
+		PeriodicFeedUploader.INSTANCE.stop();
 		LOG.info("Stopped ClassificationEngine");
 	}
 }

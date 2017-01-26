@@ -31,6 +31,10 @@ public class FeedSelector {
 	private Map<String, Class<?>> strategiesMap = new HashMap<String, Class<?>>();
 
 	private FeedSelector() {
+		
+	}
+	
+	public void load() {
 		readSelectionStrategies();
 	}
 
@@ -60,9 +64,8 @@ public class FeedSelector {
 
 	private void readSelectionStrategies() {
 		try {
-			File file = new File(
-					SystemPropertyUtil
-							.getFeedSelectionStrategyConfigFileLocation());
+			String location = SystemPropertyUtil.getFeedSelectionStrategyConfigFileLocation();
+			File file = new File(location);
 			JAXBContext jaxbInstance = JAXBContext.newInstance(
 					Strategies.class, Strategy.class);
 			Unmarshaller unmarshaller = jaxbInstance.createUnmarshaller();
@@ -78,6 +81,9 @@ public class FeedSelector {
 			ERROR.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		} catch (ClassNotFoundException e) {
+			ERROR.error(e.getMessage(), e);
+			throw new RuntimeException(e);
+		} catch(Throwable e) {
 			ERROR.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}

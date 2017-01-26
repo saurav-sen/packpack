@@ -224,15 +224,15 @@ public class ClassificationEngine {
 			// Nothing to stop
 			return;
 		}*/
-		boolean stopped = false;
+		/*boolean stopped = false;
 		try {
-			stopped = executorsPool.awaitTermination(30, TimeUnit.SECONDS);
+			stopped = executorsPool.awaitTermination(3, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			LOG.error(e.getMessage(), e);
 		}
-		if (!stopped) {
-			executorsPool.shutdown();
-		}
+		if (!stopped) {*/
+			executorsPool.shutdownNow();
+		//}
 		LOG.info("======== ClassificationEngine Stopped Successfully =========");
 	}
 

@@ -106,6 +106,7 @@ public class FeedUploadUtil {
 					map.put(ogType, list);
 				}
 				list.add(feed);
+				line = fileReader.readLine();
 			}
 		} finally {
 			try {
