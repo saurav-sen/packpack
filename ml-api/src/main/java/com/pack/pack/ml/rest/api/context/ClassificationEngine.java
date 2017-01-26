@@ -220,10 +220,10 @@ public class ClassificationEngine {
 	}
 
 	public void stop() {
-		if (!initializationStatus) {
+		/*if (!initializationStatus) {
 			// Nothing to stop
 			return;
-		}
+		}*/
 		boolean stopped = false;
 		try {
 			stopped = executorsPool.awaitTermination(30, TimeUnit.SECONDS);

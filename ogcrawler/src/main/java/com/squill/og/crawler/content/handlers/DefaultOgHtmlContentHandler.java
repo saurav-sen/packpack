@@ -8,6 +8,8 @@ import java.util.Map;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -38,6 +40,9 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 	private IFeedUploader feedUploader;
 	
 	private Map<String, Object> metaInfoMap = new HashMap<String, Object>(2);
+	
+	private static final Logger LOG = LoggerFactory
+			.getLogger(DefaultOgHtmlContentHandler.class);
 	
 	@Override
 	public void preProcess(ILink link) {
@@ -99,6 +104,10 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 
 	@Override
 	public void postComplete() {
+		if(feeds == null || feeds.isEmpty()) {
+			LOG.warn("Skipping Uploading empty list of feeds recceived from og-crawler");
+			return;
+		}
 		List<JRssFeed> list = new ArrayList<JRssFeed>();
 		list.addAll(feeds);
 		feeds.clear();

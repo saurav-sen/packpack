@@ -104,6 +104,13 @@ public class WebSiteSpider implements Runnable {
 				
 				String html = new HttpRequestExecutor().GET(url, info);
 				
+				long ttlSeconds = 10 * 24 * 60 * 60;
+				tracker.addCrawledInfo(link.getUrl(), info, ttlSeconds);
+				
+				if(CoreConstants.SKIP.equalsIgnoreCase(html)) {
+					continue;
+				}
+				
 				HtmlPage htmlPage = ResponseUtil.getParseableHtml(html, link.getUrl());
 				List<PageLink> extractAllPageLinks = new PageLinkExtractor(
 						robotScope, null).extractAllPageLinks(htmlPage);
@@ -118,12 +125,6 @@ public class WebSiteSpider implements Runnable {
 				}
 				LOG.info("********************************");
 				
-				long ttlSeconds = 10 * 24 * 60 * 60;
-				tracker.addCrawledInfo(link.getUrl(), info, ttlSeconds);
-				
-				if(CoreConstants.SKIP.equalsIgnoreCase(html)) {
-					continue;
-				}
 				try {
 					contentHandler.postProcess(html, link);
 				} catch (Exception e1) {

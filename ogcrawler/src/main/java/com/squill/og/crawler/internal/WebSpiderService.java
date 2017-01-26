@@ -10,6 +10,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +28,8 @@ public class WebSpiderService {
 	private ScheduledExecutorService pool;
 
 	private IWebLinkTrackerService trackerService;
+	
+	private static Logger LOG = LoggerFactory.getLogger(WebSpiderService.class);
 
 	@PostConstruct
 	public void startup() throws PackPackException {
@@ -61,14 +65,26 @@ public class WebSpiderService {
 			long crawlSchedulePeriodicTimeInMillis = crawlSchedulePeriodicTimeInMillis(period, timeUnit);
 			WebSiteSpider spider = new WebSiteSpider(webSite, crawlSchedulePeriodicTimeInMillis, trackerService);
 			Future<?> future = pool.scheduleAtFixedRate(spider,
-					schedule.getInitialDelay(), period, TimeUnit.MILLISECONDS);
+					schedule.getInitialDelay(), crawlSchedulePeriodicTimeInMillis, TimeUnit.MILLISECONDS);
 			list.add(future);
 			count++;
-			if(count == 20) { // Max concurrent submission allowed
+			if(count >= 10) {
+				try {
+					// To optimize concurrency.
+					Thread.sleep(30*60*1000);
+				} catch (InterruptedException e) {
+					LOG.debug(e.getMessage(), e);
+				} finally {
+					count = 0;
+				}
+			}
+			/*if(count == 20) { // Max concurrent submission allowed
 				waitFor(list.subList(0, 20/2));
 				count = 0;
-			}
+			}*/
 		}
+		// Main thread should keep waiting forever.
+		waitFor(list);
 	}
 	
 	private long crawlSchedulePeriodicTimeInMillis(long period, TimeUnit timeUnit) {

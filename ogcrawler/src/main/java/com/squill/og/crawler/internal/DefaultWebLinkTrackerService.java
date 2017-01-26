@@ -34,9 +34,11 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 	private static final Logger LOG = LoggerFactory
 			.getLogger(DefaultWebLinkTrackerService.class);
 	
-	private RedisCommands<String, String> sync;
-	
 	private boolean initialized = false;
+	
+	private boolean errored = false;
+	
+	private RedisCommands<String, String> sync;
 	
 	/*public static void main(String[] args) {
 		System.setProperty(REDIS_HISTORY_TRACKER_URI_CONFIG, "redis://192.168.35.15");
@@ -62,27 +64,34 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 	}*/
 
 	private void init() {
-		if(initialized) {
-			return;
+		try {
+			if(initialized || errored) {
+				return;
+			}
+			if (connection == null || !connection.isOpen()) {
+				client = RedisClient.create(System
+						.getProperty(REDIS_HISTORY_TRACKER_URI_CONFIG));
+				connection = client.connect();
+			}
+			initialized = true;
+			errored = false;
+			/*if(sync == null) {
+				sync = sync();
+			}*/
+		} catch (Throwable e) {
+			LOG.info("Error Initializing Redis Connection");
+			LOG.info(e.getMessage(), e);
+			errored = true;
 		}
-		if (connection == null || !connection.isOpen()) {
-			client = RedisClient.create(System
-					.getProperty(REDIS_HISTORY_TRACKER_URI_CONFIG));
-			connection = client.connect();
-		}
-		if(sync == null) {
-			sync = sync();
-		}
-		initialized = true;
 	}
 
 	public void dispose() {
 		if(!initialized) {
 			return;
 		}
-		if(sync != null) {
+		/*if(sync != null) {
 			sync.close();
-		}
+		}*/
 		if (connection != null && connection.isOpen()) {
 			/*
 			 * try { clearAll(""); } catch (PackPackException e) {
@@ -94,8 +103,17 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 	}
 
 	private RedisCommands<String, String> sync() {
-		if(!initialized) {
+		if(!initialized && !errored) {
 			init();
+		}
+		/*if(sync != null && sync.isOpen()) {
+			sync.close();
+			sync = connection.sync();
+		}*/
+		if(sync != null) {
+			return sync;
+		} else if(connection != null && connection.isOpen()) {
+			sync = connection.sync();
 		}
 		return sync;
 	}
@@ -113,11 +131,11 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 			throw new RuntimeException(e);
 		} catch (PackPackException e) {
 			LOG.error(e.getMessage(), e);
-		} finally {
+		} /*finally {
 			if (sync != null) {
 				sync.close();
 			}
-		}
+		}*/
 	}
 
 	public WebSpiderTracker getTrackedInfo(String link) {
@@ -136,17 +154,20 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 		} catch (PackPackException e) {
 			LOG.error(e.getMessage(), e);
 			return null;
-		} finally {
+		} /*finally {
 			if (sync != null) {
 				sync.close();
 			}
-		}
+		}*/
 	}
 
 	private boolean isKeyExists(String key) {
 		RedisCommands<String, String> sync = sync();
+		if(sync == null) {
+			return false;
+		}
 		String value = sync.get(key);
-		sync.close();
+		//sync.close();
 		return value != null;
 	}
 
@@ -160,6 +181,6 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 		if (keys == null || keys.isEmpty())
 			return;
 		sync.del(keys.toArray(new String[keys.size()]));
-		sync.close();
+		//sync.close();
 	}
 }
