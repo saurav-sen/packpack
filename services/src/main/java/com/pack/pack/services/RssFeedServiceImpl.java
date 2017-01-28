@@ -5,19 +5,16 @@ import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.pack.pack.IRssFeedService;
 import com.pack.pack.model.RSSFeed;
-import com.pack.pack.model.UserLocation;
 import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.TTL;
 import com.pack.pack.services.couchdb.RssFeedRepositoryService;
-import com.pack.pack.services.couchdb.UserLocationRepositoryService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.ModelConverter;
@@ -41,13 +38,9 @@ public class RssFeedServiceImpl implements IRssFeedService {
 			page.setResult(Collections.emptyList());
 			return page;
 		}
-		UserLocationRepositoryService locationService = ServiceRegistry.INSTANCE
+		/*UserLocationRepositoryService locationService = ServiceRegistry.INSTANCE
 				.findService(UserLocationRepositoryService.class);
-		UserLocation location = locationService.findUserLocationById(userId);
-
-		long now = System.currentTimeMillis();
-		long startTime = now - 2 * 60 * 60 * 1000; // 2 hours before
-		long endTime = now + 2 * 60 * 60 * 1000;
+		UserLocation location = locationService.findUserLocationById(userId);*/
 
 		/* **************************************************************************************************************************** */
 		// Here we need to load from different place if it is already loaded for
@@ -57,8 +50,7 @@ public class RssFeedServiceImpl implements IRssFeedService {
 		// as much responsive as possible.
 		RssFeedRepositoryService repositoryService = ServiceRegistry.INSTANCE
 				.findService(RssFeedRepositoryService.class);
-		List<RSSFeed> feeds = repositoryService.getAllPromotionalFeeds(
-				startTime, endTime);
+		List<RSSFeed> feeds = repositoryService.getAllPromotionalFeeds();
 		/* **************************************************************************************************************************** */
 
 		// For now (for demo purpose lets just return all the feeds).
@@ -70,8 +62,57 @@ public class RssFeedServiceImpl implements IRssFeedService {
 		page.setResult(rows);
 		return page;
 	}
-
+	
 	@Override
+	public JRssFeed upload(JRssFeed feed, TTL ttl) throws PackPackException {
+		RSSFeed rssFeed = ModelConverter.convert(feed);
+		RssFeedRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(RssFeedRepositoryService.class);
+		service.uploadPromotionalFeed(rssFeed, ttl);
+		return ModelConverter.convert(rssFeed);
+	}
+	
+	/*@Override
+	public Pagination<JRssFeed> getAllRssFeeds(String userId, String pageLink)
+			throws PackPackException {
+		if (pageLink == null || END_OF_PAGE.equals(pageLink.trim())) {
+			Pagination<JRssFeed> page = new Pagination<JRssFeed>();
+			page.setNextLink(END_OF_PAGE);
+			page.setPreviousLink(END_OF_PAGE);
+			page.setResult(Collections.emptyList());
+			return page;
+		}
+		UserLocationRepositoryService locationService = ServiceRegistry.INSTANCE
+				.findService(UserLocationRepositoryService.class);
+		UserLocation location = locationService.findUserLocationById(userId);
+
+		long now = System.currentTimeMillis();
+		long startTime = now - 2 * 60 * 60 * 1000; // 2 hours before
+		long endTime = now + 2 * 60 * 60 * 1000;*/
+
+		/* **************************************************************************************************************************** */
+		// Here we need to load from different place if it is already loaded for
+		// the day (or couple-of-hours) once &
+		// have B+-Tree implementation for our own purpose to minimize
+		// comparison (with user-location retrieved as above) to make it
+		// as much responsive as possible.
+		/*RssFeedRepositoryService repositoryService = ServiceRegistry.INSTANCE
+				.findService(RssFeedRepositoryService.class);
+		List<RSSFeed> feeds = repositoryService.getAllPromotionalFeeds(
+				startTime, endTime);*/
+		/* **************************************************************************************************************************** */
+
+		// For now (for demo purpose lets just return all the feeds).
+		/*List<RSSFeed> result = feeds;
+		List<JRssFeed> rows = ModelConverter.convertAllRssFeeds(result);
+		Pagination<JRssFeed> page = new Pagination<JRssFeed>();
+		page.setNextLink(END_OF_PAGE);
+		page.setPreviousLink(NULL_PAGE_LINK);
+		page.setResult(rows);
+		return page;*/
+	//}
+
+	/*@Override
 	public JRssFeed upload(JRssFeed feed, TTL ttl) {
 		RSSFeed rssFeed = ModelConverter.convert(feed);
 		long now = System.currentTimeMillis();
@@ -106,7 +147,7 @@ public class RssFeedServiceImpl implements IRssFeedService {
 				.findService(RssFeedRepositoryService.class);
 		service.add(rssFeed);
 		return ModelConverter.convert(rssFeed);
-	}
+	}*/
 
 	@Override
 	public JRssFeed generateRssFeedForTopic(String topicId) {

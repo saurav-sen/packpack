@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import com.pack.pack.data.upload.PeriodicFeedUploader;
 import com.pack.pack.feed.selection.strategy.FeedSelector;
+import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.SystemPropertyUtil;
 
 /**
@@ -24,6 +25,7 @@ public class AppContextListener implements ServletContextListener {
 	public void contextInitialized(ServletContextEvent sce) {
 		LOG.info("Initializing ML Api Context");
 		SystemPropertyUtil.init();
+		ServiceRegistry.INSTANCE.init();
 		String mlServerMode = SystemPropertyUtil.getMlServerMode();
 		if (mlServerMode != null
 				&& SystemPropertyUtil.ML_SERVER_CLASSIFY_MODE

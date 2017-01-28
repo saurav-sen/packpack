@@ -21,15 +21,15 @@ public interface IRssFeedService {
 	 */
 	public Pagination<JRssFeed> getAllRssFeeds(String userId, String pageLink)
 			throws PackPackException;
-	
+
 	/**
 	 * 
 	 * @param feed
 	 * @param ttl
 	 * @return
 	 */
-	public JRssFeed upload(JRssFeed feed, TTL ttl);
-	
+	public JRssFeed upload(JRssFeed feed, TTL ttl) throws PackPackException;
+
 	/**
 	 * 
 	 * @param topicId

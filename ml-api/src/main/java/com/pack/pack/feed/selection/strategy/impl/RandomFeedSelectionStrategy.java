@@ -47,7 +47,7 @@ public class RandomFeedSelectionStrategy implements FeedSelectionStrategy {
 		int max = len < maxSelection ? len : maxSelection;
 		List<JRssFeed> result = new LinkedList<JRssFeed>();
 		for(int i=0; i < max; i++) {
-			int rand = new Random().nextInt() % len;
+			int rand = Math.abs(new Random().nextInt()) % len;
 			JRssFeed feed = originalItems.get(rand);
 			result.add(feed);
 		}

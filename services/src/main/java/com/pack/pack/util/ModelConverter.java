@@ -69,7 +69,7 @@ public class ModelConverter {
 		rFeed.setOgTitle(feed.getOgTitle());
 		rFeed.setOgType(feed.getOgType());
 		rFeed.setOgUrl(feed.getOgUrl());
-		rFeed.setId(feed.getId());
+		//rFeed.setId(feed.getId());
 		return rFeed;
 	}
 	

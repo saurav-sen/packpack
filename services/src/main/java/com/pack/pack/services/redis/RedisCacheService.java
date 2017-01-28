@@ -27,6 +27,8 @@ public class RedisCacheService {
 
 	private RedisClient client;
 	private StatefulRedisConnection<String, String> connection;
+	
+	private RedisCommands<String, String> sync;
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(RedisCacheService.class);
@@ -54,11 +56,20 @@ public class RedisCacheService {
 		}
 		return connection;
 	}
+	
+	private RedisCommands<String, String> getSyncRedisCommands() {
+		//return getConnection().sync();
+		if(sync != null && sync.isOpen()) {
+			return sync;
+		}
+		sync = getConnection().sync();
+		return sync;
+	}
 
 	public void setTTL(String key, long ttlSeconds) {
-		RedisCommands<String, String> sync = getConnection().sync();
+		RedisCommands<String, String> sync = getSyncRedisCommands();
 		sync.expire(key, ttlSeconds);
-		sync.close();
+		//sync.close();
 	}
 
 	public void addToCache(String key, Object value) throws PackPackException {
@@ -70,9 +81,9 @@ public class RedisCacheService {
 		} else {
 			json = JSONUtil.serialize(value);
 		}
-		RedisCommands<String, String> sync = getConnection().sync();
+		RedisCommands<String, String> sync = getSyncRedisCommands();
 		sync.set(key, json);
-		sync.close();
+		//sync.close();
 	}
 
 	public void addToCache(String key, Object value, long ttlSeconds)
@@ -85,15 +96,15 @@ public class RedisCacheService {
 		} else {
 			json = JSONUtil.serialize(value);
 		}
-		RedisCommands<String, String> sync = getConnection().sync();
+		RedisCommands<String, String> sync = getSyncRedisCommands();
 		sync.setex(key, ttlSeconds, json);
-		sync.close();
+		//sync.close();
 	}
 
 	public boolean isKeyExists(String key) {
-		RedisCommands<String, String> sync = getConnection().sync();
+		RedisCommands<String, String> sync = getSyncRedisCommands();
 		String value = sync.get(key);
-		sync.close();
+		//sync.close();
 		return value != null;
 	}
 
@@ -107,7 +118,7 @@ public class RedisCacheService {
 		} else {
 			json = JSONUtil.serialize(value);
 		}
-		RedisCommands<String, String> sync = getConnection().sync();
+		RedisCommands<String, String> sync = getSyncRedisCommands();
 		sync.setex(key, ttlSeconds, json);
 		if (recovery != null) {
 			if (recovery.getClass().isAssignableFrom(String.class)) {
@@ -117,31 +128,31 @@ public class RedisCacheService {
 			}
 			sync.set(key + ":expired", json);
 		}
-		sync.close();
+		//sync.close();
 	}
 
 	public long getTTL(String key) {
-		RedisCommands<String, String> sync = getConnection().sync();
+		RedisCommands<String, String> sync = getSyncRedisCommands();
 		long ttl = sync.ttl(key);
-		sync.close();
+		//sync.close();
 		return ttl;
 	}
 
 	public void removeRecoveryIfExpired(String key) {
-		RedisCommands<String, String> sync = getConnection().sync();
+		RedisCommands<String, String> sync = getSyncRedisCommands();
 		long ttl = sync.ttl(key);
 		if (ttl <= 0) {
 			sync.del(key + ":expired");
 		}
-		sync.close();
+		//sync.close();
 	}
 
 	@SuppressWarnings("unchecked")
 	public <T> T getFromCache(String key, Class<T> targetType)
 			throws PackPackException {
-		RedisCommands<String, String> sync = getConnection().sync();
+		RedisCommands<String, String> sync = getSyncRedisCommands();
 		String json = sync.get(key);
-		sync.close();
+		//sync.close();
 		if (json == null)
 			return null;
 		if (targetType.isAssignableFrom(String.class)) {
@@ -151,17 +162,17 @@ public class RedisCacheService {
 	}
 
 	public void removeFromCache(String key) throws PackPackException {
-		RedisCommands<String, String> sync = getConnection().sync();
+		RedisCommands<String, String> sync = getSyncRedisCommands();
 		sync.del(key);
-		sync.close();
+		//sync.close();
 	}
 
 	public void removeAllFromCache(String keyPrefix) throws PackPackException {
-		RedisCommands<String, String> sync = getConnection().sync();
+		RedisCommands<String, String> sync = getSyncRedisCommands();
 		List<String> keys = sync.keys(keyPrefix + "*");
 		if (keys == null || keys.isEmpty())
 			return;
 		sync.del(keys.toArray(new String[keys.size()]));
-		sync.close();
+		//sync.close();
 	}
 }

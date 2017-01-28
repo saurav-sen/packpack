@@ -1,18 +1,17 @@
 package com.pack.pack.model;
 
-import org.ektorp.support.CouchDbDocument;
 
 /**
  * 
  * @author Saurav
  *
  */
-public class RSSFeed extends CouchDbDocument{
+public class RSSFeed /*extends CouchDbDocument*/{
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 3320472739855917908L;
+	//private static final long serialVersionUID = 3320472739855917908L;
 
 	private String ogTitle;
 	
