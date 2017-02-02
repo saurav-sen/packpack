@@ -62,6 +62,8 @@ public final class SystemPropertyUtil {
 	public static final String HIGH_UNICODE_CHARACTER = "\ufff0";
 
 	private static final String PRODUCTION_ENVIRONMENT = "prod.env";
+	
+	private static final String ENABLE_RESPONSE_CACHING = "enable.response.caching";
 
 	private static final String AWS_S3_ACCESS_KEY = "aws.s3.access.key";
 	private static final String AWS_S3_ACCESS_SECRET = "aws.s3.access.secret";
@@ -243,7 +245,15 @@ public final class SystemPropertyUtil {
 	}
 
 	public static boolean isCacheEnabled() {
-		return true;
+		String value = getPropertyValue(ENABLE_RESPONSE_CACHING);
+		if(value != null && !value.trim().isEmpty()) {
+			try {
+				return Boolean.parseBoolean(value.trim());
+			} catch (Exception e) {
+				return false;
+			}
+		}
+		return false;
 	}
 
 	public static String getFeedSelectionStrategyName() {

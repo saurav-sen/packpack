@@ -339,7 +339,10 @@ public class ClassificationEngine {
 				csvFileWriter.append(feed.getOgType())
 						.append(CSV_COL_SEPARATOR).append(text)
 						.append(CSV_ROW_SEPARATOR);*/
-				csvFileWriter.append(CsvUtil.toString(feed));
+				String text = CsvUtil.toString(feed);
+				if(text != null) {
+					csvFileWriter.append(text);
+				}
 			}
 			csvFileWriter.flush();
 		} catch (IOException e) {

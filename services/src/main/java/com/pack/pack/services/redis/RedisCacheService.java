@@ -41,11 +41,11 @@ public class RedisCacheService {
 
 	public void dispose() {
 		if (connection != null && connection.isOpen()) {
-			try {
+			/*try {
 				removeAllFromCache("");
 			} catch (PackPackException e) {
 				LOG.debug(e.getErrorCode(), e.getMessage(), e);
-			}
+			}*/
 			connection.close();
 		}
 	}
