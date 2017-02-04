@@ -9,7 +9,11 @@ public enum CategoryName {
 
 	TRAVEL("Travel"),
 	PHOTOGRAPHY_WILD_LIFE("Photography (Wild Life)"),
-	PHOTOGRAPHY("Photography");
+	PHOTOGRAPHY("Photography"),
+	MUSIC("Music"),
+	SPIRITUAL("Spiritual"),
+	FASHION("Fashion"),
+	BOOKS("Books");
 	
 	private String display;
 	
