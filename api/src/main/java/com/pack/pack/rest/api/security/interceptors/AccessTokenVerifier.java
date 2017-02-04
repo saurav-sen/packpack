@@ -12,6 +12,7 @@ import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.StatusType;
 import com.pack.pack.oauth.OAuthConstants;
 import com.pack.pack.oauth.registry.TokenRegistry;
+import com.pack.pack.rest.web.util.SystemInfo;
 
 /**
  * 
@@ -31,7 +32,8 @@ public class AccessTokenVerifier implements ContainerRequestFilter {
 		boolean isTokenEmpty = token == null || token.trim().isEmpty();
 		if (!path.endsWith(OAuthConstants.OAUTH_REQUEST_TOKEN_PATH)
 				&& !path.endsWith(OAuthConstants.OAUTH_AUTHORIZATION_PATH)
-				&& !path.endsWith(OAuthConstants.OAUTH_ACCESS_TOKEN_PATH)) {
+				&& !path.endsWith(OAuthConstants.OAUTH_ACCESS_TOKEN_PATH)
+				&& !path.endsWith(SystemInfo.SYSTEM_SUPPORTED_CATEGORIES_INFO_WEB_URL)) {
 			if (isTokenEmpty) {
 				allow = false;
 			} else {

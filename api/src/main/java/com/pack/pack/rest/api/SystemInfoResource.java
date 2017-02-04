@@ -7,7 +7,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
+import com.pack.pack.model.CategoryName;
 import com.pack.pack.model.web.Info;
+import com.pack.pack.model.web.JCategories;
+import com.pack.pack.model.web.JCategory;
 import com.pack.pack.model.web.SystemInfo;
 import com.pack.pack.rest.api.security.interceptors.CompressWrite;
 import com.pack.pack.util.SystemPropertyUtil;
@@ -32,5 +35,22 @@ public class SystemInfoResource {
 		info.setValue(SystemPropertyUtil.getDefaultSystemTopicId());
 		sysInfo.getInfos().add(info);
 		return sysInfo;
+	}
+	
+	@GET
+	@Path("categories")
+	@Produces(value=MediaType.APPLICATION_JSON)
+	public JCategories getSupportedCategories() {
+		JCategories result = new JCategories();
+		CategoryName[] categoryNames = CategoryName.values();
+		for(CategoryName categoryName : categoryNames) {
+			String name = categoryName.name();
+			String label = categoryName.getDisplay();
+			JCategory category = new JCategory();
+			category.setName(name);
+			category.setLabel(label);
+			result.getCategories().add(category);
+		}
+		return result;
 	}
 }

@@ -1,5 +1,6 @@
 package com.pack.pack.model.web;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -9,13 +10,16 @@ import java.util.List;
  */
 public class JCategories {
 	
-	private List<String> categoryNames;
+	private List<JCategory> categories;
 
-	public List<String> getCategoryNames() {
-		return categoryNames;
+	public List<JCategory> getCategories() {
+		if(categories == null) {
+			categories = new LinkedList<JCategory>();
+		}
+		return categories;
 	}
 
-	public void setCategoryNames(List<String> categoryNames) {
-		this.categoryNames = categoryNames;
+	public void setCategories(List<JCategory> categories) {
+		this.categories = categories;
 	}
 }
