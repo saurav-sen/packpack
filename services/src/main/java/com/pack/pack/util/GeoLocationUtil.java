@@ -51,6 +51,8 @@ public class GeoLocationUtil {
 			HttpResponse response = client.execute(GET);
 			String json = EntityUtils.toString(response.getEntity());
 			Map<String, Object> map = JSONUtil.deserialize(json, Map.class);
+			if(map == null || map.isEmpty())
+				return null;
 			Map<String, Object> location = (Map) ((Map) ((Map) ((List) map
 					.get("results")).get(0)).get("geometry")).get("location");
 			final double latitude = (Double) location.get("lat");

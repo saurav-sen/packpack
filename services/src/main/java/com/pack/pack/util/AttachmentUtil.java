@@ -79,6 +79,13 @@ public class AttachmentUtil {
 			throws PackPackException {
 		return createThumnailForImage(imageFile, THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT);
 	}*/
+	
+	public static void main(String[] args) throws Exception {
+		File f = new File("C:/Users/CipherCloud/Pictures/DSC06028.JPG");
+		S3Path root = new S3Path("DSC06028", false);
+		root.addChild(new S3Path("test.jpg", true));
+		createThumnailForImage(f, 500, 500, root);
+	}
 
 	private static File createThumnailForImage(File imageFile, int width, int height, S3Path s3Path)
 			throws PackPackException {
