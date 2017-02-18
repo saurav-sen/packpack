@@ -24,6 +24,14 @@ import static com.pack.pack.util.SystemPropertyUtil.*;
 public class S3Util {
 
 	private static final String SUFFIX = "/";
+	
+	public static void main(String[] args) {
+		File file = new File("C:/Users/CipherCloud/Pictures/DSC06028.JPG");
+		S3Path s3Path = new S3Path("2b5ed241c514196e670ee73df1f540fa", false);
+		s3Path.addChild(new S3Path("abc", false)).addChild(
+				new S3Path("DSC06028.JPG", true));
+		uploadFileToS3Bucket(file, s3Path);
+	}
 
 	public static String uploadFileToS3Bucket(File file, S3Path s3Path) {
 		if (!isProductionEnvironment())
@@ -36,10 +44,11 @@ public class S3Util {
 		while (s3Path != null && !s3Path.isFile()) {
 			String folderName = s3Path.getName();
 			str.append(folderName);
-			str.append(SUFFIX);
 			if (!checkExists(bucketName, str.toString(), s3client)) {
-				createFolder(bucketName, folderName, s3client);
+				//createFolder(bucketName, folderName, s3client);
+				createFolder(bucketName, str.toString(), s3client);
 			}
+			str.append(SUFFIX);
 			s3Path = s3Path.getChild();
 		}
 		if (s3Path != null && s3Path.isFile()) {

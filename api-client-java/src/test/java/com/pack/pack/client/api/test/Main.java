@@ -25,7 +25,7 @@ public class Main {
 	public static final String PASSWORD = "password";
 	
 	public static void main(String[] args) throws Exception {
-		new SystemInfoTest().test();
+		testUserFOllowedTopicList();
 	}
 	
 	public static void main2(String[] args) throws Exception {

@@ -43,7 +43,7 @@ public class UserFollowedTopicListTest {
 					.setOauthToken(oAuthToken)
 					.addApiParam(APIConstants.PageInfo.PAGE_LINK, "FIRST_PAGE")
 					.addApiParam(APIConstants.User.ID, userId)
-					.addApiParam(APIConstants.Topic.CATEGORY, "lifestyle")
+					.addApiParam(APIConstants.Topic.CATEGORY, "photography")
 					.build();
 			page = (Pagination<JTopic>)api.execute();
 			List<JTopic> result = page.getResult();

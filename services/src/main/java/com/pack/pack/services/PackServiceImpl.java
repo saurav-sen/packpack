@@ -345,8 +345,8 @@ public class PackServiceImpl implements IPackService {
 		}
 		location = location + File.separator + fileName;
 		
-		S3Path fileS3 = new S3Path(topicId, false).addChild(
-				new S3Path(pack.getId(), false)).addChild(
+		S3Path fileS3 = new S3Path(topicId, false);
+		fileS3.addChild(new S3Path(pack.getId(), false)).addChild(
 				new S3Path(fileName, true));
 		
 		File originalFile = AttachmentUtil.storeUploadedAttachment(file,
