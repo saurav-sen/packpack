@@ -128,8 +128,8 @@ public class TopicRepositoryService extends CouchDbRepositorySupport<Topic> {
 		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink)) ? PageRequest
 				.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
 		Page<Topic> page = db.queryForPage(query, pr, Topic.class);
-		String nextLink = page.isHasNext() ? page.getNextLink() : END_OF_PAGE;
-		String previousLink = page.isHasPrevious() ? page.getPreviousLink()
+		String nextLink = page.isHasNext() ? page.getNextPageRequest().asLink() : END_OF_PAGE;
+		String previousLink = page.isHasPrevious() ? page.getPreviousPageRequest().asLink()
 				: END_OF_PAGE;
 		List<Topic> topics = page.getRows();
 		return new Pagination<Topic>(previousLink, nextLink, topics);

@@ -1,4 +1,4 @@
-package com.pack.pack.util;
+package com.pack.pack.services.aws;
 
 
 /**

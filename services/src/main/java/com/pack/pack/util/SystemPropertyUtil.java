@@ -9,6 +9,8 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pack.pack.services.aws.S3Util;
+
 //TODO -- call an check this once we add ES infrastructure
 //import com.pack.pack.services.es.Constants;
 
@@ -158,13 +160,16 @@ public final class SystemPropertyUtil {
 		return getPropertyValue(TOPIC_WALLAPER_HOME);
 	}
 
-	private static String getAttachmentBaseURL() {
-		if (isProductionEnvironment()) {
+	private static String getAttachmentBaseURL(String url) {
+		if (!isProductionEnvironment()) {
+			return getBaseURL();
+		}
+		if(S3Util.isPublishedUrl(url)) {
 			return getPropertyValue(AWS_S3_BASE_URL);
 		}
 		return getBaseURL();
 	}
-
+	
 	public static String getBaseURL() {
 		return getPropertyValue(BASE_URL);
 	}
@@ -196,45 +201,45 @@ public final class SystemPropertyUtil {
 		return getPropertyValue(WEB_PAGES_ROOT_PATH);
 	}
 
-	public static String getImageAttachmentBaseURL() {
-		String baseURL = getAttachmentBaseURL();
+	public static String getImageAttachmentBaseURL(String url) {
+		String baseURL = getAttachmentBaseURL(url);
 		if (!baseURL.endsWith(URL_SEPARATOR)) {
 			baseURL = baseURL + URL_SEPARATOR;
 		}
-		if (isProductionEnvironment()) {
+		if (isProductionEnvironment() && S3Util.isPublishedUrl(url)) {
 			return baseURL;
 		}
 		return baseURL + IMAGE_ATTACHMENT_URL_SUFFIX;
 	}
 
-	public static String getVideoAttachmentBaseURL() {
-		String baseURL = getAttachmentBaseURL();
+	public static String getVideoAttachmentBaseURL(String url) {
+		String baseURL = getAttachmentBaseURL(url);
 		if (!baseURL.endsWith(URL_SEPARATOR)) {
 			baseURL = baseURL + URL_SEPARATOR;
 		}
-		if (isProductionEnvironment()) {
+		if (isProductionEnvironment() && S3Util.isPublishedUrl(url)) {
 			return baseURL;
 		}
 		return baseURL + VIDEO_ATTACHMENT_URL_SUFFIX;
 	}
 
-	public static String getProfilePictureBaseURL() {
-		String baseURL = getAttachmentBaseURL();
+	public static String getProfilePictureBaseURL(String url) {
+		String baseURL = getAttachmentBaseURL(url);
 		if (!baseURL.endsWith(URL_SEPARATOR)) {
 			baseURL = baseURL + URL_SEPARATOR;
 		}
-		if (isProductionEnvironment()) {
+		if (isProductionEnvironment() && S3Util.isPublishedUrl(url)) {
 			return baseURL;
 		}
 		return baseURL + PROFILE_IMAGE_URL_SUFFIX;
 	}
 
-	public static String getTopicWallpaperBaseURL() {
-		String baseURL = getAttachmentBaseURL();
+	public static String getTopicWallpaperBaseURL(String url) {
+		String baseURL = getAttachmentBaseURL(url);
 		if (!baseURL.endsWith(URL_SEPARATOR)) {
 			baseURL = baseURL + URL_SEPARATOR;
 		}
-		if (isProductionEnvironment()) {
+		if (isProductionEnvironment() && S3Util.isPublishedUrl(url)) {
 			return baseURL;
 		}
 		return baseURL + TOPIC_WALLPAPER_URL_SUFFIX;

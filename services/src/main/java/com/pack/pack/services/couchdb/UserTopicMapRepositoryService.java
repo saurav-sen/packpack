@@ -79,8 +79,8 @@ public class UserTopicMapRepositoryService extends CouchDbRepositorySupport<User
 			return null;
 		}
 		List<Topic> result = topicRepoService.getAllTopicsById(topicIds);
-		String nextLink = page.isHasNext() ? page.getNextLink() : END_OF_PAGE;
-		String previousLink = page.isHasPrevious() ? page.getPreviousLink() : END_OF_PAGE;
+		String nextLink = page.isHasNext() ? page.getNextPageRequest().asLink() : END_OF_PAGE;
+		String previousLink = page.isHasPrevious() ? page.getPreviousPageRequest().asLink() : END_OF_PAGE;
 		return new Pagination<Topic>(previousLink, nextLink, result);
 	}
 	
@@ -102,8 +102,8 @@ public class UserTopicMapRepositoryService extends CouchDbRepositorySupport<User
 			return null;
 		}
 		List<Topic> result = topicRepoService.getAllTopicsById(topicIds);
-		String nextLink = page.isHasNext() ? page.getNextLink() : END_OF_PAGE;
-		String previousLink = page.isHasPrevious() ? page.getPreviousLink()
+		String nextLink = page.isHasNext() ? page.getNextPageRequest().asLink() : END_OF_PAGE;
+		String previousLink = page.isHasPrevious() ? page.getPreviousPageRequest().asLink()
 				: END_OF_PAGE;
 		return new Pagination<Topic>(previousLink, nextLink, result);
 	}

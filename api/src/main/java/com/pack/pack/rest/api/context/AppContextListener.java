@@ -9,6 +9,7 @@ import com.pack.pack.event.IEventListener;
 import com.pack.pack.event.MsgEvent;
 import com.pack.pack.message.listeners.EventListener;
 import com.pack.pack.oauth.registry.TokenRegistry;
+import com.pack.pack.services.aws.S3UploadTaskExecutor;
 import com.pack.pack.services.registry.EventManager;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.SystemPropertyUtil;
@@ -33,6 +34,7 @@ public class AppContextListener implements ServletContextListener, IEventListene
 			SystemPropertyUtil.init();
 			ServiceRegistry.INSTANCE.init();
 			TokenRegistry.INSTANCE.start();
+			S3UploadTaskExecutor.INSTANCE.start();
 			//logger.info("Started service-registry, successfully");
 			//logger.info("Starting event-manager & registering generic listener");
 			EventManager.INSTANCE.registerListener(new EventListener());
@@ -45,6 +47,7 @@ public class AppContextListener implements ServletContextListener, IEventListene
 
 	@Override
 	public void contextDestroyed(ServletContextEvent sce) {
+		S3UploadTaskExecutor.INSTANCE.stop();
 		ServiceRegistry.INSTANCE.stop();
 	}
 

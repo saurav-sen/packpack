@@ -17,7 +17,6 @@ import javax.imageio.ImageIO;
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -234,7 +233,7 @@ public class AttachmentResource {
 		}
 	}
 
-	@POST
+	@PUT
 	@CompressRead
 	@CompressWrite
 	@Path("image/topic/{topicId}/usr/{userId}")
@@ -277,7 +276,7 @@ public class AttachmentResource {
 				packId, topicId, userId, title, description);
 	}
 
-	@POST
+	@PUT
 	@CompressRead
 	@CompressWrite
 	@Path("video/topic/{topicId}/usr/{userId}")

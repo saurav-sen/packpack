@@ -26,6 +26,7 @@ import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.JTopics;
 import com.pack.pack.model.web.Pagination;
+import com.pack.pack.services.aws.S3Path;
 import com.pack.pack.services.couchdb.TopicRepositoryService;
 import com.pack.pack.services.couchdb.UserTopicMapRepositoryService;
 import com.pack.pack.services.es.ESUploadService;
@@ -36,7 +37,6 @@ import com.pack.pack.services.redis.PackPage;
 import com.pack.pack.services.redis.TopicPage;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.ModelConverter;
-import com.pack.pack.util.S3Path;
 import com.pack.pack.util.SystemPropertyUtil;
 
 /**
@@ -339,7 +339,8 @@ public class TopicServiceImpl implements ITopicService {
 		location = location + File.separator + wallpaperFileName;
 		S3Path root = new S3Path(topicId, false);
 		root.addChild(new S3Path(wallpaperFileName, true));
-		resizeAndStoreUploadedAttachment(wallpaper, location, 100, 100, root);
+		String relativeUrl = topicId + "/" + wallpaperFileName;
+		resizeAndStoreUploadedAttachment(wallpaper, location, 100, 100, root, relativeUrl);
 		return location.substring(home.length());
 	}
 

@@ -18,6 +18,8 @@ import org.ektorp.ViewQuery;
 import org.ektorp.support.CouchDbRepositorySupport;
 import org.ektorp.support.View;
 import org.ektorp.support.Views;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -36,6 +38,8 @@ import com.pack.pack.model.web.Pagination;
 @Views({ @View(name = "findPackAttachmentsByPackID", map = "function(doc) { if(doc.attachmentParentPackId) { emit(doc.attachmentParentPackId + doc.creationTime); } }") })
 public class PackAttachmentRepositoryService extends
 		CouchDbRepositorySupport<PackAttachment> {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(PackAttachmentRepositoryService.class);
 
 	@Autowired
 	public PackAttachmentRepositoryService(
@@ -50,6 +54,7 @@ public class PackAttachmentRepositoryService extends
 
 	public Pagination<PackAttachment> getAllPackAttachment(String packId,
 			String pageLink) {
+		LOG.info(pageLink);
 		PageRequest pr = (pageLink != null && !NULL_PAGE_LINK.equals(pageLink)) ? PageRequest
 				.fromLink(pageLink) : PageRequest.firstPage(STANDARD_PAGE_SIZE);
 		ViewQuery query = createQuery("findPackAttachmentsByPackID")
@@ -57,7 +62,7 @@ public class PackAttachmentRepositoryService extends
 				.descending(false).includeDocs(true);
 		Page<PackAttachment> page = db.queryForPage(query, pr,
 				PackAttachment.class);
-		String previousLink = page.isHasPrevious() ? page.getPreviousLink()
+		String previousLink = page.isHasPrevious() ? page.getPreviousPageRequest().asLink()
 				: END_OF_PAGE;
 		List<PackAttachment> rows = page.getRows();
 		if (rows != null && !rows.isEmpty()) {
@@ -72,7 +77,7 @@ public class PackAttachmentRepositoryService extends
 				}
 			});
 		}
-		String nextLink = page.isHasNext() ? page.getNextLink() : END_OF_PAGE;
+		String nextLink = page.isHasNext() ? page.getNextPageRequest().asLink() : END_OF_PAGE;
 		return new Pagination<PackAttachment>(previousLink, nextLink, rows);
 	}
 

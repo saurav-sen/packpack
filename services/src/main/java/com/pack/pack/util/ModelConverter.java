@@ -108,8 +108,8 @@ public class ModelConverter {
 		JPackAttachment jAttachment = new JPackAttachment();
 		AttachmentType type = attachment.getType();
 		String baseURL = (type == AttachmentType.IMAGE ? SystemPropertyUtil
-				.getImageAttachmentBaseURL() : SystemPropertyUtil
-				.getVideoAttachmentBaseURL());
+				.getImageAttachmentBaseURL(attachment.getAttachmentUrl()) : SystemPropertyUtil
+				.getVideoAttachmentBaseURL(attachment.getAttachmentUrl()));
 /*		String thumbnailUrl = attachment.getAttachmentThumbnailUrl();
 		thumbnailUrl = thumbnailUrl.replaceAll(File.separator,
 				SystemPropertyUtil.URL_SEPARATOR);
@@ -245,7 +245,7 @@ public class ModelConverter {
 		if (profilePicture == null) {
 			return null;
 		}
-		String baseURL = SystemPropertyUtil.getProfilePictureBaseURL();
+		String baseURL = SystemPropertyUtil.getProfilePictureBaseURL(profilePicture);
 		String profilePictureUrl = profilePicture;
 		profilePictureUrl = profilePictureUrl.replaceAll(File.separator,
 				SystemPropertyUtil.URL_SEPARATOR);
@@ -269,7 +269,7 @@ public class ModelConverter {
 		if (wallpaperLocation == null) {
 			return null;
 		}
-		String baseURL = SystemPropertyUtil.getTopicWallpaperBaseURL();
+		String baseURL = SystemPropertyUtil.getTopicWallpaperBaseURL(wallpaperLocation);
 		String topicWallpaperUrl = wallpaperLocation;
 		topicWallpaperUrl = topicWallpaperUrl.replaceAll(File.separator,
 				SystemPropertyUtil.URL_SEPARATOR);
@@ -401,7 +401,7 @@ public class ModelConverter {
 	}
 
 	private static String resolveEGiftUrl(String url) {
-		String baseURL = SystemPropertyUtil.getImageAttachmentBaseURL();
+		String baseURL = SystemPropertyUtil.getImageAttachmentBaseURL(url);
 		String resolvedUrl = url.replaceAll(File.separator,
 				SystemPropertyUtil.URL_SEPARATOR);
 		if (!resolvedUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)

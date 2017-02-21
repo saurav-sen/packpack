@@ -1,8 +1,11 @@
-package com.pack.pack.util;
+package com.pack.pack.services.aws;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
@@ -13,6 +16,9 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.pack.pack.services.exception.PackPackException;
+import com.pack.pack.services.redis.RedisCacheService;
+import com.pack.pack.services.registry.ServiceRegistry;
 
 import static com.pack.pack.util.SystemPropertyUtil.*;
 
@@ -23,19 +29,45 @@ import static com.pack.pack.util.SystemPropertyUtil.*;
  */
 public class S3Util {
 
-	private static final String SUFFIX = "/";
+	public static final String SUFFIX = "/";
+	
+	private static Logger LOG = LoggerFactory.getLogger(S3Util.class);
+	
+	private static final String RELATIVE_URL_REDIS_KEY_PREFIX = "relativeUrl:";
 	
 	public static void main(String[] args) {
 		File file = new File("C:/Users/CipherCloud/Pictures/DSC06028.JPG");
 		S3Path s3Path = new S3Path("2b5ed241c514196e670ee73df1f540fa", false);
 		s3Path.addChild(new S3Path("abc", false)).addChild(
 				new S3Path("DSC06028.JPG", true));
-		uploadFileToS3Bucket(file, s3Path);
+		uploadFileToS3Bucket_1(file, s3Path);
+	}
+	
+	public static boolean isPublishedUrl(String relativeUrl) {
+		try {
+			RedisCacheService service = ServiceRegistry.INSTANCE.findService(RedisCacheService.class);
+			Boolean bool = service.getFromCache(RELATIVE_URL_REDIS_KEY_PREFIX + relativeUrl, Boolean.class);
+			return bool != null ? false : true;
+		} catch (PackPackException e) {
+			LOG.info(e.getMessage(), e);
+		}
+		return false;
 	}
 
-	public static String uploadFileToS3Bucket(File file, S3Path s3Path) {
+	public static void uploadFileToS3Bucket(File file, S3Path s3Path, String relativeUrl) throws PackPackException {
 		if (!isProductionEnvironment())
-			return null;
+			return;
+		RedisCacheService service = ServiceRegistry.INSTANCE.findService(RedisCacheService.class);
+		service.addToCache(RELATIVE_URL_REDIS_KEY_PREFIX + relativeUrl, true);
+		S3UploadTaskExecutor.INSTANCE.execute(new UploadTaskImpl(file, s3Path, relativeUrl));
+		//return str.toString();
+	}
+	
+	private static void uploadFileToS3Bucket_0(File file, S3Path s3Path, String relativeUrl) {
+		uploadFileToS3Bucket_1(file, s3Path);
+	}
+	
+	private static String uploadFileToS3Bucket_1(File file, S3Path s3Path) {
 		AWSCredentials credentials = new BasicAWSCredentials(
 				getAwsS3AccessKey(), getAwsS3AccessSecret());
 		AmazonS3 s3client = new AmazonS3Client(credentials);
@@ -81,5 +113,27 @@ public class S3Util {
 		PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName,
 				folderName + SUFFIX, emptyContent, metadata);
 		s3client.putObject(putObjectRequest);
+	}
+	
+	private static class UploadTaskImpl implements UploadTask {
+		
+		private File file;
+		
+		private S3Path s3Path;
+		
+		private String relativeUrl;
+		
+		UploadTaskImpl(File file, S3Path s3Path, String relativeUrl) {
+			this.file = file;
+			this.s3Path = s3Path;
+			this.relativeUrl = relativeUrl;
+		}
+		
+		@Override
+		public void execute() throws Exception {
+			uploadFileToS3Bucket_0(this.file, this.s3Path, this.relativeUrl);
+			RedisCacheService service = ServiceRegistry.INSTANCE.findService(RedisCacheService.class);
+			service.removeFromCache(RELATIVE_URL_REDIS_KEY_PREFIX + this.relativeUrl);
+		}
 	}
 }

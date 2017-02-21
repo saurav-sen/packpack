@@ -70,8 +70,8 @@ public class EGiftRepositoryService extends CouchDbRepositorySupport<EGift> {
 		ViewQuery viewQuery = createQuery("basedOnTitle").key(title)
 				.descending(false);
 		Page<EGift> page = db.queryForPage(viewQuery, pr, EGift.class);
-		String nextLink = page.getNextLink();
-		String previousLink = page.getPreviousLink();
+		String nextLink = page.getNextPageRequest().asLink();
+		String previousLink = page.getPreviousPageRequest().asLink();
 		List<EGift> eGifts = page.getRows();
 		return new Pagination<EGift>(previousLink, nextLink, eGifts);
 	}
@@ -82,8 +82,8 @@ public class EGiftRepositoryService extends CouchDbRepositorySupport<EGift> {
 		ViewQuery query = createQuery("basedOnCategory").key(category)
 				.descending(false);
 		Page<EGift> page = db.queryForPage(query, pr, EGift.class);
-		String nextLink = page.getNextLink();
-		String previousLink = page.getPreviousLink();
+		String nextLink = page.getNextPageRequest().asLink();
+		String previousLink = page.getPreviousPageRequest().asLink();
 		List<EGift> eGifts = page.getRows();
 		return new Pagination<EGift>(previousLink, nextLink, eGifts);
 	}
@@ -94,8 +94,8 @@ public class EGiftRepositoryService extends CouchDbRepositorySupport<EGift> {
 		ViewQuery query = createQuery("basedOnBrand").key(brandId).descending(
 				false);
 		Page<EGift> page = db.queryForPage(query, pr, EGift.class);
-		String nextLink = page.getNextLink();
-		String previousLink = page.getPreviousLink();
+		String nextLink = page.getNextPageRequest().asLink();
+		String previousLink = page.getPreviousPageRequest().asLink();
 		List<EGift> eGifts = page.getRows();
 		return new Pagination<EGift>(previousLink, nextLink, eGifts);
 	}

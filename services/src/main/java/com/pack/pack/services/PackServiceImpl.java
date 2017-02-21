@@ -26,6 +26,7 @@ import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.PackAttachmentType;
 import com.pack.pack.model.web.Pagination;
+import com.pack.pack.services.aws.S3Path;
 import com.pack.pack.services.couchdb.PackAttachmentRepositoryService;
 import com.pack.pack.services.couchdb.PackRepositoryService;
 import com.pack.pack.services.couchdb.TopicPackMapRepositoryService;
@@ -38,7 +39,6 @@ import com.pack.pack.services.redis.RedisCacheService;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.AttachmentUtil;
 import com.pack.pack.util.ModelConverter;
-import com.pack.pack.util.S3Path;
 import com.pack.pack.util.SystemPropertyUtil;
 
 /**
@@ -349,9 +349,11 @@ public class PackServiceImpl implements IPackService {
 		fileS3.addChild(new S3Path(pack.getId(), false)).addChild(
 				new S3Path(fileName, true));
 		
-		File originalFile = AttachmentUtil.storeUploadedAttachment(file,
-				location, fileS3);
 		PackAttachment packAttachment = new PackAttachment();
+		String relativeUrl = location.substring(home.length());
+		packAttachment.setAttachmentUrl(relativeUrl);
+		File originalFile = AttachmentUtil.storeUploadedAttachment(file,
+				location, fileS3, relativeUrl);
 		File thumbnailFile = (type == PackAttachmentType.IMAGE ? null
 				: AttachmentUtil.createThumnailForVideo(originalFile, fileS3));
 		if (thumbnailFile != null) {
@@ -362,7 +364,6 @@ public class PackServiceImpl implements IPackService {
 		packAttachment.setTitle(title);
 		packAttachment.setDescription(description);
 		packAttachment.setCreatorId(creatorId);
-		packAttachment.setAttachmentUrl(location.substring(home.length()));
 		packAttachment.setCreationTime(System.currentTimeMillis());
 		packAttachment.setType(AttachmentType.valueOf(type.name()));
 		packAttachment.setMimeType(type.name());

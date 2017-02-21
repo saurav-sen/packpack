@@ -54,7 +54,7 @@ public class DiscussionRepositoryService extends
 		ViewQuery query = createQuery("findDiscussions").key(key).includeDocs(
 				true);// .descending(false)
 		Page<Discussion> page = db.queryForPage(query, pr, Discussion.class);
-		String previousLink = page.isHasPrevious() ? page.getPreviousLink()
+		String previousLink = page.isHasPrevious() ? page.getPreviousPageRequest().asLink()
 				: END_OF_PAGE;
 		List<Discussion> rows = page.getRows();
 		/*
@@ -65,7 +65,7 @@ public class DiscussionRepositoryService extends
 		 * o1.get - o2.getCreationTime(); if (l >= 0) { return 1; } return -1; }
 		 * }); }
 		 */
-		String nextLink = page.isHasNext() ? page.getNextLink() : END_OF_PAGE;
+		String nextLink = page.isHasNext() ? page.getNextPageRequest().asLink() : END_OF_PAGE;
 		return new Pagination<Discussion>(previousLink, nextLink, rows);
 	}
 
@@ -77,10 +77,10 @@ public class DiscussionRepositoryService extends
 				.endKey(discussionId + HIGH_UNICODE_CHARACTER)
 				.descending(false).includeDocs(true);
 		Page<Discussion> page = db.queryForPage(query, pr, Discussion.class);
-		String previousLink = page.isHasPrevious() ? page.getPreviousLink()
+		String previousLink = page.isHasPrevious() ? page.getPreviousPageRequest().asLink()
 				: END_OF_PAGE;
 		List<Discussion> rows = page.getRows();
-		String nextLink = page.isHasNext() ? page.getNextLink() : END_OF_PAGE;
+		String nextLink = page.isHasNext() ? page.getNextPageRequest().asLink() : END_OF_PAGE;
 		return new Pagination<Discussion>(previousLink, nextLink, rows);
 	}
 }

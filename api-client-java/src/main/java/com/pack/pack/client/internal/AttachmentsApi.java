@@ -13,7 +13,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
@@ -141,7 +140,7 @@ class AttachmentsApi extends BaseAPI {
 			PackPackException {
 		DefaultHttpClient client = new DefaultHttpClient();// new
 															// DefaultHttpClient();
-		HttpPost POST = new HttpPost(url);
+		HttpPut PUT = new HttpPut(url);
 		// MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 		MultipartEntity multipartEntity = new ProgressTrackedMultipartEntity(
 				listener);
@@ -181,11 +180,11 @@ class AttachmentsApi extends BaseAPI {
 				// builder.addTextBody(key, text);
 			}
 		}
-		POST.setEntity(GZipUtil.compress(multipartEntity));
+		PUT.setEntity(GZipUtil.compress(multipartEntity));
 		// HttpEntity entity = builder.build();
 		// POST.setEntity(entity);
-		POST.addHeader(AUTHORIZATION_HEADER, oAuthToken);
-		POST.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
+		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		PUT.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
 		/*
 		 * POST.addHeader(CONTENT_TYPE_HEADER,
 		 * ContentType.MULTIPART_FORM_DATA.getMimeType());
@@ -193,7 +192,7 @@ class AttachmentsApi extends BaseAPI {
 		/*
 		 * POST.addHeader(CONTENT_TYPE_HEADER, "multipart/form-data");
 		 */
-		HttpResponse response = client.execute(POST);
+		HttpResponse response = client.execute(PUT);
 		return JSONUtil.deserialize(EntityUtils.toString(GZipUtil.decompress(response.getEntity())),
 				JStatus.class);
 	}

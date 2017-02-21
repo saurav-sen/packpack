@@ -17,6 +17,7 @@ import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.StatusType;
 import com.pack.pack.model.web.dto.UserSettings;
+import com.pack.pack.services.aws.S3Path;
 import com.pack.pack.services.couchdb.UserLocationRepositoryService;
 import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.es.ESUploadService;
@@ -26,7 +27,6 @@ import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.GeoLocationUtil;
 import com.pack.pack.util.GeoLocationUtil.GeoLocation;
 import com.pack.pack.util.ModelConverter;
-import com.pack.pack.util.S3Path;
 import com.pack.pack.util.SystemPropertyUtil;
 
 /**
@@ -165,7 +165,8 @@ public class UserServiceImpl implements IUserService {
 		location = location + File.separator + profilePictureFileName;
 		S3Path root = new S3Path(userId, false);
 		root.addChild(new S3Path(profilePictureFileName, true));
-		resizeAndStoreUploadedAttachment(profilePicture, location, 30, 30, root);
+		String relativeUrl = userId + "/" + profilePictureFileName;
+		resizeAndStoreUploadedAttachment(profilePicture, location, 30, 30, root, relativeUrl);
 		return location.substring(home.length());
 	}
 	

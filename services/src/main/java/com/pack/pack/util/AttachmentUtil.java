@@ -22,6 +22,8 @@ import org.jcodec.common.NIOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pack.pack.services.aws.S3Path;
+import com.pack.pack.services.aws.S3Util;
 import com.pack.pack.services.exception.PackPackException;
 
 /**
@@ -34,17 +36,17 @@ public class AttachmentUtil {
 	private static final Logger logger = LoggerFactory
 			.getLogger(AttachmentUtil.class);
 
-	private static final int THUMBNAIL_WIDTH = 100;
-	private static final int THUMBNAIL_HEIGHT = 100;
+	/*private static final int THUMBNAIL_WIDTH = 100;
+	private static final int THUMBNAIL_HEIGHT = 100;*/
 	
 	public static File resizeAndStoreUploadedAttachment(InputStream inputStream,
-			String fileLoc, int width, int height, S3Path s3Path) throws PackPackException {
-		File attachmentFile = storeUploadedAttachment(inputStream, fileLoc, s3Path);
+			String fileLoc, int width, int height, S3Path s3Path, String relativeUrl) throws PackPackException {
+		File attachmentFile = storeUploadedAttachment(inputStream, fileLoc, s3Path, relativeUrl);
 		return createThumnailForImage(attachmentFile, width, height, s3Path);
 	}
 
 	public static File storeUploadedAttachment(InputStream inputStream,
-			String fileLoc, S3Path s3Path) throws PackPackException {
+			String fileLoc, S3Path s3Path, String relativeUrl) throws PackPackException {
 		OutputStream outStream = null;
 		File attachmentFile = new File(fileLoc);
 		try {
@@ -58,7 +60,7 @@ public class AttachmentUtil {
 			outStream.flush();
 			
 			// Upload to S3 bucket.
-			S3Util.uploadFileToS3Bucket(attachmentFile, s3Path);
+			S3Util.uploadFileToS3Bucket(attachmentFile, s3Path, relativeUrl);
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 			throw new PackPackException("TODO", e.getMessage(), e);
@@ -116,8 +118,18 @@ public class AttachmentUtil {
 			File thumbnailImageFile = new File(path);
 			ImageIO.write(thumbnailImage, "jpg", thumbnailImageFile);
 			
+			// Calculate relative URL.
+			StringBuilder str = new StringBuilder(S3Util.SUFFIX);
+			S3Path tmp = s3Path;
+			while (s3Path != null && !s3Path.isFile()) {
+				String folderName = s3Path.getName();
+				str.append(folderName);
+				str.append(S3Util.SUFFIX);
+				s3Path = s3Path.getChild();
+			}
+			s3Path = tmp;
 			// Upload to S3 bucket.
-			S3Util.uploadFileToS3Bucket(thumbnailImageFile, s3Path);
+			S3Util.uploadFileToS3Bucket(thumbnailImageFile, s3Path, str.toString());
 			
 			return thumbnailImageFile;
 		} catch (IllegalArgumentException e) {
@@ -198,8 +210,18 @@ public class AttachmentUtil {
 			File thumbnailImageFile = new File(path);
 			ImageIO.write(frameImage, "jpg", thumbnailImageFile);
 			
+			// Calculate relative URL.
+			StringBuilder str = new StringBuilder(S3Util.SUFFIX);
+			S3Path tmp = s3Path;
+			while (s3Path != null && !s3Path.isFile()) {
+				String folderName = s3Path.getName();
+				str.append(folderName);
+				str.append(S3Util.SUFFIX);
+				s3Path = s3Path.getChild();
+			}
+			s3Path = tmp;
 			// Upload to S3 bucket.
-			S3Util.uploadFileToS3Bucket(thumbnailImageFile, s3Path);
+			S3Util.uploadFileToS3Bucket(thumbnailImageFile, s3Path, str.toString());
 			
 			return thumbnailImageFile;
 		} catch (IOException e) {

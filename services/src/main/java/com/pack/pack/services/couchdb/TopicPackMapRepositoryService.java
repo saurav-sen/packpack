@@ -56,10 +56,10 @@ public class TopicPackMapRepositoryService extends
 		List<String> rows = page.getRows();
 		Pagination<String> result = new Pagination<String>();
 		if(page.isHasNext()) {
-			result.setNextLink(page.getNextLink());
+			result.setNextLink(page.getNextPageRequest().asLink());
 		}
 		if(page.isHasPrevious()) {
-			result.setPreviousLink(page.getPreviousLink());
+			result.setPreviousLink(page.getPreviousPageRequest().asLink());
 		}
 		result.setResult(rows);
 		return result;
