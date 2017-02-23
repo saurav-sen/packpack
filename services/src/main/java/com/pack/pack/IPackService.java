@@ -100,7 +100,7 @@ public interface IPackService {
 	 * @return
 	 * @throws PackPackException
 	 */
-	public JPack updatePack(InputStream file, String fileName,
+	public JPackAttachment updatePack(InputStream file, String fileName,
 			PackAttachmentType type, String packId, String topicId,
 			String userId, String title, String description)
 			throws PackPackException;

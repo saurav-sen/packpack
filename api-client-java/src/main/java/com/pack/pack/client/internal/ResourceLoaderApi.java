@@ -44,10 +44,11 @@ class ResourceLoaderApi extends BaseAPI {
 		return GZipUtil.decompress(response.getEntity()).getContent();
 	}
 
-	private InputStream loadExternalResource(String url)
+	private InputStream loadExternalResource(String url, String oAuthToken)
 			throws ClientProtocolException, IOException {
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpGet GET = new HttpGet(url);
+		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
 		return GZipUtil.decompress(response.getEntity()).getContent();
 	}
@@ -91,7 +92,7 @@ class ResourceLoaderApi extends BaseAPI {
 			} else if (COMMAND.LOAD_EXTERNAL_RESOURCE.equals(action)) {
 				String url = (String) params
 						.get(APIConstants.ExternalResource.RESOURCE_URL);
-				return loadExternalResource(url);
+				return loadExternalResource(url, oAuthToken);
 			}
 			return null;
 		}

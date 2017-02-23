@@ -36,6 +36,8 @@ public class JPackAttachment {
 	
 	private JUser creator;
 	
+	private boolean uploadProgress;
+	
 	public String getAttachmentUrl() {
 		return attachmentUrl;
 	}
@@ -141,5 +143,13 @@ public class JPackAttachment {
 
 	public void setCreator(JUser creator) {
 		this.creator = creator;
+	}
+
+	public boolean isUploadProgress() {
+		return uploadProgress;
+	}
+
+	public void setUploadProgress(boolean uploadProgress) {
+		this.uploadProgress = uploadProgress;
 	}
 }

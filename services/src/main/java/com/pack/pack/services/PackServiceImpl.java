@@ -327,7 +327,7 @@ public class PackServiceImpl implements IPackService {
 		return pack;
 	}
 
-	private void addPackAttachment(Pack pack, String topicId,
+	private PackAttachment addPackAttachment(Pack pack, String topicId,
 			PackAttachmentType type, String title, String creatorId, 
 			String description, String fileName, InputStream file)
 			throws PackPackException {
@@ -371,16 +371,17 @@ public class PackServiceImpl implements IPackService {
 		PackAttachmentRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(PackAttachmentRepositoryService.class);
 		service.add(packAttachment);
+		return packAttachment;
 	}
 
 	@Override
-	public JPack updatePack(InputStream file, String fileName,
+	public JPackAttachment updatePack(InputStream file, String fileName,
 			PackAttachmentType type, String packId, String topicId,
 			String userId, String title, String description)
 			throws PackPackException {
 		Pack pack = findPackById(packId);
-		addPackAttachment(pack, topicId, type, title, userId, description,
-				fileName, file);
+		PackAttachment attachment = addPackAttachment(pack, topicId, type,
+				title, userId, description, fileName, file);
 		if (SystemPropertyUtil.isCacheEnabled()) {
 			String keyPrefix = "pack:topic:" + topicId + ":pack:" + packId
 					+ ":attachment";
@@ -406,7 +407,7 @@ public class PackServiceImpl implements IPackService {
 		MessagePublisher messagePublisher = ServiceRegistry.INSTANCE
 				.findService(MessagePublisher.class);
 		messagePublisher.notifyPackModify(fwdPack, topic, user);*/
-		return ModelConverter.convert(pack);
+		return ModelConverter.convert(attachment);
 	}
 
 	/*@Override

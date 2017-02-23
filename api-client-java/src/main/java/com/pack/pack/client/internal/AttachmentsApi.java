@@ -30,7 +30,6 @@ import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.client.api.MultipartRequestProgressListener;
 import com.pack.pack.client.internal.multipart.ProgressTrackedMultipartEntity;
 import com.pack.pack.common.util.JSONUtil;
-import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.PromoteStatus;
@@ -197,7 +196,7 @@ class AttachmentsApi extends BaseAPI {
 				JStatus.class);
 	}
 
-	private JPack addImageToPack(Map<String, Object> params, String oAuthToken,
+	private JPackAttachment addImageToPack(Map<String, Object> params, String oAuthToken,
 			MultipartRequestProgressListener listener)
 			throws ClientProtocolException, IOException, ParseException,
 			PackPackException {
@@ -209,7 +208,7 @@ class AttachmentsApi extends BaseAPI {
 		return editPack(params, url, oAuthToken, listener);
 	}
 
-	private JPack addVideoToPack(Map<String, Object> params, String oAuthToken,
+	private JPackAttachment addVideoToPack(Map<String, Object> params, String oAuthToken,
 			MultipartRequestProgressListener listener)
 			throws ClientProtocolException, IOException, ParseException,
 			PackPackException {
@@ -221,7 +220,7 @@ class AttachmentsApi extends BaseAPI {
 		return editPack(params, url, oAuthToken, listener);
 	}
 
-	private JPack editPack(Map<String, Object> params, String url,
+	private JPackAttachment editPack(Map<String, Object> params, String url,
 			String oAuthToken, MultipartRequestProgressListener listener)
 			throws ClientProtocolException, IOException, ParseException,
 			PackPackException {
@@ -279,7 +278,7 @@ class AttachmentsApi extends BaseAPI {
 		 */
 		HttpResponse response = client.execute(PUT);
 		return JSONUtil.deserialize(EntityUtils.toString(GZipUtil.decompress(response.getEntity())),
-				JPack.class);
+				JPackAttachment.class);
 	}
 	
 	private PromoteStatus promotePackAttachment(String packAttachmentId, String userId,

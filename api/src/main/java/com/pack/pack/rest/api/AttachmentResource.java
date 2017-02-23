@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import com.pack.pack.IPackService;
 import com.pack.pack.model.web.JPack;
+import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.PackAttachmentType;
 import com.pack.pack.rest.api.security.interceptors.CompressRead;
 import com.pack.pack.rest.api.security.interceptors.CompressWrite;
@@ -262,7 +263,7 @@ public class AttachmentResource {
 	@Path("image/topic/{topicId}/pack/{packId}/usr/{userId}")
 	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
 	@Produces(value = MediaType.APPLICATION_JSON)
-	public JPack modifyPack_addImage(@FormDataParam("file") InputStream file,
+	public JPackAttachment modifyPack_addImage(@FormDataParam("file") InputStream file,
 			@FormDataParam("file") FormDataContentDisposition aboutFile,
 			@FormDataParam("title") String title,
 			@FormDataParam("description") String description,
@@ -303,7 +304,7 @@ public class AttachmentResource {
 	@Path("video/topic/{topicId}/pack/{packId}/usr/{userId}")
 	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
 	@Produces(value = MediaType.APPLICATION_JSON)
-	public JPack modifyPack_addVideo(@FormDataParam("file") InputStream file,
+	public JPackAttachment modifyPack_addVideo(@FormDataParam("file") InputStream file,
 			@FormDataParam("file") FormDataContentDisposition aboutFile,
 			@FormDataParam("title") String title,
 			@FormDataParam("description") String description,
