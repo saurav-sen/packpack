@@ -257,6 +257,12 @@ class AttachmentsApi extends BaseAPI {
 				 * builder.addBinaryBody(key, file,
 				 * ContentType.APPLICATION_OCTET_STREAM, file.getName());
 				 */
+			} else if (APIConstants.Attachment.IS_COMPRESSED.equals(key)) { 
+				Boolean isCompressed = (Boolean) params.get(key);
+				if(isCompressed == null) {
+					isCompressed = true;
+				}
+				multipartEntity.addPart(key, new StringBody(String.valueOf(isCompressed)));
 			} else {
 				String text = (String) params.get(key);
 				StringBody textBody = new StringBody(text);

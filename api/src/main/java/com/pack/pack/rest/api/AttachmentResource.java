@@ -274,7 +274,7 @@ public class AttachmentResource {
 				.findCompositeService(IPackService.class);
 		String fileName = UUID.randomUUID().toString() + ".jpg";
 		return service.updatePack(file, fileName, PackAttachmentType.IMAGE,
-				packId, topicId, userId, title, description);
+				packId, topicId, userId, title, description, true);
 	}
 
 	@PUT
@@ -308,13 +308,22 @@ public class AttachmentResource {
 			@FormDataParam("file") FormDataContentDisposition aboutFile,
 			@FormDataParam("title") String title,
 			@FormDataParam("description") String description,
+			@FormDataParam("isCompressed") String isCompressed,
 			@PathParam("topicId") String topicId,
 			@PathParam("packId") String packId,
 			@PathParam("userId") String userId) throws PackPackException {
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
 		String fileName = UUID.randomUUID().toString() + ".mp4";
+		boolean parseBoolean = false;
+		try {
+			parseBoolean = Boolean.parseBoolean(isCompressed.trim());
+		} catch (Exception e) {
+			logger.debug("modifyPack_addVideo", e.getMessage(), e);
+			parseBoolean = false;
+		}
+		logger.debug("modifyPack_addVideo :: isCompressed = " + parseBoolean);
 		return service.updatePack(file, fileName, PackAttachmentType.VIDEO,
-				packId, topicId, userId, title, description);
+				packId, topicId, userId, title, description, parseBoolean);
 	}
 }

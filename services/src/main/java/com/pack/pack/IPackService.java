@@ -97,12 +97,13 @@ public interface IPackService {
 	 * @param userId
 	 * @param title
 	 * @param description
+	 * @param isCompressed
 	 * @return
 	 * @throws PackPackException
 	 */
 	public JPackAttachment updatePack(InputStream file, String fileName,
 			PackAttachmentType type, String packId, String topicId,
-			String userId, String title, String description)
+			String userId, String title, String description, boolean isCompressed)
 			throws PackPackException;
 
 	/**

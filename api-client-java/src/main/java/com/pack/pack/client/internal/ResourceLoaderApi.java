@@ -48,7 +48,7 @@ class ResourceLoaderApi extends BaseAPI {
 			throws ClientProtocolException, IOException {
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpGet GET = new HttpGet(url);
-		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		//GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
 		return GZipUtil.decompress(response.getEntity()).getContent();
 	}

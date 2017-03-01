@@ -54,12 +54,12 @@ public class S3Util {
 		return false;
 	}
 
-	public static void uploadFileToS3Bucket(File file, S3Path s3Path, String relativeUrl) throws PackPackException {
+	public static void uploadFileToS3Bucket(File file, S3Path s3Path, String relativeUrl, boolean isCompressed) throws PackPackException {
 		if (!isProductionEnvironment())
 			return;
 		RedisCacheService service = ServiceRegistry.INSTANCE.findService(RedisCacheService.class);
 		service.addToCache(RELATIVE_URL_REDIS_KEY_PREFIX + relativeUrl, true);
-		S3UploadTaskExecutor.INSTANCE.execute(new UploadTaskImpl(file, s3Path, relativeUrl));
+		S3UploadTaskExecutor.INSTANCE.execute(new UploadTaskImpl(file, s3Path, relativeUrl, isCompressed));
 		//return str.toString();
 	}
 	
@@ -123,10 +123,13 @@ public class S3Util {
 		
 		private String relativeUrl;
 		
-		UploadTaskImpl(File file, S3Path s3Path, String relativeUrl) {
+		private boolean isCompressed;
+		
+		UploadTaskImpl(File file, S3Path s3Path, String relativeUrl, boolean isCompressed) {
 			this.file = file;
 			this.s3Path = s3Path;
 			this.relativeUrl = relativeUrl;
+			this.isCompressed = isCompressed;
 		}
 		
 		@Override

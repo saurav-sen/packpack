@@ -41,12 +41,12 @@ public class AttachmentUtil {
 	
 	public static File resizeAndStoreUploadedAttachment(InputStream inputStream,
 			String fileLoc, int width, int height, S3Path s3Path, String relativeUrl) throws PackPackException {
-		File attachmentFile = storeUploadedAttachment(inputStream, fileLoc, s3Path, relativeUrl);
+		File attachmentFile = storeUploadedAttachment(inputStream, fileLoc, s3Path, relativeUrl, true);
 		return createThumnailForImage(attachmentFile, width, height, s3Path);
 	}
 
 	public static File storeUploadedAttachment(InputStream inputStream,
-			String fileLoc, S3Path s3Path, String relativeUrl) throws PackPackException {
+			String fileLoc, S3Path s3Path, String relativeUrl, boolean isCompressed) throws PackPackException {
 		OutputStream outStream = null;
 		File attachmentFile = new File(fileLoc);
 		try {
@@ -60,7 +60,7 @@ public class AttachmentUtil {
 			outStream.flush();
 			
 			// Upload to S3 bucket.
-			S3Util.uploadFileToS3Bucket(attachmentFile, s3Path, relativeUrl);
+			S3Util.uploadFileToS3Bucket(attachmentFile, s3Path, relativeUrl, isCompressed);
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 			throw new PackPackException("TODO", e.getMessage(), e);
@@ -129,7 +129,7 @@ public class AttachmentUtil {
 			}
 			s3Path = tmp;
 			// Upload to S3 bucket.
-			S3Util.uploadFileToS3Bucket(thumbnailImageFile, s3Path, str.toString());
+			S3Util.uploadFileToS3Bucket(thumbnailImageFile, s3Path, str.toString(), true);
 			
 			return thumbnailImageFile;
 		} catch (IllegalArgumentException e) {
@@ -147,8 +147,8 @@ public class AttachmentUtil {
 	private static BufferedImage grabFrameFromVideoFile(File videoFile)
 			throws IOException, JCodecException {
 		File outputFile = videoFile;
-		String fFmpegCommand = SystemPropertyUtil.getFFmpegCommand();
-		if(fFmpegCommand != null) {
+		/*String fFmpegCommand = SystemPropertyUtil.getFFmpegCommand();
+		 if(fFmpegCommand != null) {
 			String tmpDir = System.getProperty("java.io.tmpdir");
 			if(!tmpDir.endsWith(File.separator)) {
 				tmpDir = tmpDir + File.separator;
@@ -162,7 +162,7 @@ public class AttachmentUtil {
 				logger.error(e.getMessage(), e);
 			}
 			outputFile = new File(outputFilePath);
-		}
+		}*/
 		BufferedImage frameImage = null;
 		FileChannelWrapper ch = null;
 		int frameNo = 1;
@@ -221,7 +221,7 @@ public class AttachmentUtil {
 			}
 			s3Path = tmp;
 			// Upload to S3 bucket.
-			S3Util.uploadFileToS3Bucket(thumbnailImageFile, s3Path, str.toString());
+			S3Util.uploadFileToS3Bucket(thumbnailImageFile, s3Path, str.toString(), true);
 			
 			return thumbnailImageFile;
 		} catch (IOException e) {

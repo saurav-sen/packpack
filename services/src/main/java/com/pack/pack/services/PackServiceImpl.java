@@ -271,7 +271,7 @@ public class PackServiceImpl implements IPackService {
 			throws PackPackException {
 		Pack pack = addNewPack(story, title, userId, topicId);
 		addPackAttachment(pack, topicId, type, title, userId, description,
-				fileName, file);
+				fileName, file, true);
 		if (SystemPropertyUtil.isCacheEnabled() && pack != null) {
 			String keyPrefix = "pack:topic:" + topicId;
 			RedisCacheService cacheService = ServiceRegistry.INSTANCE
@@ -329,7 +329,7 @@ public class PackServiceImpl implements IPackService {
 
 	private PackAttachment addPackAttachment(Pack pack, String topicId,
 			PackAttachmentType type, String title, String creatorId, 
-			String description, String fileName, InputStream file)
+			String description, String fileName, InputStream file, boolean isCompressed)
 			throws PackPackException {
 		String home = (type == PackAttachmentType.IMAGE ? SystemPropertyUtil
 				.getImageHome() : SystemPropertyUtil.getVideoHome());
@@ -353,7 +353,7 @@ public class PackServiceImpl implements IPackService {
 		String relativeUrl = location.substring(home.length());
 		packAttachment.setAttachmentUrl(relativeUrl);
 		File originalFile = AttachmentUtil.storeUploadedAttachment(file,
-				location, fileS3, relativeUrl);
+				location, fileS3, relativeUrl, isCompressed);
 		File thumbnailFile = (type == PackAttachmentType.IMAGE ? null
 				: AttachmentUtil.createThumnailForVideo(originalFile, fileS3));
 		if (thumbnailFile != null) {
@@ -377,11 +377,11 @@ public class PackServiceImpl implements IPackService {
 	@Override
 	public JPackAttachment updatePack(InputStream file, String fileName,
 			PackAttachmentType type, String packId, String topicId,
-			String userId, String title, String description)
+			String userId, String title, String description, boolean isCompressed)
 			throws PackPackException {
 		Pack pack = findPackById(packId);
 		PackAttachment attachment = addPackAttachment(pack, topicId, type,
-				title, userId, description, fileName, file);
+				title, userId, description, fileName, file, isCompressed);
 		if (SystemPropertyUtil.isCacheEnabled()) {
 			String keyPrefix = "pack:topic:" + topicId + ":pack:" + packId
 					+ ":attachment";

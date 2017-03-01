@@ -120,6 +120,7 @@ public interface APIConstants {
 		public static final String TITLE = "title";
 		public static final String DESCRIPTION = "description";
 		public static final String STORY = "story";
+		public static final String IS_COMPRESSED = "isCompressed";
 	}
 	
 	public static interface Image {
