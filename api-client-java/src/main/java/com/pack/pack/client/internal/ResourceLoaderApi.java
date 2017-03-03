@@ -44,11 +44,13 @@ class ResourceLoaderApi extends BaseAPI {
 		return GZipUtil.decompress(response.getEntity()).getContent();
 	}
 
-	private InputStream loadExternalResource(String url, String oAuthToken)
+	private InputStream loadExternalResource(String url, String oAuthToken, boolean isIncludeOauthToken)
 			throws ClientProtocolException, IOException {
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpGet GET = new HttpGet(url);
-		//GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		if (isIncludeOauthToken) {
+			GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		}
 		HttpResponse response = client.execute(GET);
 		return GZipUtil.decompress(response.getEntity()).getContent();
 	}
@@ -92,7 +94,18 @@ class ResourceLoaderApi extends BaseAPI {
 			} else if (COMMAND.LOAD_EXTERNAL_RESOURCE.equals(action)) {
 				String url = (String) params
 						.get(APIConstants.ExternalResource.RESOURCE_URL);
-				return loadExternalResource(url, oAuthToken);
+				String includeOauthToken = (String) params
+						.get(APIConstants.ExternalResource.INCLUDE_OAUTH_TOKEN);
+				boolean isIncludeOauthToken = false;
+				if (includeOauthToken != null
+						&& !includeOauthToken.trim().isEmpty()) {
+					try {
+						isIncludeOauthToken = Boolean
+								.parseBoolean(includeOauthToken.trim());
+					} catch (Exception e) {
+					}
+				}
+				return loadExternalResource(url, oAuthToken, isIncludeOauthToken);
 			}
 			return null;
 		}

@@ -304,7 +304,8 @@ public class AttachmentResource {
 	@Path("video/topic/{topicId}/pack/{packId}/usr/{userId}")
 	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
 	@Produces(value = MediaType.APPLICATION_JSON)
-	public JPackAttachment modifyPack_addVideo(@FormDataParam("file") InputStream file,
+	public JPackAttachment modifyPack_addVideo(
+			@FormDataParam("file") InputStream file,
 			@FormDataParam("file") FormDataContentDisposition aboutFile,
 			@FormDataParam("title") String title,
 			@FormDataParam("description") String description,
@@ -312,6 +313,8 @@ public class AttachmentResource {
 			@PathParam("topicId") String topicId,
 			@PathParam("packId") String packId,
 			@PathParam("userId") String userId) throws PackPackException {
+		logger.info("VIDEO upload In-Progress");
+		long t0 = System.currentTimeMillis();
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
 		String fileName = UUID.randomUUID().toString() + ".mp4";
@@ -323,7 +326,12 @@ public class AttachmentResource {
 			parseBoolean = false;
 		}
 		logger.debug("modifyPack_addVideo :: isCompressed = " + parseBoolean);
-		return service.updatePack(file, fileName, PackAttachmentType.VIDEO,
-				packId, topicId, userId, title, description, parseBoolean);
+		JPackAttachment attachment = service.updatePack(file, fileName,
+				PackAttachmentType.VIDEO, packId, topicId, userId, title,
+				description, parseBoolean);
+		long t1 = System.currentTimeMillis();
+		logger.info("Total time to upload VIDEO titled <" + title + "> = "
+				+ (t1 - t0) / (1000 * 60) + " minutes");
+		return attachment;
 	}
 }

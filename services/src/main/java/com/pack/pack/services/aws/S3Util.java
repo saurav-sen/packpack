@@ -53,14 +53,23 @@ public class S3Util {
 		}
 		return false;
 	}
+	
+	public static void uploadFileToS3Bucket(File file, S3Path s3Path,
+			String relativeUrl, boolean isCompressed) throws PackPackException {
+		uploadFileToS3Bucket(file, s3Path, relativeUrl, isCompressed, false);
+	}
 
-	public static void uploadFileToS3Bucket(File file, S3Path s3Path, String relativeUrl, boolean isCompressed) throws PackPackException {
+	public static void uploadFileToS3Bucket(File file, S3Path s3Path,
+			String relativeUrl, boolean isCompressed, boolean isVideo)
+			throws PackPackException {
 		if (!isProductionEnvironment())
 			return;
-		RedisCacheService service = ServiceRegistry.INSTANCE.findService(RedisCacheService.class);
+		RedisCacheService service = ServiceRegistry.INSTANCE
+				.findService(RedisCacheService.class);
 		service.addToCache(RELATIVE_URL_REDIS_KEY_PREFIX + relativeUrl, true);
-		S3UploadTaskExecutor.INSTANCE.execute(new UploadTaskImpl(file, s3Path, relativeUrl, isCompressed));
-		//return str.toString();
+		S3UploadTaskExecutor.INSTANCE.execute(new UploadTaskImpl(file, s3Path,
+				relativeUrl, isCompressed, isVideo));
+		// return str.toString();
 	}
 	
 	private static void uploadFileToS3Bucket_0(File file, S3Path s3Path, String relativeUrl) {
@@ -125,18 +134,36 @@ public class S3Util {
 		
 		private boolean isCompressed;
 		
-		UploadTaskImpl(File file, S3Path s3Path, String relativeUrl, boolean isCompressed) {
+		private boolean isVideo;
+		
+		UploadTaskImpl(File file, S3Path s3Path, String relativeUrl, boolean isCompressed, boolean isVideo) {
 			this.file = file;
 			this.s3Path = s3Path;
 			this.relativeUrl = relativeUrl;
 			this.isCompressed = isCompressed;
+			this.isVideo = isVideo;
+		}
+		
+		private File compressIfRequired(File originalFile) {
+			return originalFile;
 		}
 		
 		@Override
 		public void execute() throws Exception {
-			uploadFileToS3Bucket_0(this.file, this.s3Path, this.relativeUrl);
-			RedisCacheService service = ServiceRegistry.INSTANCE.findService(RedisCacheService.class);
-			service.removeFromCache(RELATIVE_URL_REDIS_KEY_PREFIX + this.relativeUrl);
+			long t0 = System.currentTimeMillis();
+			File originalFile = this.file;
+			if (isVideo && !isCompressed) {
+				originalFile = compressIfRequired(originalFile);
+			}
+			uploadFileToS3Bucket_0(originalFile, this.s3Path, this.relativeUrl);
+			long t1 = System.currentTimeMillis();
+			LOG.info("Total Time to upload file <" + originalFile.getName()
+					+ "> to S3 bucket = " + (t1 - t0) / (1000 * 60)
+					+ " minutes");
+			RedisCacheService service = ServiceRegistry.INSTANCE
+					.findService(RedisCacheService.class);
+			service.removeFromCache(RELATIVE_URL_REDIS_KEY_PREFIX
+					+ this.relativeUrl);
 		}
 	}
 }

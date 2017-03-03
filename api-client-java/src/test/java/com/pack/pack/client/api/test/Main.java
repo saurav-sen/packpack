@@ -24,10 +24,6 @@ public class Main {
 	public static final String USERNAME = "sourabhnits@gmail.com";
 	public static final String PASSWORD = "password";
 	
-	public static void main(String[] args) throws Exception {
-		testUserFOllowedTopicList();
-	}
-	
 	public static void main2(String[] args) throws Exception {
 		HttpClient c = new DefaultHttpClient();
 		//HttpGet get = new HttpGet("http://192.168.35.12:5984/packpack/_design/UserTopicMap/_view/allForUser?startkey=%2220fd9f6a6890eb26e07ae4318a0047a3%22&endkey=%2220fd9f6a6890eb26e07ae4318a0047a3%5Cufff0%22");
@@ -37,13 +33,13 @@ public class Main {
 		System.out.println(EntityUtils.toString(response.getEntity()));
 	}
 	
-	public static void main3(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 		//new SignUpUserTest().signUp();
 		//addTopicTest();
 		testUserFOllowedTopicList();
 		uploadPackTest(false);
 		//addImageToPack();
-		addVideoToPack();
+		//addVideoToPack();
 	}
 	
 	public static void main4(String[] args) throws Exception {

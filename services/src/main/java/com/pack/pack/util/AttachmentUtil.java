@@ -19,6 +19,9 @@ import org.jcodec.api.JCodecException;
 import org.jcodec.api.awt.FrameGrab;
 import org.jcodec.common.FileChannelWrapper;
 import org.jcodec.common.NIOUtils;
+import org.jcodec.containers.mp4.demuxer.AbstractMP4DemuxerTrack;
+import org.jcodec.containers.mp4.demuxer.MP4Demuxer;
+import org.jcodec.containers.mp4.muxer.MP4Muxer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,12 +44,13 @@ public class AttachmentUtil {
 	
 	public static File resizeAndStoreUploadedAttachment(InputStream inputStream,
 			String fileLoc, int width, int height, S3Path s3Path, String relativeUrl) throws PackPackException {
-		File attachmentFile = storeUploadedAttachment(inputStream, fileLoc, s3Path, relativeUrl, true);
+		File attachmentFile = storeUploadedAttachment(inputStream, fileLoc, s3Path, relativeUrl, true, false);
 		return createThumnailForImage(attachmentFile, width, height, s3Path);
 	}
 
 	public static File storeUploadedAttachment(InputStream inputStream,
-			String fileLoc, S3Path s3Path, String relativeUrl, boolean isCompressed) throws PackPackException {
+			String fileLoc, S3Path s3Path, String relativeUrl,
+			boolean isCompressed, boolean isVideo) throws PackPackException {
 		OutputStream outStream = null;
 		File attachmentFile = new File(fileLoc);
 		try {
@@ -60,7 +64,8 @@ public class AttachmentUtil {
 			outStream.flush();
 			
 			// Upload to S3 bucket.
-			S3Util.uploadFileToS3Bucket(attachmentFile, s3Path, relativeUrl, isCompressed);
+			S3Util.uploadFileToS3Bucket(attachmentFile, s3Path, relativeUrl,
+					isCompressed, isVideo);
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 			throw new PackPackException("TODO", e.getMessage(), e);
@@ -165,7 +170,7 @@ public class AttachmentUtil {
 		}*/
 		BufferedImage frameImage = null;
 		FileChannelWrapper ch = null;
-		int frameNo = 1;
+		int frameNo = selectFrameNumber(outputFile);
 		try {
 			ch = NIOUtils.readableFileChannel(outputFile);
 			frameImage = ((FrameGrab) new FrameGrab(ch)
@@ -174,6 +179,26 @@ public class AttachmentUtil {
 			NIOUtils.closeQuietly(ch);
 		}
 		return frameImage;
+	}
+	
+	private static int selectFrameNumber(File outputFile) {
+		FileChannelWrapper ch = null;
+		int frameNo = 1;
+		try {
+			ch = NIOUtils.readableFileChannel(outputFile);
+			
+			MP4Demuxer mp4Demuxer = new MP4Demuxer(ch);
+			AbstractMP4DemuxerTrack videoTrack = mp4Demuxer.getVideoTrack();
+			int totalFrames = videoTrack.getMeta().getTotalFrames();
+			frameNo = (int)(totalFrames * 0.1f);
+			if(frameNo < 1) {
+				frameNo = 1;
+			}
+		} catch(Exception e) {
+		} finally {
+			NIOUtils.closeQuietly(ch);
+		}
+		return frameNo;
 	}
 	
 	
@@ -195,31 +220,39 @@ public class AttachmentUtil {
 			String path = parentFile.getAbsolutePath() + File.separator
 					+ "thumbnail";
 			
-			s3Path.getParent().addChild(new S3Path("thumbnail", true));
 			
 			File dir = new File(path);
 			if (!dir.exists()) {
 				dir.mkdir();
 			}
 			String imageFileName = videoFile.getName();
+			imageFileName = imageFileName.substring(0,
+					imageFileName.lastIndexOf("."))
+					+ ".jpg";
+			s3Path = s3Path.getParent().addChild(new S3Path("thumbnail", false))
+					.addChild(new S3Path(imageFileName, true));
 			path = path
 					+ File.separator
-					+ imageFileName
-							.substring(0, imageFileName.lastIndexOf("."))
-					+ ".jpg";
+					+ imageFileName;
 			File thumbnailImageFile = new File(path);
 			ImageIO.write(frameImage, "jpg", thumbnailImageFile);
 			
 			// Calculate relative URL.
 			StringBuilder str = new StringBuilder(S3Util.SUFFIX);
+			
+			while(s3Path.getParent() != null) {
+				s3Path = s3Path.getParent();
+			}
+			
 			S3Path tmp = s3Path;
-			while (s3Path != null && !s3Path.isFile()) {
-				String folderName = s3Path.getName();
+			
+			while (tmp != null && !tmp.isFile()) {
+				String folderName = tmp.getName();
 				str.append(folderName);
 				str.append(S3Util.SUFFIX);
-				s3Path = s3Path.getChild();
+				tmp = tmp.getChild();
 			}
-			s3Path = tmp;
+			
 			// Upload to S3 bucket.
 			S3Util.uploadFileToS3Bucket(thumbnailImageFile, s3Path, str.toString(), true);
 			

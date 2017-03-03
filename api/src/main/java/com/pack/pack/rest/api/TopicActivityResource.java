@@ -17,6 +17,7 @@ import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.StatusType;
 import com.pack.pack.model.web.dto.TopicFollowDTO;
+import com.pack.pack.rest.api.security.interceptors.CacheControl;
 import com.pack.pack.rest.api.security.interceptors.CompressRead;
 import com.pack.pack.rest.api.security.interceptors.CompressWrite;
 import com.pack.pack.services.exception.PackPackException;
@@ -36,6 +37,7 @@ public class TopicActivityResource {
 	@CompressWrite
 	@Path("{pageLink}/user/{userId}")
 	@Produces(value = MediaType.APPLICATION_JSON)
+	@CacheControl(type="private", mustRevalidate=false, maxAge=900)
 	public Pagination<JTopic> getAllTopicsFollowedByUser(
 			@PathParam("userId") String userId,
 			@PathParam("pageLink") String pageLink) throws PackPackException {

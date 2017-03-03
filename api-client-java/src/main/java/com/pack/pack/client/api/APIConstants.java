@@ -134,6 +134,7 @@ public interface APIConstants {
 	
 	public static interface ExternalResource {
 		public static final String RESOURCE_URL = "external_url";
+		public static final String INCLUDE_OAUTH_TOKEN = "include_oauth_token";
 	}
 	
 	public static interface Discussion {

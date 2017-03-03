@@ -353,9 +353,17 @@ public class PackServiceImpl implements IPackService {
 		String relativeUrl = location.substring(home.length());
 		packAttachment.setAttachmentUrl(relativeUrl);
 		File originalFile = AttachmentUtil.storeUploadedAttachment(file,
-				location, fileS3, relativeUrl, isCompressed);
-		File thumbnailFile = (type == PackAttachmentType.IMAGE ? null
-				: AttachmentUtil.createThumnailForVideo(originalFile, fileS3));
+				location, fileS3, relativeUrl, isCompressed,
+				(type == PackAttachmentType.VIDEO));
+		File thumbnailFile = null;
+		/*File thumbnailFile = (type == PackAttachmentType.IMAGE ? null
+				: AttachmentUtil.createThumnailForVideo(originalFile, fileS3));*/
+		if(type == PackAttachmentType.VIDEO) {
+			S3Path thumbnailFileS3 = new S3Path(topicId, false).addChild(
+					new S3Path(pack.getId(), false)).addChild(
+					new S3Path(fileName, true));
+			thumbnailFile = AttachmentUtil.createThumnailForVideo(originalFile, thumbnailFileS3);
+		}
 		if (thumbnailFile != null) {
 			String thumbnailFileLocation = thumbnailFile.getAbsolutePath();
 			packAttachment.setAttachmentThumbnailUrl(thumbnailFileLocation
