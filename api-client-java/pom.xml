@@ -25,6 +25,11 @@
 			<artifactId>common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient-cache</artifactId>
+			<version>4.1.1</version>
+		</dependency>
 		<!--dependency>
 			<groupId>com.pack.pack</groupId>
 			<artifactId>elastic-search</artifactId>

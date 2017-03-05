@@ -9,11 +9,14 @@ import java.util.Map;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.cache.CacheConfig;
+import org.apache.http.impl.client.cache.CachingHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import com.pack.pack.client.api.APIConstants;
@@ -55,8 +58,13 @@ class PackApi extends BaseAPI {
 	}
 
 	private JPack getPackById(String packId, String oAuthToken)
-			throws Exception {
-		DefaultHttpClient client = new DefaultHttpClient();
+			throws Exception {		
+		HttpClient client = new DefaultHttpClient();
+		if (getCacheStorage() != null) {
+			CachingHttpClient httpClient = new CachingHttpClient(client,
+					getCacheStorage(), getCacheConfig());
+			client = httpClient;
+		}		
 		String url = getBaseUrl() + "pack/" + packId;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
@@ -85,7 +93,12 @@ class PackApi extends BaseAPI {
 	@SuppressWarnings("unchecked")
 	private Pagination<JPack> getAllLatestPackInDefaultTopics(String userId,
 			String pageLink, String oAuthToken) throws Exception {
-		DefaultHttpClient client = new DefaultHttpClient();
+		HttpClient client = new DefaultHttpClient();
+		if (getCacheStorage() != null) {
+			CachingHttpClient httpClient = new CachingHttpClient(client,
+					getCacheStorage(), getCacheConfig());
+			client = httpClient;
+		}
 		String url = getBaseUrl() + "pack/" + "usr/" + userId + "/page/"
 				+ pageLink;
 		HttpGet GET = new HttpGet(url);
@@ -99,7 +112,12 @@ class PackApi extends BaseAPI {
 	@SuppressWarnings("unchecked")
 	private Pagination<JPack> getAllPacksInTopic(String userId, String topicId,
 			String pageLink, String oAuthToken) throws Exception {
-		DefaultHttpClient client = new DefaultHttpClient();
+		HttpClient client = new DefaultHttpClient();
+		if (getCacheStorage() != null) {
+			CachingHttpClient httpClient = new CachingHttpClient(client,
+					getCacheStorage(), getCacheConfig());
+			client = httpClient;
+		}
 		String url = getBaseUrl() + "pack/" + "usr/" + userId + "/topic/"
 				+ topicId + "/page/" + pageLink;
 		HttpGet GET = new HttpGet(url);
@@ -118,7 +136,12 @@ class PackApi extends BaseAPI {
 
 	private JPackAttachment getPackAttachmentById(String id, String oAuthToken)
 			throws Exception {
-		DefaultHttpClient client = new DefaultHttpClient();
+		HttpClient client = new DefaultHttpClient();
+		if (getCacheStorage() != null) {
+			CachingHttpClient httpClient = new CachingHttpClient(client,
+					getCacheStorage(), getCacheConfig());
+			client = httpClient;
+		}
 		String url = getBaseUrl() + "pack/items/" + id;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
@@ -133,7 +156,12 @@ class PackApi extends BaseAPI {
 	private Pagination<JPackAttachment> getAllPackAttachments(String userId,
 			String topicId, String packId, String pageLink, String oAuthToken)
 			throws Exception {
-		DefaultHttpClient client = new DefaultHttpClient();
+		HttpClient client = new DefaultHttpClient();
+		if (getCacheStorage() != null) {
+			CachingHttpClient httpClient = new CachingHttpClient(client,
+					getCacheStorage(), getCacheConfig());
+			client = httpClient;
+		}
 		String url = getBaseUrl() + "pack/items/" + "usr/" + userId + "/topic/"
 				+ topicId + "/pack/" + packId + "/page/" + pageLink;
 		HttpGet GET = new HttpGet(url);

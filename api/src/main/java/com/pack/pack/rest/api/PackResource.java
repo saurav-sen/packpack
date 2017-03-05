@@ -29,6 +29,7 @@ import com.pack.pack.model.web.dto.LikeDTO;
 import com.pack.pack.model.web.dto.PackDTO;
 import com.pack.pack.model.web.dto.PackReceipent;
 import com.pack.pack.model.web.dto.PackReceipentType;
+import com.pack.pack.rest.api.security.interceptors.CacheControl;
 import com.pack.pack.rest.api.security.interceptors.CompressRead;
 import com.pack.pack.rest.api.security.interceptors.CompressWrite;
 import com.pack.pack.services.couchdb.PackRepositoryService;
@@ -51,6 +52,7 @@ public class PackResource {
 	@CompressWrite
 	@Path("{id}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@CacheControl(type="private", mustRevalidate=false, maxAge=900)
 	public JPack getById(@PathParam("id") String id) throws PackPackException {
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
@@ -78,6 +80,7 @@ public class PackResource {
 	@CompressWrite
 	@Path("usr/{userId}/page/{pageLink}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@CacheControl(type="private", mustRevalidate=false, maxAge=900)
 	public Pagination<JPack> getAll(@PathParam("userId") String userId,
 			@PathParam("pageLink") String pageLink) throws PackPackException {
 		return getAll(userId, CommonConstants.DEFAULT_TOPIC_ID, pageLink);
@@ -87,6 +90,7 @@ public class PackResource {
 	@CompressWrite
 	@Path("usr/{userId}/topic/{topicId}/page/{pageLink}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@CacheControl(type="private", mustRevalidate=false, maxAge=900)
 	public Pagination<JPack> getAll(@PathParam("userId") String userId,
 			@PathParam("topicId") String topicId,
 			@PathParam("pageLink") String pageLink) throws PackPackException {
@@ -99,6 +103,7 @@ public class PackResource {
 	@CompressWrite
 	@Path("items/usr/{userId}/topic/{topicId}/pack/{packId}/page/{pageLink}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@CacheControl(type="private", mustRevalidate=false, maxAge=600)
 	public Pagination<JPackAttachment> getAllAttachments(
 			@PathParam("userId") String userId,
 			@PathParam("topicId") String topicId,
@@ -113,6 +118,7 @@ public class PackResource {
 	@CompressWrite
 	@Path("items/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@CacheControl(type="private", mustRevalidate=false, maxAge=600)
 	public JPackAttachment getPackAttachmentById(@PathParam("id") String id)
 			throws PackPackException {
 		IPackService service = ServiceRegistry.INSTANCE

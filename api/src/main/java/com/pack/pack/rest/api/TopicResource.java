@@ -26,6 +26,7 @@ import com.pack.pack.model.web.JTopics;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.StatusType;
 import com.pack.pack.model.web.dto.UserPromotion;
+import com.pack.pack.rest.api.security.interceptors.CacheControl;
 import com.pack.pack.rest.api.security.interceptors.CompressRead;
 import com.pack.pack.rest.api.security.interceptors.CompressWrite;
 import com.pack.pack.services.exception.PackPackException;
@@ -47,6 +48,7 @@ public class TopicResource {
 	@CompressWrite
 	@Path("{id}")
 	@Produces(value = MediaType.APPLICATION_JSON)
+	@CacheControl(type="private", mustRevalidate=false, maxAge=900)
 	public JTopic getTopicById(@PathParam("id") String topicId)
 			throws PackPackException {
 		ITopicService service = ServiceRegistry.INSTANCE
@@ -65,6 +67,7 @@ public class TopicResource {
 	@CompressWrite
 	@Path("{pageLink}/category/{categoryName}")
 	@Produces(value = MediaType.APPLICATION_JSON)
+	@CacheControl(type="private", mustRevalidate=false, maxAge=900)
 	public Pagination<JTopic> getTopicsByCategory(
 			@PathParam("categoryName") String categoryName,
 			@PathParam("pageLink") String pageLink) throws PackPackException {
@@ -77,6 +80,7 @@ public class TopicResource {
 	@CompressWrite
 	@Path("{pageLink}/user/{userId}")
 	@Produces(value = MediaType.APPLICATION_JSON)
+	@CacheControl(type="private", mustRevalidate=false, maxAge=900)
 	public Pagination<JTopic> getAllTopics(@PathParam("userId") String userId,
 			@PathParam("pageLink") String pageLink) throws PackPackException {
 		ITopicService service = ServiceRegistry.INSTANCE
@@ -88,6 +92,7 @@ public class TopicResource {
 	@CompressWrite
 	@Path("owner/{ownerId}")
 	@Produces(value = MediaType.APPLICATION_JSON)
+	@CacheControl(type="private", mustRevalidate=false, maxAge=900)
 	public JTopics getAllTopicsOwnedByUser(@PathParam("ownerId") String userId)
 			throws PackPackException {
 		ITopicService service = ServiceRegistry.INSTANCE
@@ -99,6 +104,7 @@ public class TopicResource {
 	@CompressWrite
 	@Path("{pageLink}/category/{category}/user/{userId}")
 	@Produces(value = MediaType.APPLICATION_JSON)
+	@CacheControl(type="private", mustRevalidate=false, maxAge=900)
 	public Pagination<JTopic> getAllTopicsFilteredByCategory(
 			@PathParam("userId") String userId,
 			@PathParam("pageLink") String pageLink,

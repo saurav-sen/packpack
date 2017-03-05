@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -21,6 +22,7 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.cache.CachingHttpClient;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
@@ -59,7 +61,12 @@ class TopicApi extends BaseAPI {
 			String oAuthToken, String userId, String category) throws Exception {
 		String url = getBaseUrl() + "topic/" + pageLink + "/category/"
 				+ category + "/user/" + userId;
-		DefaultHttpClient client = new DefaultHttpClient();
+		HttpClient client = new DefaultHttpClient();
+		if (getCacheStorage() != null) {
+			CachingHttpClient httpClient = new CachingHttpClient(client,
+					getCacheStorage(), getCacheConfig());
+			client = httpClient;
+		}
 		HttpGet GET = new HttpGet(url);
 		GET.setHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
@@ -110,7 +117,12 @@ class TopicApi extends BaseAPI {
 	private JTopic getTopicById(String topicId, String oAuthToken)
 			throws Exception {
 		String url = getBaseUrl() + "topic/" + topicId;
-		DefaultHttpClient client = new DefaultHttpClient();
+		HttpClient client = new DefaultHttpClient();
+		if (getCacheStorage() != null) {
+			CachingHttpClient httpClient = new CachingHttpClient(client,
+					getCacheStorage(), getCacheConfig());
+			client = httpClient;
+		}
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
@@ -122,7 +134,12 @@ class TopicApi extends BaseAPI {
 	private PromoteStatus promoteTopic(String topicId, String userId,
 			String oAuthToken) throws Exception {
 		String url = getBaseUrl() + "promote/usr/" + userId;
-		DefaultHttpClient client = new DefaultHttpClient();
+		HttpClient client = new DefaultHttpClient();
+		if (getCacheStorage() != null) {
+			CachingHttpClient httpClient = new CachingHttpClient(client,
+					getCacheStorage(), getCacheConfig());
+			client = httpClient;
+		}
 		HttpPut PUT = new HttpPut(url);
 		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		EntityPromoteDTO dto = new EntityPromoteDTO();
@@ -139,7 +156,12 @@ class TopicApi extends BaseAPI {
 	private List<JTopic> getUserOwnedTopics(String userId, String oAuthToken)
 			throws Exception {
 		String url = getBaseUrl() + "topic/owner/" + userId;
-		DefaultHttpClient client = new DefaultHttpClient();
+		HttpClient client = new DefaultHttpClient();
+		if (getCacheStorage() != null) {
+			CachingHttpClient httpClient = new CachingHttpClient(client,
+					getCacheStorage(), getCacheConfig());
+			client = httpClient;
+		}
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);

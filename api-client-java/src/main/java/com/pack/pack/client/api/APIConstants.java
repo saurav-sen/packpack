@@ -13,6 +13,8 @@ public interface APIConstants {
 	public static final String CONTENT_TYPE_HEADER = "Content-Type";
 	public static final String APPLICATION_JSON = "application/json";
 	
+	public static final String CACHE_STORAGE = "CACHE_STORAGE";
+	
 	public static interface Login {
 		public static final String CLIENT_KEY = "clientKey";
 		public static final String CLIENT_SECRET = "clientSecret";
