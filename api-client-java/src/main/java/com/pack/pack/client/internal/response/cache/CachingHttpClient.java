@@ -67,7 +67,7 @@ public class CachingHttpClient implements HttpClient {
 		this.config = config;
 
 		responseCachingPolicy = new ResponseCachingPolicy(
-				config.getMaxObjectSize(), true);
+				config.getMaxObjectSize(), config.isSharedCache());
 		
 		this.validityPolicy = new CacheValidityPolicy();
 		this.responseGenerator = new CachedHttpResponseGenerator(

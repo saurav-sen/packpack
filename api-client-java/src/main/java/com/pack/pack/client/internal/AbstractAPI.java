@@ -33,6 +33,7 @@ abstract class AbstractAPI implements API {
 		CacheConfig cacheConfig = new CacheConfig();
 		cacheConfig.setMaxCacheEntries(1000);
 		cacheConfig.setMaxObjectSize(8192);
+		cacheConfig.setSharedCache(false);
 		return cacheConfig;
 	}
 

@@ -9,6 +9,9 @@ import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.ext.Provider;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 
  * @author Saurav
@@ -17,12 +20,16 @@ import javax.ws.rs.ext.Provider;
 @Provider
 @CacheControl
 public class CacheControlFilter implements ContainerResponseFilter {
+	
+	private Logger LOG = LoggerFactory.getLogger(CacheControlFilter.class);
 
 	@Override
 	public void filter(ContainerRequestContext requestContext,
 			ContainerResponseContext responseContext) throws IOException {
+		LOG.debug("CacheControlFilter invoked");
 		Annotation[] annotations = responseContext.getEntityAnnotations();
 		if (annotations != null) {
+			LOG.debug("CacheControlFilter annotations.size() = " + annotations.length);
 			for (Annotation annotation : annotations) {
 				if (annotation.annotationType() == CacheControl.class) {
 					CacheControl cacheControl = (CacheControl) annotation;
@@ -36,6 +43,7 @@ public class CacheControlFilter implements ContainerResponseFilter {
 					headerValue = headerValue.append(", ").append("max-age= ")
 							.append(cacheControl.maxAge());
 
+					LOG.debug("headerValue = " + headerValue);
 					responseContext.getHeaders().putSingle(
 							HttpHeaders.CACHE_CONTROL, headerValue.toString());
 					break;
