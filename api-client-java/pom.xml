@@ -25,11 +25,11 @@
 			<artifactId>common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient-cache</artifactId>
 			<version>4.1.1</version>
-		</dependency>
+		</dependency-->
 		<!--dependency>
 			<groupId>com.pack.pack</groupId>
 			<artifactId>elastic-search</artifactId>
@@ -159,7 +159,7 @@
 				    </execution>
 				  </executions>
 			</plugin>
-			<plugin>
+			<!--plugin>
 				  <groupId>org.apache.maven.plugins</groupId>
 				  <artifactId>maven-javadoc-plugin</artifactId>
 				  <executions>
@@ -170,7 +170,7 @@
 				      </goals>
 				    </execution>
 				  </executions>
-			</plugin>
+			</plugin-->
 		</plugins>
 		<pluginManagement>
 			<plugins>
