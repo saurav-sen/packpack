@@ -2,11 +2,6 @@ package com.pack.pack.client.internal.response.cache;
 
 import java.io.IOException;
 
-import org.apache.http.client.cache.HttpCacheEntry;
-import org.apache.http.client.cache.HttpCacheStorage;
-import org.apache.http.client.cache.HttpCacheUpdateCallback;
-import org.apache.http.client.cache.HttpCacheUpdateException;
-
 /**
  * 
  * @author Saurav
@@ -26,23 +21,29 @@ public class HttpResponseCache implements HttpCacheStorage {
 	}
 
 	@Override
-	public void putEntry(String key, HttpCacheEntry entry) throws IOException {
-		delegate.putEntry(key, entry);
+	public void put(String url, HttpCacheEntry entry) throws IOException {
+		delegate.put(url, entry);
 	}
 
 	@Override
-	public HttpCacheEntry getEntry(String key) throws IOException {
-		return delegate.getEntry(key);
+	public HttpCacheEntry get(String url) throws IOException {
+		return delegate.get(url);
 	}
 
 	@Override
-	public void removeEntry(String key) throws IOException {
-		delegate.removeEntry(key);
+	public void remove(String url) throws IOException {
+		delegate.remove(url);
 	}
 
 	@Override
+	public void update(String uri, HttpCacheUpdateCallback callback)
+			throws IOException, HttpCacheUpdateException {
+		delegate.update(uri, callback);
+	}
+
+	/*@Override
 	public void updateEntry(String key, HttpCacheUpdateCallback callback)
 			throws IOException, HttpCacheUpdateException {
 		delegate.updateEntry(key, callback);
-	}
+	}*/
 }

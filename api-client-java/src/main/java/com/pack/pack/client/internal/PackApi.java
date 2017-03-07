@@ -15,13 +15,12 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.cache.CacheConfig;
-import org.apache.http.impl.client.cache.CachingHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.client.api.MultipartRequestProgressListener;
+import com.pack.pack.client.internal.response.cache.CachingHttpClient;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JComment;
 import com.pack.pack.model.web.JPack;

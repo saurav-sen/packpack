@@ -1,11 +1,10 @@
 package com.pack.pack.client.internal;
 
-import org.apache.http.client.cache.HttpCacheStorage;
-import org.apache.http.impl.client.cache.CacheConfig;
-
 import com.pack.pack.client.api.API;
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.MultipartRequestProgressListener;
+import com.pack.pack.client.internal.response.cache.CacheConfig;
+import com.pack.pack.client.internal.response.cache.HttpCacheStorage;
 import com.pack.pack.client.internal.response.cache.HttpResponseCache;
 import com.pack.pack.client.internal.response.cache.HttpResponseCacheDelegate;
 import com.pack.pack.client.internal.response.cache.HttpResponseCacheDelegateFactory;
@@ -33,7 +32,7 @@ abstract class AbstractAPI implements API {
 	protected CacheConfig getCacheConfig() {
 		CacheConfig cacheConfig = new CacheConfig();
 		cacheConfig.setMaxCacheEntries(1000);
-		cacheConfig.setMaxObjectSizeBytes(8192);
+		cacheConfig.setMaxObjectSize(8192);
 		return cacheConfig;
 	}
 

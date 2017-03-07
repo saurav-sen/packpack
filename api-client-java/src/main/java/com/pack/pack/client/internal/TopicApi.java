@@ -22,13 +22,13 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.cache.CachingHttpClient;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.client.api.MultipartRequestProgressListener;
+import com.pack.pack.client.internal.response.cache.CachingHttpClient;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JTopic;

@@ -2,10 +2,6 @@ package com.pack.pack.client.internal.response.cache;
 
 import java.io.IOException;
 
-import org.apache.http.client.cache.HttpCacheEntry;
-import org.apache.http.client.cache.HttpCacheUpdateCallback;
-import org.apache.http.client.cache.HttpCacheUpdateException;
-
 /**
  * 
  * @author Saurav
@@ -15,34 +11,37 @@ public interface HttpResponseCacheDelegate {
 
 	/**
 	 * 
-	 * @param key
+	 * @param url
+	 * @param headers
 	 * @param entry
 	 * @throws IOException
 	 */
-	public void putEntry(String key, HttpCacheEntry entry) throws IOException;
+	public void put(String url, HttpCacheEntry entry) throws IOException;
 
 	/**
 	 * 
-	 * @param key
+	 * @param url
+	 * @param headers
 	 * @return
 	 * @throws IOException
 	 */
-	public HttpCacheEntry getEntry(String key) throws IOException;
+	public HttpCacheEntry get(String url) throws IOException;
 
 	/**
 	 * 
-	 * @param key
+	 * @param url
+	 * @param headers
 	 * @throws IOException
 	 */
-	public void removeEntry(String key) throws IOException;
-
+	public void remove(String url) throws IOException;
+	
 	/**
 	 * 
-	 * @param key
+	 * @param uri
 	 * @param callback
 	 * @throws IOException
 	 * @throws HttpCacheUpdateException
 	 */
-	public void updateEntry(String key, HttpCacheUpdateCallback callback)
+	public void update(String uri, HttpCacheUpdateCallback callback)
 			throws IOException, HttpCacheUpdateException;
 }
