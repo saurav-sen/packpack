@@ -21,7 +21,6 @@ import org.jcodec.common.FileChannelWrapper;
 import org.jcodec.common.NIOUtils;
 import org.jcodec.containers.mp4.demuxer.AbstractMP4DemuxerTrack;
 import org.jcodec.containers.mp4.demuxer.MP4Demuxer;
-import org.jcodec.containers.mp4.muxer.MP4Muxer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,10 +46,21 @@ public class AttachmentUtil {
 		File attachmentFile = storeUploadedAttachment(inputStream, fileLoc, s3Path, relativeUrl, true, false);
 		return createThumnailForImage(attachmentFile, width, height, s3Path);
 	}
-
+	
+	public static File storeProfilePictureImage(InputStream inputStream,
+			String fileLoc, int width, int height, S3Path s3Path, String relativeUrl) throws PackPackException {
+		return storeUploadedAttachment(inputStream, fileLoc, s3Path, relativeUrl, true, false);
+	}
+	
 	public static File storeUploadedAttachment(InputStream inputStream,
 			String fileLoc, S3Path s3Path, String relativeUrl,
 			boolean isCompressed, boolean isVideo) throws PackPackException {
+		return storeUploadedAttachment(inputStream, fileLoc, s3Path, relativeUrl, isCompressed, isVideo, true);
+	}
+
+	public static File storeUploadedAttachment(InputStream inputStream,
+			String fileLoc, S3Path s3Path, String relativeUrl,
+			boolean isCompressed, boolean isVideo, boolean s3Upload) throws PackPackException {
 		OutputStream outStream = null;
 		File attachmentFile = new File(fileLoc);
 		try {
@@ -63,9 +73,11 @@ public class AttachmentUtil {
 			}
 			outStream.flush();
 			
-			// Upload to S3 bucket.
-			S3Util.uploadFileToS3Bucket(attachmentFile, s3Path, relativeUrl,
-					isCompressed, isVideo);
+			if (s3Upload) {
+				// Upload to S3 bucket.
+				S3Util.uploadFileToS3Bucket(attachmentFile, s3Path,
+						relativeUrl, isCompressed, isVideo);
+			}
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 			throw new PackPackException("TODO", e.getMessage(), e);

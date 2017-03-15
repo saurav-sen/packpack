@@ -1,6 +1,6 @@
 package com.pack.pack.services;
 
-import static com.pack.pack.util.AttachmentUtil.resizeAndStoreUploadedAttachment;
+import static com.pack.pack.util.AttachmentUtil.storeProfilePictureImage;
 
 import java.io.File;
 import java.io.InputStream;
@@ -166,7 +166,7 @@ public class UserServiceImpl implements IUserService {
 		S3Path root = new S3Path(userId, false);
 		root.addChild(new S3Path(profilePictureFileName, true));
 		String relativeUrl = userId + "/" + profilePictureFileName;
-		resizeAndStoreUploadedAttachment(profilePicture, location, 30, 30, root, relativeUrl);
+		storeProfilePictureImage(profilePicture, location, 30, 30, root, relativeUrl);
 		return location.substring(home.length());
 	}
 	

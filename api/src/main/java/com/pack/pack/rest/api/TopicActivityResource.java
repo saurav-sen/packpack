@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
 import com.pack.pack.ITopicService;
+import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.Pagination;
@@ -50,7 +51,8 @@ public class TopicActivityResource {
 	@CompressRead
 	@Produces(value = MediaType.APPLICATION_JSON)
 	@Consumes(value = MediaType.APPLICATION_JSON)
-	public JStatus followTopic(TopicFollowDTO dto) throws PackPackException {
+	public JStatus followTopic(String json) throws PackPackException {
+		TopicFollowDTO dto = JSONUtil.deserialize(json, TopicFollowDTO.class, true);
 		String topicId = dto.getTopicId();
 		String userId = dto.getUserId();
 		ITopicService service = ServiceRegistry.INSTANCE

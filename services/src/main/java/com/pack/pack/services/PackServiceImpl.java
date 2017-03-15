@@ -16,7 +16,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.pack.pack.IPackService;
-import com.pack.pack.common.util.CommonConstants;
 import com.pack.pack.model.AttachmentType;
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.PackAttachment;
@@ -31,7 +30,6 @@ import com.pack.pack.services.couchdb.PackAttachmentRepositoryService;
 import com.pack.pack.services.couchdb.PackRepositoryService;
 import com.pack.pack.services.couchdb.TopicPackMapRepositoryService;
 import com.pack.pack.services.couchdb.TopicRepositoryService;
-import com.pack.pack.services.couchdb.UserTopicMapRepositoryService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.redis.PackAttachmentPage;
 import com.pack.pack.services.redis.PackPage;
@@ -184,7 +182,21 @@ public class PackServiceImpl implements IPackService {
 				return packPage.convert();
 			}
 		}
-		UserTopicMapRepositoryService mapRepositoryService = ServiceRegistry.INSTANCE
+		
+		PackRepositoryService packRepositoryService = ServiceRegistry.INSTANCE
+				.findService(PackRepositoryService.class);
+		Pagination<Pack> page = packRepositoryService.getAllPacks(topicId,
+				pageLink);
+		List<JPack> jPacks = ModelConverter.convertAll(page.getResult());
+		Pagination<JPack> result = new Pagination<JPack>(page.getPreviousLink(),
+				page.getNextLink(), jPacks);
+		if(SystemPropertyUtil.isCacheEnabled()) {
+			PackPage packPage = PackPage.build(result);
+			cacheService.addToCache(key, packPage);
+		}
+		return result;
+		
+		/*UserTopicMapRepositoryService mapRepositoryService = ServiceRegistry.INSTANCE
 				.findService(UserTopicMapRepositoryService.class);
 		List<String> IDs = mapRepositoryService
 				.getAllTopicIDsFollowedByUser(userId);
@@ -210,7 +222,7 @@ public class PackServiceImpl implements IPackService {
 			PackPage packPage = PackPage.build(result);
 			cacheService.addToCache(key, packPage);
 		}
-		return result;
+		return result;*/
 	}
 
 	@Override
@@ -228,7 +240,36 @@ public class PackServiceImpl implements IPackService {
 				return attachmentPage.convert();
 			}
 		}
-		UserTopicMapRepositoryService mapRepositoryService = ServiceRegistry.INSTANCE
+		
+		List<JPackAttachment> result = new LinkedList<JPackAttachment>();
+		PackAttachmentRepositoryService packAttachmentRepositoryService = ServiceRegistry.INSTANCE
+				.findService(PackAttachmentRepositoryService.class);
+		Pagination<PackAttachment> page = packAttachmentRepositoryService
+				.getAllPackAttachment(packId, pageLink);
+		if (page != null) {
+			List<PackAttachment> attachments = page.getResult();
+			if (attachments != null && !attachments.isEmpty()) {
+				result = new ArrayList<JPackAttachment>();
+				for (PackAttachment attachment : attachments) {
+					result.add(ModelConverter.convert(attachment));
+				}
+			}
+			Pagination<JPackAttachment> r = new Pagination<JPackAttachment>(
+					page.getPreviousLink(), page.getNextLink(), result);
+			if (SystemPropertyUtil.isCacheEnabled()) {
+				cacheService.addToCache(key, PackAttachmentPage.build(r));
+			}
+			return r;
+		}
+		
+		Pagination<JPackAttachment> r = new Pagination<JPackAttachment>(
+				END_OF_PAGE, END_OF_PAGE, Collections.emptyList());
+		if (SystemPropertyUtil.isCacheEnabled()) {
+			cacheService.addToCache(key, PackAttachmentPage.build(r));
+		}
+		return r;
+		
+		/*UserTopicMapRepositoryService mapRepositoryService = ServiceRegistry.INSTANCE
 				.findService(UserTopicMapRepositoryService.class);
 		List<String> IDs = mapRepositoryService
 				.getAllTopicIDsFollowedByUser(userId);
@@ -261,7 +302,7 @@ public class PackServiceImpl implements IPackService {
 		if (SystemPropertyUtil.isCacheEnabled()) {
 			cacheService.addToCache(key, PackAttachmentPage.build(r));
 		}
-		return r;
+		return r;*/
 	}
 
 	@Override
