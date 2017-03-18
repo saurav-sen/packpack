@@ -108,7 +108,7 @@ public enum COMMAND {
 			APIConstants.Discussion.ID, APIConstants.User.ID,
 			APIConstants.Discussion.TYPE), GET_ALL_PROMOTIONAL_FEEDS(
 			APIConstants.User.ID, APIConstants.PageInfo.PAGE_LINK),
-			GET_ALL_SYSTEM_SUPPORTED_CATEGORIES;
+			GET_ALL_SYSTEM_SUPPORTED_CATEGORIES, SYNC_TIME;
 
 	private String[] paramNames;
 

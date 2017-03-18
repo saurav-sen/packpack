@@ -9,6 +9,7 @@ import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.client.api.MultipartRequestProgressListener;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JCategories;
+import com.pack.pack.model.web.Timestamp;
 
 /**
  * 
@@ -36,6 +37,16 @@ public class PublicApi extends BaseAPI {
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JCategories.class);
 	}
+	
+	private Long getServerTimeInMilliseconds() throws Exception {
+		DefaultHttpClient client = new DefaultHttpClient();
+		String url = getBaseUrl() + "sys.info/ntp";
+		HttpGet GET = new HttpGet(url);
+		HttpResponse response = client.execute(GET);
+		Timestamp timestamp = JSONUtil.deserialize(
+				EntityUtils.toString(response.getEntity()), Timestamp.class);
+		return timestamp.getValue();
+	}
 
 	private class Invoker implements ApiInvoker {
 
@@ -50,6 +61,8 @@ public class PublicApi extends BaseAPI {
 		public Object invoke() throws Exception {
 			if (COMMAND.GET_ALL_SYSTEM_SUPPORTED_CATEGORIES.equals(action)) {
 				return getAllSystemSupportedCategories();
+			} else if(COMMAND.SYNC_TIME.equals(action)) {
+				return getServerTimeInMilliseconds();
 			}
 			return null;
 		}

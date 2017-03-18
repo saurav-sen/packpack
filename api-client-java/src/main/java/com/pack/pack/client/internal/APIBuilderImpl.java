@@ -117,7 +117,8 @@ public class APIBuilderImpl extends APIBuilder {
 		} else if(action == COMMAND.GET_ALL_PROMOTIONAL_FEEDS) {
 			api = new APIWrapper(new HomeApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
-		} else if(action == COMMAND.GET_ALL_SYSTEM_SUPPORTED_CATEGORIES) {
+		} else if(action == COMMAND.GET_ALL_SYSTEM_SUPPORTED_CATEGORIES
+				|| action == COMMAND.SYNC_TIME) {
 			api = new APIWrapper(new PublicApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
 		}
