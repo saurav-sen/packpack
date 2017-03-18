@@ -33,7 +33,8 @@ public class AccessTokenVerifier implements ContainerRequestFilter {
 		if (!path.endsWith(OAuthConstants.OAUTH_REQUEST_TOKEN_PATH)
 				&& !path.endsWith(OAuthConstants.OAUTH_AUTHORIZATION_PATH)
 				&& !path.endsWith(OAuthConstants.OAUTH_ACCESS_TOKEN_PATH)
-				&& !path.endsWith(SystemInfo.SYSTEM_SUPPORTED_CATEGORIES_INFO_WEB_URL)) {
+				&& !path.endsWith(SystemInfo.SYSTEM_SUPPORTED_CATEGORIES_INFO_WEB_URL)
+				&& !path.endsWith(SystemInfo.NTP_INFO_WEB_URL)) {
 			if (isTokenEmpty) {
 				allow = false;
 			} else {
