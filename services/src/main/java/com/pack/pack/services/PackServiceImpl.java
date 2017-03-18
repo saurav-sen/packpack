@@ -513,6 +513,7 @@ public class PackServiceImpl implements IPackService {
 	public JPack createNewPack(Pack pack) throws PackPackException {
 		PackRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(PackRepositoryService.class);
+		pack.setCreationTime(System.currentTimeMillis());
 		service.add(pack);
 		return ModelConverter.convert(pack);
 	}
