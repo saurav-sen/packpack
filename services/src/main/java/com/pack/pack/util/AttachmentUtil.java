@@ -44,7 +44,7 @@ public class AttachmentUtil {
 	public static File resizeAndStoreUploadedAttachment(InputStream inputStream,
 			String fileLoc, int width, int height, S3Path s3Path, String relativeUrl) throws PackPackException {
 		File attachmentFile = storeUploadedAttachment(inputStream, fileLoc, s3Path, relativeUrl, true, false);
-		return createThumnailForImage(attachmentFile, width, height, s3Path);
+		return createThumnailForImage(attachmentFile, width, height, s3Path.clone().setFile(false));
 	}
 	
 	public static File storeProfilePictureImage(InputStream inputStream,

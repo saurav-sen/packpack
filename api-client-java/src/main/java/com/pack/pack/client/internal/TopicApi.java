@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -19,6 +20,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -26,6 +28,7 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
 import com.pack.pack.client.api.APIConstants;
+import com.pack.pack.client.api.ByteBody;
 import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.client.api.MultipartRequestProgressListener;
 import com.pack.pack.client.internal.response.cache.CachingHttpClient;
@@ -37,6 +40,8 @@ import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.PromoteStatus;
 import com.pack.pack.model.web.dto.EntityPromoteDTO;
 import com.pack.pack.model.web.dto.TopicFollowDTO;
+import com.pack.pack.services.exception.ErrorCodes;
+import com.pack.pack.services.exception.PackPackException;
 
 /**
  * 
@@ -199,10 +204,22 @@ class TopicApi extends BaseAPI {
 		while (itr.hasNext()) {
 			String key = itr.next();
 			if (APIConstants.Topic.WALLPAPER.equals(key)) {
-				File file = (File) params.get(key);
-				FileBody fileBody = new FileBody(file, file.getName(),
-						HTTP.OCTET_STREAM_TYPE, null);
-				multipartEntity.addPart(key, fileBody);
+				Object obj = params.get(key);
+				if (obj instanceof File) {
+					File file = (File) obj;
+					FileBody fileBody = new FileBody(file, file.getName(),
+							HTTP.OCTET_STREAM_TYPE, null);
+					multipartEntity.addPart(key, fileBody);
+				} else if(obj instanceof ByteBody) {
+					ByteBody byteBody = (ByteBody)obj;
+					byte[] bytes = byteBody.getBytes();
+					ByteArrayBody byteArrayBody = new ByteArrayBody(bytes, 
+							UUID.randomUUID().toString());
+					multipartEntity.addPart(key, byteArrayBody);
+				} else {
+					throw new PackPackException(ErrorCodes.PACK_ERR_94,
+							"Unsupported Media Type, selected wallpaper");
+				}
 				// builder.addBinaryBody(key, file, HTTP.OCTET_STREAM_TYPE,
 				// file.getName());
 			} else {

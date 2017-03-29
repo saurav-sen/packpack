@@ -1,6 +1,7 @@
 package com.pack.pack.rest.api;
 
 import java.io.InputStream;
+import java.util.UUID;
 
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
@@ -146,10 +147,11 @@ public class TopicResource {
 			topic.setLatitude(geoLocation.getLatitude());
 			topic.setLongitude(geoLocation.getLongitude());
 		}
+		String fileName = UUID.randomUUID().toString() + ".jpg";
 		ITopicService service = ServiceRegistry.INSTANCE
 				.findCompositeService(ITopicService.class);
 		return service.createNewTopic(topic, wallpaper,
-				aboutWallpaper.getFileName());
+				fileName);
 	}
 	
 	@PUT

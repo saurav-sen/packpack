@@ -73,4 +73,6 @@ public interface ErrorCodes {
 	
 	public static final String PACK_ERR_92 = "pack_err_92"; // (Bad Request)
 	public static final String PACK_ERR_93 = "pack_err_93"; // Forbidden to access details of some other member.
+	
+	public static final String PACK_ERR_94 = "pack_err_94"; // Unsupported Media Type.
 }
