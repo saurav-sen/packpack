@@ -132,4 +132,14 @@ public interface IPackService {
 	 * @throws PackPackException
 	 */
 	public JPack createNewPack(Pack pack) throws PackPackException;
+	
+	/**
+	 * 
+	 * @param attachmentId
+	 * @param packId
+	 * @param topicId
+	 * @throws PackPackException
+	 */
+	public void deleteAttachment(String attachmentId, String packId,
+			String topicId) throws PackPackException;
 }

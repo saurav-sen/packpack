@@ -517,4 +517,13 @@ public class PackServiceImpl implements IPackService {
 		service.add(pack);
 		return ModelConverter.convert(pack);
 	}
+	
+	@Override
+	public void deleteAttachment(String attachmentId, String packId,
+			String topicId) throws PackPackException {
+		PackAttachmentRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(PackAttachmentRepositoryService.class);
+		PackAttachment packAttachment = service.get(attachmentId);
+		service.remove(packAttachment);
+	}
 }

@@ -12,6 +12,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
@@ -303,6 +304,18 @@ class AttachmentsApi extends BaseAPI {
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				PromoteStatus.class);
 	}
+	
+	private JStatus deleteAttachment(String packAttachmentId, String packId,
+			String topicId, String oAuthToken) throws Exception {
+		String url = getBaseUrl() + ATTACHMENT + packAttachmentId + "/pack/"
+				+ packId + "/topic/" + topicId;
+		DefaultHttpClient client = new DefaultHttpClient();
+		HttpDelete DELETE = new HttpDelete(url);
+		DELETE.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		HttpResponse response = client.execute(DELETE);
+		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
+				JStatus.class);
+	}
 
 	private class Invoker implements ApiInvoker {
 
@@ -371,6 +384,13 @@ class AttachmentsApi extends BaseAPI {
 				String packAttachmentId = (String) params.get(APIConstants.PackAttachment.ID);
 				String userId = (String) params.get(APIConstants.User.ID);
 				result = promotePackAttachment(packAttachmentId, userId, oAuthToken);
+			} else if (action == COMMAND.DELETE_ATTACHMENT) {
+				String packAttachmentId = (String) params
+						.get(APIConstants.PackAttachment.ID);
+				String packId = (String) params.get(APIConstants.Pack.ID);
+				String topicId = (String) params.get(APIConstants.Topic.ID);
+				result = deleteAttachment(packAttachmentId, packId, topicId,
+						oAuthToken);
 			}
 			return result;
 		}

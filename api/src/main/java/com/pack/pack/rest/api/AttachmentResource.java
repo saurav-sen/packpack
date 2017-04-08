@@ -16,6 +16,7 @@ import java.util.UUID;
 import javax.imageio.ImageIO;
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -37,7 +38,9 @@ import org.slf4j.LoggerFactory;
 import com.pack.pack.IPackService;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPackAttachment;
+import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.PackAttachmentType;
+import com.pack.pack.model.web.StatusType;
 import com.pack.pack.rest.api.security.interceptors.CompressRead;
 import com.pack.pack.rest.api.security.interceptors.CompressWrite;
 import com.pack.pack.rest.web.util.ImageUtil;
@@ -333,5 +336,21 @@ public class AttachmentResource {
 		logger.info("Total time to upload VIDEO titled <" + title + "> = "
 				+ (t1 - t0) / (1000 * 60) + " minutes");
 		return attachment;
+	}
+	
+	@DELETE
+	@Path("{attachmentId}/pack/{packId}/topic/{topicId}")
+	@Produces(value = MediaType.APPLICATION_JSON)
+	public JStatus deleteAttachment(
+			@PathParam("attachmentId") String attachmentId,
+			@PathParam("packId") String packId,
+			@PathParam("topicId") String topicId) throws PackPackException {
+		IPackService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IPackService.class);
+		service.deleteAttachment(attachmentId, packId, topicId);
+		JStatus status = new JStatus();
+		status.setStatus(StatusType.OK);
+		status.setInfo("Successfully removed attachment ID @ " + attachmentId);
+		return status;
 	}
 }
