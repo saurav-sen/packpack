@@ -109,7 +109,8 @@ public enum COMMAND {
 			APIConstants.Discussion.TYPE), GET_ALL_PROMOTIONAL_FEEDS(
 			APIConstants.User.ID, APIConstants.PageInfo.PAGE_LINK), DELETE_ATTACHMENT(
 			APIConstants.PackAttachment.ID, APIConstants.Pack.ID,
-			APIConstants.Topic.ID), GET_ALL_SYSTEM_SUPPORTED_CATEGORIES, SYNC_TIME;
+			APIConstants.Topic.ID), GET_ALL_SYSTEM_SUPPORTED_CATEGORIES, SYNC_TIME, VALIDATE_USER_NAME(
+			APIConstants.User.USERNAME);
 
 	private String[] paramNames;
 

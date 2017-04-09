@@ -119,7 +119,8 @@ public class APIBuilderImpl extends APIBuilder {
 			api = new APIWrapper(new HomeApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
 		} else if(action == COMMAND.GET_ALL_SYSTEM_SUPPORTED_CATEGORIES
-				|| action == COMMAND.SYNC_TIME) {
+				|| action == COMMAND.SYNC_TIME
+				|| action == COMMAND.VALIDATE_USER_NAME) {
 			api = new APIWrapper(new PublicApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
 		}

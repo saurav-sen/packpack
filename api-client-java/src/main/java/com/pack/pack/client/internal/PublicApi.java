@@ -1,14 +1,18 @@
 package com.pack.pack.client.internal;
 
+import java.util.Map;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
+import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.client.api.MultipartRequestProgressListener;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JCategories;
+import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.Timestamp;
 
 /**
@@ -37,7 +41,7 @@ public class PublicApi extends BaseAPI {
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JCategories.class);
 	}
-	
+
 	private Long getServerTimeInMilliseconds() throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
 		String url = getBaseUrl() + "sys.info/ntp";
@@ -48,21 +52,38 @@ public class PublicApi extends BaseAPI {
 		return timestamp.getValue();
 	}
 
+	private JStatus validateUserName(String userName) throws Exception {
+		DefaultHttpClient client = new DefaultHttpClient();
+		String url = getBaseUrl() + "sys.info/user/" + userName;
+		HttpGet GET = new HttpGet(url);
+		HttpResponse response = client.execute(GET);
+		JStatus status = JSONUtil.deserialize(
+				EntityUtils.toString(response.getEntity()), JStatus.class);
+		return status;
+	}
+
 	private class Invoker implements ApiInvoker {
 
 		private COMMAND action;
 
+		private Map<String, Object> params;
+
 		@Override
 		public void setConfiguration(Configuration configuration) {
 			action = configuration.getAction();
+			params = configuration.getApiParams();
 		}
 
 		@Override
 		public Object invoke() throws Exception {
 			if (COMMAND.GET_ALL_SYSTEM_SUPPORTED_CATEGORIES.equals(action)) {
 				return getAllSystemSupportedCategories();
-			} else if(COMMAND.SYNC_TIME.equals(action)) {
+			} else if (COMMAND.SYNC_TIME.equals(action)) {
 				return getServerTimeInMilliseconds();
+			} else if (COMMAND.VALIDATE_USER_NAME.equals(action)) {
+				String userName = (String) params
+						.get(APIConstants.User.USERNAME);
+				return validateUserName(userName);
 			}
 			return null;
 		}

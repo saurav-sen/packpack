@@ -66,6 +66,7 @@ public class TopicActivityResource {
 
 	@DELETE
 	@Path("{topicId}/user/{userId}")
+	@Produces(value = MediaType.APPLICATION_JSON)
 	public JStatus neglectTopic(@PathParam("userId") String userId,
 			@PathParam("topicId") String topicId) throws PackPackException {
 		ITopicService service = ServiceRegistry.INSTANCE

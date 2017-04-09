@@ -206,4 +206,15 @@ public class UserServiceImpl implements IUserService {
 		}
 		return ModelConverter.convert(user);
 	}
+	
+	@Override
+	public boolean checkIfUserNameExists(String userName)
+			throws PackPackException {
+		UserRepositoryService service = ServiceRegistry.INSTANCE.findService(UserRepositoryService.class);
+		List<User> users = service.getBasedOnUsername(userName);
+		if(users == null || users.isEmpty()) {
+			return false;
+		}
+		return true;
+	}
 }
