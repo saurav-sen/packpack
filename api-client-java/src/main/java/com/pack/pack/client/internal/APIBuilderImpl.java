@@ -97,6 +97,7 @@ public class APIBuilderImpl extends APIBuilder {
 				|| action == COMMAND.ADD_IMAGE_TO_PACK
 				|| action == COMMAND.UPLOAD_VIDEO_PACK
 				|| action == COMMAND.ADD_VIDEO_TO_PACK
+				|| action == COMMAND.ADD_VIDEO_TO_PACK_EXTERNAL_LINK
 				|| action == COMMAND.PROMOTE_PACK_ATTACHMENT
 				|| action == COMMAND.DELETE_ATTACHMENT) {
 			api = new APIWrapper(new AttachmentsApi(baseUrl));

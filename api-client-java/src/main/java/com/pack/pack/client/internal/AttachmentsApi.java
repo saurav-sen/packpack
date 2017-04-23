@@ -421,9 +421,9 @@ class AttachmentsApi extends BaseAPI {
 				String attachmentThumbnailUrl = (String) params
 						.get(APIConstants.Attachment.ATTACHMENT_THUMBNAIL_URL);
 
-				uploadVideoPackFromExternalLink(topicId, packId, userId, title,
-						description, attachmentUrl, attachmentThumbnailUrl,
-						oAuthToken);
+				result = uploadVideoPackFromExternalLink(topicId, packId,
+						userId, title, description, attachmentUrl,
+						attachmentThumbnailUrl, oAuthToken);
 			} else if (COMMAND.ADD_VIDEO_TO_PACK.equals(action)) {
 				result = addVideoToPack(params, oAuthToken, listener);
 			} else if(action == COMMAND.PROMOTE_PACK_ATTACHMENT) {

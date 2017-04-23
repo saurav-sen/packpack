@@ -127,33 +127,41 @@ public class ModelConverter {
 		jAttachment.setAttachmentThumbnailUrl(thumbnailUrl);*/
 		jAttachment.setAttachmentType(type.name());
 		String url = attachment.getAttachmentUrl();
-		url = url.replaceAll(File.separator, SystemPropertyUtil.URL_SEPARATOR);
-		if (!url.startsWith(SystemPropertyUtil.URL_SEPARATOR)
-				&& !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-			url = baseURL + SystemPropertyUtil.URL_SEPARATOR + url;
-		} else if (baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)
-				&& url.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-			url = baseURL.substring(0, baseURL.length() - 1) + url;
-		} else {
-			url = baseURL + url;
-		}
-		
-		{
-			String thumbnailUrl = attachment.getAttachmentThumbnailUrl();
-			if(thumbnailUrl != null && !thumbnailUrl.trim().isEmpty()) {
-				thumbnailUrl = thumbnailUrl.replaceAll(File.separator, SystemPropertyUtil.URL_SEPARATOR);
-				if (!thumbnailUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)
+		String thumbnailUrl = attachment.getAttachmentThumbnailUrl();
+		if(!url.startsWith("http:") && !url.startsWith("https:")) {
+			{
+				url = url.replaceAll(File.separator, SystemPropertyUtil.URL_SEPARATOR);
+				if (!url.startsWith(SystemPropertyUtil.URL_SEPARATOR)
 						&& !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-					thumbnailUrl = baseURL + SystemPropertyUtil.URL_SEPARATOR + thumbnailUrl;
+					url = baseURL + SystemPropertyUtil.URL_SEPARATOR + url;
 				} else if (baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)
-						&& thumbnailUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-					thumbnailUrl = baseURL.substring(0, baseURL.length() - 1) + thumbnailUrl;
+						&& url.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+					url = baseURL.substring(0, baseURL.length() - 1) + url;
 				} else {
-					thumbnailUrl = baseURL + thumbnailUrl;
+					url = baseURL + url;
 				}
-				jAttachment.setAttachmentThumbnailUrl(thumbnailUrl);
+			}
+			
+			{
+				
+				if(thumbnailUrl != null && !thumbnailUrl.trim().isEmpty()) {
+					thumbnailUrl = thumbnailUrl.replaceAll(File.separator, SystemPropertyUtil.URL_SEPARATOR);
+					if (!thumbnailUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)
+							&& !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+						thumbnailUrl = baseURL + SystemPropertyUtil.URL_SEPARATOR + thumbnailUrl;
+					} else if (baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)
+							&& thumbnailUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+						thumbnailUrl = baseURL.substring(0, baseURL.length() - 1) + thumbnailUrl;
+					} else {
+						thumbnailUrl = baseURL + thumbnailUrl;
+					}
+					jAttachment.setAttachmentThumbnailUrl(thumbnailUrl);
+				}
 			}
 		}
+		
+		
+		
 		
 		jAttachment.setId(attachment.getId());
 		jAttachment.setAttachmentUrl(url);
