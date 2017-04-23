@@ -123,6 +123,9 @@ public class APIBuilderImpl extends APIBuilder {
 				|| action == COMMAND.VALIDATE_USER_NAME) {
 			api = new APIWrapper(new PublicApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
+		} else if(action == COMMAND.CRAWL_FEED) {
+			api = new APIWrapper(new FeedReaderApi(baseUrl));
+			api.getInvoker().setConfiguration(config);
 		}
 		return api;
 	}
