@@ -36,8 +36,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pack.pack.IPackService;
+import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPackAttachment;
+import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.PackAttachmentType;
 import com.pack.pack.model.web.StatusType;
@@ -332,6 +334,39 @@ public class AttachmentResource {
 		JPackAttachment attachment = service.updatePack(file, fileName,
 				PackAttachmentType.VIDEO, packId, topicId, userId, title,
 				description, parseBoolean);
+		long t1 = System.currentTimeMillis();
+		logger.info("Total time to upload VIDEO titled <" + title + "> = "
+				+ (t1 - t0) / (1000 * 60) + " minutes");
+		return attachment;
+	}
+	
+	@PUT
+	@CompressRead
+	@CompressWrite
+	@Path("video/topic/{topicId}/pack/{packId}/usr/{userId}")
+	@Consumes(value = MediaType.APPLICATION_JSON)
+	@Produces(value = MediaType.APPLICATION_JSON)
+	public JPackAttachment modifyPack_addVideoExternalLink(
+			@PathParam("topicId") String topicId,
+			@PathParam("packId") String packId,
+			@PathParam("userId") String userId, String json)
+			throws PackPackException {
+		long t0 = System.currentTimeMillis();
+		JRssFeed feed = JSONUtil.deserialize(json, JRssFeed.class, true);
+		logger.info("VIDEO upload from external link @ " + feed.getOgUrl()
+				+ " In-Progress");
+
+		String title = feed.getOgTitle();
+		String description = feed.getOgDescription();
+		String attachmentUrl = feed.getOgUrl();
+		String attachmentThumbnailUrl = feed.getOgImage();
+
+		IPackService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IPackService.class);
+		JPackAttachment attachment = service.updatePackFromExternalLink(
+				PackAttachmentType.VIDEO, packId, topicId, userId, title,
+				description, attachmentUrl, attachmentThumbnailUrl, true);
+
 		long t1 = System.currentTimeMillis();
 		logger.info("Total time to upload VIDEO titled <" + title + "> = "
 				+ (t1 - t0) / (1000 * 60) + " minutes");

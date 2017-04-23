@@ -1,6 +1,8 @@
 package com.pack.pack.client.internal;
 
+import static com.pack.pack.client.api.APIConstants.APPLICATION_JSON;
 import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
+import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +34,7 @@ import com.pack.pack.client.api.MultipartRequestProgressListener;
 import com.pack.pack.client.internal.multipart.ProgressTrackedMultipartEntity;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JPackAttachment;
+import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.PromoteStatus;
 import com.pack.pack.model.web.dto.EntityPromoteDTO;
@@ -132,6 +135,32 @@ class AttachmentsApi extends BaseAPI {
 		String url = getBaseUrl() + ATTACHMENT + "video/topic/" + topicId + "/usr/"
 				+ userId;
 		return uploadPack(params, url, oAuthToken, listener);
+	}
+	
+	private JPackAttachment uploadVideoPackFromExternalLink(String topicId,
+			String packId, String userId, String title, String description,
+			String attachmentUrl, String attachmentThumbnailUrl,
+			String oAuthToken) throws ClientProtocolException, IOException,
+			ParseException, PackPackException {
+		JRssFeed feed = new JRssFeed();
+		feed.setOgTitle(title);
+		feed.setOgDescription(description);
+		feed.setOgUrl(attachmentUrl);
+		feed.setOgImage(attachmentThumbnailUrl);
+		String json = JSONUtil.serialize(feed);
+		String url = getBaseUrl() + ATTACHMENT + "video/topic/" + topicId
+				+ "/pack/" + packId + "/usr/" + userId;
+		DefaultHttpClient client = new DefaultHttpClient();
+		HttpPut PUT = new HttpPut(url);
+		HttpEntity jsonBody = new StringEntity(json);
+		PUT.setEntity(GZipUtil.compress(jsonBody));
+		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
+		PUT.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
+		HttpResponse response = client.execute(PUT);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JPackAttachment.class);
 	}
 
 	private JStatus uploadPack(Map<String, Object> params, String url,
@@ -378,6 +407,23 @@ class AttachmentsApi extends BaseAPI {
 				result = addImageToPack(params, oAuthToken, listener);
 			} else if (COMMAND.UPLOAD_VIDEO_PACK.equals(action)) {
 				result = uploadVideoPack(params, oAuthToken, listener);
+			} else if(COMMAND.ADD_VIDEO_TO_PACK_EXTERNAL_LINK.equals(action)) {
+				String topicId = (String) params.get(APIConstants.Topic.ID);
+				String packId = (String) params.get(APIConstants.Pack.ID);
+				String userId = (String) params.get(APIConstants.User.ID);
+
+				String title = (String) params
+						.get(APIConstants.Attachment.TITLE);
+				String description = (String) params
+						.get(APIConstants.Attachment.DESCRIPTION);
+				String attachmentUrl = (String) params
+						.get(APIConstants.Attachment.ATTACHMENT_URL);
+				String attachmentThumbnailUrl = (String) params
+						.get(APIConstants.Attachment.ATTACHMENT_THUMBNAIL_URL);
+
+				uploadVideoPackFromExternalLink(topicId, packId, userId, title,
+						description, attachmentUrl, attachmentThumbnailUrl,
+						oAuthToken);
 			} else if (COMMAND.ADD_VIDEO_TO_PACK.equals(action)) {
 				result = addVideoToPack(params, oAuthToken, listener);
 			} else if(action == COMMAND.PROMOTE_PACK_ATTACHMENT) {

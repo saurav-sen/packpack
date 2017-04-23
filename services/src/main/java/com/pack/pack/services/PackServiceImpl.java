@@ -30,6 +30,7 @@ import com.pack.pack.services.couchdb.PackAttachmentRepositoryService;
 import com.pack.pack.services.couchdb.PackRepositoryService;
 import com.pack.pack.services.couchdb.TopicPackMapRepositoryService;
 import com.pack.pack.services.couchdb.TopicRepositoryService;
+import com.pack.pack.services.exception.ErrorCodes;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.redis.PackAttachmentPage;
 import com.pack.pack.services.redis.PackPage;
@@ -525,5 +526,43 @@ public class PackServiceImpl implements IPackService {
 				.findService(PackAttachmentRepositoryService.class);
 		PackAttachment packAttachment = service.get(attachmentId);
 		service.remove(packAttachment);
+	}
+	
+	@Override
+	public JPackAttachment updatePackFromExternalLink(PackAttachmentType type,
+			String packId, String topicId, String userId, String title,
+			String description, String attachmentUrl,
+			String attachmentThumbnailUrl, boolean isCompressed)
+			throws PackPackException {
+		Pack pack = findPackById(packId);
+
+		if (pack == null) {
+			throw new PackPackException(ErrorCodes.PACK_ERR_01,
+					"Pack with ID = " + packId + " NOT found.");
+		}
+
+		PackAttachment attachment = new PackAttachment();
+		attachment.setTitle(title);
+		attachment.setDescription(description);
+		attachment.setCreatorId(userId);
+		attachment.setCreationTime(System.currentTimeMillis());
+		attachment.setType(AttachmentType.valueOf(type.name()));
+		attachment.setMimeType(type.name());
+		attachment.setAttachmentParentPackId(pack.getId());
+		attachment.setAttachmentUrl(attachmentUrl);
+		attachment.setAttachmentThumbnailUrl(attachmentThumbnailUrl);
+		PackAttachmentRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(PackAttachmentRepositoryService.class);
+		service.add(attachment);
+
+		if (SystemPropertyUtil.isCacheEnabled()) {
+			String keyPrefix = "pack:topic:" + topicId + ":pack:" + packId
+					+ ":attachment";
+			RedisCacheService cacheService = ServiceRegistry.INSTANCE
+					.findService(RedisCacheService.class);
+			cacheService.removeFromCache(keyPrefix);
+		}
+
+		return ModelConverter.convert(attachment);
 	}
 }

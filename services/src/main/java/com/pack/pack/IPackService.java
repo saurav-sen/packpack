@@ -105,6 +105,27 @@ public interface IPackService {
 			PackAttachmentType type, String packId, String topicId,
 			String userId, String title, String description, boolean isCompressed)
 			throws PackPackException;
+	
+	
+	/**
+	 * 
+	 * @param type
+	 * @param packId
+	 * @param topicId
+	 * @param userId
+	 * @param title
+	 * @param description
+	 * @param attachmentUrl
+	 * @param attachmentThumbnailUrl
+	 * @param isCompressed
+	 * @return
+	 * @throws PackPackException
+	 */
+	public JPackAttachment updatePackFromExternalLink(PackAttachmentType type,
+			String packId, String topicId, String userId, String title,
+			String description, String attachmentUrl,
+			String attachmentThumbnailUrl, boolean isCompressed)
+			throws PackPackException;
 
 	/**
 	 * 

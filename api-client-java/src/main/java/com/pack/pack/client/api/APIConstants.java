@@ -123,6 +123,8 @@ public interface APIConstants {
 		public static final String DESCRIPTION = "description";
 		public static final String STORY = "story";
 		public static final String IS_COMPRESSED = "isCompressed";
+		public static final String ATTACHMENT_URL = "attachmentUrl";
+		public static final String ATTACHMENT_THUMBNAIL_URL = "attachmentThumbnailUrl";
 	}
 	
 	public static interface Image {

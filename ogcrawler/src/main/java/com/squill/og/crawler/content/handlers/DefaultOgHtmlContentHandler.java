@@ -59,7 +59,7 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 		}
 
 		String description = null;
-		Elements metaOgDescription = doc.select("meta[property=og:title]");
+		Elements metaOgDescription = doc.select("meta[property=og:description]");
 		if (metaOgDescription != null) {
 			description = metaOgDescription.attr("content");
 		}

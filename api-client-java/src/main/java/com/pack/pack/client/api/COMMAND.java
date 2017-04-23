@@ -88,7 +88,11 @@ public enum COMMAND {
 			APIConstants.Attachment.STORY, APIConstants.Topic.ID,
 			APIConstants.User.ID), ADD_VIDEO_TO_PACK(
 			APIConstants.Attachment.FILE_ATTACHMENT, APIConstants.Topic.ID,
-			APIConstants.Pack.ID, APIConstants.User.ID), LOAD_RESOURCE(
+			APIConstants.Pack.ID, APIConstants.User.ID), ADD_VIDEO_TO_PACK_EXTERNAL_LINK(
+			APIConstants.Topic.ID, APIConstants.Pack.ID, APIConstants.User.ID,
+			APIConstants.Attachment.TITLE, APIConstants.Attachment.DESCRIPTION,
+			APIConstants.Attachment.ATTACHMENT_URL,
+			APIConstants.Attachment.ATTACHMENT_THUMBNAIL_URL), LOAD_RESOURCE(
 			APIConstants.ProtectedResource.RESOURCE_URL,
 			APIConstants.Image.WIDTH, APIConstants.Image.HEIGHT), LOAD_EXTERNAL_RESOURCE(
 			APIConstants.ExternalResource.RESOURCE_URL), GET_ALL_DISCUSSIONS_FOR_TOPIC(
@@ -110,7 +114,8 @@ public enum COMMAND {
 			APIConstants.User.ID, APIConstants.PageInfo.PAGE_LINK), DELETE_ATTACHMENT(
 			APIConstants.PackAttachment.ID, APIConstants.Pack.ID,
 			APIConstants.Topic.ID), GET_ALL_SYSTEM_SUPPORTED_CATEGORIES, SYNC_TIME, VALIDATE_USER_NAME(
-			APIConstants.User.USERNAME), CRAWL_FEED(APIConstants.ExternalResource.RESOURCE_URL);
+			APIConstants.User.USERNAME), CRAWL_FEED(
+			APIConstants.ExternalResource.RESOURCE_URL);
 
 	private String[] paramNames;
 
