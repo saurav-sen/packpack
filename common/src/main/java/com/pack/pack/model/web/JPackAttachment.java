@@ -1,7 +1,9 @@
 package com.pack.pack.model.web;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -37,6 +39,10 @@ public class JPackAttachment {
 	private JUser creator;
 	
 	private boolean uploadProgress;
+	
+	private boolean isExternalLink;
+	
+	private Map<String, String> extraMetaData;
 	
 	public String getAttachmentUrl() {
 		return attachmentUrl;
@@ -151,5 +157,24 @@ public class JPackAttachment {
 
 	public void setUploadProgress(boolean uploadProgress) {
 		this.uploadProgress = uploadProgress;
+	}
+
+	public boolean isExternalLink() {
+		return isExternalLink;
+	}
+
+	public void setExternalLink(boolean isExternalLink) {
+		this.isExternalLink = isExternalLink;
+	}
+
+	public Map<String, String> getExtraMetaData() {
+		if(extraMetaData == null) {
+			extraMetaData = new HashMap<String, String>();
+		}
+		return extraMetaData;
+	}
+
+	public void setExtraMetaData(Map<String, String> extraMetaData) {
+		this.extraMetaData = extraMetaData;
 	}
 }

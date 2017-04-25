@@ -1,7 +1,9 @@
 package com.pack.pack.model;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.ektorp.support.CouchDbDocument;
 
@@ -45,6 +47,10 @@ public class PackAttachment extends CouchDbDocument {
 	private List<Comment> recentComments;
 	
 	private String attachmentParentPackId;
+	
+	private String isExternalLink;
+	
+	private Map<String, String> extraMetaData;
 
 	public String getAttachmentUrl() {
 		return attachmentUrl;
@@ -159,5 +165,24 @@ public class PackAttachment extends CouchDbDocument {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public String getIsExternalLink() {
+		return isExternalLink;
+	}
+
+	public void setIsExternalLink(String isExternalLink) {
+		this.isExternalLink = isExternalLink;
+	}
+	
+	public Map<String, String> getExtraMetaData() {
+		if(extraMetaData == null) {
+			extraMetaData = new HashMap<String, String>();
+		}
+		return extraMetaData;
+	}
+
+	public void setExtraMetaData(Map<String, String> extraMetaData) {
+		this.extraMetaData = extraMetaData;
 	}
 }

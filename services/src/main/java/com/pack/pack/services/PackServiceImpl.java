@@ -551,6 +551,14 @@ public class PackServiceImpl implements IPackService {
 		attachment.setAttachmentParentPackId(pack.getId());
 		attachment.setAttachmentUrl(attachmentUrl);
 		attachment.setAttachmentThumbnailUrl(attachmentThumbnailUrl);
+		attachment.setIsExternalLink("true");
+		if(attachmentUrl.contains("youtube.com")) {
+			String[] split = attachmentUrl.split("watch=");
+			if(split.length > 1) {
+				String videoID = split[1].trim();
+				attachment.getExtraMetaData().put("YOUTUBE_VIDEO_ID", videoID);
+			}
+		}
 		PackAttachmentRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(PackAttachmentRepositoryService.class);
 		service.add(attachment);

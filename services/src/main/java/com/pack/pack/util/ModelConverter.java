@@ -4,8 +4,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +47,9 @@ public class ModelConverter {
 
 	private static Logger logger = LoggerFactory
 			.getLogger(ModelConverter.class);
+	
+	private static final String HTTP = "http://";
+	private static final String HTTPS = "https://";
 
 	public static List<JRssFeed> convertAllRssFeeds(List<RSSFeed> feeds) {
 		if (feeds == null || feeds.isEmpty())
@@ -127,40 +132,60 @@ public class ModelConverter {
 		jAttachment.setAttachmentThumbnailUrl(thumbnailUrl);*/
 		jAttachment.setAttachmentType(type.name());
 		String url = attachment.getAttachmentUrl();
-		String thumbnailUrl = attachment.getAttachmentThumbnailUrl();
-		if(!url.startsWith("http:") && !url.startsWith("https:")) {
-			{
-				url = url.replaceAll(File.separator, SystemPropertyUtil.URL_SEPARATOR);
-				if (!url.startsWith(SystemPropertyUtil.URL_SEPARATOR)
-						&& !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-					url = baseURL + SystemPropertyUtil.URL_SEPARATOR + url;
-				} else if (baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)
-						&& url.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-					url = baseURL.substring(0, baseURL.length() - 1) + url;
-				} else {
-					url = baseURL + url;
-				}
-			}
-			
-			{
-				
-				if(thumbnailUrl != null && !thumbnailUrl.trim().isEmpty()) {
-					thumbnailUrl = thumbnailUrl.replaceAll(File.separator, SystemPropertyUtil.URL_SEPARATOR);
-					if (!thumbnailUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)
-							&& !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-						thumbnailUrl = baseURL + SystemPropertyUtil.URL_SEPARATOR + thumbnailUrl;
-					} else if (baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)
-							&& thumbnailUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-						thumbnailUrl = baseURL.substring(0, baseURL.length() - 1) + thumbnailUrl;
-					} else {
-						thumbnailUrl = baseURL + thumbnailUrl;
-					}
-					jAttachment.setAttachmentThumbnailUrl(thumbnailUrl);
-				}
+		
+		String isExternalLink = attachment.getIsExternalLink();
+		if(isExternalLink == null || isExternalLink.trim().isEmpty()) {
+			jAttachment.setExternalLink(false);
+		} else {
+			try {
+				boolean b = Boolean.parseBoolean(isExternalLink.trim());
+				jAttachment.setExternalLink(b);
+			} catch (Exception e) {
+				// Ignore this
+				jAttachment.setExternalLink(false);
 			}
 		}
 		
+		Map<String, String> extraMetaData = attachment.getExtraMetaData();
+		if(extraMetaData != null && !extraMetaData.isEmpty()) {
+			Iterator<String> itr = extraMetaData.keySet().iterator();
+			while(itr.hasNext()) {
+				String key = itr.next();
+				String value = extraMetaData.get(key);
+				jAttachment.getExtraMetaData().put(key, value);
+			}
+		}
 		
+		if(!url.startsWith(HTTP) && !url.startsWith(HTTPS)) {
+			url = url.replaceAll(File.separator, SystemPropertyUtil.URL_SEPARATOR);
+			if (!url.startsWith(SystemPropertyUtil.URL_SEPARATOR)
+					&& !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+				url = baseURL + SystemPropertyUtil.URL_SEPARATOR + url;
+			} else if (baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)
+					&& url.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+				url = baseURL.substring(0, baseURL.length() - 1) + url;
+			} else {
+				url = baseURL + url;
+			}
+		}
+		
+		String thumbnailUrl = attachment.getAttachmentThumbnailUrl();
+		
+		if(thumbnailUrl != null && !thumbnailUrl.trim().isEmpty()) {
+			if(!thumbnailUrl.startsWith(HTTP) && !thumbnailUrl.startsWith(HTTPS)) {
+				thumbnailUrl = thumbnailUrl.replaceAll(File.separator, SystemPropertyUtil.URL_SEPARATOR);
+				if (!thumbnailUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)
+						&& !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+					thumbnailUrl = baseURL + SystemPropertyUtil.URL_SEPARATOR + thumbnailUrl;
+				} else if (baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)
+						&& thumbnailUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+					thumbnailUrl = baseURL.substring(0, baseURL.length() - 1) + thumbnailUrl;
+				} else {
+					thumbnailUrl = baseURL + thumbnailUrl;
+				}
+				jAttachment.setAttachmentThumbnailUrl(thumbnailUrl);
+			}
+		}
 		
 		
 		jAttachment.setId(attachment.getId());
