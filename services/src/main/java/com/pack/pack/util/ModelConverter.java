@@ -184,6 +184,8 @@ public class ModelConverter {
 					thumbnailUrl = baseURL + thumbnailUrl;
 				}
 				jAttachment.setAttachmentThumbnailUrl(thumbnailUrl);
+			} else {
+				jAttachment.setAttachmentThumbnailUrl(thumbnailUrl);
 			}
 		}
 		

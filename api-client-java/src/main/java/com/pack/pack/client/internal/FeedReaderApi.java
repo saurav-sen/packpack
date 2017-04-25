@@ -32,7 +32,7 @@ class FeedReaderApi extends BaseAPI {
 	
 	private JRssFeed doCrawlExternalPublicLink(String externalPublicLink) throws Exception {
 		HttpClient client = new DefaultHttpClient();
-		HttpGet GET = new HttpGet("https://youtu.be/VP8Wv1P1NFE");
+		HttpGet GET = new HttpGet(externalPublicLink);
 		HttpResponse response = client.execute(GET);
 		int statusCode = response.getStatusLine().getStatusCode();
 		while(statusCode == 302) {
@@ -65,7 +65,11 @@ class FeedReaderApi extends BaseAPI {
 			}
 
 			String resourceUrl = null;
-			Elements metaOgUrl = doc.select("meta[property=al:android:url]");
+			/*Elements metaOgUrl = doc.select("meta[property=al:android:url]");
+			if (metaOgUrl != null) {
+				resourceUrl = metaOgUrl.attr("content");
+			}*/
+			Elements metaOgUrl = doc.select("meta[property=og:url]");
 			if (metaOgUrl != null) {
 				resourceUrl = metaOgUrl.attr("content");
 			}
