@@ -19,6 +19,7 @@ import com.pack.pack.IPackService;
 import com.pack.pack.model.AttachmentType;
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.PackAttachment;
+import com.pack.pack.model.PackAttachmentStory;
 import com.pack.pack.model.Topic;
 import com.pack.pack.model.TopicPackMap;
 import com.pack.pack.model.web.JPack;
@@ -27,6 +28,7 @@ import com.pack.pack.model.web.PackAttachmentType;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.services.aws.S3Path;
 import com.pack.pack.services.couchdb.PackAttachmentRepositoryService;
+import com.pack.pack.services.couchdb.PackAttachmentStoryRepositoryService;
 import com.pack.pack.services.couchdb.PackRepositoryService;
 import com.pack.pack.services.couchdb.TopicPackMapRepositoryService;
 import com.pack.pack.services.couchdb.TopicRepositoryService;
@@ -38,6 +40,7 @@ import com.pack.pack.services.redis.RedisCacheService;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.AttachmentUtil;
 import com.pack.pack.util.ModelConverter;
+import com.pack.pack.util.StringUtils;
 import com.pack.pack.util.SystemPropertyUtil;
 
 /**
@@ -526,6 +529,15 @@ public class PackServiceImpl implements IPackService {
 				.findService(PackAttachmentRepositoryService.class);
 		PackAttachment packAttachment = service.get(attachmentId);
 		service.remove(packAttachment);
+		String storyId = packAttachment.getStoryId();
+		if (storyId != null && !storyId.trim().isEmpty()) {
+			PackAttachmentStoryRepositoryService storyStore = ServiceRegistry.INSTANCE
+					.findService(PackAttachmentStoryRepositoryService.class);
+			PackAttachmentStory story = storyStore.get(storyId);
+			if (story != null) {
+				storyStore.remove(story);
+			}
+		}
 	}
 	
 	@Override
@@ -572,5 +584,68 @@ public class PackServiceImpl implements IPackService {
 		}
 
 		return ModelConverter.convert(attachment);
+	}
+	
+	@Override
+	public String addStoryToAttachment(String attachmentId, String story)
+			throws PackPackException {
+		PackAttachment packAttachment = findPackAttachmentById(attachmentId);
+		if (packAttachment == null) {
+			throw new PackPackException(ErrorCodes.PACK_ERR_01,
+					"Attachment Not Found");
+		}
+		story = StringUtils.compress(story);
+		boolean oldEntity = false;
+		PackAttachmentStory storyObj = null;
+		String storyId = packAttachment.getStoryId();
+		if(storyId != null && !storyId.trim().isEmpty()) {
+			PackAttachmentStoryRepositoryService storyStore = ServiceRegistry.INSTANCE
+					.findService(PackAttachmentStoryRepositoryService.class);
+			storyObj = storyStore.get(storyId);
+			oldEntity = true;
+		} else {
+			storyObj = new PackAttachmentStory();
+		}
+		
+		storyObj.setContent(story);
+		storyObj.setParentAttachmentId(packAttachment.getId());
+		PackAttachmentStoryRepositoryService storyStore = ServiceRegistry.INSTANCE
+				.findService(PackAttachmentStoryRepositoryService.class);
+		if(!oldEntity) {
+			storyStore.add(storyObj);
+		} else {
+			storyStore.update(storyObj);
+		}
+		packAttachment.setStoryId(storyObj.getId());
+		PackAttachmentRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(PackAttachmentRepositoryService.class);
+		service.update(packAttachment);
+		return storyObj.getId();
+	}
+	
+	@Override
+	public String loadAttachmentStory(String attachmentId, String userId)
+			throws PackPackException {
+		PackAttachment packAttachment = findPackAttachmentById(attachmentId);
+		if (packAttachment == null) {
+			throw new PackPackException(ErrorCodes.PACK_ERR_01,
+					"Attachment Not Found");
+		}
+		String storyId = packAttachment.getStoryId();
+		if(storyId == null || storyId.trim().isEmpty()) {
+			return "";
+		}
+		PackAttachmentStoryRepositoryService storyStore = ServiceRegistry.INSTANCE
+				.findService(PackAttachmentStoryRepositoryService.class);
+		PackAttachmentStory story = storyStore.get(storyId);
+		if(story == null) {
+			return "";
+		}
+		String content = story.getContent();
+		if(content == null) {
+			return null;
+		}
+		content = StringUtils.decompress(content);
+		return content;
 	}
 }

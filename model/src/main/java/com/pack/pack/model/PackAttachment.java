@@ -51,6 +51,8 @@ public class PackAttachment extends CouchDbDocument {
 	private String isExternalLink;
 	
 	private Map<String, String> extraMetaData;
+	
+	private String storyId;
 
 	public String getAttachmentUrl() {
 		return attachmentUrl;
@@ -184,5 +186,13 @@ public class PackAttachment extends CouchDbDocument {
 
 	public void setExtraMetaData(Map<String, String> extraMetaData) {
 		this.extraMetaData = extraMetaData;
+	}
+
+	public String getStoryId() {
+		return storyId;
+	}
+
+	public void setStoryId(String storyId) {
+		this.storyId = storyId;
 	}
 }

@@ -294,7 +294,7 @@ class UserManagementApi extends BaseAPI {
 			dto.setName(name);
 			dto.setPassword(password);
 			String json = JSONUtil.serialize(dto);
-			HttpEntity jsonBody = new StringEntity(json);
+			HttpEntity jsonBody = new StringEntity(json, UTF_8);
 			POST.setEntity(GZipUtil.compress(jsonBody));
 			POST.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
 		}

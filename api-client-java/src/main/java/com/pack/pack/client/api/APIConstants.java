@@ -127,6 +127,11 @@ public interface APIConstants {
 		public static final String ATTACHMENT_THUMBNAIL_URL = "attachmentThumbnailUrl";
 	}
 	
+	public static interface AttachmentStory {
+		public static final String ID = "attachmentStoryId";
+		public static final String STORY = "story";
+	}
+	
 	public static interface Image {
 		public static final String WIDTH = "w";
 		public static final String HEIGHT = "h";

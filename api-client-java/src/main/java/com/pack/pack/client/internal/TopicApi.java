@@ -5,6 +5,7 @@ import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
 import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -225,7 +226,7 @@ class TopicApi extends BaseAPI {
 			} else {
 				String text = (String) params.get(key);
 				// builder.addTextBody(key, text);
-				StringBody contentBody = new StringBody(text);
+				StringBody contentBody = new StringBody(text, TEXT_PLAIN, Charset.forName(UTF_8));
 				multipartEntity.addPart(key, contentBody);
 			}
 		}

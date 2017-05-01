@@ -115,7 +115,9 @@ public enum COMMAND {
 			APIConstants.PackAttachment.ID, APIConstants.Pack.ID,
 			APIConstants.Topic.ID), GET_ALL_SYSTEM_SUPPORTED_CATEGORIES, SYNC_TIME, VALIDATE_USER_NAME(
 			APIConstants.User.USERNAME), CRAWL_FEED(
-			APIConstants.ExternalResource.RESOURCE_URL);
+			APIConstants.ExternalResource.RESOURCE_URL), ADD_STORY_TO_ATTACHMENT(
+			APIConstants.PackAttachment.ID, APIConstants.AttachmentStory.STORY), GET_STORY_FROM_ATTACHMENT(
+			APIConstants.PackAttachment.ID, APIConstants.User.ID);
 
 	private String[] paramNames;
 

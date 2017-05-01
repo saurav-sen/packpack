@@ -146,6 +146,12 @@ public class ModelConverter {
 			}
 		}
 		
+		String storyId = attachment.getStoryId();
+		if(storyId == null || storyId.trim().isEmpty()) {
+			storyId = null;
+		}
+		jAttachment.setStoryId(storyId);
+		
 		Map<String, String> extraMetaData = attachment.getExtraMetaData();
 		if(extraMetaData != null && !extraMetaData.isEmpty()) {
 			Iterator<String> itr = extraMetaData.keySet().iterator();

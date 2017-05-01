@@ -6,6 +6,7 @@ import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
@@ -33,6 +34,7 @@ import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.client.api.MultipartRequestProgressListener;
 import com.pack.pack.client.internal.multipart.ProgressTrackedMultipartEntity;
 import com.pack.pack.common.util.JSONUtil;
+import com.pack.pack.model.web.JAttachmentStoryID;
 import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.JStatus;
@@ -152,7 +154,7 @@ class AttachmentsApi extends BaseAPI {
 				+ "/pack/" + packId + "/usr/" + userId;
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpPut PUT = new HttpPut(url);
-		HttpEntity jsonBody = new StringEntity(json);
+		HttpEntity jsonBody = new StringEntity(json, UTF_8);
 		PUT.setEntity(GZipUtil.compress(jsonBody));
 		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
@@ -204,7 +206,7 @@ class AttachmentsApi extends BaseAPI {
 				String text = (String) params.get(key);
 				//GZi stream = new ByteArrayOutputStream();
 				
-				StringBody textBody = new StringBody(text);
+				StringBody textBody = new StringBody(text);//, TEXT_PLAIN, Charset.forName(UTF_8));
 				multipartEntity.addPart(key, textBody);
 				// builder.addTextBody(key, text);
 			}
@@ -295,7 +297,7 @@ class AttachmentsApi extends BaseAPI {
 				multipartEntity.addPart(key, new StringBody(String.valueOf(isCompressed)));
 			} else {
 				String text = (String) params.get(key);
-				StringBody textBody = new StringBody(text);
+				StringBody textBody = new StringBody(text, TEXT_PLAIN, Charset.forName(UTF_8));
 				multipartEntity.addPart(key, textBody);
 				// builder.addTextBody(key, text);
 			}
@@ -327,7 +329,7 @@ class AttachmentsApi extends BaseAPI {
 		dto.setId(packAttachmentId);
 		dto.setType(JPackAttachment.class.getName());
 		String json = JSONUtil.serialize(dto);
-		HttpEntity jsonBody = new StringEntity(json);
+		HttpEntity jsonBody = new StringEntity(json, UTF_8);
 		PUT.setEntity(jsonBody);
 		HttpResponse response = client.execute(PUT);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
@@ -344,6 +346,48 @@ class AttachmentsApi extends BaseAPI {
 		HttpResponse response = client.execute(DELETE);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JStatus.class);
+	}
+	
+	private String addStoryToAttachment(String packAttachmentId, String story,
+			String oAuthToken) throws Exception {
+		String url = getBaseUrl() + ATTACHMENT + packAttachmentId + "/story";
+		DefaultHttpClient client = new DefaultHttpClient();
+		HttpPut PUT = new HttpPut(url);
+		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		PUT.addHeader(CONTENT_TYPE_HEADER, "text/html" + UTF_8_CHARSET);
+		
+		PUT.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
+		
+		HttpEntity stringBody = new StringEntity(story, UTF_8);
+		
+		//PUT.setEntity(GZipUtil.compress(stringBody));
+		PUT.setEntity(stringBody);
+		
+		PUT.setEntity(stringBody);
+		HttpResponse response = client.execute(PUT);
+		JAttachmentStoryID storyId = JSONUtil.deserialize(
+				EntityUtils.toString(response.getEntity()),
+				JAttachmentStoryID.class);
+		return storyId.getStoryId();
+	}
+
+	private String loadStoryForAttachment(String packAttachmentId,
+			String userId, String oAuthToken) throws Exception {
+		String url = getBaseUrl() + ATTACHMENT + packAttachmentId + "/story"
+				+ "/user/" + userId;
+		DefaultHttpClient client = new DefaultHttpClient();
+		HttpGet GET = new HttpGet(url);
+		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		HttpResponse response = client.execute(GET);
+
+		// return EntityUtils.toString(response.getEntity());
+		if (response.getStatusLine().getStatusCode() == 200) {
+			/*return EntityUtils.toString(GZipUtil.decompress(response
+					.getEntity()));*/
+			return EntityUtils.toString(response.getEntity());
+		} else {
+			return null;
+		}
 	}
 
 	private class Invoker implements ApiInvoker {
@@ -436,6 +480,19 @@ class AttachmentsApi extends BaseAPI {
 				String packId = (String) params.get(APIConstants.Pack.ID);
 				String topicId = (String) params.get(APIConstants.Topic.ID);
 				result = deleteAttachment(packAttachmentId, packId, topicId,
+						oAuthToken);
+			} else if (action == COMMAND.ADD_STORY_TO_ATTACHMENT) {
+				String packAttachmentId = (String) params
+						.get(APIConstants.PackAttachment.ID);
+				String story = (String) params
+						.get(APIConstants.AttachmentStory.STORY);
+				result = addStoryToAttachment(packAttachmentId, story,
+						oAuthToken);
+			} else if (action == COMMAND.GET_STORY_FROM_ATTACHMENT) {
+				String packAttachmentId = (String) params
+						.get(APIConstants.PackAttachment.ID);
+				String userId = (String) params.get(APIConstants.User.ID);
+				result = loadStoryForAttachment(packAttachmentId, userId,
 						oAuthToken);
 			}
 			return result;

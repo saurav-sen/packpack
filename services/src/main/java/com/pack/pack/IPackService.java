@@ -40,8 +40,10 @@ public interface IPackService {
 	 * @param receipents
 	 * @throws PackPackException
 	 */
-	/*public void forwardPack(String packId, String fromUserId,
-			PackReceipent... receipents) throws PackPackException;*/
+	/*
+	 * public void forwardPack(String packId, String fromUserId,
+	 * PackReceipent... receipents) throws PackPackException;
+	 */
 
 	/**
 	 * 
@@ -103,10 +105,9 @@ public interface IPackService {
 	 */
 	public JPackAttachment updatePack(InputStream file, String fileName,
 			PackAttachmentType type, String packId, String topicId,
-			String userId, String title, String description, boolean isCompressed)
-			throws PackPackException;
-	
-	
+			String userId, String title, String description,
+			boolean isCompressed) throws PackPackException;
+
 	/**
 	 * 
 	 * @param type
@@ -134,8 +135,10 @@ public interface IPackService {
 	 * @param userId
 	 * @throws PackPackException
 	 */
-	/*public void broadcastPack(BroadcastCriteria criteria, String packId,
-			String userId) throws PackPackException;*/
+	/*
+	 * public void broadcastPack(BroadcastCriteria criteria, String packId,
+	 * String userId) throws PackPackException;
+	 */
 
 	/**
 	 * 
@@ -143,8 +146,10 @@ public interface IPackService {
 	 * @param packId
 	 * @throws PackPackException
 	 */
-	/*public void broadcastSystemPack(BroadcastCriteria criteria, String packId)
-			throws PackPackException;*/
+	/*
+	 * public void broadcastSystemPack(BroadcastCriteria criteria, String
+	 * packId) throws PackPackException;
+	 */
 
 	/**
 	 * 
@@ -153,7 +158,7 @@ public interface IPackService {
 	 * @throws PackPackException
 	 */
 	public JPack createNewPack(Pack pack) throws PackPackException;
-	
+
 	/**
 	 * 
 	 * @param attachmentId
@@ -163,4 +168,24 @@ public interface IPackService {
 	 */
 	public void deleteAttachment(String attachmentId, String packId,
 			String topicId) throws PackPackException;
+
+	/**
+	 * 
+	 * @param attachmentId
+	 * @param story
+	 * @return -- ID of newly created story
+	 * @throws PackPackException
+	 */
+	public String addStoryToAttachment(String attachmentId, String story)
+			throws PackPackException;
+
+	/**
+	 * 
+	 * @param attachmentId
+	 * @param userId
+	 * @return
+	 * @throws PackPackException
+	 */
+	public String loadAttachmentStory(String attachmentId, String userId)
+			throws PackPackException;
 }

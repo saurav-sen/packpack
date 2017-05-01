@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import com.pack.pack.IPackService;
 import com.pack.pack.common.util.JSONUtil;
+import com.pack.pack.model.web.JAttachmentStoryID;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JRssFeed;
@@ -60,7 +61,7 @@ import com.pack.pack.util.SystemPropertyUtil;
 @Path("/attachment")
 public class AttachmentResource {
 
-	private static Logger logger = LoggerFactory
+	private static Logger LOG = LoggerFactory
 			.getLogger(AttachmentResource.class);
 	
 	@GET
@@ -102,7 +103,7 @@ public class AttachmentResource {
 				return ImageUtil.buildResponse(imageFile);
 			}
 		} catch (IOException e) {
-			logger.info(e.getMessage(), e);
+			LOG.info(e.getMessage(), e);
 			throw new PackPackException("TODO", e.getMessage(), e);
 		}
 	}
@@ -127,7 +128,7 @@ public class AttachmentResource {
 			File imageFile = new File(path.toString());
 			return ImageUtil.buildResponse(imageFile);
 		} catch (FileNotFoundException e) {
-			logger.info(e.getMessage(), e);
+			LOG.info(e.getMessage(), e);
 			throw new PackPackException("TODO", e.getMessage(), e);
 		}
 	}
@@ -183,10 +184,10 @@ public class AttachmentResource {
 				return ImageUtil.buildResponse(imageFile);
 			}
 		} catch (FileNotFoundException e) {
-			logger.info(e.getMessage(), e);
+			LOG.info(e.getMessage(), e);
 			throw new PackPackException("TODO", e.getMessage(), e);
 		} catch (IOException e) {
-			logger.info(e.getMessage(), e);
+			LOG.info(e.getMessage(), e);
 			throw new PackPackException("TODO", e.getMessage(), e);
 		}
 	}
@@ -318,7 +319,7 @@ public class AttachmentResource {
 			@PathParam("topicId") String topicId,
 			@PathParam("packId") String packId,
 			@PathParam("userId") String userId) throws PackPackException {
-		logger.info("VIDEO upload In-Progress");
+		LOG.info("VIDEO upload In-Progress");
 		long t0 = System.currentTimeMillis();
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
@@ -327,15 +328,15 @@ public class AttachmentResource {
 		try {
 			parseBoolean = Boolean.parseBoolean(isCompressed.trim());
 		} catch (Exception e) {
-			logger.debug("modifyPack_addVideo", e.getMessage(), e);
+			LOG.debug("modifyPack_addVideo", e.getMessage(), e);
 			parseBoolean = false;
 		}
-		logger.debug("modifyPack_addVideo :: isCompressed = " + parseBoolean);
+		LOG.debug("modifyPack_addVideo :: isCompressed = " + parseBoolean);
 		JPackAttachment attachment = service.updatePack(file, fileName,
 				PackAttachmentType.VIDEO, packId, topicId, userId, title,
 				description, parseBoolean);
 		long t1 = System.currentTimeMillis();
-		logger.info("Total time to upload VIDEO titled <" + title + "> = "
+		LOG.info("Total time to upload VIDEO titled <" + title + "> = "
 				+ (t1 - t0) / (1000 * 60) + " minutes");
 		return attachment;
 	}
@@ -353,13 +354,16 @@ public class AttachmentResource {
 			throws PackPackException {
 		long t0 = System.currentTimeMillis();
 		JRssFeed feed = JSONUtil.deserialize(json, JRssFeed.class, true);
-		logger.info("VIDEO upload from external link @ " + feed.getOgUrl()
+		LOG.info("VIDEO upload from external link @ " + feed.getOgUrl()
 				+ " In-Progress");
 
 		String title = feed.getOgTitle();
 		String description = feed.getOgDescription();
 		String attachmentUrl = feed.getOgUrl();
 		String attachmentThumbnailUrl = feed.getOgImage();
+		
+		/*LOG.debug("Title (External) = " + title);
+		LOG.debug("\u00a5");*/
 
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
@@ -368,7 +372,7 @@ public class AttachmentResource {
 				description, attachmentUrl, attachmentThumbnailUrl, true);
 
 		long t1 = System.currentTimeMillis();
-		logger.info("Total time to upload VIDEO titled <" + title + "> = "
+		LOG.info("Total time to upload VIDEO titled <" + title + "> = "
 				+ (t1 - t0) / (1000 * 60) + " minutes");
 		return attachment;
 	}
@@ -387,5 +391,31 @@ public class AttachmentResource {
 		status.setStatus(StatusType.OK);
 		status.setInfo("Successfully removed attachment ID @ " + attachmentId);
 		return status;
+	}
+	
+	@GET
+	@Path("{attachmentId}/story/user/{userId}")
+	@Produces(value = MediaType.TEXT_HTML)
+	public String getAttachmentStoryIfAny(
+			@PathParam("attachmentId") String attachmentId,
+			@PathParam("userId") String userId) throws PackPackException {
+		IPackService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IPackService.class);
+		return service.loadAttachmentStory(attachmentId, userId);
+	}
+
+	@PUT
+	@Path("{attachmentId}/story")
+	@Consumes(value = MediaType.TEXT_HTML)
+	@Produces(value = MediaType.APPLICATION_JSON)
+	public JAttachmentStoryID addAttachmentStory(
+			@PathParam("attachmentId") String attachmentId, String story)
+			throws PackPackException {
+		IPackService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IPackService.class);
+		String storyId = service.addStoryToAttachment(attachmentId, story);
+		JAttachmentStoryID jStoryId = new JAttachmentStoryID();
+		jStoryId.setStoryId(storyId + "");
+		return jStoryId;
 	}
 }

@@ -99,7 +99,9 @@ public class APIBuilderImpl extends APIBuilder {
 				|| action == COMMAND.ADD_VIDEO_TO_PACK
 				|| action == COMMAND.ADD_VIDEO_TO_PACK_EXTERNAL_LINK
 				|| action == COMMAND.PROMOTE_PACK_ATTACHMENT
-				|| action == COMMAND.DELETE_ATTACHMENT) {
+				|| action == COMMAND.DELETE_ATTACHMENT
+				|| action == COMMAND.ADD_STORY_TO_ATTACHMENT
+				|| action == COMMAND.GET_STORY_FROM_ATTACHMENT) {
 			api = new APIWrapper(new AttachmentsApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
 		} else if (action == COMMAND.LOAD_RESOURCE

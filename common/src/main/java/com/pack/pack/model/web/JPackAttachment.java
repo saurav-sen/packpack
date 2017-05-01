@@ -44,6 +44,8 @@ public class JPackAttachment {
 	
 	private Map<String, String> extraMetaData;
 	
+	private String storyId;
+	
 	public String getAttachmentUrl() {
 		return attachmentUrl;
 	}
@@ -176,5 +178,13 @@ public class JPackAttachment {
 
 	public void setExtraMetaData(Map<String, String> extraMetaData) {
 		this.extraMetaData = extraMetaData;
+	}
+
+	public String getStoryId() {
+		return storyId;
+	}
+
+	public void setStoryId(String storyId) {
+		this.storyId = storyId;
 	}
 }
