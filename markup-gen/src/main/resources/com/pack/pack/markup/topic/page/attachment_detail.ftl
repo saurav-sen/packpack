@@ -6,7 +6,11 @@
         
         <meta name="og:title" content="${model.title}">
         <meta property="og:type" content="website" />
-        <meta property="og:image" itemprop="image primaryImageOfPage" content="${model.attachmentUrl}" />
+        <#if model.mimeType == "VIDEO">
+        		<meta property="og:image" itemprop="image primaryImageOfPage" content="${model.attachmentThumbnailUrl}" />
+        	<#else>
+        		<meta property="og:image" itemprop="image primaryImageOfPage" content="${model.attachmentUrl}" />
+        </#if>
         
         <meta name="description" content="${model.title}">
         <meta name="author" content="Squill">

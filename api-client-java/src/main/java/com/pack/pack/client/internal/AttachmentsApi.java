@@ -325,6 +325,7 @@ class AttachmentsApi extends BaseAPI {
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpPut PUT = new HttpPut(url);
 		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
 		EntityPromoteDTO dto = new EntityPromoteDTO();
 		dto.setId(packAttachmentId);
 		dto.setType(JPackAttachment.class.getName());

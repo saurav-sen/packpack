@@ -47,6 +47,7 @@ public class PackAttachmentPageGenerator implements IMarkupGenerator {
 			String attachmentId = (String) dataModel.get("attachmentId");
 			String encryptedAttachmentId = EncryptionUtil
 					.encryptTextUsingSystemKey(attachmentId);
+			encryptedAttachmentId = String.valueOf(encryptedAttachmentId.hashCode());
 			String path = PromotedFileUtil
 					.calculatePathForPromotedAttachmentPage(encryptedAttachmentId);
 			if (path != null) {

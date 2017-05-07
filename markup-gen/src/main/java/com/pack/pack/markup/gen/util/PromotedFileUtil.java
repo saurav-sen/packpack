@@ -56,21 +56,21 @@ public class PromotedFileUtil {
 		return path;
 	}
 	
-	public static String calculatePathForPromotedAttachmentPage(String encryptedAttachmentId) {
+	public static String calculatePathForPromotedAttachmentPage(String attachmentId) {
 		String path = SystemPropertyUtil.getWebPagesRootPath();
 		if (path != null) {
 			StringBuilder pathBuilder = new StringBuilder(path);
 			if (!path.endsWith(File.separator)) {
 				pathBuilder = pathBuilder.append(File.separator);
 			}
-			pathBuilder = pathBuilder.append("attachments").append(File.separator)
-					.append(encryptedAttachmentId);
-			File file = new File(path);
+			pathBuilder = pathBuilder.append("attachments");/*.append(File.separator)
+					.append(attachmentId);*/
+			File file = new File(pathBuilder.toString());
 			if (!file.exists()) {
 				file.mkdir();
 			}
 			pathBuilder = pathBuilder.append(File.separator).append(
-					"index.html");
+					attachmentId + ".html");
 			path = pathBuilder.toString();
 		}
 		return path;

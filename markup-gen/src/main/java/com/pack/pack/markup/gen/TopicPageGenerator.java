@@ -55,6 +55,7 @@ public class TopicPageGenerator implements IMarkupGenerator {
 			String topicId = (String) dataModel.get("topicId");
 			String topicCategory = (String) dataModel.get("topicCategory");
 			String encryptedTopicId = EncryptionUtil.encryptTextUsingSystemKey(topicId);
+			encryptedTopicId = String.valueOf(encryptedTopicId);
 			String path = PromotedFileUtil.calculatePathForTopicDetailsPage(encryptedTopicId,
 					topicCategory);
 			if (path != null) {

@@ -73,6 +73,7 @@
 		<module>elastic-search</module>
 		<module>services</module>
 		<module>oauth</module>
+		<module>markup-gen</module>
 		<module>api</module>
 		<module>api-client-java</module>
 		<module>load-master</module>

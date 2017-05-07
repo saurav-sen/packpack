@@ -32,6 +32,7 @@ public final class SystemPropertyUtil {
 	private static final String VIDEO_HOME = "video.home";
 	private static final String THUMBNAIL_HOME = "thumbnail.home";
 	private static final String BASE_URL = "base.url";
+	private static final String BASE_URL_2 = "base.url.secondary";
 	private static final String EGIFT_IMAGE_HOME = "egift.home";
 
 	private static final String PROFILE_PICTURE_HOME = "profile.picture.home";
@@ -172,6 +173,14 @@ public final class SystemPropertyUtil {
 	
 	public static String getBaseURL() {
 		return getPropertyValue(BASE_URL);
+	}
+	
+	public static String getBaseURL_2() {
+		String url = getPropertyValue(BASE_URL_2);
+		if(url == null) {
+			url = getBaseURL();
+		}
+		return url;
 	}
 
 	public static boolean isProductionEnvironment() {

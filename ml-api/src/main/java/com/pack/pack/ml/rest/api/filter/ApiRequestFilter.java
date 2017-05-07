@@ -28,7 +28,9 @@ public class ApiRequestFilter implements ContainerRequestFilter {
 		boolean allow = true;
 		String path = requestContext.getUriInfo().getPath();
 		String method = requestContext.getMethod();
-		if (path.contains("/feeds")) {
+		if (path.contains("/public")) {
+			allow = true;
+		} else if (path.contains("/feeds")) {
 			String apiKey = requestContext
 					.getHeaderString(OAuthConstants.AUTHORIZATION_HEADER);
 			if (!OAuthConstants.RSS_FEED_UPLOAD_API_KEY.equals(apiKey)) {
