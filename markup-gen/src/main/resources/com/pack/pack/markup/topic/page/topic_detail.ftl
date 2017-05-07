@@ -33,10 +33,10 @@
 	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/js/ug-carousel.js'></script>
 	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/js/ug-api.js'></script>
 
-	<link rel='stylesheet' href='unitegallery/css/unite-gallery.css' type='text/css' />
+	<link rel='stylesheet' href='${jsBaseUrl}/unitegallery/css/unite-gallery.css' type='text/css' />
 	
-	<script type='text/javascript' src='unitegallery/themes/default/ug-theme-default.js'></script>
-	<link rel='stylesheet' 		  href='unitegallery/themes/default/ug-theme-default.css' type='text/css' />
+	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/themes/default/ug-theme-default.js'></script>
+	<link rel='stylesheet' 		  href='${jsBaseUrl}/unitegallery/themes/default/ug-theme-default.css' type='text/css' />
 	
 	<style type="text/css">
 		.avoid_scrolls {
@@ -114,7 +114,7 @@
 		jQuery(document).ready(function(){
 
 			<#list packs as pack>
-				jQuery("'#" + ${pack.id}).unitegallery();
+				jQuery('#${pack.id}').unitegallery();
             </#list>
 			
 		});
