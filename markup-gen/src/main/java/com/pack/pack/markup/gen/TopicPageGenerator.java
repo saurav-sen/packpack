@@ -53,11 +53,20 @@ public class TopicPageGenerator implements IMarkupGenerator {
 					"/com/pack/pack/markup/topic/page");
 			Template template = cfg.getTemplate("topic_detail.ftl");
 			String topicId = (String) dataModel.get("topicId");
-			String topicCategory = (String) dataModel.get("topicCategory");
-			String encryptedTopicId = EncryptionUtil.encryptTextUsingSystemKey(topicId);
-			encryptedTopicId = String.valueOf(encryptedTopicId);
-			String path = PromotedFileUtil.calculatePathForTopicDetailsPage(encryptedTopicId,
-					topicCategory);
+			// String topicCategory = (String) dataModel.get("topicCategory");
+			String encryptedTopicId = EncryptionUtil
+					.encryptTextUsingSystemKey(topicId);
+			int hashCode = encryptedTopicId.hashCode();
+			encryptedTopicId = String.valueOf(Math.abs(hashCode));
+			if (hashCode < 0) {
+				encryptedTopicId = encryptedTopicId + "_c";
+			}
+			/*
+			 * String path = PromotedFileUtil.calculatePathForTopicDetailsPage(
+			 * encryptedTopicId, topicCategory);
+			 */
+			String path = PromotedFileUtil
+					.calculatePathForTopicDetailsPage(encryptedTopicId);
 			if (path != null) {
 				writer = new FileWriter(new File(path));
 				template.process(dataModel, writer);
@@ -83,6 +92,7 @@ public class TopicPageGenerator implements IMarkupGenerator {
 		dataModel.put("ownerFullName", user.getName());
 		dataModel.put("ownerEmail", user.getUsername());
 		dataModel.put("packs", packs);
+		dataModel.put("jsBaseUrl", SystemPropertyUtil.getJSBaseURL());
 		generateTopicDetailsPage(dataModel);
 	}
 

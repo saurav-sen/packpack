@@ -106,6 +106,7 @@ public class TopicServiceImpl implements ITopicService {
 						.findService(RedisCacheService.class);
 				cacheService.addToCache(key, jTopic);
 			}
+			return jTopic;
 		}
 		return null;
 	}

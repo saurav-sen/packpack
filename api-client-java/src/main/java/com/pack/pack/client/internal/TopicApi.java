@@ -148,6 +148,7 @@ class TopicApi extends BaseAPI {
 		}
 		HttpPut PUT = new HttpPut(url);
 		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
 		EntityPromoteDTO dto = new EntityPromoteDTO();
 		dto.setId(topicId);
 		dto.setType(JTopic.class.getName());

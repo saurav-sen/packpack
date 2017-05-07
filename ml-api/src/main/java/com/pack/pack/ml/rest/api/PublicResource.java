@@ -47,13 +47,17 @@ public class PublicResource {
 			@PathParam("encryptedTopicId") String encryptedTopicId)
 			throws PackPackException {
 		String result = null;
-		String topicId = EncryptionUtil
-				.decryptTextWithSystemKey(encryptedTopicId);
-		ITopicService topicService = ServiceRegistry.INSTANCE
-				.findCompositeService(ITopicService.class);
-		JTopic topic = topicService.getTopicById(topicId);
-		String path = PromotedFileUtil.calculatePathForTopicDetailsPage(
-				encryptedTopicId, topic.getCategory());
+		/*
+		 * String topicId = EncryptionUtil
+		 * .decryptTextWithSystemKey(encryptedTopicId); ITopicService
+		 * topicService = ServiceRegistry.INSTANCE
+		 * .findCompositeService(ITopicService.class); JTopic topic =
+		 * topicService.getTopicById(topicId); String path =
+		 * PromotedFileUtil.calculatePathForTopicDetailsPage( encryptedTopicId,
+		 * topic.getCategory());
+		 */
+		String path = PromotedFileUtil
+				.calculatePathForTopicDetailsPage(encryptedTopicId);
 		BufferedReader buffReader = null;
 		StringWriter stringWriter = new StringWriter();
 		BufferedWriter buffWriter = new BufferedWriter(stringWriter);
@@ -63,6 +67,7 @@ public class PublicResource {
 			while (line != null) {
 				buffWriter.write(line);
 				buffWriter.newLine();
+				line = buffReader.readLine();
 			}
 			buffWriter.flush();
 			result = stringWriter.toString();

@@ -65,6 +65,8 @@ public class PromoteResource {
 		} catch (Exception e) {
 			LOG.error("Promotion failed");
 			LOG.error(e.getMessage(), e);
+			throw new PackPackException(ErrorCodes.PACK_ERR_61,
+					"Failed Promoting item requested", e);
 		}
 		return status;
 	}
@@ -90,7 +92,11 @@ public class PromoteResource {
 		}
 		String encryptEntityId = EncryptionUtil
 				.encryptTextUsingSystemKey(entityId);
-		encryptEntityId = String.valueOf(encryptEntityId.hashCode());
+		int hashCode = encryptEntityId.hashCode();
+		encryptEntityId = String.valueOf(Math.abs(hashCode));
+		if (hashCode < 0) {
+			encryptEntityId = encryptEntityId + "_c";
+		}
 		if (JTopic.class.getName().equals(entityTypeName)) {
 			return appBaseUrl + "public/topic/" + encryptEntityId;
 		} else if (JPack.class.getName().equals(entityTypeName)) {

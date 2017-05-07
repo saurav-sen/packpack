@@ -9,29 +9,29 @@
     <meta property="og:type" content="website" />
     <meta property="og:image" itemprop="image primaryImageOfPage" content="${topicWallpaperUrl}" />
 
-	<script type='text/javascript' src='unitegallery/js/jquery-11.0.min.js'></script>	
+	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/js/jquery-11.0.min.js'></script>	
 	
-	<script type='text/javascript' src='unitegallery/js/ug-common-libraries.js'></script>	
-	<script type='text/javascript' src='unitegallery/js/ug-functions.js'></script>
-	<script type='text/javascript' src='unitegallery/js/ug-thumbsgeneral.js'></script>
-	<script type='text/javascript' src='unitegallery/js/ug-thumbsstrip.js'></script>
-	<script type='text/javascript' src='unitegallery/js/ug-touchthumbs.js'></script>
-	<script type='text/javascript' src='unitegallery/js/ug-panelsbase.js'></script>
-	<script type='text/javascript' src='unitegallery/js/ug-strippanel.js'></script>
-	<script type='text/javascript' src='unitegallery/js/ug-gridpanel.js'></script>
-	<script type='text/javascript' src='unitegallery/js/ug-thumbsgrid.js'></script>
-	<script type='text/javascript' src='unitegallery/js/ug-tiles.js'></script>
-	<script type='text/javascript' src='unitegallery/js/ug-tiledesign.js'></script>
-	<script type='text/javascript' src='unitegallery/js/ug-avia.js'></script>
-	<script type='text/javascript' src='unitegallery/js/ug-slider.js'></script>
-	<script type='text/javascript' src='unitegallery/js/ug-sliderassets.js'></script>
-	<script type='text/javascript' src='unitegallery/js/ug-touchslider.js'></script>
-	<script type='text/javascript' src='unitegallery/js/ug-zoomslider.js'></script>	
-	<script type='text/javascript' src='unitegallery/js/ug-video.js'></script>
-	<script type='text/javascript' src='unitegallery/js/ug-gallery.js'></script>
-	<script type='text/javascript' src='unitegallery/js/ug-lightbox.js'></script>
-	<script type='text/javascript' src='unitegallery/js/ug-carousel.js'></script>
-	<script type='text/javascript' src='unitegallery/js/ug-api.js'></script>
+	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/js/ug-common-libraries.js'></script>	
+	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/js/ug-functions.js'></script>
+	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/js/ug-thumbsgeneral.js'></script>
+	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/js/ug-thumbsstrip.js'></script>
+	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/js/ug-touchthumbs.js'></script>
+	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/js/ug-panelsbase.js'></script>
+	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/js/ug-strippanel.js'></script>
+	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/js/ug-gridpanel.js'></script>
+	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/js/ug-thumbsgrid.js'></script>
+	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/js/ug-tiles.js'></script>
+	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/js/ug-tiledesign.js'></script>
+	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/js/ug-avia.js'></script>
+	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/js/ug-slider.js'></script>
+	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/js/ug-sliderassets.js'></script>
+	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/js/ug-touchslider.js'></script>
+	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/js/ug-zoomslider.js'></script>	
+	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/js/ug-video.js'></script>
+	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/js/ug-gallery.js'></script>
+	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/js/ug-lightbox.js'></script>
+	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/js/ug-carousel.js'></script>
+	<script type='text/javascript' src='${jsBaseUrl}/unitegallery/js/ug-api.js'></script>
 
 	<link rel='stylesheet' href='unitegallery/css/unite-gallery.css' type='text/css' />
 	
@@ -76,16 +76,26 @@
 				 <#list pack.attachments as attachment>
 	                <#if attachment.mimeType == "IMAGE">
 						<img alt="${attachment.title}"
-					    	src="${attachment.attachmentThumbnailUrl}"
+					    	src="${attachment.attachmentUrl}"
 					    	data-image="${attachment.attachmentUrl}"
 					    	data-description="${attachment.description}">
 	                <#elseif attachment.mimeType == "VIDEO">
-						<img alt="${attachment.title}"
-					    	src="${attachment.attachmentThumbnailUrl}"
-					   		data-type="html5video"
-					    	data-image="${attachment.attachmentThumbnailUrl}"				   
-					    	data-videomp4="${attachment.attachmentUrl}"
-			    	    	data-description="${attachment.description}">	
+	                    <#if attachment.youtube == "true">
+	                    	<img alt="${attachment.title}"
+						    	src="${attachment.attachmentThumbnailUrl}"
+						   		data-type="youtube"
+								data-videoid="${attachment.youtubeVideoID}"
+						    	data-image="${attachment.attachmentThumbnailUrl}"				   
+						    	data-videomp4="${attachment.attachmentUrl}"
+				    	    	data-description="${attachment.description}">
+	                    <#else>
+	                    	<img alt="${attachment.title}"
+						    	src="${attachment.attachmentThumbnailUrl}"
+						   		data-type="html5video"
+						    	data-image="${attachment.attachmentThumbnailUrl}"				   
+						    	data-videomp4="${attachment.attachmentUrl}"
+				    	    	data-description="${attachment.description}">
+	                    </#if>	
 	                </#if>		
 				
 				</#list>			
@@ -104,7 +114,7 @@
 		jQuery(document).ready(function(){
 
 			<#list packs as pack>
-				jQuery("#' + pack.id).unitegallery();
+				jQuery("'#" + ${pack.id}).unitegallery();
             </#list>
 			
 		});

@@ -15,6 +15,11 @@ public class PromotedFileUtil {
 	}
 
 	public static String calculatePathForTopicDetailsPage(
+			String encryptedTopicId) {
+		return calculatePathForTopicDetailsPage(encryptedTopicId, null);
+	}
+
+	public static String calculatePathForTopicDetailsPage(
 			String encryptedTopicId, String topicCategory) {
 		String path = SystemPropertyUtil.getWebPagesRootPath();
 		if (path != null) {
@@ -22,15 +27,26 @@ public class PromotedFileUtil {
 			if (!path.endsWith(File.separator)) {
 				pathBuilder = pathBuilder.append(File.separator);
 			}
-			pathBuilder = pathBuilder.append("topics").append(File.separator)
-					.append(topicCategory).append(File.separator)
-					.append(encryptedTopicId);
-			File file = new File(path);
+			pathBuilder = pathBuilder.append("topics");
+			File file = new File(pathBuilder.toString());
 			if (!file.exists()) {
 				file.mkdir();
 			}
-			pathBuilder = pathBuilder.append(File.separator).append(
-					"index.html");
+			if (topicCategory != null && !topicCategory.isEmpty()) {
+				pathBuilder = pathBuilder.append(File.separator).append(
+						topicCategory);
+				file = new File(pathBuilder.toString());
+				if (!file.exists()) {
+					file.mkdir();
+				}
+			}
+			/*
+			 * pathBuilder= pathBuilder.append(File.separator)
+			 * .append(encryptedTopicId); file = new File(path); if
+			 * (!file.exists()) { file.mkdir(); }
+			 */
+			pathBuilder = pathBuilder.append(File.separator)
+					.append(encryptedTopicId).append(".html");
 			path = pathBuilder.toString();
 		}
 		return path;
@@ -55,16 +71,21 @@ public class PromotedFileUtil {
 		}
 		return path;
 	}
-	
-	public static String calculatePathForPromotedAttachmentPage(String attachmentId) {
+
+	public static String calculatePathForPromotedAttachmentPage(
+			String attachmentId) {
 		String path = SystemPropertyUtil.getWebPagesRootPath();
 		if (path != null) {
 			StringBuilder pathBuilder = new StringBuilder(path);
 			if (!path.endsWith(File.separator)) {
 				pathBuilder = pathBuilder.append(File.separator);
 			}
-			pathBuilder = pathBuilder.append("attachments");/*.append(File.separator)
-					.append(attachmentId);*/
+			pathBuilder = pathBuilder.append("attachments");/*
+															 * .append(File.
+															 * separator)
+															 * .append
+															 * (attachmentId);
+															 */
 			File file = new File(pathBuilder.toString());
 			if (!file.exists()) {
 				file.mkdir();

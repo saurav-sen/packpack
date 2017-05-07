@@ -94,6 +94,8 @@ public final class SystemPropertyUtil {
 	
 	private static final String REDIS_URI_DEFAULT_VALUE = "redis://localhost";
 	
+	private static final String JS_BASE_URL = "js.base.url";
+	
 	private SystemPropertyUtil() {
 	}
 
@@ -169,6 +171,10 @@ public final class SystemPropertyUtil {
 			return getPropertyValue(AWS_S3_BASE_URL);
 		}
 		return getBaseURL();
+	}
+	
+	public static String getJSBaseURL() {
+		return getPropertyValue(JS_BASE_URL);
 	}
 	
 	public static String getBaseURL() {
