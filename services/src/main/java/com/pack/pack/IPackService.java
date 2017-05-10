@@ -27,10 +27,11 @@ public interface IPackService {
 	/**
 	 * 
 	 * @param id
+	 * @param loadComments
 	 * @return
 	 * @throws PackPackException
 	 */
-	public JPackAttachment getPackAttachmentById(String id)
+	public JPackAttachment getPackAttachmentById(String id, boolean loadComments)
 			throws PackPackException;
 
 	/**

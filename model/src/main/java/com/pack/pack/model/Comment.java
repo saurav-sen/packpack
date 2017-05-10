@@ -1,7 +1,5 @@
 package com.pack.pack.model;
 
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * 
@@ -9,14 +7,14 @@ import java.util.List;
  *
  */
 public class Comment {
+	
+	private String id;
 
 	private String fromUser;
 	
 	private String comment;
 	
 	private long dateTime;
-	
-	private List<Comment> replies;
 	
 	public String getFromUser() {
 		return fromUser;
@@ -42,14 +40,11 @@ public class Comment {
 		this.dateTime = dateTime;
 	}
 
-	public List<Comment> getReplies() {
-		if(replies == null) {
-			replies = new LinkedList<Comment>();
-		}
-		return replies;
+	public String getId() {
+		return id;
 	}
 
-	public void setReplies(List<Comment> replies) {
-		this.replies = replies;
+	public void setId(String id) {
+		this.id = id;
 	}
 }

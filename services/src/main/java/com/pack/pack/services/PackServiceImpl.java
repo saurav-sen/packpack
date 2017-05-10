@@ -78,7 +78,7 @@ public class PackServiceImpl implements IPackService {
 	}
 
 	@Override
-	public JPackAttachment getPackAttachmentById(String id)
+	public JPackAttachment getPackAttachmentById(String id, boolean loadComments)
 			throws PackPackException {
 		String key = "pack:attachment" + id;
 		RedisCacheService cacheService = ServiceRegistry.INSTANCE
@@ -93,7 +93,7 @@ public class PackServiceImpl implements IPackService {
 		PackAttachment attachment = findPackAttachmentById(id);
 		if (attachment == null)
 			return null;
-		JPackAttachment jPackAttachment = ModelConverter.convert(attachment);
+		JPackAttachment jPackAttachment = ModelConverter.convert(attachment, loadComments);
 		if (SystemPropertyUtil.isCacheEnabled()) {
 			cacheService.addToCache(key, jPackAttachment);
 		}
@@ -255,7 +255,7 @@ public class PackServiceImpl implements IPackService {
 			if (attachments != null && !attachments.isEmpty()) {
 				result = new ArrayList<JPackAttachment>();
 				for (PackAttachment attachment : attachments) {
-					result.add(ModelConverter.convert(attachment));
+					result.add(ModelConverter.convert(attachment, false));
 				}
 			}
 			Pagination<JPackAttachment> r = new Pagination<JPackAttachment>(
@@ -460,7 +460,7 @@ public class PackServiceImpl implements IPackService {
 		MessagePublisher messagePublisher = ServiceRegistry.INSTANCE
 				.findService(MessagePublisher.class);
 		messagePublisher.notifyPackModify(fwdPack, topic, user);*/
-		return ModelConverter.convert(attachment);
+		return ModelConverter.convert(attachment, false);
 	}
 
 	/*@Override
@@ -583,7 +583,7 @@ public class PackServiceImpl implements IPackService {
 			cacheService.removeFromCache(keyPrefix);
 		}
 
-		return ModelConverter.convert(attachment);
+		return ModelConverter.convert(attachment, false);
 	}
 	
 	@Override

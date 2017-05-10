@@ -1,5 +1,8 @@
 package com.pack.pack.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,7 +47,7 @@ public class PackAttachment extends CouchDbDocument {
 	
 	private int comments;
 	
-	private List<Comment> recentComments;
+	private Map<String, Comment> recentComments;
 	
 	private String attachmentParentPackId;
 	
@@ -134,15 +137,17 @@ public class PackAttachment extends CouchDbDocument {
 		this.comments = comments;
 	}
 
-	public List<Comment> getRecentComments() {
+	public Collection<Comment> getRecentComments() {
 		if(recentComments == null) {
-			recentComments = new LinkedList<Comment>();
+			recentComments = new HashMap<String, Comment>();
 		}
-		return recentComments;
+		return Collections.unmodifiableCollection(recentComments.values());
 	}
 
-	public void setRecentComments(List<Comment> recentComments) {
-		this.recentComments = recentComments;
+	public void setRecentComments(List<Comment> comments) {
+		for(Comment comment : comments) {
+			recentComments.put(comment.getId(), comment);
+		}
 	}
 
 	public String getAttachmentParentPackId() {

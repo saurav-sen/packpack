@@ -10,6 +10,7 @@ public interface ErrorCodes {
 	public static final String PACK_ERR_01 = "pack_err_01"; // Entity Not found
 	public static final String PACK_ERR_02 = "pack_err_02"; // No result exception
 	public static final String PACK_ERR_03 = "pack_err_03"; // No unique result exception
+	public static final String PACK_ERR_04 = "pack_err_04"; // Missing required field.
 	
 	public static final String PACK_ERR_11 = "pack_err_11"; //JPA initialization error
 	public static final String PACK_ERR_12 = "pack_err_12"; // Persistence exception

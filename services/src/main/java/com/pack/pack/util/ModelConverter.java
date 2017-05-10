@@ -3,6 +3,7 @@ package com.pack.pack.util;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -47,7 +48,7 @@ public class ModelConverter {
 
 	private static Logger logger = LoggerFactory
 			.getLogger(ModelConverter.class);
-	
+
 	private static final String HTTP = "http://";
 	private static final String HTTPS = "https://";
 
@@ -74,10 +75,10 @@ public class ModelConverter {
 		rFeed.setOgTitle(feed.getOgTitle());
 		rFeed.setOgType(feed.getOgType());
 		rFeed.setOgUrl(feed.getOgUrl());
-		//rFeed.setId(feed.getId());
+		// rFeed.setId(feed.getId());
 		return rFeed;
 	}
-	
+
 	public static RSSFeed convert(JRssFeed rFeed) {
 		if (rFeed == null)
 			return null;
@@ -109,32 +110,32 @@ public class ModelConverter {
 		return jPack;
 	}
 
-	public static JPackAttachment convert(PackAttachment attachment) throws PackPackException {
+	public static JPackAttachment convert(PackAttachment attachment,
+			boolean loadComments) throws PackPackException {
 		JPackAttachment jAttachment = new JPackAttachment();
 		AttachmentType type = attachment.getType();
 		String baseURL = (type == AttachmentType.IMAGE ? SystemPropertyUtil
-				.getImageAttachmentBaseURL(attachment.getAttachmentUrl()) : SystemPropertyUtil
-				.getVideoAttachmentBaseURL(attachment.getAttachmentUrl()));
-/*		String thumbnailUrl = attachment.getAttachmentThumbnailUrl();
-		thumbnailUrl = thumbnailUrl.replaceAll(File.separator,
-				SystemPropertyUtil.URL_SEPARATOR);
-		if (!thumbnailUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)
-				&& !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-			thumbnailUrl = baseURL + SystemPropertyUtil.URL_SEPARATOR
-					+ thumbnailUrl;
-		} else if (baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)
-				&& thumbnailUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-			thumbnailUrl = baseURL.substring(0, baseURL.length() - 1)
-					+ thumbnailUrl;
-		} else {
-			thumbnailUrl = baseURL + thumbnailUrl;
-		}
-		jAttachment.setAttachmentThumbnailUrl(thumbnailUrl);*/
+				.getImageAttachmentBaseURL(attachment.getAttachmentUrl())
+				: SystemPropertyUtil.getVideoAttachmentBaseURL(attachment
+						.getAttachmentUrl()));
+		/*
+		 * String thumbnailUrl = attachment.getAttachmentThumbnailUrl();
+		 * thumbnailUrl = thumbnailUrl.replaceAll(File.separator,
+		 * SystemPropertyUtil.URL_SEPARATOR); if
+		 * (!thumbnailUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR) &&
+		 * !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) { thumbnailUrl =
+		 * baseURL + SystemPropertyUtil.URL_SEPARATOR + thumbnailUrl; } else if
+		 * (baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR) &&
+		 * thumbnailUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+		 * thumbnailUrl = baseURL.substring(0, baseURL.length() - 1) +
+		 * thumbnailUrl; } else { thumbnailUrl = baseURL + thumbnailUrl; }
+		 * jAttachment.setAttachmentThumbnailUrl(thumbnailUrl);
+		 */
 		jAttachment.setAttachmentType(type.name());
 		String url = attachment.getAttachmentUrl();
-		
+
 		String isExternalLink = attachment.getIsExternalLink();
-		if(isExternalLink == null || isExternalLink.trim().isEmpty()) {
+		if (isExternalLink == null || isExternalLink.trim().isEmpty()) {
 			jAttachment.setExternalLink(false);
 		} else {
 			try {
@@ -145,25 +146,26 @@ public class ModelConverter {
 				jAttachment.setExternalLink(false);
 			}
 		}
-		
+
 		String storyId = attachment.getStoryId();
-		if(storyId == null || storyId.trim().isEmpty()) {
+		if (storyId == null || storyId.trim().isEmpty()) {
 			storyId = null;
 		}
 		jAttachment.setStoryId(storyId);
-		
+
 		Map<String, String> extraMetaData = attachment.getExtraMetaData();
-		if(extraMetaData != null && !extraMetaData.isEmpty()) {
+		if (extraMetaData != null && !extraMetaData.isEmpty()) {
 			Iterator<String> itr = extraMetaData.keySet().iterator();
-			while(itr.hasNext()) {
+			while (itr.hasNext()) {
 				String key = itr.next();
 				String value = extraMetaData.get(key);
 				jAttachment.getExtraMetaData().put(key, value);
 			}
 		}
-		
-		if(!url.startsWith(HTTP) && !url.startsWith(HTTPS)) {
-			url = url.replaceAll(File.separator, SystemPropertyUtil.URL_SEPARATOR);
+
+		if (!url.startsWith(HTTP) && !url.startsWith(HTTPS)) {
+			url = url.replaceAll(File.separator,
+					SystemPropertyUtil.URL_SEPARATOR);
 			if (!url.startsWith(SystemPropertyUtil.URL_SEPARATOR)
 					&& !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
 				url = baseURL + SystemPropertyUtil.URL_SEPARATOR + url;
@@ -174,18 +176,23 @@ public class ModelConverter {
 				url = baseURL + url;
 			}
 		}
-		
+
 		String thumbnailUrl = attachment.getAttachmentThumbnailUrl();
-		
-		if(thumbnailUrl != null && !thumbnailUrl.trim().isEmpty()) {
-			if(!thumbnailUrl.startsWith(HTTP) && !thumbnailUrl.startsWith(HTTPS)) {
-				thumbnailUrl = thumbnailUrl.replaceAll(File.separator, SystemPropertyUtil.URL_SEPARATOR);
+
+		if (thumbnailUrl != null && !thumbnailUrl.trim().isEmpty()) {
+			if (!thumbnailUrl.startsWith(HTTP)
+					&& !thumbnailUrl.startsWith(HTTPS)) {
+				thumbnailUrl = thumbnailUrl.replaceAll(File.separator,
+						SystemPropertyUtil.URL_SEPARATOR);
 				if (!thumbnailUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)
 						&& !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-					thumbnailUrl = baseURL + SystemPropertyUtil.URL_SEPARATOR + thumbnailUrl;
+					thumbnailUrl = baseURL + SystemPropertyUtil.URL_SEPARATOR
+							+ thumbnailUrl;
 				} else if (baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)
-						&& thumbnailUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-					thumbnailUrl = baseURL.substring(0, baseURL.length() - 1) + thumbnailUrl;
+						&& thumbnailUrl
+								.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+					thumbnailUrl = baseURL.substring(0, baseURL.length() - 1)
+							+ thumbnailUrl;
 				} else {
 					thumbnailUrl = baseURL + thumbnailUrl;
 				}
@@ -194,8 +201,7 @@ public class ModelConverter {
 				jAttachment.setAttachmentThumbnailUrl(thumbnailUrl);
 			}
 		}
-		
-		
+
 		jAttachment.setId(attachment.getId());
 		jAttachment.setAttachmentUrl(url);
 		jAttachment.setMimeType(attachment.getMimeType());
@@ -204,11 +210,13 @@ public class ModelConverter {
 		jAttachment.setLikes(attachment.getLikes());
 		jAttachment.setViews(attachment.getViews());
 		jAttachment.setCreationTime(attachment.getCreationTime());
-		List<Comment> recentComments = attachment.getRecentComments();
-		if (recentComments != null && !recentComments.isEmpty()) {
-			for (Comment comment : recentComments) {
-				JComment jComment = ModelConverter.convert(comment);
-				jAttachment.getComments().add(jComment);
+		if (loadComments) {
+			Collection<Comment> recentComments = attachment.getRecentComments();
+			if (recentComments != null && !recentComments.isEmpty()) {
+				for (Comment comment : recentComments) {
+					JComment jComment = ModelConverter.convert(comment);
+					jAttachment.addOrEditComment(jComment);
+				}
 			}
 		}
 		String userId = attachment.getCreatorId();
@@ -286,7 +294,8 @@ public class ModelConverter {
 		if (profilePicture == null) {
 			return null;
 		}
-		String baseURL = SystemPropertyUtil.getProfilePictureBaseURL(profilePicture);
+		String baseURL = SystemPropertyUtil
+				.getProfilePictureBaseURL(profilePicture);
 		String profilePictureUrl = profilePicture;
 		profilePictureUrl = profilePictureUrl.replaceAll(File.separator,
 				SystemPropertyUtil.URL_SEPARATOR);
@@ -310,7 +319,8 @@ public class ModelConverter {
 		if (wallpaperLocation == null) {
 			return null;
 		}
-		String baseURL = SystemPropertyUtil.getTopicWallpaperBaseURL(wallpaperLocation);
+		String baseURL = SystemPropertyUtil
+				.getTopicWallpaperBaseURL(wallpaperLocation);
 		String topicWallpaperUrl = wallpaperLocation;
 		topicWallpaperUrl = topicWallpaperUrl.replaceAll(File.separator,
 				SystemPropertyUtil.URL_SEPARATOR);
@@ -332,28 +342,32 @@ public class ModelConverter {
 
 	public static Comment convert(JComment jComment) {
 		Comment comment = new Comment();
+		comment.setId(jComment.getId());
 		comment.setComment(jComment.getComment());
 		comment.setDateTime(jComment.getDateTime());
 		comment.setFromUser(jComment.getFromUserName());
 		return comment;
 	}
 
-	public static JComment convert(Comment comment) {
+	public static JComment convert(Comment comment) throws PackPackException {
 		JComment jComment = new JComment();
+		jComment.setId(comment.getId());
 		jComment.setComment(comment.getComment());
 		jComment.setDateTime(comment.getDateTime());
+		String fromUserId = comment.getFromUser();
 		jComment.setFromUserId(comment.getFromUser());
-		List<Comment> replies = comment.getReplies();
-		if (replies != null) {
-			for (Comment reply : replies) {
-				JComment jReply = convert(reply);
-				jComment.getReplies().add(jReply);
-			}
+		JUser user = getUserInfo(fromUserId);
+		if (user != null) {
+			jComment.setFromUserDisplayName(user.getName());
+			jComment.setFromUserName(user.getUsername());
+			jComment.setFromUserProfilePictureUrl(resolveProfilePictureUrl(user
+					.getProfilePictureUrl()));
 		}
 		return jComment;
 	}
 
-	public static List<JComment> convertComments(List<Comment> comments) {
+	public static List<JComment> convertComments(Collection<Comment> comments)
+			throws PackPackException {
 		List<JComment> jComments = new LinkedList<JComment>();
 		if (comments == null)
 			return jComments;
@@ -365,12 +379,13 @@ public class ModelConverter {
 		}
 		return jComments;
 	}
-	
+
 	public static JTopic convert(Topic topic) throws PackPackException {
 		return convert(topic, false);
 	}
 
-	public static JTopic convert(Topic topic, boolean isFollowing) throws PackPackException {
+	public static JTopic convert(Topic topic, boolean isFollowing)
+			throws PackPackException {
 		JTopic jTopic = new JTopic();
 		jTopic.setDescription(topic.getDescription());
 		jTopic.setFollowers(topic.getFollowers());
@@ -391,18 +406,19 @@ public class ModelConverter {
 
 		}
 		List<TopicProperty> settings = topic.getPropeties();
-		for(TopicProperty prop : settings) {
+		for (TopicProperty prop : settings) {
 			jTopic.getProperties().put(prop.getKey(), prop.getValue());
 		}
 		return jTopic;
 	}
-	
-	public static List<JTopic> convertTopicList(List<Topic> topics) throws PackPackException {
+
+	public static List<JTopic> convertTopicList(List<Topic> topics)
+			throws PackPackException {
 		return convertTopicList(topics, false);
 	}
 
-	public static List<JTopic> convertTopicList(List<Topic> topics, boolean isFollowing)
-			throws PackPackException {
+	public static List<JTopic> convertTopicList(List<Topic> topics,
+			boolean isFollowing) throws PackPackException {
 		List<JTopic> jTopics = new ArrayList<JTopic>();
 		for (Topic topic : topics) {
 			JTopic jTopic = convert(topic, isFollowing);

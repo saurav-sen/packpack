@@ -1,8 +1,6 @@
 package com.pack.pack.model.web;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,7 +32,7 @@ public class JPackAttachment {
 	
 	private int views;
 	
-	private List<JComment> comments;
+	private Map<String, JComment> comments;
 	
 	private JUser creator;
 	
@@ -118,15 +116,22 @@ public class JPackAttachment {
 		this.views = views;
 	}
 
-	public List<JComment> getComments() {
+	public Map<String, JComment> getComments() {
 		if(comments == null) {
-			comments = new LinkedList<JComment>();
+			comments = new HashMap<String, JComment>();
 		}
 		return comments;
 	}
 
-	public void setComments(List<JComment> comments) {
+	public void setComments(Map<String, JComment> comments) {
 		this.comments = comments;
+	}
+	
+	public void addOrEditComment(JComment comment) {
+		if(comment == null || comment.getId() == null) {
+			throw new RuntimeException("Comment Id can't be NULL reference");
+		}
+		comments.put(comment.getId(), comment);
 	}
 
 	public String getId() {

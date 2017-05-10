@@ -4,6 +4,7 @@ import static com.pack.pack.client.api.APIConstants.APPLICATION_JSON;
 import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
 import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +23,9 @@ import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.client.api.MultipartRequestProgressListener;
 import com.pack.pack.client.internal.response.cache.CachingHttpClient;
 import com.pack.pack.common.util.JSONUtil;
+import com.pack.pack.model.web.EntityType;
 import com.pack.pack.model.web.JComment;
+import com.pack.pack.model.web.JComments;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JPackAttachments;
@@ -132,8 +135,26 @@ class PackApi extends BaseAPI {
 		page.setResult(result);
 		return page;
 	}
+	
+	private JComments getAllCommentsForAttachment(String attachmentId,
+			String oAuthToken) throws Exception {
+		HttpClient client = new DefaultHttpClient();
+		if (getCacheStorage() != null) {
+			CachingHttpClient httpClient = new CachingHttpClient(client,
+					getCacheStorage(), getCacheConfig());
+			client = httpClient;
+		}
+		String url = getBaseUrl() + "pack/items/" + attachmentId + "/comments";
+		HttpGet GET = new HttpGet(url);
+		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		HttpResponse response = client.execute(GET);
+		JComments comments = JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JComments.class);
+		return comments;
+	}
 
-	private JPackAttachment getPackAttachmentById(String id, String oAuthToken)
+/*	private JPackAttachment getPackAttachmentById(String id, String oAuthToken)
 			throws Exception {
 		HttpClient client = new DefaultHttpClient();
 		if (getCacheStorage() != null) {
@@ -149,7 +170,7 @@ class PackApi extends BaseAPI {
 				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
 						.getEntity())), JPackAttachment.class);
 		return attachment;
-	}
+	}*/
 
 	@SuppressWarnings("unchecked")
 	private Pagination<JPackAttachment> getAllPackAttachments(String userId,
@@ -323,9 +344,9 @@ class PackApi extends BaseAPI {
 				}
 				result = getAllPackAttachments(userId, topicId, packId,
 						pageLink, oAuthToken);
-			} else if (COMMAND.GET_PACK_ATTACHMENT_BY_ID.equals(action)) {
+			} else if (COMMAND.GET_ALL_ATTACHMENT_COMMENTS.equals(action)) {
 				String id = (String) params.get(APIConstants.PackAttachment.ID);
-				result = getPackAttachmentById(id, oAuthToken);
+				result = getAllCommentsForAttachment(id, oAuthToken);
 			} /*else if (COMMAND.FORWARD_PACK.equals(action)) {
 				String packId = (String) params.get(APIConstants.Pack.ID);
 				String fromUserId = (String) params
@@ -351,9 +372,9 @@ class PackApi extends BaseAPI {
 				commentDTO.setComment(comment);
 				commentDTO.setEntityId(packId);
 				commentDTO.setFromUserId(fromUserId);
-				commentDTO.setEntityType("PACK");
+				commentDTO.setEntityType(EntityType.PACK.name());
 				result = addComment(commentDTO, oAuthToken);
-			} else if (COMMAND.ADD_COMMENT_TO_PACK.equals(action)) {
+			} else if (COMMAND.ADD_COMMENT_TO_PACK_ATTACHMENT.equals(action)) {
 				String packAttachmentId = (String) params
 						.get(APIConstants.PackAttachment.ID);
 				String fromUserId = (String) params
@@ -364,7 +385,7 @@ class PackApi extends BaseAPI {
 				commentDTO.setComment(comment);
 				commentDTO.setEntityId(packAttachmentId);
 				commentDTO.setFromUserId(fromUserId);
-				commentDTO.setEntityType("PACK_ATTACHMENT");
+				commentDTO.setEntityType(EntityType.PACK_ATTACHMENT.name());
 				result = addComment(commentDTO, oAuthToken);
 			} else if (COMMAND.ADD_LIKE_TO_PACK.equals(action)) {
 				String packId = (String) params.get(APIConstants.Pack.ID);

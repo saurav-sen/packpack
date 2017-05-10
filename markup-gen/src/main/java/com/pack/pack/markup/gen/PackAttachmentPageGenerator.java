@@ -28,7 +28,7 @@ public class PackAttachmentPageGenerator implements IMarkupGenerator {
 		IPackService packService = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
 		JPackAttachment attachment = packService
-				.getPackAttachmentById(entityId);
+				.getPackAttachmentById(entityId, true);
 		AttachmentPageModel model = AttachmentPageModel.build(attachment);
 		Map<String, Object> dataModel = new HashMap<String, Object>();
 		dataModel.put("attachmentId", attachment.getId());

@@ -27,7 +27,7 @@ public enum COMMAND {
 			APIConstants.Topic.COUNTRY), GET_USER_OWNED_TOPICS(
 			APIConstants.User.ID), GET_PACK_BY_ID(APIConstants.Pack.ID), EDIT_TOPIC_SETTINGS(
 			APIConstants.Topic.ID, APIConstants.User.ID,
-			APIConstants.TopicSettings.KEY, APIConstants.TopicSettings.VALUE), GET_PACK_ATTACHMENT_BY_ID(
+			APIConstants.TopicSettings.KEY, APIConstants.TopicSettings.VALUE), GET_ALL_ATTACHMENT_COMMENTS(
 			APIConstants.PackAttachment.ID), GET_ALL_PACKS_IN_DEFAULT_TOPICS(
 			APIConstants.User.ID, APIConstants.PageInfo.PAGE_LINK), GET_ALL_PACKS_IN_TOPIC(
 			APIConstants.User.ID, APIConstants.Topic.ID,

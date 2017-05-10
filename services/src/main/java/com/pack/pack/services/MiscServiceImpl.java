@@ -2,6 +2,7 @@ package com.pack.pack.services;
 
 import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -236,7 +237,7 @@ public class MiscServiceImpl implements IMiscService {
 				throw new PackPackException(ErrorCodes.PACK_ERR_01,
 						"Can't find attachment with ID = " + entityId);
 			}
-			List<Comment> comments = packAttachment.getRecentComments();
+			Collection<Comment> comments = packAttachment.getRecentComments();
 			result = ModelConverter.convertComments(comments);
 		}
 			break;

@@ -1,5 +1,8 @@
 package com.pack.pack.rest.api;
 
+import java.util.ArrayList;
+import java.util.UUID;
+
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -13,15 +16,18 @@ import javax.ws.rs.ext.Provider;
 
 import com.pack.pack.IMiscService;
 import com.pack.pack.IPackService;
+import com.pack.pack.IUserService;
 import com.pack.pack.common.util.CommonConstants;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.User;
 import com.pack.pack.model.web.EntityType;
 import com.pack.pack.model.web.JComment;
+import com.pack.pack.model.web.JComments;
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JStatus;
+import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.StatusType;
 import com.pack.pack.model.web.dto.CommentDTO;
@@ -34,9 +40,11 @@ import com.pack.pack.rest.api.security.interceptors.CompressRead;
 import com.pack.pack.rest.api.security.interceptors.CompressWrite;
 import com.pack.pack.services.couchdb.PackRepositoryService;
 import com.pack.pack.services.couchdb.UserRepositoryService;
+import com.pack.pack.services.exception.ErrorCodes;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.ext.email.GmailMessageService;
 import com.pack.pack.services.registry.ServiceRegistry;
+import com.pack.pack.util.ModelConverter;
 
 /**
  * 
@@ -123,7 +131,25 @@ public class PackResource {
 			throws PackPackException {
 		IPackService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
-		return service.getPackAttachmentById(id);
+		return service.getPackAttachmentById(id, false);
+	}
+	
+	@GET
+	@CompressWrite
+	@Path("items/{id}/comments")
+	@Produces(MediaType.APPLICATION_JSON)
+	@CacheControl(type = "private", mustRevalidate = false, maxAge = 600)
+	public JComments getAllCommentsForAttachment(@PathParam("id") String id)
+			throws PackPackException {
+		JComments comments = new JComments();
+		IPackService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IPackService.class);
+		JPackAttachment packAttachmentById = service.getPackAttachmentById(id,
+				true);
+		ArrayList<JComment> list = new ArrayList<JComment>(packAttachmentById
+				.getComments().values());
+		comments.getComments().addAll(list);
+		return comments;
 	}
 
 	/*@PUT	
@@ -179,42 +205,52 @@ public class PackResource {
 	@CompressRead
 	@Consumes(value = MediaType.APPLICATION_JSON)
 	@Produces(value = MediaType.APPLICATION_JSON)
-	public JStatus addComment(CommentDTO commentDTO) throws PackPackException {
+	public JComment addComment(CommentDTO commentDTO) throws PackPackException {
 		IMiscService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IMiscService.class);
 		JComment comment = new JComment();
+		comment.setId(UUID.randomUUID().toString());
 		comment.setComment(commentDTO.getComment());
 		comment.setDateTime(System.currentTimeMillis());
 		comment.setFromUserId(commentDTO.getFromUserId());
+		String fromUserId = commentDTO.getFromUserId();
+		if (fromUserId == null || fromUserId.trim().isEmpty()) {
+			throw new PackPackException(ErrorCodes.PACK_ERR_01,
+					"Not a valid userId");
+		}
+		IUserService userService = ServiceRegistry.INSTANCE
+				.findCompositeService(IUserService.class);
+		JUser user = userService.findUserById(fromUserId);
+		if (user == null) {
+			throw new PackPackException(ErrorCodes.PACK_ERR_01,
+					"Not a valid userId");
+		}
 		String entityType = commentDTO.getEntityType();
 		if (entityType == null || entityType.trim().isEmpty()) {
-			JStatus status = new JStatus();
-			status.setStatus(StatusType.ERROR);
-			status.setInfo("Entity Type Not Valid");
-			return status;
+			throw new PackPackException(ErrorCodes.PACK_ERR_04,
+					"Entity Type specified is not valid");
 		}
 		EntityType type = null;
 		try {
 			type = EntityType.valueOf(entityType.trim());
 		} catch (Exception e) {
-			JStatus status = new JStatus();
-			status.setStatus(StatusType.ERROR);
-			status.setInfo("Entity Type Not Valid");
-			return status;
+			throw new PackPackException(ErrorCodes.PACK_ERR_04,
+					"Entity Type specified is not valid");
 		}
 
 		if (type == null) {
-			JStatus status = new JStatus();
-			status.setStatus(StatusType.ERROR);
-			status.setInfo("Entity Type Not Valid");
-			return status;
+			throw new PackPackException(ErrorCodes.PACK_ERR_04,
+					"Entity Type specified is not valid");
 		}
 		service.addComment(commentDTO.getFromUserId(),
 				commentDTO.getEntityId(), type, comment);
-		JStatus status = new JStatus();
-		status.setStatus(StatusType.OK);
-		status.setInfo("Successfully Executed");
-		return status;
+		if (user != null) {
+			comment.setFromUserDisplayName(user.getName());
+			comment.setFromUserName(user.getUsername());
+			comment.setFromUserProfilePictureUrl(ModelConverter
+					.resolveProfilePictureUrl(user.getProfilePictureUrl()));
+		}
+		return comment;
 	}
 
 	@PUT
