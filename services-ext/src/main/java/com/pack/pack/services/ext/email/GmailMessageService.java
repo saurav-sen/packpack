@@ -58,9 +58,9 @@ import com.pack.pack.util.SystemPropertyUtil;
  * @author Saurav
  *
  */
-@Component
+/*@Component
 @Lazy
-@Scope("singleton")
+@Scope("singleton")*/
 public class GmailMessageService {
 
 	private static Logger LOG = LoggerFactory
@@ -85,7 +85,7 @@ public class GmailMessageService {
 			GmailScopes.GMAIL_LABELS, GmailScopes.GMAIL_COMPOSE,
 			GmailScopes.GMAIL_MODIFY);
 
-	@PostConstruct
+	//@PostConstruct
 	public void initialize() throws Exception {
 		httpTransport = GoogleNetHttpTransport.newTrustedTransport();
 		String dataStoreDirPath = SystemPropertyUtil.getAppHome();

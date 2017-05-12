@@ -1,10 +1,23 @@
 package com.pack.pack.markup.gen;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.pack.pack.markup.gen.util.PromotedFileUtil;
 import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JTopic;
+import com.pack.pack.model.web.JUser;
+import com.pack.pack.security.util.EncryptionUtil;
+
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
 
 /**
  * 
@@ -30,6 +43,42 @@ public class MarkupGenerator {
 		IMarkupGenerator generator = generatorsMap.get(type.getName());
 		if (generator != null) {
 			generator.generateAndUpload(entityId);
+		}
+	}
+	
+	public String generateWelcomeEmailHtmlContent(String userName, int userCount, String activateLink) throws IOException, TemplateException {
+		Writer writer = null;
+		Configuration cfg = new Configuration();
+		Map<String, Object> dataModel = new HashMap<String, Object>();
+		try {
+			dataModel.put("name", userName);
+			String userCountStr = "";
+			int userCount_1 = userCount % 10; 
+			if(userCount_1 == 1) {
+				userCountStr = userCount + " st";
+			} else if(userCount_1 == 2) {
+				userCountStr = userCount + " nd";
+			} else if(userCount_1 == 3) {
+				userCountStr = userCount + " rd";
+			} else {
+				userCountStr = userCount + " th";
+			}
+			dataModel.put("count", userCountStr);
+			dataModel.put("activateLink", activateLink);
+			
+			cfg.setClassForTemplateLoading(TopicPageGenerator.class,
+					"/com/pack/pack/markup/notifications");
+			Template template = cfg.getTemplate("welcome.ftl");
+			
+			writer = new StringWriter();
+			template.process(dataModel, writer);
+			writer.flush();
+			String str = writer.toString();
+			return str;
+		} finally {
+			if (writer != null) {
+				writer.close();
+			}
 		}
 	}
 }
