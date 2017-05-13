@@ -105,7 +105,8 @@ public class MiscServiceImpl implements IMiscService {
 						"Can't find attachment with ID = " + entityId);
 			}
 			Comment c = ModelConverter.convert(comment);
-			packAttachment.getRecentComments().add(c);
+			//packAttachment.getRecentComments().add(c);
+			packAttachment.addComment(c);
 			packAttachment.setComments(packAttachment.getComments() + 1);
 			service.update(packAttachment);
 		}

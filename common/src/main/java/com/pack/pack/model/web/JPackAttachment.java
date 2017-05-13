@@ -131,7 +131,7 @@ public class JPackAttachment {
 		if(comment == null || comment.getId() == null) {
 			throw new RuntimeException("Comment Id can't be NULL reference");
 		}
-		comments.put(comment.getId(), comment);
+		getComments().put(comment.getId(), comment);
 	}
 
 	public String getId() {

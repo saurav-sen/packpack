@@ -70,7 +70,7 @@ public class APIBuilderImpl extends APIBuilder {
 				|| action == COMMAND.GET_ALL_ATTACHMENTS_IN_PACK
 				/*|| action == COMMAND.FORWARD_PACK
 				|| action == COMMAND.FORWARD_PACK_OVER_EMAIL*/
-				|| action == COMMAND.ADD_COMMENT_TO_PACK
+				|| action == COMMAND.ADD_COMMENT_TO_PACK_ATTACHMENT
 				|| action == COMMAND.ADD_LIKE_TO_PACK
 				|| action == COMMAND.ADD_LIKE_TO_PACK_ATTACHMENT
 				|| action == COMMAND.CREATE_NEW_PACK

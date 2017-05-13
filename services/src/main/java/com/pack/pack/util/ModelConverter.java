@@ -299,6 +299,13 @@ public class ModelConverter {
 		String profilePictureUrl = profilePicture;
 		profilePictureUrl = profilePictureUrl.replaceAll(File.separator,
 				SystemPropertyUtil.URL_SEPARATOR);
+		if (profilePictureUrl.startsWith("http://")
+				|| profilePictureUrl.startsWith("https://")) {
+			logger.trace("Resolved URL for profile picture = "
+					+ profilePictureUrl
+					+ " it is already pointing to absloute location");
+			return profilePictureUrl;
+		}
 		if (!profilePictureUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)
 				&& !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
 			profilePictureUrl = baseURL + SystemPropertyUtil.URL_SEPARATOR
@@ -345,7 +352,8 @@ public class ModelConverter {
 		comment.setId(jComment.getId());
 		comment.setComment(jComment.getComment());
 		comment.setDateTime(jComment.getDateTime());
-		comment.setFromUser(jComment.getFromUserName());
+		comment.setFromUser(jComment.getFromUserId());
+		//comment.setFromUser(jComment.getFromUserName());
 		return comment;
 	}
 

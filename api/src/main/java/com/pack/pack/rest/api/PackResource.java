@@ -205,7 +205,8 @@ public class PackResource {
 	@CompressRead
 	@Consumes(value = MediaType.APPLICATION_JSON)
 	@Produces(value = MediaType.APPLICATION_JSON)
-	public JComment addComment(CommentDTO commentDTO) throws PackPackException {
+	public JComment addComment(String json) throws PackPackException {
+		CommentDTO commentDTO = JSONUtil.deserialize(json, CommentDTO.class, true);
 		IMiscService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IMiscService.class);
 		JComment comment = new JComment();

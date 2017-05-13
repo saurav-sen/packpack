@@ -145,9 +145,19 @@ public class PackAttachment extends CouchDbDocument {
 	}
 
 	public void setRecentComments(List<Comment> comments) {
+		if(recentComments == null) {
+			recentComments = new HashMap<String, Comment>();
+		}
 		for(Comment comment : comments) {
 			recentComments.put(comment.getId(), comment);
 		}
+	}
+	
+	public void addComment(Comment comment) {
+		if(recentComments == null) {
+			recentComments = new HashMap<String, Comment>();
+		}
+		recentComments.put(comment.getId(), comment);
 	}
 
 	public String getAttachmentParentPackId() {

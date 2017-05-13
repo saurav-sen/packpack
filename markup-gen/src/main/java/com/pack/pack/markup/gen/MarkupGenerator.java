@@ -52,16 +52,18 @@ public class MarkupGenerator {
 		Map<String, Object> dataModel = new HashMap<String, Object>();
 		try {
 			dataModel.put("name", userName);
-			String userCountStr = "";
-			int userCount_1 = userCount % 10; 
-			if(userCount_1 == 1) {
-				userCountStr = userCount + " st";
-			} else if(userCount_1 == 2) {
-				userCountStr = userCount + " nd";
-			} else if(userCount_1 == 3) {
-				userCountStr = userCount + " rd";
-			} else {
-				userCountStr = userCount + " th";
+			String userCountStr = "new user";
+			if (userCount > 0) {
+				int userCount_1 = userCount % 10;
+				if (userCount_1 == 1) {
+					userCountStr = userCount + " st";
+				} else if (userCount_1 == 2) {
+					userCountStr = userCount + " nd";
+				} else if (userCount_1 == 3) {
+					userCountStr = userCount + " rd";
+				} else {
+					userCountStr = userCount + " th";
+				}
 			}
 			dataModel.put("count", userCountStr);
 			dataModel.put("activateLink", activateLink);

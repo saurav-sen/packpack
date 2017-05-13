@@ -1,5 +1,6 @@
 package com.pack.pack.rest.api;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,9 +18,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
 import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.pack.pack.IUserService;
 import com.pack.pack.common.util.JSONUtil;
+import com.pack.pack.markup.gen.MarkupGenerator;
 import com.pack.pack.model.User;
 import com.pack.pack.model.UserInfo;
 import com.pack.pack.model.es.UserDetail;
@@ -32,8 +36,12 @@ import com.pack.pack.rest.api.security.interceptors.CompressWrite;
 import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.es.SearchService;
 import com.pack.pack.services.exception.PackPackException;
+import com.pack.pack.services.ext.email.SmtpMessage;
+import com.pack.pack.services.ext.email.SmtpTLSMessageService;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.ModelConverter;
+
+import freemarker.template.TemplateException;
 
 /**
  * 
@@ -44,6 +52,8 @@ import com.pack.pack.util.ModelConverter;
 @Provider
 @Path("/user")
 public class UserResource {
+	
+	private Logger LOG = LoggerFactory.getLogger(UserResource.class);
 
 	@GET
 	@CompressWrite
@@ -151,8 +161,25 @@ public class UserResource {
 							+ " already registered");
 		}
 		//password = EncryptionUtil.encryptPassword(password);
-		return service.registerNewUser(name, email, password, city, country, dob,
+		JUser newUser = service.registerNewUser(name, email, password, city, country, dob,
 				null, null);
+		sendWelcomeMail(newUser);
+		return newUser;
+	}
+	
+	private void sendWelcomeMail(JUser newUser) {
+		try {
+			String htmlContent = MarkupGenerator.INSTANCE
+					.generateWelcomeEmailHtmlContent(newUser.getName(), -1,
+							"http://www.squill.co.in/");
+			SmtpMessage smtpMessage = new SmtpMessage(newUser.getUsername(),
+					"Welcome To SQUILL", htmlContent, true);
+			SmtpTLSMessageService.INSTANCE.sendMessage(smtpMessage);
+		} catch (IOException e) {
+			LOG.error("Error Sending Welcome Mail", e);
+		} catch (TemplateException e) {
+			LOG.error("Error Sending Welcome Mail", e);
+		}
 	}
 
 	@POST
