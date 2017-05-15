@@ -35,6 +35,8 @@ public class User extends CouchDbDocument {
 	
 	private String country;
 	
+	private String displayName;
+	
 	public String getCity() {
 		return city;
 	}
@@ -108,5 +110,13 @@ public class User extends CouchDbDocument {
 
 	public void setCountry(String country) {
 		this.country = country;
+	}
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
 	}
 }

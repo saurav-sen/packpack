@@ -25,6 +25,8 @@ public class JUser {
 	private String city;
 	
 	private String country;
+	
+	private String displayName;
 
 	public String getName() {
 		return name;
@@ -91,5 +93,13 @@ public class JUser {
 
 	public void setCountry(String country) {
 		this.country = country;
+	}
+
+	public String getDisplayName() {
+		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
 	}
 }

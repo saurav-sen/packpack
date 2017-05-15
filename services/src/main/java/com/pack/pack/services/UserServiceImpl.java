@@ -188,8 +188,13 @@ public class UserServiceImpl implements IUserService {
 					"No user found with supplied ID.");
 		}
 		boolean bool = false;
-		if (UserSettings.DISPLAY_NAME.equals(key)) {
+		if (UserSettings.USER_NAME.equals(key) && value != null
+				&& !value.trim().isEmpty()) {
 			user.setName(value);
+			bool = true;
+		} else if (UserSettings.DISPLAY_NAME.equals(key) && value != null
+				&& !value.trim().isEmpty()) {
+			user.setDisplayName(value);
 			bool = true;
 		} else if (UserSettings.USER_ADDRESS.equals(key)) {
 			String[] split = value.split(", ");
