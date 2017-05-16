@@ -594,7 +594,7 @@ public class PackServiceImpl implements IPackService {
 			throw new PackPackException(ErrorCodes.PACK_ERR_01,
 					"Attachment Not Found");
 		}
-		story = StringUtils.compress(story);
+		//story = StringUtils.compress(story);
 		boolean oldEntity = false;
 		PackAttachmentStory storyObj = null;
 		String storyId = packAttachment.getStoryId();
