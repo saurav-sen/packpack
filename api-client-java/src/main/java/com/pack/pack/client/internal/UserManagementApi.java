@@ -152,6 +152,7 @@ class UserManagementApi extends BaseAPI {
 		settings.setValue(value);
 		String json = JSONUtil.serialize(settings, true);
 		PUT.setEntity(GZipUtil.compress(new StringEntity(json)));
+		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
 		PUT.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
 		HttpResponse response = client.execute(PUT);
 		return JSONUtil

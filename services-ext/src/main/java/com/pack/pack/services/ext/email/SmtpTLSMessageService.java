@@ -94,8 +94,12 @@ public class SmtpTLSMessageService {
 
 		@Override
 		public void run() {
-			sendMail(message.getReceipentEmailId(), message.getSubject(),
-					message.getContent(), message.isHtml());
+			try {
+				sendMail(message.getReceipentEmailId(), message.getSubject(),
+						message.getContent(), message.isHtml());
+			} catch (Throwable e) {
+				LOG.error("Send Welcome Mail failed", e);
+			}
 		}
 	}
 }
