@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pack.pack.IUserService;
+import com.pack.pack.common.util.CommonConstants;
 import com.pack.pack.model.AttachmentType;
 import com.pack.pack.model.Comment;
 import com.pack.pack.model.Discussion;
@@ -446,10 +447,16 @@ public class ModelConverter {
 		topic.setDescription(jTopic.getDescription());
 		topic.setName(jTopic.getName());
 		topic.setOwnerId(jTopic.getOwnerId());
-		topic.setCategory(jTopic.getCategory());
+		String category = jTopic.getCategory();
+		topic.setSubCategory(category);
+		topic.setCategory(resolveTopicPrimaryCategory(category));
 		topic.setLongitude(jTopic.getLongitude());
 		topic.setLatitude(jTopic.getLatitude());
 		return topic;
+	}
+	
+	public static String resolveTopicPrimaryCategory(String subCategory) {
+		return CommonConstants.resolvePrimaryCategory(subCategory);
 	}
 
 	public static JeGift convert(EGift eGift) {

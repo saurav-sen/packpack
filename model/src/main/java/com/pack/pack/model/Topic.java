@@ -40,6 +40,8 @@ public class Topic extends CouchDbDocument {
 	
 	private List<TopicProperty> propeties;
 	
+	private String subCategory;
+	
 	public String getOwnerId() {
 		return ownerId;
 	}
@@ -132,5 +134,13 @@ public class Topic extends CouchDbDocument {
 
 	public void setPropeties(List<TopicProperty> propeties) {
 		this.propeties = propeties;
+	}
+
+	public String getSubCategory() {
+		return subCategory;
+	}
+
+	public void setSubCategory(String subCategory) {
+		this.subCategory = subCategory;
 	}
 }
