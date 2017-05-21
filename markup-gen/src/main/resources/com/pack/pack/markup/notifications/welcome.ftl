@@ -267,7 +267,7 @@
                   <tr>
                     <td valign="top" class="footer-cell">
                       SQUILL Co<br>
-                      SQUILL India, INC company
+                      SQUILL India
                     </td>
                   </tr>
                 </table>

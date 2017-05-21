@@ -31,7 +31,7 @@ public class ServiceRegistry {
 		if(lock.tryLock()) {
 			try {
 				if(!initializedServices) {
-					appContext = new ClassPathXmlApplicationContext("META-INF/services.xml");
+					appContext = new ClassPathXmlApplicationContext(getServicesXmlPath());
 					if(appContext == null) {
 						throw new RuntimeException("Error initializing spring "
 								+ "context for repository services");
@@ -43,6 +43,13 @@ public class ServiceRegistry {
 				lock.unlock();
 			}
 		}
+	}
+	
+	private String getServicesXmlPath() {
+		if(System.getProperty("service.registry.test") != null) {
+			return "META-INF/services_test.xml.txt";
+		}
+		return "META-INF/services.xml";
 	}
 	
 	public <T> T findService(Class<T> serviceClass) {

@@ -42,4 +42,10 @@ public class UserFollowedTopicListTest extends BaseTest {
 		}
 		return page;
 	}
+	
+	public static void main(String[] args) throws Exception {
+		UserFollowedTopicListTest test = new UserFollowedTopicListTest();
+		test.beforeTest();
+		test.testUserFollowedTopicList();
+	}
 }

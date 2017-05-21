@@ -117,7 +117,11 @@ public enum COMMAND {
 			APIConstants.User.USERNAME), CRAWL_FEED(
 			APIConstants.ExternalResource.RESOURCE_URL), ADD_STORY_TO_ATTACHMENT(
 			APIConstants.PackAttachment.ID, APIConstants.AttachmentStory.STORY), GET_STORY_FROM_ATTACHMENT(
-			APIConstants.PackAttachment.ID, APIConstants.User.ID);
+			APIConstants.PackAttachment.ID, APIConstants.User.ID), ISSUE_PASSWD_RESET_LINK(
+			APIConstants.User.USERNAME), RESET_USER_PASSWD(
+			APIConstants.User.USERNAME,
+			APIConstants.User.PasswordReset.VERIFIER_CODE,
+			APIConstants.User.PasswordReset.NEW_PASSWORD);
 
 	private String[] paramNames;
 

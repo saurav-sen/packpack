@@ -83,4 +83,27 @@ public class MarkupGenerator {
 			}
 		}
 	}
+	
+	public String generatePasswordResetVerifierMail(String OTP) throws IOException, TemplateException {
+		Writer writer = null;
+		Configuration cfg = new Configuration();
+		Map<String, Object> dataModel = new HashMap<String, Object>();
+		try {
+			dataModel.put("otp", OTP);
+			
+			cfg.setClassForTemplateLoading(TopicPageGenerator.class,
+					"/com/pack/pack/markup/notifications");
+			Template template = cfg.getTemplate("passwd_reset_token.ftl");
+			
+			writer = new StringWriter();
+			template.process(dataModel, writer);
+			writer.flush();
+			String str = writer.toString();
+			return str;
+		} finally {
+			if (writer != null) {
+				writer.close();
+			}
+		}
+	}
 }

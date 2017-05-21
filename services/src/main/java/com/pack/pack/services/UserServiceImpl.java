@@ -222,4 +222,19 @@ public class UserServiceImpl implements IUserService {
 		}
 		return true;
 	}
+	
+	@Override
+	public void updateUserPassword(String userName, String passwd)
+			throws PackPackException {
+		UserRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(UserRepositoryService.class);
+		List<User> users = service.getBasedOnUsername(userName);
+		if (users == null || users.isEmpty() || users.size() > 1) {
+			throw new PackPackException(ErrorCodes.PACK_ERR_01,
+					"Invalid UserName/Email specified");
+		}
+		User user = users.get(0);
+		user.setPassword(passwd);
+		service.update(user);
+	}
 }

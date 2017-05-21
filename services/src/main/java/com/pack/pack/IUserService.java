@@ -82,4 +82,13 @@ public interface IUserService {
 	 */
 	public boolean checkIfUserNameExists(String userName)
 			throws PackPackException;
+	
+	/**
+	 * 
+	 * @param userName
+	 * @param passwd
+	 * @throws PackPackException
+	 */
+	public void updateUserPassword(String userName, String passwd)
+			throws PackPackException;
 }

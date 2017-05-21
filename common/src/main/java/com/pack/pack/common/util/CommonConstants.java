@@ -36,18 +36,37 @@ public class CommonConstants {
     	
     	secondaryVsPrimaryCategoryMap.put(ART, ART);
     	secondaryVsPrimaryCategoryMap.put(MUSIC, ART);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.MUSIC.getDisplay(), ART);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.MUSIC.name(), ART);
     	
     	secondaryVsPrimaryCategoryMap.put(PHOTOGRAPHY, PHOTOGRAPHY);
     	secondaryVsPrimaryCategoryMap.put(LIFESTYLE, PHOTOGRAPHY);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.TRAVEL.getDisplay(), PHOTOGRAPHY);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.TRAVEL.name(), PHOTOGRAPHY);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.PHOTOGRAPHY_WILD_LIFE.getDisplay(), PHOTOGRAPHY);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.PHOTOGRAPHY_WILD_LIFE.name(), PHOTOGRAPHY);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.PHOTOGRAPHY.getDisplay(), PHOTOGRAPHY);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.PHOTOGRAPHY.name(), PHOTOGRAPHY);
     	
     	secondaryVsPrimaryCategoryMap.put(EDUCATION, EDUCATION);
     	secondaryVsPrimaryCategoryMap.put(SPIRITUAL, EDUCATION);
     	secondaryVsPrimaryCategoryMap.put(FUN, EDUCATION);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.BOOKS.getDisplay(), EDUCATION);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.BOOKS.name(), EDUCATION);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.SPIRITUAL.getDisplay(), EDUCATION);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.SPIRITUAL.name(), EDUCATION);
     	
     	secondaryVsPrimaryCategoryMap.put(OTHERS, OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(FUN, OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.FASHION.getDisplay(), OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.FASHION.name(), OTHERS);
     }
     
     public static final String resolvePrimaryCategory(String secondaryCategory) {
-    	return secondaryVsPrimaryCategoryMap.get(secondaryCategory);
+    	String primaryCategory = secondaryVsPrimaryCategoryMap.get(secondaryCategory);
+    	if(primaryCategory == null) {
+    		primaryCategory = OTHERS;
+    	}
+    	return primaryCategory;
     }
 }

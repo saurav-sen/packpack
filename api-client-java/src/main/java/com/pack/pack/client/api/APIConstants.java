@@ -12,6 +12,7 @@ public interface APIConstants {
 	public static final String AUTHORIZATION_HEADER = "Authorization";
 	public static final String CONTENT_TYPE_HEADER = "Content-Type";
 	public static final String APPLICATION_JSON = "application/json";
+	public static final String TEXT_PLAIN = "text/plain";
 	
 	public static final String CACHE_STORAGE = "CACHE_STORAGE";
 	
@@ -44,6 +45,11 @@ public interface APIConstants {
 		public static interface Settings {
 			public static final String KEY = "key";
 			public static final String VALUE = "value";
+		}
+		
+		public static interface PasswordReset {
+			public static final String VERIFIER_CODE = "verifier_code";
+			public static final String NEW_PASSWORD = "new_password";
 		}
 	}
 	

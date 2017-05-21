@@ -33,7 +33,9 @@ import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.client.api.MultipartRequestProgressListener;
 import com.pack.pack.common.util.JSONUtil;
+import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JUser;
+import com.pack.pack.model.web.dto.PasswordResetDTO;
 import com.pack.pack.model.web.dto.SignupDTO;
 import com.pack.pack.model.web.dto.UserSettings;
 import com.pack.pack.oauth1.client.AccessToken;
@@ -125,6 +127,18 @@ class UserManagementApi extends BaseAPI {
 				String key = (String) params.get(APIConstants.User.Settings.KEY);
 				String value = (String) params.get(APIConstants.User.Settings.VALUE);
 				result = updateUserSettings(userId, key, value, oAuthToken);
+			} else if (action == COMMAND.ISSUE_PASSWD_RESET_LINK) {
+				String userName = (String) params
+						.get(APIConstants.User.USERNAME);
+				result = issuePasswordResetVerifier(userName);
+			} else if (action == COMMAND.RESET_USER_PASSWD) {
+				String userName = (String) params
+						.get(APIConstants.User.USERNAME);
+				String verifier = (String) params
+						.get(APIConstants.User.PasswordReset.VERIFIER_CODE);
+				String password = (String) params
+						.get(APIConstants.User.PasswordReset.NEW_PASSWORD);
+				result = resetUserPassword(userName, verifier, password);
 			} else {
 				throw new UnsupportedOperationException(action.name()
 						+ " is not supported. Probably a different API "
@@ -307,7 +321,30 @@ class UserManagementApi extends BaseAPI {
 				JUser.class);
 	}
 	
-	
+	private JStatus issuePasswordResetVerifier(String userName)
+			throws Exception {
+		String url = getBaseUrl() + "user/passwd/reset/usr/" + userName;
+		DefaultHttpClient client = new DefaultHttpClient();
+		HttpGet GET = new HttpGet(url);
+		HttpResponse response = client.execute(GET);
+		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
+				JStatus.class);
+	}
+
+	private JStatus resetUserPassword(String userName, String verifier,
+			String password) throws Exception {
+		String url = getBaseUrl() + "user/passwd/reset/usr/" + userName;
+		DefaultHttpClient client = new DefaultHttpClient();
+		HttpPost POST = new HttpPost(url);
+		PasswordResetDTO dto = new PasswordResetDTO(userName, verifier,
+				password);
+		String json = JSONUtil.serialize(dto);
+		POST.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
+		POST.setEntity(new StringEntity(json, UTF_8));
+		HttpResponse response = client.execute(POST);
+		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
+				JStatus.class);
+	}
 
 	private AccessToken signIn(Map<String, Object> params)
 			throws ClientProtocolException, IOException {

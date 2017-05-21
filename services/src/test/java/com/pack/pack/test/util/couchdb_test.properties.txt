@@ -1,0 +1,13 @@
+#host=${couchdb.host}
+#port=${couchdb.port}
+#enableSSL=false
+maxConnections=20
+connectionTimeout=1000
+socketTimeout=10000
+autoUpdateViewOnChange=true
+enableSSL=true
+relaxedSSLSettings=true
+url=https://ritgho.cloudant.com/
+username=ritgho
+password=P@$$w0rd4sQui11
+#compression=${ektorp.compression}

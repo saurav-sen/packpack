@@ -21,6 +21,8 @@ import com.pack.pack.rest.web.util.SystemInfo;
  */
 @Provider
 public class AccessTokenVerifier implements ContainerRequestFilter {
+	
+	private static final String PASSWD_RESET_LINK_PATTERN = "passwd/reset";
 
 	@Override
 	public void filter(ContainerRequestContext requestContext)
@@ -35,7 +37,8 @@ public class AccessTokenVerifier implements ContainerRequestFilter {
 				&& !path.endsWith(OAuthConstants.OAUTH_ACCESS_TOKEN_PATH)
 				&& !path.endsWith(SystemInfo.SYSTEM_SUPPORTED_CATEGORIES_INFO_WEB_URL)
 				&& !path.endsWith(SystemInfo.NTP_INFO_WEB_URL)
-				&& !path.contains(SystemInfo.VALIDATE_USER_NAME_WEB_URL)) {
+				&& !path.contains(SystemInfo.VALIDATE_USER_NAME_WEB_URL)
+				&& !path.contains(PASSWD_RESET_LINK_PATTERN)) {
 			if (isTokenEmpty) {
 				allow = false;
 			} else {
