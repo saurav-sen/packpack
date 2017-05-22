@@ -18,6 +18,8 @@ public class SignupDTO {
 	private String dob;
 	
 	private String country;
+	
+	private String verificationCode;
 
 	public String getEmail() {
 		return email;
@@ -65,5 +67,13 @@ public class SignupDTO {
 
 	public void setCountry(String country) {
 		this.country = country;
+	}
+
+	public String getVerificationCode() {
+		return verificationCode;
+	}
+
+	public void setVerificationCode(String verificationCode) {
+		this.verificationCode = verificationCode;
 	}
 }

@@ -23,6 +23,7 @@ import com.pack.pack.rest.web.util.SystemInfo;
 public class AccessTokenVerifier implements ContainerRequestFilter {
 	
 	private static final String PASSWD_RESET_LINK_PATTERN = "passwd/reset";
+	private static final String SIGNUP_CODE_LINK_PATTERN = "signup/code";
 
 	@Override
 	public void filter(ContainerRequestContext requestContext)
@@ -38,7 +39,8 @@ public class AccessTokenVerifier implements ContainerRequestFilter {
 				&& !path.endsWith(SystemInfo.SYSTEM_SUPPORTED_CATEGORIES_INFO_WEB_URL)
 				&& !path.endsWith(SystemInfo.NTP_INFO_WEB_URL)
 				&& !path.contains(SystemInfo.VALIDATE_USER_NAME_WEB_URL)
-				&& !path.contains(PASSWD_RESET_LINK_PATTERN)) {
+				&& !path.contains(PASSWD_RESET_LINK_PATTERN)
+				&& !path.contains(SIGNUP_CODE_LINK_PATTERN)) {
 			if (isTokenEmpty) {
 				allow = false;
 			} else {

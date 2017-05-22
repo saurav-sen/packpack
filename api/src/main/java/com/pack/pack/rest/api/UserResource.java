@@ -34,6 +34,7 @@ import com.pack.pack.model.web.JUsers;
 import com.pack.pack.model.web.StatusType;
 import com.pack.pack.model.web.dto.PasswordResetDTO;
 import com.pack.pack.model.web.dto.SignupDTO;
+import com.pack.pack.model.web.dto.SignupVerifierDTO;
 import com.pack.pack.model.web.dto.UserSettings;
 import com.pack.pack.rest.api.security.interceptors.CompressRead;
 import com.pack.pack.rest.api.security.interceptors.CompressWrite;
@@ -61,6 +62,9 @@ import freemarker.template.TemplateException;
 public class UserResource {
 
 	private Logger LOG = LoggerFactory.getLogger(UserResource.class);
+	
+	private static final String SIGNUP_VERIFIER = "signup_code_";
+	private static final String PASSWD_RESET_VERIFIER = "passwd_reset_";
 
 	@GET
 	@CompressWrite
@@ -162,30 +166,32 @@ public class UserResource {
 	}
 
 	private JUser doRegisterUser(String name, String email, String password,
-			String city, String country, String dob) throws PackPackException {
-		IUserService service = ServiceRegistry.INSTANCE
-				.findCompositeService(IUserService.class);
-		UserRepositoryService repoService = ServiceRegistry.INSTANCE
-				.findService(UserRepositoryService.class);
-		List<User> users = repoService.getBasedOnUsername(email);
-		if (users != null && !users.isEmpty()) {
-			throw new PackPackException("TODO",
-					"Duplicate user. User with username = " + email
-							+ " already registered");
+			String city, String country, String dob, String verificationCode)
+			throws PackPackException {
+		if (validateOTP(SIGNUP_VERIFIER, email, verificationCode)) {
+			IUserService service = ServiceRegistry.INSTANCE
+					.findCompositeService(IUserService.class);
+			UserRepositoryService repoService = ServiceRegistry.INSTANCE
+					.findService(UserRepositoryService.class);
+			List<User> users = repoService.getBasedOnUsername(email);
+			if (users != null && !users.isEmpty()) {
+				throw new PackPackException("TODO",
+						"Duplicate user. User with username = " + email
+								+ " already registered");
+			}
+			password = EncryptionUtil.encryptPassword(password);
+			JUser newUser = service.registerNewUser(name, email, password,
+					city, country, dob, null, null);
+			return newUser;
 		}
-		// password = EncryptionUtil.encryptPassword(password);
-		JUser newUser = service.registerNewUser(name, email, password, city,
-				country, dob, null, null);
-		sendWelcomeMail(newUser);
-		return newUser;
+		return new JUser();
 	}
 
-	private void sendWelcomeMail(JUser newUser) {
+	private void sendWelcomeMail(String nameOfUser, String email, String OTP) {
 		try {
 			String htmlContent = MarkupGenerator.INSTANCE
-					.generateWelcomeEmailHtmlContent(newUser.getName(), -1,
-							"http://www.squill.co.in/");
-			SmtpMessage smtpMessage = new SmtpMessage(newUser.getUsername(),
+					.generateWelcomeEmailHtmlContent(nameOfUser, -1, OTP);
+			SmtpMessage smtpMessage = new SmtpMessage(email,
 					"Welcome To SQUILL", htmlContent, true);
 			SmtpTLSMessageService.INSTANCE.sendMessage(smtpMessage);
 		} catch (IOException e) {
@@ -208,7 +214,9 @@ public class UserResource {
 		String dob = dto.getDob();
 		String city = dto.getCity();
 		String country = dto.getCountry();
-		return doRegisterUser(name, email, password, city, country, dob);
+		String verificationCode = dto.getVerificationCode();
+		return doRegisterUser(name, email, password, city, country, dob,
+				verificationCode);
 	}
 
 	@PUT
@@ -270,39 +278,57 @@ public class UserResource {
 		return service.updateUserSettings(userId, dto.getKey(), dto.getValue());
 	}
 
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("signup/code")
+	public JStatus issueSignupVerificationCode(String json)
+			throws PackPackException {
+		SignupVerifierDTO dto = JSONUtil.deserialize(json, SignupVerifierDTO.class, true);
+		return issueOTP(dto.getEmail(), dto.getNameOfUser(), "Welcome to SQUILL", SIGNUP_VERIFIER);
+	}
+
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("passwd/reset/usr/{userName}")
 	public JStatus issuePasswordResetVerifier(
 			@PathParam("userName") String userName) throws PackPackException {
+		return issueOTP(userName, null, "SQUILL password assistance", PASSWD_RESET_VERIFIER);
+	}
+
+	public JStatus issueOTP(String email, String nameOfUser, String mailSubject, String keyPrefix)
+			throws PackPackException {
 		try {
 			// Generate OTP
 			String OTP = UUID.randomUUID().toString();
 			OTP = EncryptionUtil.generateSH1HashKey(OTP, true, true);
-			OTP = String.valueOf(OTP.hashCode());
+			OTP = String.valueOf(Math.abs(OTP.hashCode()) % 1000000);
 
+			String html = null;
 			// Prepare HTML email content containing OTP info
-			String html = MarkupGenerator.INSTANCE
-					.generatePasswordResetVerifierMail(OTP);
+			if(SIGNUP_VERIFIER.equals(keyPrefix)) {
+				sendWelcomeMail(nameOfUser, email, OTP);
+			} else {
+				html = MarkupGenerator.INSTANCE
+						.generatePasswordResetVerifierMail(OTP);
+				
+				// Send EMail using SMTP (over TLS)
+				SmtpMessage msg = new SmtpMessage(email, mailSubject, html, true);
+				SmtpTLSMessageService.INSTANCE.sendMessage(msg);
 
-			// Send EMail using SMTP (over TLS)
-			SmtpMessage msg = new SmtpMessage(userName,
-					"SQUILL password assistance", html, true);
-			SmtpTLSMessageService.INSTANCE.sendMessage(msg);
-
-			// Store the OTP info for verification purpose (TTL=900 seconds/15
-			// minutes)
-			RedisCacheService service = ServiceRegistry.INSTANCE
-					.findService(RedisCacheService.class);
-			service.addToCache("passwd_reset_" + userName, OTP, 900); // 15
-																		// minutes
-																		// TTL
+				// Store the OTP info for verification purpose (TTL=900 seconds/15
+				// minutes)
+				RedisCacheService service = ServiceRegistry.INSTANCE
+						.findService(RedisCacheService.class);
+				service.addToCache(keyPrefix + email, OTP, 900); // 15
+																	// minutes
+																	// TTL
+			}
 
 			// Success
 			JStatus status = new JStatus();
 			status.setStatus(StatusType.OK);
-			status.setInfo("Password Reset details sent over EMail @ "
-					+ userName);
+			status.setInfo("Password Reset details sent over EMail @ " + email);
 			return status;
 		} catch (Exception e) {
 			LOG.error("Failed Issuing password reset verifier code",
@@ -327,7 +353,7 @@ public class UserResource {
 			String verifier = dto.getVerifier();
 			String passwd = dto.getNewPassword();
 
-			String key = "passwd_reset_" + userName;
+			String key = PASSWD_RESET_VERIFIER + userName;
 			RedisCacheService service = ServiceRegistry.INSTANCE
 					.findService(RedisCacheService.class);
 			OTP = service.getFromCache(key, String.class);
@@ -336,6 +362,7 @@ public class UserResource {
 				service.removeFromCache(key);
 				IUserService userService = ServiceRegistry.INSTANCE
 						.findCompositeService(IUserService.class);
+				passwd = EncryptionUtil.encryptPassword(passwd);
 				userService.updateUserPassword(userName, passwd);
 				response.setInfo("Successfully Updated user credentials");
 				response.setStatus(StatusType.OK);
@@ -350,5 +377,26 @@ public class UserResource {
 					e.getMessage(), e);
 		}
 		return response;
+	}
+
+	private boolean validateOTP(String keyPrefix, String email, String verifier) {
+		try {
+			String OTP = null;
+
+			String key = keyPrefix + email;
+			RedisCacheService service = ServiceRegistry.INSTANCE
+					.findService(RedisCacheService.class);
+			OTP = service.getFromCache(key, String.class);
+
+			if (OTP != null && OTP.equals(verifier)) {
+				service.removeFromCache(key);
+				return true;
+			}
+
+			return false;
+		} catch (Exception e) {
+			LOG.error("Failed verifying OTP", e.getMessage(), e);
+			return false;
+		}
 	}
 }

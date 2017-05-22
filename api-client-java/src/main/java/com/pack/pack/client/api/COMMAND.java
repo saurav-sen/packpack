@@ -121,7 +121,8 @@ public enum COMMAND {
 			APIConstants.User.USERNAME), RESET_USER_PASSWD(
 			APIConstants.User.USERNAME,
 			APIConstants.User.PasswordReset.VERIFIER_CODE,
-			APIConstants.User.PasswordReset.NEW_PASSWORD);
+			APIConstants.User.PasswordReset.NEW_PASSWORD), ISSUE_SIGNUP_VERIFIER(
+			APIConstants.User.Register.EMAIL, APIConstants.User.Register.NAME);
 
 	private String[] paramNames;
 

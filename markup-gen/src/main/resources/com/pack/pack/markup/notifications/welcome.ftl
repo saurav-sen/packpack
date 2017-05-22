@@ -238,17 +238,21 @@
                             <table cellspacing="0" cellpadding="0" width="100%" bgcolor="#ffffff">
                               <tr>
                                 <td style="width:200px;background:#008000;">
-                                  <div><!--[if mso]>
+                                   <div>
+                                      <br>Verification Code: ${OTP}</br>
+                                      <br/>
+                                   </div>
+                                  <!--div>
                                     <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:40px;v-text-anchor:middle;width:200px;" stroke="f" fillcolor="#008000">
                                       <w:anchorlock/>
                                       <center>
-                                    <![endif]-->
+                                   
                                         <a href="${activateLink}"
                                   style="background-color:#008000;color:#ffffff;display:inline-block;font-family:sans-serif;font-size:18px;line-height:40px;text-align:center;text-decoration:none;width:200px;-webkit-text-size-adjust:none;">Activate Me</a>
-                                    <!--[if mso]>
+                                    
                                       </center>
                                     </v:rect>
-                                  <![endif]--></div>
+                                  </div-->
                                 </td>
                                 <td width="360" style="background-color:#ffffff; font-size:0; line-height:0;">&nbsp;</td>
                               </tr>

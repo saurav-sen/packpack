@@ -35,4 +35,8 @@ public class FollowTopicTest extends UserFollowedTopicListTest {
 			e.printStackTrace();
 		}
 	}
+	
+	public static void main(String[] args) throws Exception {
+		new FollowTopicTest().beforeTest();
+	}
 }

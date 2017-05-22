@@ -39,7 +39,8 @@ public interface APIConstants {
 			public static final String COUNTRY = "country";
 			public static final String STATE = "state";
 			public static final String LOCALITY = "locality";
-			public static final String DOB = "dob";			
+			public static final String DOB = "dob";
+			public static final String VERIFIER = "verifier";
 		}
 		
 		public static interface Settings {

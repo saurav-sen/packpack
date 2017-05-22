@@ -46,7 +46,7 @@ public class MarkupGenerator {
 		}
 	}
 	
-	public String generateWelcomeEmailHtmlContent(String userName, int userCount, String activateLink) throws IOException, TemplateException {
+	public String generateWelcomeEmailHtmlContent(String userName, int userCount, String OTP) throws IOException, TemplateException {
 		Writer writer = null;
 		Configuration cfg = new Configuration();
 		Map<String, Object> dataModel = new HashMap<String, Object>();
@@ -66,7 +66,7 @@ public class MarkupGenerator {
 				}
 			}
 			dataModel.put("count", userCountStr);
-			dataModel.put("activateLink", activateLink);
+			dataModel.put("OTP", OTP);
 			
 			cfg.setClassForTemplateLoading(TopicPageGenerator.class,
 					"/com/pack/pack/markup/notifications");

@@ -37,6 +37,7 @@ import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.dto.PasswordResetDTO;
 import com.pack.pack.model.web.dto.SignupDTO;
+import com.pack.pack.model.web.dto.SignupVerifierDTO;
 import com.pack.pack.model.web.dto.UserSettings;
 import com.pack.pack.oauth1.client.AccessToken;
 import com.pack.pack.oauth1.client.OAuth1ClientCredentials;
@@ -139,6 +140,12 @@ class UserManagementApi extends BaseAPI {
 				String password = (String) params
 						.get(APIConstants.User.PasswordReset.NEW_PASSWORD);
 				result = resetUserPassword(userName, verifier, password);
+			} else if(action == COMMAND.ISSUE_SIGNUP_VERIFIER) {
+				String email = (String) params
+						.get(APIConstants.User.Register.EMAIL);
+				String name = (String) params
+						.get(APIConstants.User.Register.NAME);
+				result = issueSignupVerifier(email, name);
 			} else {
 				throw new UnsupportedOperationException(action.name()
 						+ " is not supported. Probably a different API "
@@ -302,12 +309,14 @@ class UserManagementApi extends BaseAPI {
 			String city = (String) params.get(APIConstants.User.Register.CITY);
 			String country = (String) params.get(APIConstants.User.Register.COUNTRY);
 			String dob = (String) params.get(APIConstants.User.Register.DOB);
+			String verificationCode = (String) params.get(APIConstants.User.Register.VERIFIER);
 			dto.setCity(city);
 			dto.setCountry(country);
 			dto.setDob(dob);
 			dto.setEmail(email);
 			dto.setName(name);
 			dto.setPassword(password);
+			dto.setVerificationCode(verificationCode);
 			String json = JSONUtil.serialize(dto);
 			HttpEntity jsonBody = new StringEntity(json, UTF_8);
 			POST.setEntity(GZipUtil.compress(jsonBody));
@@ -319,6 +328,22 @@ class UserManagementApi extends BaseAPI {
 		HttpResponse response = client.execute(POST);
 		return JSONUtil.deserialize(EntityUtils.toString(GZipUtil.decompress(response.getEntity())),
 				JUser.class);
+	}
+	
+	private JStatus issueSignupVerifier(String email, String name)
+			throws Exception {
+		SignupVerifierDTO dto = new SignupVerifierDTO();
+		dto.setEmail(email);
+		dto.setNameOfUser(name);
+		String json = JSONUtil.serialize(dto);
+		String url = getBaseUrl() + "user/signup/code";
+		DefaultHttpClient client = new DefaultHttpClient();
+		HttpPut PUT = new HttpPut(url);
+		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
+		PUT.setEntity(new StringEntity(json, "UTF-8"));
+		HttpResponse response = client.execute(PUT);
+		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
+				JStatus.class);
 	}
 	
 	private JStatus issuePasswordResetVerifier(String userName)

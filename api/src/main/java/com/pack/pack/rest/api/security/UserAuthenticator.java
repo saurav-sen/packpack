@@ -1,5 +1,6 @@
 package com.pack.pack.rest.api.security;
 
+import com.pack.pack.security.util.EncryptionUtil;
 import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
@@ -20,6 +21,7 @@ public class UserAuthenticator {
 			throws PackPackException {
 		UserRepositoryService umService = ServiceRegistry.INSTANCE
 				.findService(UserRepositoryService.class);
+		password = EncryptionUtil.encryptPassword(password);
 		return umService.validateCredential(username, password);
 	}
 }

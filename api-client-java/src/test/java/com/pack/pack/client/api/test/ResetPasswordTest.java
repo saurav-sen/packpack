@@ -33,6 +33,6 @@ public class ResetPasswordTest {
 	
 	public static void main(String[] args) throws Exception {
 		//new ResetPasswordTest().testIssueVerifier();
-		new ResetPasswordTest().testReset();
+		//new ResetPasswordTest().testReset();
 	}
 }
