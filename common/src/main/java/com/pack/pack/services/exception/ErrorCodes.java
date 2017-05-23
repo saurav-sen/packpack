@@ -76,4 +76,6 @@ public interface ErrorCodes {
 	public static final String PACK_ERR_93 = "pack_err_93"; // Forbidden to access details of some other member.
 	
 	public static final String PACK_ERR_94 = "pack_err_94"; // Unsupported Media Type.
+	
+	public static final String PACK_ERR_95 = "pack_err_94"; // Invalid OTP.
 }

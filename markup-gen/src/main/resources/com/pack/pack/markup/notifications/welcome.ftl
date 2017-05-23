@@ -227,7 +227,7 @@
                           <td valign="top" style="padding-bottom:20px; background-color:#ffffff;">
                             <b>Hello ${name}, thanks for signing up!</b>
                             <br/>
-                            We're really excited for having you with us as our ${count} user! 
+                            We're really excited for having you with us as our ${count}! 
 							Hope you will enjoy exploring/promoting/contributing to the works of arts, painting, music & many more.
 							SQUILL Team stays committed to provide you with latest updates and happening in the world of art & culture. Also, to provide you with more explore options each day.
 							Please activate your account now, as you are just a click away.
@@ -242,17 +242,6 @@
                                       <br>Verification Code: ${OTP}</br>
                                       <br/>
                                    </div>
-                                  <!--div>
-                                    <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:40px;v-text-anchor:middle;width:200px;" stroke="f" fillcolor="#008000">
-                                      <w:anchorlock/>
-                                      <center>
-                                   
-                                        <a href="${activateLink}"
-                                  style="background-color:#008000;color:#ffffff;display:inline-block;font-family:sans-serif;font-size:18px;line-height:40px;text-align:center;text-decoration:none;width:200px;-webkit-text-size-adjust:none;">Activate Me</a>
-                                    
-                                      </center>
-                                    </v:rect>
-                                  </div-->
                                 </td>
                                 <td width="360" style="background-color:#ffffff; font-size:0; line-height:0;">&nbsp;</td>
                               </tr>

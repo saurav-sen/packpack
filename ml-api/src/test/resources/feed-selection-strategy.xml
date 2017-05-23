@@ -3,4 +3,6 @@
 
 	<strategy name="default"
 		implementation="com.pack.pack.feed.selection.strategy.impl.RandomFeedSelectionStrategy" />
+	<strategy name="noFilter"
+		implementation="com.pack.pack.feed.selection.strategy.impl.NoFilterFeedSelectionStrategy" />
 </strategies>

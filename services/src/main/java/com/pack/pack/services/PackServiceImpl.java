@@ -3,15 +3,26 @@ package com.pack.pack.services;
 import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
 import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +38,7 @@ import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.PackAttachmentType;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.services.aws.S3Path;
+import com.pack.pack.services.aws.S3Util;
 import com.pack.pack.services.couchdb.PackAttachmentRepositoryService;
 import com.pack.pack.services.couchdb.PackAttachmentStoryRepositoryService;
 import com.pack.pack.services.couchdb.PackRepositoryService;
@@ -40,7 +52,6 @@ import com.pack.pack.services.redis.RedisCacheService;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.AttachmentUtil;
 import com.pack.pack.util.ModelConverter;
-import com.pack.pack.util.StringUtils;
 import com.pack.pack.util.SystemPropertyUtil;
 
 /**
@@ -51,6 +62,8 @@ import com.pack.pack.util.SystemPropertyUtil;
 @Component
 @Scope("singleton")
 public class PackServiceImpl implements IPackService {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(PackServiceImpl.class);
 
 	@Override
 	public JPack getPackById(String id) throws PackPackException {
@@ -607,7 +620,34 @@ public class PackServiceImpl implements IPackService {
 			storyObj = new PackAttachmentStory();
 		}
 		
-		storyObj.setContent(story);
+		String articleFilePath = SystemPropertyUtil.getAttachmentStoryHome();
+		if(!articleFilePath.endsWith(File.separator)) {
+			articleFilePath = articleFilePath + File.separator;
+		}
+		articleFilePath = articleFilePath + "article_" + packAttachment.getId() + ".html";		
+		File articleFile = new File(articleFilePath);
+		
+		try {
+			writeToFile(articleFile, story);
+		} catch (IOException e) {
+			LOG.error("Failed storing attachment story to disk",
+					e.getMessage(), e);
+			throw new PackPackException(ErrorCodes.PACK_ERR_01,
+					"Failed storing attachment story to disk");
+		}
+		
+		S3Path s3Path = new S3Path("articles", false);
+		s3Path.addChild(new S3Path("article_" + packAttachment.getId()
+				+ ".html", true));
+		String relativeUrl = S3Util.syncUploadFileToS3Bucket(articleFile, s3Path);
+		String articleUrl = SystemPropertyUtil.getAttachmentArticleBaseURL();
+		if (!articleUrl.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+			articleUrl = articleUrl + SystemPropertyUtil.URL_SEPARATOR;
+		}
+		articleUrl = articleUrl + relativeUrl;
+		storyObj.setContent(articleUrl);
+		
+		//storyObj.setContent(story);
 		storyObj.setParentAttachmentId(packAttachment.getId());
 		PackAttachmentStoryRepositoryService storyStore = ServiceRegistry.INSTANCE
 				.findService(PackAttachmentStoryRepositoryService.class);
@@ -621,6 +661,18 @@ public class PackServiceImpl implements IPackService {
 				.findService(PackAttachmentRepositoryService.class);
 		service.update(packAttachment);
 		return storyObj.getId();
+	}
+	
+	private void writeToFile(File articleFile, String articleContent) throws IOException {
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(articleFile));
+			IOUtils.write(articleContent.getBytes(), writer);
+		} finally {
+			if(writer != null) {
+				writer.close();
+			}
+		}
 	}
 	
 	@Override
@@ -645,7 +697,16 @@ public class PackServiceImpl implements IPackService {
 		if(content == null) {
 			return null;
 		}
-		content = StringUtils.decompress(content);
+		try {
+			CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+			HttpGet GET = new HttpGet(content);
+			CloseableHttpResponse httpResponse = httpClient.execute(GET);
+			if(httpResponse.getStatusLine().getStatusCode() == 200) {
+				content = EntityUtils.toString(httpResponse.getEntity());
+			}
+		} catch (Exception e) {
+			LOG.error("Failed reading article from S3", e.getMessage(), e);
+		}
 		return content;
 	}
 }

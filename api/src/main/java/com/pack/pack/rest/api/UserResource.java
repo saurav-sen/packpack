@@ -184,7 +184,7 @@ public class UserResource {
 					city, country, dob, null, null);
 			return newUser;
 		}
-		return new JUser();
+		throw new PackPackException(ErrorCodes.PACK_ERR_95, "Invalid Verification Code");
 	}
 
 	private void sendWelcomeMail(String nameOfUser, String email, String OTP) {
@@ -315,15 +315,15 @@ public class UserResource {
 				// Send EMail using SMTP (over TLS)
 				SmtpMessage msg = new SmtpMessage(email, mailSubject, html, true);
 				SmtpTLSMessageService.INSTANCE.sendMessage(msg);
-
-				// Store the OTP info for verification purpose (TTL=900 seconds/15
-				// minutes)
-				RedisCacheService service = ServiceRegistry.INSTANCE
-						.findService(RedisCacheService.class);
-				service.addToCache(keyPrefix + email, OTP, 900); // 15
-																	// minutes
-																	// TTL
 			}
+			
+			// Store the OTP info for verification purpose (TTL=900 seconds/15
+			// minutes)
+			RedisCacheService service = ServiceRegistry.INSTANCE
+					.findService(RedisCacheService.class);
+			service.addToCache(keyPrefix + email, OTP, 900); // 15
+																// minutes
+																// TTL
 
 			// Success
 			JStatus status = new JStatus();

@@ -395,7 +395,7 @@ public class AttachmentResource {
 	
 	@GET
 	@Path("{attachmentId}/story/user/{userId}")
-	@Produces(value = MediaType.TEXT_HTML)
+	@Produces(value = MediaType.APPLICATION_JSON)
 	public String getAttachmentStoryIfAny(
 			@PathParam("attachmentId") String attachmentId,
 			@PathParam("userId") String userId) throws PackPackException {

@@ -43,6 +43,10 @@ public class S3Util {
 		uploadFileToS3Bucket_1(file, s3Path);
 	}
 	
+	public static String syncUploadFileToS3Bucket(File file, S3Path s3Path) {
+		return uploadFileToS3Bucket_1(file, s3Path);
+	}
+	
 	public static boolean isPublishedUrl(String relativeUrl) {
 		try {
 			RedisCacheService service = ServiceRegistry.INSTANCE.findService(RedisCacheService.class);

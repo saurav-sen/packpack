@@ -96,6 +96,8 @@ public final class SystemPropertyUtil {
 	
 	private static final String JS_BASE_URL = "js.base.url";
 	
+	private static final String ATTACHMENT_STORY_HOME = "attachment.story.home";
+	
 	private SystemPropertyUtil() {
 	}
 
@@ -117,6 +119,10 @@ public final class SystemPropertyUtil {
 
 	private static String getPropertyValue(String key) {
 		return properties.getProperty(key);
+	}
+	
+	public static String getAttachmentStoryHome() {
+		return getPropertyValue(ATTACHMENT_STORY_HOME);
 	}
 
 	public static String getMlServerMode() {
@@ -214,6 +220,13 @@ public final class SystemPropertyUtil {
 
 	public static final String getWebPagesRootPath() {
 		return getPropertyValue(WEB_PAGES_ROOT_PATH);
+	}
+	
+	public static String getAttachmentArticleBaseURL() {
+		if (!isProductionEnvironment()) {
+			return getBaseURL();
+		}
+		return getPropertyValue(AWS_S3_BASE_URL);
 	}
 
 	public static String getImageAttachmentBaseURL(String url) {
