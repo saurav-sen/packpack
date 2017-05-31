@@ -15,10 +15,12 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.feed.selection.strategy.FeedSelectionStrategy;
 import com.pack.pack.feed.selection.strategy.FeedSelector;
 import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.JRssFeeds;
+import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.util.SystemPropertyUtil;
 
 /**
@@ -82,8 +84,63 @@ public class FeedUploadUtil {
 		result.setFeeds(arrayList);
 		return result;
 	}
-
+	
 	private static Map<String, List<JRssFeed>> readFile(File file)
+			throws IOException {
+		if(file.getName().endsWith(".json")) {
+			return readJsonFile(file);
+		} else {
+			return readCsvFile(file);
+		}
+	}
+	
+	private static Map<String, List<JRssFeed>> readJsonFile(File file)
+			throws IOException {
+		Map<String, List<JRssFeed>> map = new HashMap<String, List<JRssFeed>>();
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new FileReader(file));
+			StringBuilder json = new StringBuilder();
+			String line = reader.readLine();
+			while(line != null) {
+				json.append(line);
+				line = reader.readLine();
+			}
+			JRssFeeds feedsContainer = JSONUtil.deserialize(json.toString(), JRssFeeds.class);
+			
+			if(feedsContainer == null) {
+				return map;
+			}
+			
+			List<JRssFeed> feeds = feedsContainer.getFeeds();
+			if(feeds == null) {
+				return map;
+			}
+			
+			for(JRssFeed feed : feeds) {
+				String ogType = feed.getOgType();
+				List<JRssFeed> list = map.get(ogType);
+				if (list == null) {
+					list = new LinkedList<JRssFeed>();
+					map.put(ogType, list);
+				}
+				list.add(feed);
+			}
+		} catch (PackPackException e) {
+			ERROR.error(e.getMessage(), e);
+		} finally {
+			try {
+				if(reader != null) {
+					reader.close();
+				}
+			} catch (IOException e) {
+				ERROR.error(e.getMessage(), e);
+			}
+		}
+		return map;
+	}
+
+	private static Map<String, List<JRssFeed>> readCsvFile(File file)
 			throws IOException {
 		Map<String, List<JRssFeed>> map = new HashMap<String, List<JRssFeed>>();
 		BufferedReader fileReader = null;
@@ -119,4 +176,32 @@ public class FeedUploadUtil {
 		}
 		return map;
 	}
+	
+	/*public static void main(String[] args) {
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new FileReader(new File("D:/Saurav/PreClassified_28_05_2017.json")));
+			StringBuilder json = new StringBuilder();
+			String line = reader.readLine();
+			while(line != null) {
+				json.append(line);
+				line = reader.readLine();
+			}
+			JRssFeeds feeds = JSONUtil.deserialize(json.toString(), JRssFeeds.class);
+			String text = JSONUtil.serialize(feeds);
+			System.out.println(text);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				if(reader != null) {
+					reader.close();
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}*/
 }

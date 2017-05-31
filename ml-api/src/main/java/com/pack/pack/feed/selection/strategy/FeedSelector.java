@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import com.pack.pack.feed.selection.model.Strategies;
 import com.pack.pack.feed.selection.model.Strategy;
+import com.pack.pack.feed.selection.strategy.impl.NoFilterFeedSelectionStrategy;
+import com.pack.pack.feed.selection.strategy.impl.RandomFeedSelectionStrategy;
 import com.pack.pack.util.SystemPropertyUtil;
 
 /**
@@ -35,7 +37,9 @@ public class FeedSelector {
 	}
 	
 	public void load() {
-		readSelectionStrategies();
+		//readSelectionStrategies();
+		strategiesMap.put("default", RandomFeedSelectionStrategy.class);
+		strategiesMap.put("noFilter", NoFilterFeedSelectionStrategy.class);
 	}
 
 	public FeedSelectionStrategy createNewStrategy(String name) {

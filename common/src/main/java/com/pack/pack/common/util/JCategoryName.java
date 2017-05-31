@@ -7,7 +7,8 @@ public enum JCategoryName {
 	MUSIC("Music"),
 	SPIRITUAL("Spiritual"),
 	FASHION("Fashion"),
-	BOOKS("Books");
+	BOOKS("Books"),
+	OTHERS("Others");
 	
 	private String display;
 	

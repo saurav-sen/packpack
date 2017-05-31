@@ -26,7 +26,22 @@
 			.share_img{
 					/* height:50%; */
 					margin-left:10%;
-					width:27%;
+					width:50%;
+					height:50%;
+					box-shadow:3px 3px 10px gray;
+			}
+			.share_video{
+					/* height:50%; */
+					margin-left:20%;
+					width:560px; 
+					height:315px;
+					box-shadow:3px 3px 10px gray;
+			}
+			.share_embed_video{
+					/* height:50%; */
+					margin-left:20%;
+					width:560px; 
+					height:315px; 
 					box-shadow:3px 3px 10px gray;
 			}
 			.desc{			
@@ -55,8 +70,23 @@
 				.share_img{
 						/* height:50%; */
 						margin-left:25%;
-						width:50%;
+						width:70%;
+						height:70%;
 						box-shadow:2px 2px 10px gray;
+				}
+				.share_video{
+					/* height:50%; */
+					margin-left:10%;
+					width:80%;
+					height:50%;
+					box-shadow:3px 3px 10px gray;
+				}
+				.share_embed_video{
+					/* height:50%; */
+					margin-left:10%;
+					width:80%;
+					height:50%;
+					box-shadow:3px 3px 10px gray;
 				}
 				.desc{		
 					margin-top:11%;
@@ -74,7 +104,7 @@
 		</style>
     </head>
     <body>
-        <header>
+        <header class="heading">
             <h1>${model.title}</h1>
             <br/>
         </header>
@@ -83,14 +113,15 @@
 		<div class="avoid_scrolls">
 			<#if model.mimeType == "VIDEO">
   				<#if model.showEmbedded>
-  					<iframe width="50%" height="345" src="${model.attachmentUrl}"></iframe>
+  					<!--iframe width="50%" height="345" src="${model.attachmentUrl}"></iframe-->
+  					<iframe class="share_embed_video" src="${model.attachmentUrl}" allowfullscreen></iframe>
   				<#else>
-  					<video style="width:620px;height:350px;" poster="${model.attachmentThumbnailUrl}" controls crossorigin>
+  					<video class="share_video" poster="${model.attachmentThumbnailUrl}" controls>
 					  <source src="${model.attachmentUrl}" type="video/mp4" />
 					</video>
   				</#if>
   			<#elseif model.mimeType == "IMAGE">
-             	<img src="${model.attachmentUrl}"/>
+             	<img src="${model.attachmentUrl}" class="share_img"/>
             </#if>
 
 	       <div class="desc">

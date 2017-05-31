@@ -38,6 +38,7 @@ public class AccessTokenVerifier implements ContainerRequestFilter {
 				&& !path.endsWith(OAuthConstants.OAUTH_ACCESS_TOKEN_PATH)
 				&& !path.endsWith(SystemInfo.SYSTEM_SUPPORTED_CATEGORIES_INFO_WEB_URL)
 				&& !path.endsWith(SystemInfo.NTP_INFO_WEB_URL)
+				&& !path.endsWith(SystemInfo.ANDROID_APK_URL)
 				&& !path.contains(SystemInfo.VALIDATE_USER_NAME_WEB_URL)
 				&& !path.contains(PASSWD_RESET_LINK_PATTERN)
 				&& !path.contains(SIGNUP_CODE_LINK_PATTERN)) {

@@ -22,6 +22,8 @@ public class JRssFeed {
 	
 	private String id;
 	
+	private String videoUrl;
+	
 	public String getOgTitle() {
 		return ogTitle;
 	}
@@ -76,5 +78,13 @@ public class JRssFeed {
 
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	public String getVideoUrl() {
+		return videoUrl;
+	}
+
+	public void setVideoUrl(String videoUrl) {
+		this.videoUrl = videoUrl;
 	}
 }

@@ -98,6 +98,8 @@ public final class SystemPropertyUtil {
 	
 	private static final String ATTACHMENT_STORY_HOME = "attachment.story.home";
 	
+	private static final String ANDROID_APK_URL = "android.apk.url";
+	
 	private SystemPropertyUtil() {
 	}
 
@@ -119,6 +121,10 @@ public final class SystemPropertyUtil {
 
 	private static String getPropertyValue(String key) {
 		return properties.getProperty(key);
+	}
+	
+	public static String getAndroidApkUrl() {
+		return getPropertyValue(ANDROID_APK_URL);
 	}
 	
 	public static String getAttachmentStoryHome() {

@@ -126,7 +126,8 @@ public class APIBuilderImpl extends APIBuilder {
 			api.getInvoker().setConfiguration(config);
 		} else if(action == COMMAND.GET_ALL_SYSTEM_SUPPORTED_CATEGORIES
 				|| action == COMMAND.SYNC_TIME
-				|| action == COMMAND.VALIDATE_USER_NAME) {
+				|| action == COMMAND.VALIDATE_USER_NAME
+				|| action == COMMAND.ANDROID_APK_URL) {
 			api = new APIWrapper(new PublicApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
 		} else if(action == COMMAND.CRAWL_FEED) {

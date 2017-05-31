@@ -61,6 +61,14 @@ public class PublicApi extends BaseAPI {
 				EntityUtils.toString(response.getEntity()), JStatus.class);
 		return status;
 	}
+	
+	private String getAndroidApkUrl() throws Exception {
+		DefaultHttpClient client = new DefaultHttpClient();
+		String url = getBaseUrl() + "sys.info/android/apk.url";
+		HttpGet GET = new HttpGet(url);
+		HttpResponse response = client.execute(GET);
+		return EntityUtils.toString(response.getEntity());
+	}
 
 	private class Invoker implements ApiInvoker {
 
@@ -84,6 +92,8 @@ public class PublicApi extends BaseAPI {
 				String userName = (String) params
 						.get(APIConstants.User.USERNAME);
 				return validateUserName(userName);
+			} else if(COMMAND.ANDROID_APK_URL.equals(action)) {
+				return getAndroidApkUrl();
 			}
 			return null;
 		}

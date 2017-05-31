@@ -46,7 +46,7 @@ public class CsvUtil {
 	public static JRssFeed fromString(String csvLineText) {
 		String line = csvLineText.replaceAll("[\n\r]", "");
 		String[] arr = line.split(CSV_COL_SEPARATOR);
-		if(arr.length == 4) {
+		if(arr.length >= 4) {
 			String ogType = arr[0];
 			String ogUrl = arr[1];
 			String ogTitle = arr[2];
@@ -56,6 +56,10 @@ public class CsvUtil {
 			feed.setOgTitle(ogTitle);
 			feed.setOgType(ogType);
 			feed.setOgImage(ogImage);
+			if(arr.length > 4) {
+				String ogDescription = arr[4];
+				feed.setOgDescription(ogDescription);
+			}
 			return feed;
 		}
 		return null;

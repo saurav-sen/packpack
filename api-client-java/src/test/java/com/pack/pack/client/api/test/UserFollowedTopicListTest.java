@@ -28,7 +28,7 @@ public class UserFollowedTopicListTest extends BaseTest {
 					.setOauthToken(oAuthToken)
 					.addApiParam(APIConstants.PageInfo.PAGE_LINK, "FIRST_PAGE")
 					.addApiParam(APIConstants.User.ID, userId)
-					.addApiParam(APIConstants.Topic.CATEGORY, "photography")
+					.addApiParam(APIConstants.Topic.CATEGORY, "art")
 					.build();
 			page = (Pagination<JTopic>)api.execute();
 			List<JTopic> result = page.getResult();

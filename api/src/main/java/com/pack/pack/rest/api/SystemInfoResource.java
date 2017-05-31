@@ -88,4 +88,11 @@ public class SystemInfoResource {
 		}
 		return status;
 	}
+	
+	@GET
+	@Path("android/apk.url")
+	@Produces(value = MediaType.TEXT_PLAIN)
+	public String getAndroidApkUrl() {
+		return SystemPropertyUtil.getAndroidApkUrl();
+	}
 }

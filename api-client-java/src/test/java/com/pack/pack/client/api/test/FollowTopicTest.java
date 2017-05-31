@@ -1,9 +1,12 @@
 package com.pack.pack.client.api.test;
 
+import java.util.List;
+
 import com.pack.pack.client.api.API;
 import com.pack.pack.client.api.APIBuilder;
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
+import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.Pagination;
 
@@ -37,6 +40,12 @@ public class FollowTopicTest extends UserFollowedTopicListTest {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		new FollowTopicTest().beforeTest();
+		FollowTopicTest test = new FollowTopicTest();
+		test.beforeTest();
+		Pagination<JTopic> pagination = test.testUserFollowedTopicList();
+		List<JTopic> result = pagination.getResult();
+		for(JTopic t : result) {
+			System.out.println(JSONUtil.serialize(t));
+		}
 	}
 }
