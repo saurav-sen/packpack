@@ -205,7 +205,7 @@
                 <table cellpadding="0" cellspacing="0" class="force-full-width">
                   <tr>
                    <td height="60" valign="top" class="header-cell">
-                      <img width="196" height="60" src="http://www.squill.co.in/logo/squill.png" alt="logo">
+                      <img width="50" height="50" src="http://www.squill.co.in/logo/squill.png" alt="logo">
                     </td>
                   </tr>
                   <tr>
@@ -216,7 +216,7 @@
 						<td height="36" class="em_height">&nbsp;</td>
 					  </tr>
 					  <tr>
-						<td valign="middle" align="center"><img src="https://www.sendwithus.com/assets/img/emailmonks/images/banner.jpg" width="333" height="303" alt="WELCOME" style="display:block; font-family:Arial, sans-serif; font-size:25px; line-height:303px; color:#c27cbb;max-width:333px;" class="em_full_img" border="0" /></td>
+						<td valign="middle" align="center"><img src="http://www.squill.co.in/images/welcome_banner.jpg" width="510" height="325" alt="WELCOME" style="display:block; font-family:Arial, sans-serif; font-size:25px; line-height:325px; color:#c27cbb;max-width:510px;" class="em_full_img" border="0" /></td>
 					  </tr>
                         <tr>
                           <td valign="top" style="padding-bottom:15px; background-color:#ffffff;">
@@ -227,7 +227,7 @@
                           <td valign="top" style="padding-bottom:20px; background-color:#ffffff;">
                             <b>Hello ${name}, thanks for signing up!</b>
                             <br/>
-                            We're really excited for having you with us as our ${count}! 
+                            We're really excited for having you with us as our ${count} user! 
 							Hope you will enjoy exploring/promoting/contributing to the works of arts, painting, music & many more.
 							SQUILL Team stays committed to provide you with latest updates and happening in the world of art & culture. Also, to provide you with more explore options each day.
 							Please activate your account now, as you are just a click away.

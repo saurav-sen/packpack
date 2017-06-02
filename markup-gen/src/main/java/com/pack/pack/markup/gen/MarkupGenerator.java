@@ -1,19 +1,13 @@
 package com.pack.pack.markup.gen;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.pack.pack.markup.gen.util.PromotedFileUtil;
 import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JTopic;
-import com.pack.pack.model.web.JUser;
-import com.pack.pack.security.util.EncryptionUtil;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -52,7 +46,7 @@ public class MarkupGenerator {
 		Map<String, Object> dataModel = new HashMap<String, Object>();
 		try {
 			dataModel.put("name", userName);
-			String userCountStr = "new user";
+			String userCountStr = "new";
 			if (userCount > 0) {
 				int userCount_1 = userCount % 10;
 				if (userCount_1 == 1) {
