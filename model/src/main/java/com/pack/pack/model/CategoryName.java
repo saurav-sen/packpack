@@ -13,7 +13,11 @@ public enum CategoryName {
 	MUSIC("Music"),
 	SPIRITUAL("Spiritual"),
 	FASHION("Fashion"),
-	BOOKS("Books");
+	BOOKS("Books"),
+	ART("Art"),
+	EDUCATION("Education"),
+	OTHERS("Others"),
+	COOKING("Cooking");
 	
 	private String display;
 	

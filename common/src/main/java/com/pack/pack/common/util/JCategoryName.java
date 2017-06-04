@@ -1,6 +1,15 @@
 package com.pack.pack.common.util;
 public enum JCategoryName {
 
+	/*TRAVEL("Travel"),
+	PHOTOGRAPHY_WILD_LIFE("Photography (Wild Life)"),
+	PHOTOGRAPHY("Photography"),
+	MUSIC("Music"),
+	SPIRITUAL("Spiritual"),
+	FASHION("Fashion"),
+	BOOKS("Books"),
+	OTHERS("Others");*/
+	
 	TRAVEL("Travel"),
 	PHOTOGRAPHY_WILD_LIFE("Photography (Wild Life)"),
 	PHOTOGRAPHY("Photography"),
@@ -8,7 +17,10 @@ public enum JCategoryName {
 	SPIRITUAL("Spiritual"),
 	FASHION("Fashion"),
 	BOOKS("Books"),
-	OTHERS("Others");
+	ART("Art"),
+	EDUCATION("Education"),
+	OTHERS("Others"),
+	COOKING("Cooking");
 	
 	private String display;
 	

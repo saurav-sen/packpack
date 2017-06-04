@@ -29,35 +29,49 @@ public class CommonConstants {
     public static final String FUN = "fun";
     public static final String SPIRITUAL = "spiritual";
     public static final String OTHERS = "others";
+    public static final String MISCELLANEOUS = "miscellanecous";
+    public static final String PAINTING = "painting";
+    public static final String COOKING = "Cooking";
     
     public static final Map<String, String> secondaryVsPrimaryCategoryMap = new HashMap<String, String>();
     static {
     	secondaryVsPrimaryCategoryMap.put(HOME, HOME);
     	
     	secondaryVsPrimaryCategoryMap.put(ART, ART);
-    	secondaryVsPrimaryCategoryMap.put(MUSIC, ART);
-    	secondaryVsPrimaryCategoryMap.put(JCategoryName.MUSIC.getDisplay(), ART);
-    	secondaryVsPrimaryCategoryMap.put(JCategoryName.MUSIC.name(), ART);
-    	
-    	secondaryVsPrimaryCategoryMap.put(PHOTOGRAPHY, PHOTOGRAPHY);
-    	secondaryVsPrimaryCategoryMap.put(LIFESTYLE, PHOTOGRAPHY);
-    	secondaryVsPrimaryCategoryMap.put(JCategoryName.TRAVEL.getDisplay(), PHOTOGRAPHY);
-    	secondaryVsPrimaryCategoryMap.put(JCategoryName.TRAVEL.name(), PHOTOGRAPHY);
-    	secondaryVsPrimaryCategoryMap.put(JCategoryName.PHOTOGRAPHY_WILD_LIFE.getDisplay(), PHOTOGRAPHY);
-    	secondaryVsPrimaryCategoryMap.put(JCategoryName.PHOTOGRAPHY_WILD_LIFE.name(), PHOTOGRAPHY);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.ART.name(), ART);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.ART.getDisplay(), ART);
+    	secondaryVsPrimaryCategoryMap.put(EDUCATION, EDUCATION);    
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.EDUCATION.name(), EDUCATION);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.EDUCATION.getDisplay(), EDUCATION);
+    	secondaryVsPrimaryCategoryMap.put(PHOTOGRAPHY, PHOTOGRAPHY); 
     	secondaryVsPrimaryCategoryMap.put(JCategoryName.PHOTOGRAPHY.getDisplay(), PHOTOGRAPHY);
     	secondaryVsPrimaryCategoryMap.put(JCategoryName.PHOTOGRAPHY.name(), PHOTOGRAPHY);
-    	
-    	secondaryVsPrimaryCategoryMap.put(EDUCATION, EDUCATION);
-    	secondaryVsPrimaryCategoryMap.put(SPIRITUAL, EDUCATION);
-    	secondaryVsPrimaryCategoryMap.put(FUN, EDUCATION);
-    	secondaryVsPrimaryCategoryMap.put(JCategoryName.BOOKS.getDisplay(), EDUCATION);
-    	secondaryVsPrimaryCategoryMap.put(JCategoryName.BOOKS.name(), EDUCATION);
-    	secondaryVsPrimaryCategoryMap.put(JCategoryName.SPIRITUAL.getDisplay(), EDUCATION);
-    	secondaryVsPrimaryCategoryMap.put(JCategoryName.SPIRITUAL.name(), EDUCATION);
-    	
     	secondaryVsPrimaryCategoryMap.put(OTHERS, OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.OTHERS.name(), OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.OTHERS.getDisplay(), OTHERS);
+    	
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.PHOTOGRAPHY_WILD_LIFE.getDisplay(), PHOTOGRAPHY);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.PHOTOGRAPHY_WILD_LIFE.name(), PHOTOGRAPHY);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.TRAVEL.getDisplay(), PHOTOGRAPHY);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.TRAVEL.name(), PHOTOGRAPHY);
+    	
+    	secondaryVsPrimaryCategoryMap.put(MUSIC, OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.MUSIC.getDisplay(), OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.MUSIC.name(), OTHERS);
+    	/*secondaryVsPrimaryCategoryMap.put(PAINTING, OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.PAINTING.name(), OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.PAINTING.getDisplay(), OTHERS);*/
+    	secondaryVsPrimaryCategoryMap.put(LIFESTYLE, OTHERS);    	
+    	secondaryVsPrimaryCategoryMap.put(SPIRITUAL, OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.BOOKS.getDisplay(), OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.BOOKS.name(), OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.SPIRITUAL.getDisplay(), OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.SPIRITUAL.name(), OTHERS);
     	secondaryVsPrimaryCategoryMap.put(FUN, OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(MISCELLANEOUS, OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(COOKING, OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.COOKING.name(), OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.COOKING.getDisplay(), OTHERS);
     	secondaryVsPrimaryCategoryMap.put(JCategoryName.FASHION.getDisplay(), OTHERS);
     	secondaryVsPrimaryCategoryMap.put(JCategoryName.FASHION.name(), OTHERS);
     }
