@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="css/bootstrap.min-3.3.7.css">
+	<link rel="stylesheet" href="css/font-awesome.min-4.7.0.css">
+	<link rel="stylesheet" href="style_index.css">
+	
+	<!--link href='http://fonts.googleapis.com/css?family=Freestyle+Script' rel='stylesheet'  type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Bradley+Hand+ITC' rel='stylesheet'  type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Forte' rel='stylesheet'  type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Vladimir+Script' rel='stylesheet'  type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Colonna+MT' rel='stylesheet'  type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Mistral' rel='stylesheet'  type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Lucida+Calligraphy' rel='stylesheet'  type='text/css'-->
+	
+	<link href="css/jquerysctipttop.css" rel="stylesheet" type="text/css">
+	<link href="css/jquery.hoverGrid.css" rel="stylesheet" type="text/css">
+
+	
+	<script src="js/jquery.min-3.1.1.js"></script>
+	<script src="js/bootstrap.min-3.3.7.js"></script>
+	
+	<script src="jquery.hoverGrid.js"></script>
+	
+	<script type="javascript">
+		$( document ).ready(function() {
+			$('#contact_submit').click(function() {
+				var name = $('#contact_name').val();
+				var email = $('#contact_email').val();
+				var subject = $('#contact_subject').val();
+				var body = $('#contact_body').val();
+				
+				var json = '{"name": "' + name + '", "email": "' + email + '", "subject": "' + subject + '", "body": "' + body + '"}';
+				
+				$.ajax({
+					type: 'POST',
+					dataType: 'json',
+					contentType: 'application/json',
+					processData: false,
+					url: "RSS/contactUs",
+					data: JSON.stringify(json),
+					success: function(data) {
+					},
+					error: function() {
+					}
+				});
+			});
+		});
+		$( document ).ready(function() {
+			$.ajax({
+				type: 'GET',
+				url: "RSS/public/visions/top",
+				success: function(data) {
+					var response = $.parseJSON(data);
+					console.log(response);
+					$.each(response, function(i, vision) {
+						var $div = $('<div>').addClass('item')
+							.append($('img').attr('width', 400).attr('height', 400).attr('src', vision.wallpaperUrl))
+							.append($('div').addClass('caption').attr('style', 'display: none;')
+								.append($('h2').text(vision.title))
+								.append($('p').text("by - " + vision.ownerName))));
+						$('#layout').append($div);					
+					});
+					$('#layout').hoverGrid();
+				},
+				error: function() {
+				}
+			});
+		});
+	</script>
+	
+</head>
+<body data-spy="scroll" data-target=".navbar" data-offset="50">
+	<div class="navbar navbar-inverse">
+	<div class="container-fluid">
+		<nav class="navbar navbar-inverse navbar-fixed-top navbar2">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				
+				<span><img src="images/squill_final_raster_brand - size.png" alt="Loading..." class="logo"></span>
+			</div>
+			
+			
+			<div class="collapse navbar-collapse" id="myNavbar">
+				<ul class="nav navbar-nav navbar-right menu">
+					<li class="active"><a href="#bg">Home</a></li>
+					<li><a href="feed_upload.html">Upload</a></li>
+					<li><a href="#about">About Us</a></li>
+					<li><a href="#team">Our Team</a></li>
+					<li><a href="#con">Contact Us</a></li>
+				</ul>
+			</div>
+			
+		</nav>
+	</div>
+	</div>
+	
+	<section id="bg">
+		<div class="container-fluid jumbotron">
+		<div class="row">
+			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<div class="text-center">
+			<div class="row">
+				<div class="col-lg-3 col-md-2 col-sm-2 col-xs-1"></div>
+				<div class="col-lg-6 col-md-7 col-sm-7 col-xs-10 img-txt">WELCOME TO SQUILL</div>
+				<div class="col-lg-3 col-md-3 col-sm-3 col-xs-1"></div>
+			</div>
+				<div class="row">
+					<div class="col-lg-3 col-md-2 col-sm-2 col-xs-1"></div>
+					<div class="col-lg-6 col-md-7 col-sm-7 col-xs-10 img-txt1">TAKE THE LEAD, CREATE YOUR OWN DESTINY.WITH SOCIAL APP SQUILL NOW SPREAD YOUR WORK EVERY WHERE.YOUR IMAGINATION NOW HAS NO HORIZON.</div>
+					<div class="col-lg-3 col-md-3 col-sm-3 col-xs-1"></div>
+				</div>
+			<div class="row">
+				<div class="col-lg-3 col-md-3 col-sm-3 col-xs-2"></div>
+				<div class="col-lg-6 col-md-6 col-sm-6 col-xs-11"><center><form action="https://s3.ap-south-1.amazonaws.com/squill-apk/app-release.apk" method="GET" target="hidden-form"><input type="submit" class="btn b-btn" value="Download Android App" name="submit"></form><iframe style="display:none" name="hidden-form"></iframe></center></div>
+				<div class="col-lg-3 col-md-3 col-sm-3 col-xs-1"></div>
+			</div>
+			</div>
+		</div>
+		</div>
+		</div>
+	</section>
+	
+	<section id="mid">
+		<!--div class="container-fluid">
+			<div class="row">
+			<center>
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 d1_middle">
+					<div class="row">
+						<div class="col-lg-3 col-md-3 col-sm-4 col-xs-4"></div>
+						<div class="col-lg-3 col-md-4 col-sm-4 col-xs-4 icon">
+							<a href="#">
+								<figure ><center><img class="img-responsive" src="images/travel.png" alt="loading..."></center>
+								</figure>
+							</a>
+						</div>
+						<div class="col-lg-6 col-md-5 col-sm-4 col-xs-4"></div>
+					</div>
+					<div class="row">
+						<div class="col-lg-10 col-md-10 col-sm-12 col-xs-12 icon-txt"><b>Travel</b></div>
+					</div>
+				</div>
+				
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 d1_middle">
+					<div class="row">
+						<div class="col-lg-3 col-md-3 col-sm-4 col-xs-4"></div>
+						<div class="col-lg-3 col-md-4 col-sm-4 col-xs-4 icon">
+							<a href="#">
+								<figure ><center><img class="img-responsive" src="images/cooking_icon1.png" alt="loading..."></center>
+								</figure>
+							</a>
+						</div>
+						<div class="col-lg-6 col-md-5 col-sm-4 col-xs-4"></div>
+					</div>
+					<div class="row">
+						<div class="col-lg-10 col-md-10 col-sm-12 col-xs-12 icon-txt"><b>Recepies</b></div>
+					</div>
+				</div>
+				
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 d1_middle">
+					<div class="row">
+						<div class="col-lg-3 col-md-3 col-sm-4 col-xs-4"></div>
+						<div class="col-lg-3 col-md-4 col-sm-4 col-xs-4 icon">
+							<a href="#">
+								<figure ><center><img class="img-responsive" src="images/meditation.png" alt="loading..."></center>
+								</figure>
+							</a>
+						</div>
+						<div class="col-lg-6 col-md-5 col-sm-4 col-xs-4"></div>
+					</div>
+					<div class="row">
+						<div class="col-lg-10 col-md-10 col-sm-12 col-xs-12 icon-txt"><b>Writing</b></div>
+					</div>
+				</div>
+				
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 d1_middle">
+					<div class="row">
+						<div class="col-lg-3 col-md-3 col-sm-4 col-xs-4"></div>
+						<div class="col-lg-3 col-md-4 col-sm-4 col-xs-4 icon">
+							<a href="#">
+								<figure ><center><img class="img-responsive" src="images/music-final.png" alt="loading..."></center>
+								</figure>
+							</a>
+						</div>
+						<div class="col-lg-6 col-md-5 col-sm-4 col-xs-4"></div>
+					</div>
+					<div class="row">
+						<div class="col-lg-10 col-md-10 col-sm-12 col-xs-12 icon-txt"><b>Music</b></div>
+					</div>
+				</div>
+				
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 d1_middle">
+					<div class="row">
+						<div class="col-lg-3 col-md-3 col-sm-4 col-xs-4"></div>
+						<div class="col-lg-3 col-md-4 col-sm-4 col-xs-4 icon">
+							<a href="#">
+								<figure ><center><img class="img-responsive" src="images/travel.png" alt="loading..."></center>
+								</figure>
+							</a>
+						</div>
+						<div class="col-lg-6 col-md-5 col-sm-4 col-xs-4"></div>
+					</div>
+					<div class="row">
+						<div class="col-lg-10 col-md-10 col-sm-12 col-xs-12 icon-txt"><b>Photography</b></div>
+					</div>
+				</div>
+				
+			</center>
+			</div>
+		</div-->
+		<div id="layout">
+		</div>
+	</section>
+	
+	<section id="about">
+		<div class="container-fluid d1_about">
+			<div class="row row1">
+				<div class="col-lg-1 col-md-1 col-sm-1 col-xs-1"></div>
+				<div class="col-lg-4 col-md-4 col-sm-5 d_txt"><h3>Browse what you often call worth it for you</h3></div>
+				
+				<div class="col-lg-4 col-md-5 col-sm-5 col-xs-11 phone-div1">
+					<figure class="f2"> 
+						<img src="images/phone(t).png" alt="" class="img-responsive"/>
+						<figcaption>
+							<h2></h2>
+							<ul>
+								<li> Squill is committed to deliver content to its end-user at their home screen based upon their area of interest.</li>
+								<li>You get to see what you always wanted to see.</li>
+								<li>What drives our passion is to make you stay happier everyday.</li>
+							</ul>
+						</figcaption>
+					</figure>
+				</div>
+				<div class="col-lg-3 col-md-1 col-sm-1 col-xs-1"></div>
+			</div>
+			
+			<div class="row row-mid">
+				<div class="col-lg-3 col-md-2 col-sm-2 col-xs-1"></div>
+				<div class="col-lg-4 col-md-4 col-sm-4 d_txt1">
+					<h3>Wondering what to do with your talent?</h3>
+				</div>
+				<div class="col-lg-4 col-md-5 col-sm-5 col-xs-11 phone-div">
+					<figure class="f1"> 
+						<img src="images/phone(t).png" alt="" class="img-responsive"/>
+						<figcaption>
+							<h2></h2>
+							<ul>
+								<li>Put a break over your worries, now with Squill. </li>
+								<li>Create your own topic to portray your creative sense to the world.</li>
+								<li>Manage your events.</li>
+								<li>Meet your fans/followers & let them speak up.</li>
+								<li>Let your followers help you to get recognized every where in the world of social media.</li>
+								<li>Draw more fans & followers.</li>
+							</ul>
+						</figcaption>
+					</figure>
+				</div>	
+				<div class="col-lg-1 col-md-1 col-sm-1 col-xs-1"></div>
+			</div>
+			
+			<div class="row row1">
+				<div class="col-lg-1 col-md-1 col-sm-1 col-xs-1"></div>
+				<div class="col-lg-4 col-md-4 col-sm-5 d_txt"><h3>Lets not follow old perception,instead lets set it afresh</h3></div>
+				
+				<div class="col-lg-4 col-md-5 col-sm-5 col-xs-11 phone-div1">
+					<figure class="f2"> 
+						<img src="images/phone(t).png" alt="" class="img-responsive"/>
+						<figcaption>
+							<h2></h2>
+							<ul>
+								<li>Follow the topics that drives your conscience.</li>
+								<li>Appreciate good works or help them to improve by directly/indirectly contributing or suggesting.</li>
+							</ul>
+						</figcaption>
+					</figure>
+				</div>
+				<div class="col-lg-3 col-md-2 col-sm-1 col-xs-1"></div>
+			</div>
+			
+		</div>
+	</section>
+	
+	<section class="team-gap" id="team">
+		<div class="container-fluid">
+			<div class="row">
+			
+				<div class="col-lg-3 col-md-3 col-sm-4 col-xs-12">
+					<div class="row">
+						<div class="col-lg-8 col-md-8 col-sm-8 col-xs-7"><img src="images/my_pics.png" alt="" class="img-responsive team-pic"/></div>
+					</div>
+					<div class="row">
+						<div class="col-lg-10 col-md-10 col-sm-12 col-xs-12 team-txt"><b>Rituparna Sen,co-founder</b></div>
+					</div>
+					<div class="row">
+						<div class="col-lg-10 col-md-10 col-sm-12 col-xs-12 team-txt1">Rituparna Sen is a 2D animator. She has a good knowledge of designing.</div>
+					</div>
+				</div>
+										
+			</div>
+		</div>
+	</section>
+	
+	<section class="contact" id="con">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
+					<form class="form-horizontal" method="post">
+						<br>
+						<br>
+						<div class="form-group">
+							<div class="login-element">
+								<input id="contact_name" type="text" class="form-control contact-form" placeholder="Name" name="u_id">
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<div class="login-element">
+								<input id="contact_email" type="email" class="form-control contact-form" placeholder="Email" name="pass1">
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<div class="login-element">
+								<input id="contact_subject" type="text" class="form-control contact-form" placeholder="Subject" name="sub">
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="login-element">
+								<textarea id="contact_body" rows="4" cols="50" class="form-control contact-form">
+								</textarea>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="login-btn">
+								<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4"></div>
+								<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+								<input type="submit" id="contact_submit" class="form-control btn contact-button" value="Submit" name="submit"></div>
+								<div class="col-lg-2 col-md-2 col-sm-2 col-xs-4"></div>
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12"></div>
+				
+					<div class="col-lg-5 col-md-5 col-sm-5 col-xs-12 map-div">
+						<center>
+							<iframe class="map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3682.9409466649313!2d88.41634991496042!3d22.61868028515912!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39f89e1be0572dc1%3A0xbcae9aadd4f62223!2sNagendra+Nath+Rd%2C+Kolkata%2C+West+Bengal+700028!5e0!3m2!1sen!2sin!4v1485343502915" width="400" height="300" frameborder="0" style="border:0" allowfullscreen></iframe>
+						</center>
+					</div>
+				
+			</div>
+		</div>
+	</section>
+	
+	<section class="container col-md-12 col-sm-12 footer-wrapper">
+		<div class="row">
+			<footer>
+				<div id="copyright">
+					<center><p>&copy; squill.co.in</p></center>
+				</div>
+				<div id="copyright">
+					<center><p><a href="./privacypolicy.htm">&copy; Privacy Policy</a></p></center>
+				</div>
+			</footer>
+		</div>
+	</section>
+
+</body>
+</html>

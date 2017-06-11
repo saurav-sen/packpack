@@ -1,0 +1,144 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="css/bootstrap.min-3.3.7.css">
+	<link rel="stylesheet" href="css/font-awesome.min-4.7.0.css">
+	<link rel="stylesheet" href="style_index.css">
+	
+	<script src="js/jquery.min-3.1.1.js"></script>
+	<script src="js/bootstrap.min-3.3.7.js"></script>
+	<script type="javascript">
+		$( document ).ready(function() {
+			$('#feed_upload').click(function() {
+				var name = $('#name').val();
+				var email = $('#email').val();
+				var imageUrl = $('#imageUrl').val();
+				var sourceUrl = $('#sourceUrl').val();
+				var videoUrl = $('#youtubeUrl').val();
+				var title = $('#title').val();
+				var description = $('#description').val();
+				
+				var json = '{"imageUrl": "' + imageUrl + '", "sourceUrl": "' + sourceUrl + '", "videoUrl": "' + subject + '", "title": "' + title + '", "description": "' + description + '"}';
+				
+				$.ajax({
+					type: 'POST',
+					dataType: 'json',
+					contentType: 'application/json',
+					processData: false,
+					url: "RSS/feeds/upload/" + email + "/" + name,
+					data: JSON.stringify(json),
+					success: function(data) {
+					},
+					error: function() {
+					}
+				});
+			});
+		});
+	</script>
+	
+</head>
+<body data-spy="scroll" data-target=".navbar" data-offset="50">
+	<div class="navbar navbar-inverse">
+	<div class="container-fluid">
+		<nav class="navbar navbar-inverse navbar-fixed-top navbar2">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				
+				<span><img src="images/squill_final_raster_brand - size.png" alt="Loading..." class="logo"></span>
+			</div>
+			
+			
+			<div class="collapse navbar-collapse" id="myNavbar">
+				<ul class="nav navbar-nav navbar-right menu">
+					<li class="active"><a href="index.html">Home</a></li>
+				</ul>
+			</div>
+			
+		</nav>
+	</div>
+	</div>
+	
+	<section>
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
+					<h4>If you have some amazing information that you want SQUILL to publish please let us know here.</h4>
+					<form class="form-horizontal" method="post">
+						<br>
+						<div class="form-group">
+							<div class="login-element">
+								<input id="name" type="text" class="form-control contact-form" placeholder="Your Name">
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<div class="login-element">
+								<input id="email" type="email" class="form-control contact-form" placeholder="Your Email">
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<div class="login-element">
+								<input id="imageUrl" type="text" class="form-control contact-form" placeholder="ImageUrl">
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<div class="login-element">
+								<input id="sourceUrl" type="text" class="form-control contact-form" placeholder="SourceUrl">
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<div class="login-element">
+								<input id="youtubeUrl" type="text" class="form-control contact-form" placeholder="YoutubeUrl">
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<div class="login-element">
+								<input id="title" type="text" class="form-control contact-form" placeholder="Title">
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<div class="login-element">
+								<textarea id="description" rows="7" cols="100" class="form-control contact-form" placeholder="Description"></textarea>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="login-btn">
+								<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4"></div>
+								<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+								<input type="submit" id="feed_upload" class="form-control btn contact-button" value="Upload" name="submit"></div>
+								<div class="col-lg-2 col-md-2 col-sm-2 col-xs-4"></div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</section>	
+	
+	<section class="container col-md-12 col-sm-12 footer-wrapper">
+		<div class="row">
+			<footer>
+				<div id="copyright">
+					<center><p>&copy; squill.co.in</p></center>
+				</div>
+				<div id="copyright">
+					<center><p><a href="./privacypolicy.htm">&copy; Privacy Policy</a></p></center>
+				</div>
+			</footer>
+		</div>
+	</section>
+
+</body>
+</html>
