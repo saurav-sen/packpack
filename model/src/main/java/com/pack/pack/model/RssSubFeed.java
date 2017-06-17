@@ -1,34 +1,22 @@
-package com.pack.pack.model.web;
-
-import java.util.LinkedList;
-import java.util.List;
-
+package com.pack.pack.model;
 
 /**
  * 
  * @author Saurav
  *
  */
-public class JRssFeed {
+public class RssSubFeed {
 
 	private String ogTitle;
 	
 	private String ogDescription;
 	
-	private String ogType;
-	
 	private String ogImage;
-	
-	private String ogUrl;
 	
 	private String hrefSource;
 	
-	private String id;
-	
 	private String videoUrl;
-	
-	private List<JRssSubFeed> siblings;
-	
+
 	public String getOgTitle() {
 		return ogTitle;
 	}
@@ -45,28 +33,12 @@ public class JRssFeed {
 		this.ogDescription = ogDescription;
 	}
 
-	public String getOgType() {
-		return ogType;
-	}
-
-	public void setOgType(String ogType) {
-		this.ogType = ogType;
-	}
-
 	public String getOgImage() {
 		return ogImage;
 	}
 
 	public void setOgImage(String ogImage) {
 		this.ogImage = ogImage;
-	}
-
-	public String getOgUrl() {
-		return ogUrl;
-	}
-
-	public void setOgUrl(String ogUrl) {
-		this.ogUrl = ogUrl;
 	}
 
 	public String getHrefSource() {
@@ -77,30 +49,11 @@ public class JRssFeed {
 		this.hrefSource = hrefSource;
 	}
 
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
 	public String getVideoUrl() {
 		return videoUrl;
 	}
 
 	public void setVideoUrl(String videoUrl) {
 		this.videoUrl = videoUrl;
-	}
-
-	public List<JRssSubFeed> getSiblings() {
-		if(siblings == null) {
-			siblings = new LinkedList<JRssSubFeed>();
-		}
-		return siblings;
-	}
-
-	public void setSiblings(List<JRssSubFeed> siblings) {
-		this.siblings = siblings;
 	}
 }

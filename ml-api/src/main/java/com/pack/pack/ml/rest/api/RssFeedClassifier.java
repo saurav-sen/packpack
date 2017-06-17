@@ -1,9 +1,12 @@
 package com.pack.pack.ml.rest.api;
 
+import java.util.List;
+
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
@@ -15,6 +18,7 @@ import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.data.upload.FeedUploadUtil;
 import com.pack.pack.ml.rest.api.context.ClassificationEngine;
 import com.pack.pack.ml.rest.api.context.FeedStatusListener;
+import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.JRssFeeds;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.StatusType;
@@ -64,8 +68,39 @@ public class RssFeedClassifier {
 	@Produces(MediaType.APPLICATION_JSON)
 	public JStatus updateTrainingData(String json) throws PackPackException {
 		LOG.info("Bulk Upload of feeds to be trained");
-		JRssFeeds bulk = JSONUtil.deserialize(json, JRssFeeds.class, true);
+		JRssFeeds bulk = JSONUtil.deserialize(json, JRssFeeds.class);
+		List<JRssFeed> feeds = bulk.getFeeds();
+		if(feeds == null || feeds.isEmpty()) {
+			JStatus status = new JStatus();
+			status.setStatus(StatusType.ERROR);
+			status.setInfo("Failed to Upload Training data");
+			LOG.info("JSON data found to be empty");
+			return status;
+		}
+		for(JRssFeed feed : feeds) {
+			feed.setId(String.valueOf(System.nanoTime()));
+		}
 		ClassificationEngine.INSTANCE.uploadPreClassifiedFeeds(bulk,
+				new FeedStatusListenerImpl());
+		JStatus status = new JStatus();
+		status.setStatus(StatusType.OK);
+		status.setInfo("Successfully Uploaded Training data");
+		LOG.info("Successfully Uploaded Training data");
+		return status;
+	}
+	
+	@PUT
+	@Path("upload/{email}/{name}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public JStatus uploadFeedd(@PathParam("email") String email,
+			@PathParam("name") String name, String json)
+			throws PackPackException {
+		LOG.info("Bulk Upload of feeds to be trained");
+		JRssFeed feed = JSONUtil.deserialize(json, JRssFeed.class);
+		JRssFeeds nonBulk = new JRssFeeds();
+		nonBulk.getFeeds().add(feed);
+		ClassificationEngine.INSTANCE.uploadPreClassifiedFeeds(nonBulk,
 				new FeedStatusListenerImpl());
 		JStatus status = new JStatus();
 		status.setStatus(StatusType.OK);

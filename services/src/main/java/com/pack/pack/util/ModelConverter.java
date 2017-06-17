@@ -22,6 +22,7 @@ import com.pack.pack.model.EGift;
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.PackAttachment;
 import com.pack.pack.model.RSSFeed;
+import com.pack.pack.model.RssSubFeed;
 import com.pack.pack.model.Topic;
 import com.pack.pack.model.TopicProperty;
 import com.pack.pack.model.User;
@@ -33,6 +34,7 @@ import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JPacks;
 import com.pack.pack.model.web.JRssFeed;
+import com.pack.pack.model.web.JRssSubFeed;
 import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.JeGift;
@@ -53,11 +55,21 @@ public class ModelConverter {
 	private static final String HTTP = "http://";
 	private static final String HTTPS = "https://";
 
-	public static List<JRssFeed> convertAllRssFeeds(List<RSSFeed> feeds) {
+	public static List<JRssFeed> convertAllRssFeeds(List<RSSFeed> feeds, boolean ignoreVideoFeeds, boolean ignoreSlideShows) {
 		if (feeds == null || feeds.isEmpty())
 			return Collections.emptyList();
 		List<JRssFeed> results = new LinkedList<JRssFeed>();
 		for (RSSFeed feed : feeds) {
+			if(feed.getVideoUrl() != null && !feed.getVideoUrl().trim().isEmpty()) {
+				if(ignoreVideoFeeds) {
+					continue;
+				}
+			}
+			if(feed.getSiblings() != null && !feed.getSiblings().isEmpty()) {
+				if(ignoreSlideShows) {
+					continue;
+				}
+			}
 			JRssFeed result = convert(feed);
 			if (result == null)
 				continue;
@@ -76,11 +88,32 @@ public class ModelConverter {
 		rFeed.setOgTitle(feed.getOgTitle());
 		rFeed.setOgType(feed.getOgType());
 		rFeed.setOgUrl(feed.getOgUrl());
-		// rFeed.setId(feed.getId());
+		rFeed.setId(feed.getId());
+		rFeed.setVideoUrl(feed.getVideoUrl());
+		List<RssSubFeed> siblings = feed.getSiblings();
+		if(siblings != null && !siblings.isEmpty()) {
+			for(RssSubFeed sibling : siblings) {
+				rFeed.getSiblings().add(convert(sibling));
+			}
+		}
 		return rFeed;
 	}
-
+	
+	private static JRssSubFeed convert(RssSubFeed sibling) {
+		JRssSubFeed result = new JRssSubFeed();
+		result.setHrefSource(sibling.getHrefSource());
+		result.setOgDescription(sibling.getOgDescription());
+		result.setOgImage(sibling.getOgImage());
+		result.setOgTitle(sibling.getOgTitle());
+		result.setVideoUrl(sibling.getVideoUrl());
+		return result;
+	}
+	
 	public static RSSFeed convert(JRssFeed rFeed) {
+		return convert(rFeed, rFeed.getId());
+	}
+
+	private static RSSFeed convert(JRssFeed rFeed, String id) {
 		if (rFeed == null)
 			return null;
 		RSSFeed feed = new RSSFeed();
@@ -90,7 +123,28 @@ public class ModelConverter {
 		feed.setOgTitle(rFeed.getOgTitle());
 		feed.setOgType(rFeed.getOgType());
 		feed.setOgUrl(rFeed.getOgUrl());
+		if(id == null) {
+			id = rFeed.getId();
+		}
+		feed.setId(id);
+		feed.setVideoUrl(rFeed.getVideoUrl());
+		List<JRssSubFeed> siblings = rFeed.getSiblings();
+		if(siblings != null && !siblings.isEmpty()) {
+			for(JRssSubFeed sibling : siblings) {
+				feed.getSiblings().add(convert(sibling));
+			}
+		}
 		return feed;
+	}
+	
+	private static RssSubFeed convert(JRssSubFeed sibling) {
+		RssSubFeed result = new RssSubFeed();
+		result.setHrefSource(sibling.getHrefSource());
+		result.setOgDescription(sibling.getOgDescription());
+		result.setOgImage(sibling.getOgImage());
+		result.setOgTitle(sibling.getOgTitle());
+		result.setVideoUrl(sibling.getVideoUrl());
+		return result;
 	}
 
 	public static JPack convert(Pack pack) {

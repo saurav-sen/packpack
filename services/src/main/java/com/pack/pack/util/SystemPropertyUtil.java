@@ -100,6 +100,10 @@ public final class SystemPropertyUtil {
 	
 	private static final String ANDROID_APK_URL = "android.apk.url";
 	
+	private static final String CLOUD_AMQP_URI = "cloud.amqp.uri";
+	
+	private static final String ENABLE_WEKA_CLASSIFICATION = "enable.weka.classification";
+	
 	private SystemPropertyUtil() {
 	}
 
@@ -121,6 +125,23 @@ public final class SystemPropertyUtil {
 
 	private static String getPropertyValue(String key) {
 		return properties.getProperty(key);
+	}
+	
+	public static boolean isEnableWeka() {
+		String value = getPropertyValue(ENABLE_WEKA_CLASSIFICATION);
+		if(value == null || value.trim().isEmpty()) {
+			return false;
+		}
+		try {
+			return Boolean.parseBoolean(value.trim());
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	
+	public static String getCLoudAMQP_Uri() {
+		return getPropertyValue(CLOUD_AMQP_URI) != null ? getPropertyValue(CLOUD_AMQP_URI)
+				: "amqp://bbjoaswu:k8hcZHx9zv60vwKu3rLXjzKjH63lyc1s@sidewinder.rmq.cloudamqp.com/bbjoaswu";
 	}
 	
 	public static String getAndroidApkUrl() {

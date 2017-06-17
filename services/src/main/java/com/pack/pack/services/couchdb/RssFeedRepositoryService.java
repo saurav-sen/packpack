@@ -17,8 +17,10 @@ import com.lambdaworks.redis.api.StatefulRedisConnection;
 import com.lambdaworks.redis.api.sync.RedisCommands;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.RSSFeed;
+import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.TTL;
 import com.pack.pack.services.exception.PackPackException;
+import com.pack.pack.util.RssFeedUtil;
 import com.pack.pack.util.SystemPropertyUtil;
 
 /**
@@ -86,6 +88,15 @@ public class RssFeedRepositoryService {
 		return sync;
 	}
 	
+	public boolean checkFeedExists(JRssFeed feed) {
+		RedisCommands<String, String> sync = getSyncRedisCommands();
+		String key = "Feeds_" + String.valueOf(feed.getOgUrl().hashCode());
+		List<String> list = sync.keys(key);
+		if(list == null || list.isEmpty())
+			return false;
+		return true;
+	}
+	
 	public void uploadPromotionalFeed(RSSFeed feed, TTL ttl)
 			throws PackPackException {
 		LOG.info("Uploading " + feed.getOgType() + " Feed @ " + feed.getOgUrl());
@@ -116,7 +127,7 @@ public class RssFeedRepositoryService {
 			ttlSeconds = ttlSeconds * 24 * 60 * 60;
 			break;
 		}
-		String key = "Feeds_" + String.valueOf(feed.getOgUrl().hashCode());
+		String key = RssFeedUtil.generateUploadKey(feed);
 		sync.setex(key, ttlSeconds, json);
 		LOG.info("Successfully uploaded Feed");
 		// sync.close();

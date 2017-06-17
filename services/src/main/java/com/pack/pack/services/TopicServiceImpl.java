@@ -7,6 +7,7 @@ import static com.pack.pack.util.AttachmentUtil.resizeAndStoreUploadedAttachment
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -18,6 +19,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.pack.pack.ITopicService;
+import com.pack.pack.model.CategoryName;
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.Topic;
 import com.pack.pack.model.TopicProperty;
@@ -436,5 +438,25 @@ public class TopicServiceImpl implements ITopicService {
 		}
 		service.update(topic);
 		return ModelConverter.convert(topic);
+	}
+	
+	@Override
+	public List<JTopic> getAllHotTopics() throws PackPackException {
+		List<JTopic> result = new ArrayList<JTopic>();
+		CategoryName[] categories = new CategoryName[] { CategoryName.ART,
+				CategoryName.EDUCATION, CategoryName.OTHERS,
+				CategoryName.MUSIC, CategoryName.PHOTOGRAPHY };
+		for (CategoryName category : categories) {
+			Pagination<JTopic> page = getAllTopicsByCategoryName(
+					category.name().toLowerCase(), null);
+			if (page == null) {
+				continue;
+			}
+			List<JTopic> list = page.getResult();
+			if (list == null || list.isEmpty())
+				continue;
+			result.addAll(list);
+		}
+		return result;
 	}
 }

@@ -40,7 +40,7 @@ class HomeApi extends BaseAPI {
 	private Pagination<JRssFeed> getAllFeeds(String userId, String pageLink,
 			String oAuthToken) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = getBaseUrl() + "home/usr/" + userId + "/page/" + pageLink;
+		String url = getBaseUrl() + "home/usr/" + userId + "/page/" + pageLink + "/version/v2";
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);

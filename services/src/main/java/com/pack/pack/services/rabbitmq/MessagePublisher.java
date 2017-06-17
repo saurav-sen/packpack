@@ -1,7 +1,21 @@
 package com.pack.pack.services.rabbitmq;
 
+import java.io.IOException;
+import java.util.concurrent.TimeoutException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import com.pack.pack.common.util.JSONUtil;
+import com.pack.pack.model.web.JRssFeed;
+import com.pack.pack.model.web.notification.FeedMsg;
+import com.pack.pack.services.exception.PackPackException;
+import com.pack.pack.services.rabbitmq.objects.BroadcastCriteria;
+import com.pack.pack.util.RssFeedUtil;
+import com.rabbitmq.client.Channel;
 
 /**
  * 
@@ -12,12 +26,56 @@ import org.springframework.stereotype.Component;
 @Scope("singleton")
 public class MessagePublisher {
 	
-	/*@Autowired
+	@Autowired
 	private MsgConnectionManager connectionManager;
 	
 	private static Logger logger = LoggerFactory.getLogger(MessagePublisher.class);
 	
-	public void forwardPack(FwdPack fwdPack, User user) throws PackPackException {
+	public void broadcastNewRSSFeedUpload(JRssFeed feed, BroadcastCriteria criteria) throws PackPackException {
+		try {
+			MsgConnection connection = connectionManager.openConnection();
+			Channel channel = connection.getChannel();
+			FeedMsg msg = new FeedMsg();
+			msg.setTitle(feed.getOgTitle());
+			msg.setKey(RssFeedUtil.generateUploadKey(feed));
+			msg.setTimestamp(String.valueOf(System.currentTimeMillis()));
+			String message = JSONUtil.serialize(msg);
+			String exchange_name = resolveExchangeName(criteria);
+			channel.exchangeDeclare(exchange_name, "fanout");
+			/*String message = feed.getOgTitle();*/
+			//channel.basicPublish(exchange_name, "", null, message.getBytes());
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+			throw new PackPackException("", e.getMessage(), e);
+		} catch (TimeoutException e) {
+			logger.error(e.getMessage(), e);
+			throw new PackPackException("", e.getMessage(), e);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw new PackPackException("", e.getMessage(), e);
+		} finally {
+			/*try {
+				connectionManager.closeConnection();
+			} catch (IOException e) {
+				logger.error(e.getMessage(), e);
+			} catch (TimeoutException e) {
+				logger.error(e.getMessage(), e);
+			}*/
+		}
+	}
+	
+	private String resolveExchangeName(BroadcastCriteria criteria) {
+		String exchange_name = "Feeds_";
+		if(criteria == null) {
+			exchange_name = exchange_name + "global";
+			return exchange_name;
+		}
+		exchange_name = exchange_name + criteria.getCity() + "_"
+				+ criteria.getState() + "_" + criteria.getCountry();
+		return exchange_name;
+	}
+ 	
+	/*public void forwardPack(FwdPack fwdPack, User user) throws PackPackException {
 		try {
 			MsgConnection connection = connectionManager.openConnection();
 			Channel channel = connection.getChannel();
@@ -32,6 +90,8 @@ public class MessagePublisher {
 			new PackPackException("TODO", e.getMessage(), e);
 		} catch (TimeoutException e) {
 			new PackPackException("TODO", e.getMessage(), e);
+		} catch (Exception e) {
+			throw new PackPackException("", e.getMessage(), e);
 		}
 	}
 	
@@ -53,6 +113,8 @@ public class MessagePublisher {
 			new PackPackException("TODO", e.getMessage(), e);
 		} catch (TimeoutException e) {
 			new PackPackException("TODO", e.getMessage(), e);
+		} catch (Exception e) {
+			throw new PackPackException("", e.getMessage(), e);
 		} finally {
 			try {
 				connectionManager.closeConnection();
@@ -78,6 +140,8 @@ public class MessagePublisher {
 		} catch (IOException e) {
 			throw new PackPackException("", e.getMessage(), e);
 		} catch (TimeoutException e) {
+			throw new PackPackException("", e.getMessage(), e);
+		} catch (Exception e) {
 			throw new PackPackException("", e.getMessage(), e);
 		}
 	}*/

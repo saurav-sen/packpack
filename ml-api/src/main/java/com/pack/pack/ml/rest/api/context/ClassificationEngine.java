@@ -12,6 +12,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
@@ -19,7 +20,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -38,6 +38,7 @@ import weka.core.converters.ArffSaver;
 import weka.core.converters.CSVLoader;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
+import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.data.upload.CsvUtil;
 import com.pack.pack.data.upload.FeedUploadUtil;
 import com.pack.pack.model.web.FeedClassifier;
@@ -69,6 +70,8 @@ public class ClassificationEngine {
 
 	private static final String OG_CLASSIFIER = "og_classifier";
 
+	private static final String JSON_FILE_EXTENSION = ".json";
+	
 	private static final String CSV_FILE_EXTENSION = ".csv";
 	private static final String ARFF_FILE_EXTENSION = ".arff";
 	private static final String DAT_FILE_EXTENSION = ".dat";
@@ -83,12 +86,16 @@ public class ClassificationEngine {
 	private static final String UNDERSCORE = "_";
 	
 	private ClassificationEngine() {
-		executorsPool = Executors.newCachedThreadPool();
+		if(SystemPropertyUtil.isEnableWeka()) {
+			executorsPool = Executors.newCachedThreadPool();
+		}
 	}
 
 	public void start() {
-		reInitialize();
-		LOG.info("======== ClassificationEngine Started Successfully =========");
+		if (SystemPropertyUtil.isEnableWeka()) {
+			reInitialize();
+			LOG.info("======== ClassificationEngine Started Successfully =========");
+		}
 	}
 
 	public void reInitialize() {
@@ -220,6 +227,9 @@ public class ClassificationEngine {
 	}
 
 	public void stop() {
+		if(!SystemPropertyUtil.isEnableWeka()) {
+			return;
+		}
 		/*if (!initializationStatus) {
 			// Nothing to stop
 			return;
@@ -231,7 +241,9 @@ public class ClassificationEngine {
 			LOG.error(e.getMessage(), e);
 		}
 		if (!stopped) {*/
+		if(executorsPool != null) {
 			executorsPool.shutdownNow();
+		}
 		//}
 		LOG.info("======== ClassificationEngine Stopped Successfully =========");
 	}
@@ -239,6 +251,10 @@ public class ClassificationEngine {
 	public void submitFeeds(final JRssFeeds feeds,
 			final FeedStatusListener listener) {
 		if (!initializationStatus) {
+			throw new RuntimeException(
+					"**ERROR:: Failed to initialize ClassificationEngine");
+		}
+		if(executorsPool == null) {
 			throw new RuntimeException(
 					"**ERROR:: Failed to initialize ClassificationEngine");
 		}
@@ -280,7 +296,16 @@ public class ClassificationEngine {
 
 	public void uploadPreClassifiedFeeds(final JRssFeeds feeds,
 			final FeedStatusListener listener) {
-		Future<JRssFeeds> status = executorsPool
+		List<JRssFeed> list = feeds.getFeeds();
+		if (list != null && !list.isEmpty()) {
+			//updateCsvTrainingData(list);
+			JRssFeeds result = updateOrStoreJsonFeeds(list);
+			if(listener == null || result == null)
+				return;
+			listener.completed(feeds);
+		}
+		
+		/*Future<JRssFeeds> status = executorsPool
 				.submit(new PreClassifiedFeedUploadTask(feeds));
 		Thread statusReader = new Thread(new Runnable() {
 
@@ -313,7 +338,7 @@ public class ClassificationEngine {
 				}
 			}
 		});
-		statusReader.start();
+		statusReader.start();*/
 	}
 
 	private void updateCsvTrainingData(List<JRssFeed> feeds) {
@@ -326,7 +351,7 @@ public class ClassificationEngine {
 			String csvFileName = new StringBuilder()
 					.append(FeedUploadUtil.PRE_CLASSIFIED_FILE_PREFIX)
 					.append(calendar.get(Calendar.DAY_OF_MONTH))
-					.append(UNDERSCORE).append(calendar.get(Calendar.MONTH))
+					.append(UNDERSCORE).append(calendar.get(Calendar.MONTH) + 1)
 					.append(UNDERSCORE).append(calendar.get(Calendar.YEAR))
 					.append(CSV_FILE_EXTENSION).toString();
 			String csvFilePath = SystemPropertyUtil.getMlWorkingDirectory()
@@ -415,7 +440,84 @@ public class ClassificationEngine {
 			return feeds;
 		}
 	}
+	
+	private List<JRssFeed> readExisitingJsonFile(String jsonFilePath) {
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new FileReader(jsonFilePath));
+			StringBuilder json = new StringBuilder();
+			String line = reader.readLine();
+			while (line != null) {
+				json.append(line);
+				line = reader.readLine();
+			}
+			JRssFeeds feedsContainer = JSONUtil.deserialize(json.toString(),
+					JRssFeeds.class);
 
+			if (feedsContainer == null) {
+				return Collections.emptyList();
+			}
+
+			List<JRssFeed> feeds = feedsContainer.getFeeds();
+			if (feeds == null) {
+				return Collections.emptyList();
+			}
+
+			return feeds;
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+		} finally {
+			try {
+				if (reader != null) {
+					reader.close();
+				}
+			} catch (IOException e) {
+				LOG.error(e.getMessage(), e);
+			}
+		}
+		return Collections.emptyList();
+	}
+	
+	private JRssFeeds updateOrStoreJsonFeeds(List<JRssFeed> feeds) {
+		if (feeds == null || feeds.isEmpty())
+			return null;
+		FileWriter jsonFileWriter = null;
+		csvTrainingDataUpdateLock.lock();
+		try {
+			Calendar calendar = Calendar.getInstance();
+			String jsonFileName = new StringBuilder()
+					.append(FeedUploadUtil.PRE_CLASSIFIED_FILE_PREFIX)
+					.append(calendar.get(Calendar.DAY_OF_MONTH))
+					.append(UNDERSCORE).append(calendar.get(Calendar.MONTH) + 1)
+					.append(UNDERSCORE).append(calendar.get(Calendar.YEAR))
+					.append(JSON_FILE_EXTENSION).toString();
+			String jsonFilePath = SystemPropertyUtil.getMlWorkingDirectory()
+					+ File.separator + jsonFileName;
+			if(new File(jsonFilePath).exists()) {
+				feeds.addAll(readExisitingJsonFile(jsonFilePath));
+			}
+			jsonFileWriter = new FileWriter(jsonFilePath, false);
+			JRssFeeds fC = new JRssFeeds();
+			fC.setFeeds(feeds);
+			jsonFileWriter.write(JSONUtil.serialize(fC, false));
+			jsonFileWriter.flush();
+			return fC;
+		} catch (Exception e) {
+			LOG.error("**ERROR::Failed Updating Training DataSet in CSV");
+			LOG.error(e.getMessage(), e);
+			return null;
+		} finally {
+			try {
+				if (jsonFileWriter != null) {
+					jsonFileWriter.close();
+				}
+			} catch (Exception e) {
+				LOG.error(e.getMessage(), e);
+			}
+			csvTrainingDataUpdateLock.unlock();
+		}
+	}
+ 
 	private class PreClassifiedFeedUploadTask implements Callable<JRssFeeds> {
 
 		private JRssFeeds feeds;
@@ -429,6 +531,7 @@ public class ClassificationEngine {
 			List<JRssFeed> list = feeds.getFeeds();
 			if (list != null && !list.isEmpty()) {
 				updateCsvTrainingData(list);
+				updateOrStoreJsonFeeds(list);
 			}
 			return feeds;
 		}

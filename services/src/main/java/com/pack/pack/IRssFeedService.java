@@ -16,19 +16,21 @@ public interface IRssFeedService {
 	 * 
 	 * @param userId
 	 * @param pageLink
+	 * @param apiVersion
 	 * @return
 	 * @throws PackPackException
 	 */
-	public Pagination<JRssFeed> getAllRssFeeds(String userId, String pageLink)
+	public Pagination<JRssFeed> getAllRssFeeds(String userId, String pageLink, String apiVersion)
 			throws PackPackException;
 
 	/**
 	 * 
 	 * @param feed
 	 * @param ttl
-	 * @return
+	 * @return -- non existent true else false
+	 * @throws PackPackException
 	 */
-	public JRssFeed upload(JRssFeed feed, TTL ttl) throws PackPackException;
+	public boolean upload(JRssFeed feed, TTL ttl) throws PackPackException;
 
 	/**
 	 * 

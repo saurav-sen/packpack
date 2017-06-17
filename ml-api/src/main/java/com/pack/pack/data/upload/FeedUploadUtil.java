@@ -6,6 +6,7 @@ import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -21,6 +22,7 @@ import com.pack.pack.feed.selection.strategy.FeedSelector;
 import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.JRssFeeds;
 import com.pack.pack.services.exception.PackPackException;
+import com.pack.pack.util.RssFeedUtil;
 import com.pack.pack.util.SystemPropertyUtil;
 
 /**
@@ -35,7 +37,33 @@ public class FeedUploadUtil {
 	private static final Logger ERROR = LoggerFactory
 			.getLogger(FeedUploadUtil.class);
 
+	public static void main1(String[] args) {
+		Calendar c = Calendar.getInstance();
+		System.out.println(PRE_CLASSIFIED_FILE_PREFIX
+				+ c.get(Calendar.DAY_OF_MONTH) + "_" + c.get(Calendar.MONTH)
+				+ "_" + c.get(Calendar.YEAR) + ".json");
+	}
+	
+	public static void main(String[] args) throws Exception {
+		Map<String, List<JRssFeed>> map = readJsonFile(new File("D:/Saurav/PreClass_17_06_2017.json"));
+		Iterator<List<JRssFeed>> itr = map.values().iterator();
+		while(itr.hasNext()) {
+			List<JRssFeed> list = itr.next();
+			for(JRssFeed l : list) {
+				System.out.println(JSONUtil.serialize(l));
+			}
+		}
+	}
+
 	private FeedUploadUtil() {
+	}
+	
+	public static void reloadFeeds() {
+		ERROR.info("Uploading Selective Feeds (*** FeedUploadUtil#reloadFeeds() ***)");
+		JRssFeeds jRssFeeds = FeedUploadUtil.reloadSelectiveFeeds();
+		RssFeedUtil.uploadNewFeeds(jRssFeeds);
+		ERROR.info("Uploaded" + jRssFeeds.getFeeds().size()
+				+ " Feeds (*** FeedUploadUtil#reloadFeeds() ***)");
 	}
 
 	public static JRssFeeds reloadSelectiveFeeds() {
@@ -54,8 +82,15 @@ public class FeedUploadUtil {
 
 			@Override
 			public boolean accept(File pathname) {
+				Calendar c = Calendar.getInstance();
+//				return pathname.getName().startsWith(
+//						PRE_CLASSIFIED_FILE_PREFIX
+//								+ c.get(Calendar.DAY_OF_MONTH) + "_"
+//								+ c.get(Calendar.MONTH) + "_"
+//								+ c.get(Calendar.YEAR));
 				return pathname.getName()
 						.startsWith(PRE_CLASSIFIED_FILE_PREFIX);
+				 
 			}
 		});
 		if (files == null) {
@@ -84,16 +119,16 @@ public class FeedUploadUtil {
 		result.setFeeds(arrayList);
 		return result;
 	}
-	
+
 	private static Map<String, List<JRssFeed>> readFile(File file)
 			throws IOException {
-		if(file.getName().endsWith(".json")) {
+		if (file.getName().endsWith(".json")) {
 			return readJsonFile(file);
 		} else {
 			return readCsvFile(file);
 		}
 	}
-	
+
 	private static Map<String, List<JRssFeed>> readJsonFile(File file)
 			throws IOException {
 		Map<String, List<JRssFeed>> map = new HashMap<String, List<JRssFeed>>();
@@ -102,22 +137,23 @@ public class FeedUploadUtil {
 			reader = new BufferedReader(new FileReader(file));
 			StringBuilder json = new StringBuilder();
 			String line = reader.readLine();
-			while(line != null) {
+			while (line != null) {
 				json.append(line);
 				line = reader.readLine();
 			}
-			JRssFeeds feedsContainer = JSONUtil.deserialize(json.toString(), JRssFeeds.class);
-			
-			if(feedsContainer == null) {
+			JRssFeeds feedsContainer = JSONUtil.deserialize(json.toString(),
+					JRssFeeds.class);
+
+			if (feedsContainer == null) {
 				return map;
 			}
-			
+
 			List<JRssFeed> feeds = feedsContainer.getFeeds();
-			if(feeds == null) {
+			if (feeds == null) {
 				return map;
 			}
-			
-			for(JRssFeed feed : feeds) {
+
+			for (JRssFeed feed : feeds) {
 				String ogType = feed.getOgType();
 				List<JRssFeed> list = map.get(ogType);
 				if (list == null) {
@@ -130,7 +166,7 @@ public class FeedUploadUtil {
 			ERROR.error(e.getMessage(), e);
 		} finally {
 			try {
-				if(reader != null) {
+				if (reader != null) {
 					reader.close();
 				}
 			} catch (IOException e) {
@@ -176,32 +212,4 @@ public class FeedUploadUtil {
 		}
 		return map;
 	}
-	
-	/*public static void main(String[] args) {
-		BufferedReader reader = null;
-		try {
-			reader = new BufferedReader(new FileReader(new File("D:/Saurav/PreClassified_28_05_2017.json")));
-			StringBuilder json = new StringBuilder();
-			String line = reader.readLine();
-			while(line != null) {
-				json.append(line);
-				line = reader.readLine();
-			}
-			JRssFeeds feeds = JSONUtil.deserialize(json.toString(), JRssFeeds.class);
-			String text = JSONUtil.serialize(feeds);
-			System.out.println(text);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			try {
-				if(reader != null) {
-					reader.close();
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}*/
 }

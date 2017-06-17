@@ -2,6 +2,7 @@ package com.pack.pack.rest.api;
 
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -30,9 +31,23 @@ public class DefaultTopicResource {
 	@Path("usr/{userId}/page/{pageLink}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Pagination<JRssFeed> getRssFeeds(@PathParam("userId") String userId,
-			@PathParam("pageLink") String pageLink) throws PackPackException {
+			@PathParam("pageLink") String pageLink)
+			throws PackPackException {
 		IRssFeedService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IRssFeedService.class);
-		return service.getAllRssFeeds(userId, pageLink);
+		return service.getAllRssFeeds(userId, pageLink, null);
+	}
+	
+	@GET
+	@CompressWrite
+	@Path("usr/{userId}/page/{pageLink}/version/{version}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Pagination<JRssFeed> getRssFeeds(@PathParam("userId") String userId,
+			@PathParam("pageLink") String pageLink,
+			@PathParam("version") String apiVersion)
+			throws PackPackException {
+		IRssFeedService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IRssFeedService.class);
+		return service.getAllRssFeeds(userId, pageLink, apiVersion);
 	}
 }

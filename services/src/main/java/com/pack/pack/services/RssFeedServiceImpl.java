@@ -4,8 +4,11 @@ import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
 import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -27,9 +30,11 @@ import com.pack.pack.util.ModelConverter;
 @Component
 @Scope("singleton")
 public class RssFeedServiceImpl implements IRssFeedService {
-
+	
+	private static final Logger LOG = LoggerFactory.getLogger(RssFeedServiceImpl.class);
+	
 	@Override
-	public Pagination<JRssFeed> getAllRssFeeds(String userId, String pageLink)
+	public Pagination<JRssFeed> getAllRssFeeds(String userId, String pageLink, String apiVersion)
 			throws PackPackException {
 		if (pageLink == null || END_OF_PAGE.equals(pageLink.trim())) {
 			Pagination<JRssFeed> page = new Pagination<JRssFeed>();
@@ -53,9 +58,26 @@ public class RssFeedServiceImpl implements IRssFeedService {
 		List<RSSFeed> feeds = repositoryService.getAllPromotionalFeeds();
 		/* **************************************************************************************************************************** */
 
+		boolean ignoreVideoFeeds = true;
+		boolean ignoreSlideShows = true;
+		if(apiVersion != null && apiVersion.equalsIgnoreCase("v2")) {
+			ignoreVideoFeeds = false;
+			ignoreSlideShows = false;
+		}
 		// For now (for demo purpose lets just return all the feeds).
 		List<RSSFeed> result = feeds;
-		List<JRssFeed> rows = ModelConverter.convertAllRssFeeds(result);
+		List<JRssFeed> rows = ModelConverter.convertAllRssFeeds(result, ignoreVideoFeeds, ignoreSlideShows);
+		Collections.sort(rows, new Comparator<JRssFeed>() {
+			@Override
+			public int compare(JRssFeed o1, JRssFeed o2) {
+				try {
+					return (int)(Long.parseLong(o2.getId().trim()) - Long.parseLong(o1.getId().trim()));
+				} catch (NumberFormatException e) {
+					LOG.error(e.getMessage(), e);
+					return 0;
+				}
+			}
+		});
 		Pagination<JRssFeed> page = new Pagination<JRssFeed>();
 		page.setNextLink(END_OF_PAGE);
 		page.setPreviousLink(NULL_PAGE_LINK);
@@ -64,12 +86,16 @@ public class RssFeedServiceImpl implements IRssFeedService {
 	}
 	
 	@Override
-	public JRssFeed upload(JRssFeed feed, TTL ttl) throws PackPackException {
+	public boolean upload(JRssFeed feed, TTL ttl) throws PackPackException {
+		//RSSFeed rssFeed = ModelConverter.convert(feed, String.valueOf(System.nanoTime()));
+		//feed.setId(String.valueOf(System.nanoTime()));
 		RSSFeed rssFeed = ModelConverter.convert(feed);
 		RssFeedRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(RssFeedRepositoryService.class);
+		boolean checkFeedExists = service.checkFeedExists(feed);
 		service.uploadPromotionalFeed(rssFeed, ttl);
-		return ModelConverter.convert(rssFeed);
+		return !checkFeedExists;
+		//return ModelConverter.convert(rssFeed);
 	}
 	
 	/*@Override

@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.List;
 
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
@@ -22,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.pack.pack.ITopicService;
 import com.pack.pack.markup.gen.util.PromotedFileUtil;
 import com.pack.pack.model.web.JTopic;
-import com.pack.pack.security.util.EncryptionUtil;
+import com.pack.pack.model.web.JTopics;
 import com.pack.pack.services.exception.ErrorCodes;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
@@ -39,6 +40,22 @@ public class PublicResource {
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(PublicResource.class);
+	
+	@GET
+	@Path("visions/top")
+	@Produces(MediaType.APPLICATION_JSON)
+	public JTopics GET_topPromotedVisions() throws PackPackException {
+		JTopics result = new JTopics();
+		ITopicService service = ServiceRegistry.INSTANCE
+				.findCompositeService(ITopicService.class);
+		List<JTopic> topics = service.getAllHotTopics();
+		if (topics != null && !topics.isEmpty()) {
+			for (JTopic topic : topics) {
+				result.getTopics().add(topic);
+			}
+		}
+		return result;
+	}
 
 	@GET
 	@Path("topic/{encryptedTopicId}")

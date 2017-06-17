@@ -45,11 +45,15 @@ public class PeriodicFeedUploader {
 
 		@Override
 		public void run() {
-			LOG.info("Uploading Selective Feeds (*** Periodic Feed Uploader ***)");
-			JRssFeeds jRssFeeds = FeedUploadUtil.reloadSelectiveFeeds();
-			RssFeedUtil.uploadNewFeeds(jRssFeeds);
-			LOG.info("Uploaded" + jRssFeeds.getFeeds().size()
-					+ " Feeds (*** Periodic Feed Uploader ***)");
+			try {
+				LOG.info("Uploading Selective Feeds (*** Periodic Feed Uploader ***)");
+				JRssFeeds jRssFeeds = FeedUploadUtil.reloadSelectiveFeeds();
+				RssFeedUtil.uploadNewFeeds(jRssFeeds);
+				LOG.info("Uploaded" + jRssFeeds.getFeeds().size()
+						+ " Feeds (*** Periodic Feed Uploader ***)");
+			} catch (Throwable e) {
+				LOG.error(e.getMessage(), e);
+			}
 		}
 	}
 }

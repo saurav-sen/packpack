@@ -1,5 +1,8 @@
 package com.pack.pack.model;
 
+import java.util.LinkedList;
+import java.util.List;
+
 
 /**
  * 
@@ -32,6 +35,12 @@ public class RSSFeed /*extends CouchDbDocument*/{
 	private String promoStartTimestamp;
 	
 	private String promoExpiryTimestamp;
+	
+	private String id;
+	
+	private String videoUrl;
+	
+	private List<RssSubFeed> siblings;
 
 	public String getOgTitle() {
 		return ogTitle;
@@ -111,5 +120,32 @@ public class RSSFeed /*extends CouchDbDocument*/{
 
 	public void setPromoExpiryTimestamp(String promoExpiryTimestamp) {
 		this.promoExpiryTimestamp = promoExpiryTimestamp;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getVideoUrl() {
+		return videoUrl;
+	}
+
+	public void setVideoUrl(String videoUrl) {
+		this.videoUrl = videoUrl;
+	}
+
+	public List<RssSubFeed> getSiblings() {
+		if(siblings == null) {
+			siblings = new LinkedList<RssSubFeed>();
+		}
+		return siblings;
+	}
+
+	public void setSiblings(List<RssSubFeed> siblings) {
+		this.siblings = siblings;
 	}
 }

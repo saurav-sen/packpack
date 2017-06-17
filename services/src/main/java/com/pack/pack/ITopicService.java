@@ -1,6 +1,7 @@
 package com.pack.pack;
 
 import java.io.InputStream;
+import java.util.List;
 
 import com.pack.pack.model.web.JPack;
 import com.pack.pack.model.web.JTopic;
@@ -124,4 +125,11 @@ public interface ITopicService {
 	 */
 	public JTopic editTopicSettings(String topicId, String key, String value,
 			String ownerId) throws PackPackException;
+	
+	/**
+	 * 
+	 * @return
+	 * @throws PackPackException
+	 */
+	public List<JTopic> getAllHotTopics() throws PackPackException;
 }
