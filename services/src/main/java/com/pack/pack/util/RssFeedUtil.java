@@ -25,7 +25,7 @@ public class RssFeedUtil {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(RssFeedUtil.class);
 
-	public static void uploadNewFeeds(JRssFeeds feeds) {
+	public static void uploadNewFeeds(JRssFeeds feeds, boolean sendNotification) {
 		LOG.info("Classification done. Uploading feeds to DB");
 		try {
 			List<JRssFeed> list = new LinkedList<JRssFeed>();
@@ -47,7 +47,7 @@ public class RssFeedUtil {
 				MessagePublisher messagePublisher = ServiceRegistry.INSTANCE
 						.findService(MessagePublisher.class);
 				for (JRssFeed l : list) {
-					messagePublisher.broadcastNewRSSFeedUpload(l, null);
+					messagePublisher.broadcastNewRSSFeedUpload(l, null, sendNotification);
 				}
 			}
 			LOG.info("Successfully uploaded feeds in DB");

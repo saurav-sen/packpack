@@ -31,7 +31,7 @@ public class MessagePublisher {
 	
 	private static Logger logger = LoggerFactory.getLogger(MessagePublisher.class);
 	
-	public void broadcastNewRSSFeedUpload(JRssFeed feed, BroadcastCriteria criteria) throws PackPackException {
+	public void broadcastNewRSSFeedUpload(JRssFeed feed, BroadcastCriteria criteria, boolean sendNotification) throws PackPackException {
 		try {
 			MsgConnection connection = connectionManager.openConnection();
 			Channel channel = connection.getChannel();
@@ -43,7 +43,9 @@ public class MessagePublisher {
 			String exchange_name = resolveExchangeName(criteria);
 			channel.exchangeDeclare(exchange_name, "fanout");
 			/*String message = feed.getOgTitle();*/
-			//channel.basicPublish(exchange_name, "", null, message.getBytes());
+			if(sendNotification) {
+				channel.basicPublish(exchange_name, "", null, message.getBytes());
+			}
 		} catch (IOException e) {
 			logger.error(e.getMessage(), e);
 			throw new PackPackException("", e.getMessage(), e);

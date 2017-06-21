@@ -58,13 +58,13 @@ public class FeedUploadUtil {
 	private FeedUploadUtil() {
 	}
 	
-	public static void reloadFeeds() {
+	/*public static void reloadFeeds() {
 		ERROR.info("Uploading Selective Feeds (*** FeedUploadUtil#reloadFeeds() ***)");
 		JRssFeeds jRssFeeds = FeedUploadUtil.reloadSelectiveFeeds();
 		RssFeedUtil.uploadNewFeeds(jRssFeeds);
 		ERROR.info("Uploaded" + jRssFeeds.getFeeds().size()
 				+ " Feeds (*** FeedUploadUtil#reloadFeeds() ***)");
-	}
+	}*/
 
 	public static JRssFeeds reloadSelectiveFeeds() {
 		String mlWC = SystemPropertyUtil.getMlWorkingDirectory();

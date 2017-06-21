@@ -71,8 +71,15 @@ public class RssFeedServiceImpl implements IRssFeedService {
 			@Override
 			public int compare(JRssFeed o1, JRssFeed o2) {
 				try {
-					return (int)(Long.parseLong(o2.getId().trim()) - Long.parseLong(o1.getId().trim()));
-				} catch (NumberFormatException e) {
+					long l = Long.parseLong(o2.getId().trim()) - Long.parseLong(o1.getId().trim());
+					if(l == 0) {
+						return 0;
+					}
+					if(l > 0) {
+						return 1;
+					}
+					return -1;
+				} catch (Exception e) {
 					LOG.error(e.getMessage(), e);
 					return 0;
 				}

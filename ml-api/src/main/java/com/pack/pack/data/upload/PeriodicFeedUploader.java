@@ -48,7 +48,7 @@ public class PeriodicFeedUploader {
 			try {
 				LOG.info("Uploading Selective Feeds (*** Periodic Feed Uploader ***)");
 				JRssFeeds jRssFeeds = FeedUploadUtil.reloadSelectiveFeeds();
-				RssFeedUtil.uploadNewFeeds(jRssFeeds);
+				RssFeedUtil.uploadNewFeeds(jRssFeeds, false);
 				LOG.info("Uploaded" + jRssFeeds.getFeeds().size()
 						+ " Feeds (*** Periodic Feed Uploader ***)");
 			} catch (Throwable e) {

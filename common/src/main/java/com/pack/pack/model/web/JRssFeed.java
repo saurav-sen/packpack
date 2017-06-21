@@ -103,4 +103,17 @@ public class JRssFeed {
 	public void setSiblings(List<JRssSubFeed> siblings) {
 		this.siblings = siblings;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof JRssFeed)) {
+			return false;
+		}
+		return ogImage.equals(((JRssFeed)obj).ogImage);
+	}
+	
+	@Override
+	public int hashCode() {
+		return ogImage.hashCode();
+	}
 }

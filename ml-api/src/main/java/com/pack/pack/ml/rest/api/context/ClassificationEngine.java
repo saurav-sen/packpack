@@ -13,8 +13,11 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -87,7 +90,7 @@ public class ClassificationEngine {
 	
 	private ClassificationEngine() {
 		if(SystemPropertyUtil.isEnableWeka()) {
-			executorsPool = Executors.newCachedThreadPool();
+			//executorsPool = Executors.newCachedThreadPool();
 		}
 	}
 
@@ -481,6 +484,8 @@ public class ClassificationEngine {
 	private JRssFeeds updateOrStoreJsonFeeds(List<JRssFeed> feeds) {
 		if (feeds == null || feeds.isEmpty())
 			return null;
+		HashSet<JRssFeed> feedsSet = new HashSet<JRssFeed>();
+		feedsSet.addAll(feeds);
 		FileWriter jsonFileWriter = null;
 		csvTrainingDataUpdateLock.lock();
 		try {
@@ -494,11 +499,11 @@ public class ClassificationEngine {
 			String jsonFilePath = SystemPropertyUtil.getMlWorkingDirectory()
 					+ File.separator + jsonFileName;
 			if(new File(jsonFilePath).exists()) {
-				feeds.addAll(readExisitingJsonFile(jsonFilePath));
+				feedsSet.addAll(readExisitingJsonFile(jsonFilePath));
 			}
 			jsonFileWriter = new FileWriter(jsonFilePath, false);
 			JRssFeeds fC = new JRssFeeds();
-			fC.setFeeds(feeds);
+			fC.setFeeds(new ArrayList<JRssFeed>(feedsSet));
 			jsonFileWriter.write(JSONUtil.serialize(fC, false));
 			jsonFileWriter.flush();
 			return fC;

@@ -54,7 +54,7 @@ public class RssFeedClassifier {
 		JRssFeeds bulk = JSONUtil.deserialize(json, JRssFeeds.class);
 		LOG.info("Submitting feeds to ClassificationEngine");
 		ClassificationEngine.INSTANCE.submitFeeds(bulk,
-				new FeedStatusListenerImpl());
+				new FeedStatusListenerImpl(false));
 		JStatus status = new JStatus();
 		status.setStatus(StatusType.OK);
 		status.setInfo("Successfully Submitted Feeds for batch upload");
@@ -63,10 +63,22 @@ public class RssFeedClassifier {
 	}
 	
 	@PUT
+	@Path("train/notify")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public JStatus updateTrainingData_2(String json) throws PackPackException {
+		return updateTrainingData(json, true);
+	}
+	
+	@PUT
 	@Path("train")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public JStatus updateTrainingData(String json) throws PackPackException {
+	public JStatus updateTrainingData_1(String json) throws PackPackException {
+		return updateTrainingData(json, false);
+	}
+	
+	private JStatus updateTrainingData(String json, boolean sendNotification) throws PackPackException {
 		LOG.info("Bulk Upload of feeds to be trained");
 		JRssFeeds bulk = JSONUtil.deserialize(json, JRssFeeds.class);
 		List<JRssFeed> feeds = bulk.getFeeds();
@@ -81,7 +93,7 @@ public class RssFeedClassifier {
 			feed.setId(String.valueOf(System.nanoTime()));
 		}
 		ClassificationEngine.INSTANCE.uploadPreClassifiedFeeds(bulk,
-				new FeedStatusListenerImpl());
+				new FeedStatusListenerImpl(sendNotification));
 		JStatus status = new JStatus();
 		status.setStatus(StatusType.OK);
 		status.setInfo("Successfully Uploaded Training data");
@@ -101,7 +113,7 @@ public class RssFeedClassifier {
 		JRssFeeds nonBulk = new JRssFeeds();
 		nonBulk.getFeeds().add(feed);
 		ClassificationEngine.INSTANCE.uploadPreClassifiedFeeds(nonBulk,
-				new FeedStatusListenerImpl());
+				new FeedStatusListenerImpl(false));
 		JStatus status = new JStatus();
 		status.setStatus(StatusType.OK);
 		status.setInfo("Successfully Uploaded Training data");
@@ -110,11 +122,17 @@ public class RssFeedClassifier {
 	}
 
 	private class FeedStatusListenerImpl implements FeedStatusListener {
+		
+		private boolean sendNotification;
+		
+		FeedStatusListenerImpl(boolean sendNotification) {
+			this.sendNotification = sendNotification;
+		}
 
 		@Override
 		public void completed(JRssFeeds feeds) {
 			JRssFeeds jRssFeeds = FeedUploadUtil.reloadSelectiveFeeds();
-			RssFeedUtil.uploadNewFeeds(jRssFeeds);
+			RssFeedUtil.uploadNewFeeds(jRssFeeds, sendNotification);
 		}
 
 		@Override
