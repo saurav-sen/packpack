@@ -100,10 +100,16 @@ public class RssFeedServiceImpl implements IRssFeedService {
 		RssFeedRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(RssFeedRepositoryService.class);
 		boolean checkFeedExists = service.checkFeedExists(feed);
-		service.uploadPromotionalFeed(rssFeed, ttl);
+		if(!checkFeedExists) {
+			service.uploadPromotionalFeed(rssFeed, ttl);
+		}
 		return !checkFeedExists;
 		//return ModelConverter.convert(rssFeed);
 	}
+	
+	/*public static void main(String[] args) {
+		System.out.println("https://assets.labroots.com/_public/_files/system/ck/trending/solar-eclipse-151211_1280_53c0e1650f4a36ce87700410e2fbead9.png".hashCode());
+	}*/
 	
 	/*@Override
 	public Pagination<JRssFeed> getAllRssFeeds(String userId, String pageLink)

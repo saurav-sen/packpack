@@ -38,9 +38,9 @@ public class RssFeedUtil {
 						.findCompositeService(IRssFeedService.class);
 				for (JRssFeed feed : newFeeds) {
 					boolean f = service.upload(feed, ttl);
-					if(f) {
+					//if(f) {
 						list.add(feed);
-					}
+					//}
 				}
 				/*JRssFeeds result = new JRssFeeds();
 				result.setFeeds(list);*/
@@ -62,6 +62,6 @@ public class RssFeedUtil {
 	}
 	
 	public static final String generateUploadKey(JRssFeed feed) {
-		return "Feeds_" + String.valueOf(feed.getOgUrl().hashCode());
+		return "Feeds_" + String.valueOf(feed.getOgImage().hashCode());
 	}
 }

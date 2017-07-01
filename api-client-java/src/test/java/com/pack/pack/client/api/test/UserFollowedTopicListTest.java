@@ -20,15 +20,15 @@ import com.pack.pack.model.web.Pagination;
 public class UserFollowedTopicListTest extends BaseTest {
 	
 	@SuppressWarnings({ "unchecked" })
-	public Pagination<JTopic> testUserFollowedTopicList() {
+	public Pagination<JTopic> testUserFollowedTopicList(TestSession session) {
 		Pagination<JTopic> page = null;
 		try {
 			API api = APIBuilder.create(BASE_URL)
 					.setAction(COMMAND.GET_USER_FOLLOWED_TOPIC_LIST)
-					.setOauthToken(oAuthToken)
+					.setOauthToken(session.getOauthToken())
 					.addApiParam(APIConstants.PageInfo.PAGE_LINK, "FIRST_PAGE")
-					.addApiParam(APIConstants.User.ID, userId)
-					.addApiParam(APIConstants.Topic.CATEGORY, "art")
+					.addApiParam(APIConstants.User.ID, session.getUserId())
+					.addApiParam(APIConstants.Topic.CATEGORY, "photography")
 					.build();
 			page = (Pagination<JTopic>)api.execute();
 			List<JTopic> result = page.getResult();
@@ -43,9 +43,9 @@ public class UserFollowedTopicListTest extends BaseTest {
 		return page;
 	}
 	
-	public static void main(String[] args) throws Exception {
-		UserFollowedTopicListTest test = new UserFollowedTopicListTest();
-		test.beforeTest();
-		test.testUserFollowedTopicList();
+	@Override
+	public void execute(TestSession session) throws Exception {
+		super.execute(session);
+		testUserFollowedTopicList(session);
 	}
 }

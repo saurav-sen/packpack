@@ -24,7 +24,9 @@ public enum COMMAND {
 			APIConstants.Topic.OWNER_ID, APIConstants.Topic.OWNER_NAME,
 			APIConstants.Topic.NAME, APIConstants.Topic.DESCRIPTION,
 			APIConstants.Topic.LOCALITY_ADDRESS, APIConstants.Topic.CITY,
-			APIConstants.Topic.COUNTRY), GET_USER_OWNED_TOPICS(
+			APIConstants.Topic.COUNTRY), EDIT_EXISTING_TOPIC(
+			APIConstants.Topic.OWNER_ID, APIConstants.Topic.ID,
+			APIConstants.Topic.NAME, APIConstants.Topic.DESCRIPTION), GET_USER_OWNED_TOPICS(
 			APIConstants.User.ID), GET_PACK_BY_ID(APIConstants.Pack.ID), EDIT_TOPIC_SETTINGS(
 			APIConstants.Topic.ID, APIConstants.User.ID,
 			APIConstants.TopicSettings.KEY, APIConstants.TopicSettings.VALUE), GET_ALL_ATTACHMENT_COMMENTS(

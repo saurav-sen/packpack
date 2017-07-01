@@ -2,10 +2,6 @@ package com.pack.pack.client.api.test;
 
 import static com.pack.pack.client.api.test.TestConstants.BASE_URL;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import com.pack.pack.client.api.API;
 import com.pack.pack.client.api.APIBuilder;
 import com.pack.pack.client.api.APIConstants;
@@ -16,11 +12,11 @@ import com.pack.pack.model.web.Pagination;
 
 public class DefaultTopicResourceTest extends BaseTest {
 
-	public void test() {
+	public void test(TestSession session) {
 		try {
 			API api = APIBuilder.create(BASE_URL).setAction(COMMAND.GET_ALL_PROMOTIONAL_FEEDS)
-					.setOauthToken(oAuthToken)
-					.addApiParam(APIConstants.User.ID, userId)
+					.setOauthToken(session.getOauthToken())
+					.addApiParam(APIConstants.User.ID, session.getUserId())
 					.addApiParam(APIConstants.PageInfo.PAGE_LINK, "FIRST_PAGE")
 					.build();
 			Pagination<JRssFeed> page = (Pagination<JRssFeed>) api.execute();
@@ -43,9 +39,15 @@ public class DefaultTopicResourceTest extends BaseTest {
 		}
 	}
 	
-	public static void main(String[] args) throws Exception {
+	@Override
+	public void execute(TestSession session) throws Exception {
+		super.execute(session);
+		test(session);
+	}
+	
+	/*public static void main(String[] args) throws Exception {
 		DefaultTopicResourceTest test = new DefaultTopicResourceTest();
 		test.beforeTest();
 		test.test();
-	}
+	}*/
 }

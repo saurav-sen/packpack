@@ -16,11 +16,11 @@ public class AttachmentStoryTest extends BaseTest {
 	
 	private static final String ATTACHMENT_ID = "15773f7b67a9e0eac6e072faef26983e";
 
-	private void testAddStory() throws Exception {
+	private void testAddStory(TestSession session) throws Exception {
 		API api = APIBuilder
 				.create(BASE_URL)
 				.setAction(COMMAND.ADD_STORY_TO_ATTACHMENT)
-				.setOauthToken(oAuthToken)
+				.setOauthToken(session.getOauthToken())
 				.addApiParam(APIConstants.PackAttachment.ID,
 						ATTACHMENT_ID)
 				.addApiParam(
@@ -33,18 +33,24 @@ public class AttachmentStoryTest extends BaseTest {
 		api = APIBuilder
 				.create(BASE_URL)
 				.setAction(COMMAND.GET_STORY_FROM_ATTACHMENT)
-				.setOauthToken(oAuthToken)
+				.setOauthToken(session.getOauthToken())
 				.addApiParam(APIConstants.PackAttachment.ID,
 						ATTACHMENT_ID)
-				.addApiParam(APIConstants.User.ID, userId).build();
+				.addApiParam(APIConstants.User.ID, session.getUserId()).build();
 		String content = (String) api.execute();
 		
 		System.out.println(content);
 	}
 	
-	public static void main(String[] args) throws Exception {
+	@Override
+	public void execute(TestSession session) throws Exception {
+		super.execute(session);
+		testAddStory(session);
+	}
+	
+	/*public static void main(String[] args) throws Exception {
 		AttachmentStoryTest test = new AttachmentStoryTest();
 		test.beforeTest();
 		test.testAddStory();
-	}
+	}*/
 }

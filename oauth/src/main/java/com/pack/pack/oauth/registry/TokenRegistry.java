@@ -119,7 +119,8 @@ public class TokenRegistry {
 					.findService(RedisCacheService.class);
 			cacheService.addToCache(token.getToken(), token.convert(),
 					2 * 60 * 60);
-			cacheService.addToCache(token.getRefreshToken(), token.getToken());
+			cacheService.addToCache(token.getRefreshToken(), token.getToken(),
+					2 * 24 * 60 * 60);
 		} catch (PackPackException e) {
 			LOG.debug(e.getErrorCode(), e.getMessage(), e);
 		}

@@ -13,19 +13,26 @@ import com.pack.pack.model.web.JUser;
  * @author CipherCloud
  *
  */
-public class BaseTest {
+public abstract class BaseTest implements Test {
 	
-	protected String oAuthToken;
-
-	protected String userId;
-
-	public void beforeTest() throws Exception {
-		oAuthToken = SignInUtil.signIn();
+	private void beforeTest(TestSession session) throws Exception {
+		String oAuthToken = SignInUtil.signIn();
+		session.setOauthToken(oAuthToken);
+		
 		API api = APIBuilder.create(BASE_URL).setAction(COMMAND.GET_USER_BY_USERNAME)
 				.setOauthToken(oAuthToken)
 				.addApiParam(APIConstants.User.USERNAME, SignInUtil.USERNAME)
 				.build();
 		JUser user = (JUser) api.execute();
-		userId = user.getId();
+		String userId = user.getId();
+		
+		session.setUserId(userId);
+	}
+	
+	@Override
+	public void execute(TestSession session) throws Exception {
+		if(!session.isInitialized()) {
+			beforeTest(session);
+		}
 	}
 }

@@ -32,7 +32,7 @@ public class MsgConnectionManager {
 	
 	private MsgConnection msgConnection;
 	
-	private ThreadLocal<MsgConnection> context = new ThreadLocal<MsgConnection>();
+	//private ThreadLocal<MsgConnection> context = new ThreadLocal<MsgConnection>();
 	
 	public MsgConnectionManager() {
 		connectionFactory = new ConnectionFactory();
@@ -42,21 +42,24 @@ public class MsgConnectionManager {
 	public MsgConnection openConnection() throws IOException, TimeoutException, KeyManagementException, NoSuchAlgorithmException, URISyntaxException {
 		connectionFactory.setUri("amqp://bbjoaswu:k8hcZHx9zv60vwKu3rLXjzKjH63lyc1s@sidewinder.rmq.cloudamqp.com/bbjoaswu");//SystemPropertyUtil.getCLoudAMQP_Uri());
 		//MsgConnection msgConnection = context.get();
-		if(msgConnection == null) {
+		//if(msgConnection == null) {
 			msgConnection = new MsgConnection();
 			Connection connection = connectionFactory.newConnection();
 			msgConnection.setConnection(connection);
-			context.set(msgConnection);
-		}
+			//context.set(msgConnection);
+		//}
 		return msgConnection;
 	}
 	
-	public synchronized void closeConnection() throws IOException, TimeoutException {
-		MsgConnection msgConnection = context.get();
+	public synchronized void closeConnection(MsgConnection msgConnection) throws IOException, TimeoutException {
+		/*MsgConnection msgConnection = context.get();
 		if(msgConnection != null) {
 			msgConnection.close();
 			context.remove();
 			msgConnection = null;
+		}*/
+		if(msgConnection != null) {
+			msgConnection.close();
 		}
 	}
 }

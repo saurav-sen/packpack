@@ -40,6 +40,7 @@ import com.pack.pack.model.web.JTopics;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.PromoteStatus;
 import com.pack.pack.model.web.dto.EntityPromoteDTO;
+import com.pack.pack.model.web.dto.TopicEditDto;
 import com.pack.pack.model.web.dto.TopicFollowDTO;
 import com.pack.pack.services.exception.ErrorCodes;
 import com.pack.pack.services.exception.PackPackException;
@@ -180,6 +181,42 @@ class TopicApi extends BaseAPI {
 		}
 		return topics.getTopics();
 	}
+	
+	private JTopic editTopic(Map<String, Object> params, String oAuthToken,
+			MultipartRequestProgressListener listener) throws Exception {
+		if(listener != null) {
+			listener.countTransferProgress(10, 100);
+		}
+		String userId = (String) params.get(APIConstants.Topic.OWNER_ID);
+		String topicId = (String) params.get(APIConstants.Topic.ID);
+		String topicName = (String) params.get(APIConstants.Topic.NAME);
+		String topicDescription = (String) params
+				.get(APIConstants.Topic.DESCRIPTION);
+		TopicEditDto dto = new TopicEditDto();
+		dto.setName(topicName);
+		dto.setDescription(topicDescription);
+		String url = getBaseUrl() + "topic/" + topicId + "/owner/" + userId;
+		HttpClient client = new DefaultHttpClient();
+		if (getCacheStorage() != null) {
+			CachingHttpClient httpClient = new CachingHttpClient(client,
+					getCacheStorage(), getCacheConfig());
+			client = httpClient;
+		}
+		HttpPut PUT = new HttpPut(url);
+		String json = JSONUtil.serialize(dto);
+		HttpEntity jsonBody = new StringEntity(json);
+		PUT.setEntity(jsonBody);
+		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
+		HttpResponse response = client.execute(PUT);
+		JTopic result = JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JTopic.class);
+		if(listener != null) {
+			listener.countTransferProgress(100, 100);
+		}
+		return result;
+	}
 
 	private JTopic createTopic(Map<String, Object> params, String oAuthToken)
 			throws Exception {
@@ -312,6 +349,8 @@ class TopicApi extends BaseAPI {
 				 * (String) params .get(APIConstants.Topic.CATEGORY);
 				 */
 				result = createTopic(params, oAuthToken);
+			} else if(action == COMMAND.EDIT_EXISTING_TOPIC) {
+				result = editTopic(params, oAuthToken, listener);
 			} else if(action == COMMAND.GET_USER_OWNED_TOPICS) {
 				String userId = (String) params.get(APIConstants.User.ID);
 				result = getUserOwnedTopics(userId, oAuthToken);

@@ -26,10 +26,12 @@ import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.JTopics;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.StatusType;
+import com.pack.pack.model.web.dto.TopicEditDto;
 import com.pack.pack.model.web.dto.UserPromotion;
 import com.pack.pack.rest.api.security.interceptors.CacheControl;
 import com.pack.pack.rest.api.security.interceptors.CompressRead;
 import com.pack.pack.rest.api.security.interceptors.CompressWrite;
+import com.pack.pack.services.exception.ErrorCodes;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.GeoLocationUtil;
@@ -152,6 +154,26 @@ public class TopicResource {
 				.findCompositeService(ITopicService.class);
 		return service.createNewTopic(topic, wallpaper,
 				fileName);
+	}
+	
+	@PUT
+	@CompressRead
+	@CompressWrite
+	@Path("{id}/owner/{ownerId}")
+	@Produces(value = MediaType.APPLICATION_JSON)
+	@Consumes(value = MediaType.APPLICATION_JSON)
+	public JTopic updateExistingTopic(@PathParam("id") String id,
+			@PathParam("ownerId") String ownerId, String json)
+			throws PackPackException {
+		TopicEditDto dto = JSONUtil.deserialize(json, TopicEditDto.class, true);
+		if(dto.getName() == null || dto.getDescription() == null) {
+			throw new PackPackException(ErrorCodes.PACK_ERR_74, "Name or description can't be null");
+		}
+		ITopicService service = ServiceRegistry.INSTANCE
+				.findCompositeService(ITopicService.class);
+		JTopic result = service.updateExistingTopic(id, dto.getName(),
+				dto.getDescription());
+		return result;
 	}
 	
 	@PUT

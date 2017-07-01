@@ -19,17 +19,13 @@ public class AddTopicTest extends UserFollowedTopicListTest {
 
 	private static final String TOPIC_WALLPAPER = "D:/Saurav/Freedom.jpg";
 
-	public void beforeTest() throws Exception {
-		super.beforeTest();
-	}
-
-	public void createNewTopic() {
+	public void createNewTopic(TestSession session) {
 		try {
 			API api = APIBuilder
 					.create(BASE_URL)
 					.setAction(COMMAND.CREATE_NEW_TOPIC)
-					.setOauthToken(oAuthToken)
-					.addApiParam(APIConstants.Topic.OWNER_ID, userId)
+					.setOauthToken(session.getOauthToken())
+					.addApiParam(APIConstants.Topic.OWNER_ID, session.getUserId())
 					.addApiParam(APIConstants.Topic.NAME, "Travel Share")
 					.addApiParam(APIConstants.Topic.DESCRIPTION,
 							"Some of our work from travel last year.")
@@ -39,11 +35,17 @@ public class AddTopicTest extends UserFollowedTopicListTest {
 			JTopic topic = (JTopic) api.execute();
 
 			api = APIBuilder.create(BASE_URL).setAction(COMMAND.GET_TOPIC_BY_ID)
-					.setOauthToken(oAuthToken)
+					.setOauthToken(session.getOauthToken())
 					.addApiParam(APIConstants.Topic.ID, topic.getId()).build();
 			topic = (JTopic) api.execute();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	@Override
+	public void execute(TestSession session) throws Exception {
+		super.execute(session);
+		createNewTopic(session);
 	}
 }

@@ -90,7 +90,8 @@ public class RssFeedRepositoryService {
 	
 	public boolean checkFeedExists(JRssFeed feed) {
 		RedisCommands<String, String> sync = getSyncRedisCommands();
-		String key = "Feeds_" + String.valueOf(feed.getOgUrl().hashCode());
+		//String key = "Feeds_" + String.valueOf(feed.getOgUrl().hashCode());
+		String key = RssFeedUtil.generateUploadKey(feed);
 		List<String> list = sync.keys(key);
 		if(list == null || list.isEmpty())
 			return false;

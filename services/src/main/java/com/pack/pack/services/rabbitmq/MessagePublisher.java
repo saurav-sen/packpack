@@ -32,8 +32,9 @@ public class MessagePublisher {
 	private static Logger logger = LoggerFactory.getLogger(MessagePublisher.class);
 	
 	public void broadcastNewRSSFeedUpload(JRssFeed feed, BroadcastCriteria criteria, boolean sendNotification) throws PackPackException {
+		MsgConnection connection = null;
 		try {
-			MsgConnection connection = connectionManager.openConnection();
+			connection = connectionManager.openConnection();
 			Channel channel = connection.getChannel();
 			FeedMsg msg = new FeedMsg();
 			msg.setTitle(feed.getOgTitle());
@@ -56,13 +57,15 @@ public class MessagePublisher {
 			logger.error(e.getMessage(), e);
 			throw new PackPackException("", e.getMessage(), e);
 		} finally {
-			/*try {
-				connectionManager.closeConnection();
+			try {
+				connectionManager.closeConnection(connection);
 			} catch (IOException e) {
 				logger.error(e.getMessage(), e);
 			} catch (TimeoutException e) {
 				logger.error(e.getMessage(), e);
-			}*/
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
 		}
 	}
 	

@@ -16,29 +16,30 @@ import static com.pack.pack.client.api.test.TestConstants.BASE_URL;
  */
 public class NeglectTopicTest extends UserFollowedTopicListTest {
 
-	@Override
-	public void beforeTest() throws Exception {
-		super.beforeTest();
-	}
-
-	public void testNeglectTopic() {
+	private void testNeglectTopic(TestSession session) {
 		try {
-			Pagination<JTopic> page = testUserFollowedTopicList();
+			Pagination<JTopic> page = testUserFollowedTopicList(session);
 			JTopic topic = page.getResult().get(0);
 			API api = APIBuilder.create(BASE_URL).setAction(COMMAND.FOLLOW_TOPIC)
-					.setOauthToken(oAuthToken)
-					.addApiParam(APIConstants.User.ID, userId)
+					.setOauthToken(session.getOauthToken())
+					.addApiParam(APIConstants.User.ID, session.getUserId())
 					.addApiParam(APIConstants.Topic.ID, topic.getId())
 					.build();
 			api.execute();
 
 			api = APIBuilder.create(BASE_URL).setAction(COMMAND.NEGLECT_TOPIC)
-					.setOauthToken(oAuthToken)
+					.setOauthToken(session.getOauthToken())
 					.addApiParam(APIConstants.Topic.ID, topic.getId())
-					.addApiParam(APIConstants.User.ID, userId).build();
+					.addApiParam(APIConstants.User.ID, session.getUserId()).build();
 			api.execute();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	@Override
+	public void execute(TestSession session) throws Exception {
+		super.execute(session);
+		testNeglectTopic(session);
 	}
 }

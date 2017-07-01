@@ -94,6 +94,17 @@ public interface ITopicService {
 	 */
 	public JTopic createNewTopic(JTopic topic, InputStream wallpaper,
 			String wallpaperName) throws PackPackException;
+	
+	/**
+	 * 
+	 * @param topicId
+	 * @param topicName
+	 * @param topicDescription
+	 * @return
+	 * @throws PackPackException
+	 */
+	public JTopic updateExistingTopic(String topicId, String topicName,
+			String topicDescription) throws PackPackException;
 
 	/**
 	 * 

@@ -326,6 +326,23 @@ public class TopicServiceImpl implements ITopicService {
 		return ModelConverter.convert(topic);
 	}
 	
+	@Override
+	public JTopic updateExistingTopic(String topicId, String topicName,
+			String topicDescription) throws PackPackException {
+		TopicRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(TopicRepositoryService.class);
+		Topic topic = service.get(topicId);
+		if (topic == null) {
+			throw new PackPackException(ErrorCodes.PACK_ERR_73,
+					"No vision with supplied ID = " + topicId
+							+ " is found for update.");
+		}
+		topic.setName(topicName);
+		topic.setDescription(topicDescription);
+		service.update(topic);
+		return ModelConverter.convert(topic);
+	}
+	
 	private String storeTopicWallpaper(String topicId,
 			InputStream wallpaper, String wallpaperFileName)
 			throws PackPackException {

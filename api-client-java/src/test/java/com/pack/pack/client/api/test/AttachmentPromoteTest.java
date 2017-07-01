@@ -22,38 +22,37 @@ import com.pack.pack.model.web.PromoteStatus;
  */
 public class AttachmentPromoteTest extends BaseTest {
 
-	public static void main(String[] args) throws Exception {
+	/*public static void main(String[] args) throws Exception {
 		new AttachmentPromoteTest().testPromoteAttachment();
-	}
+	}*/
 
-	public void testPromoteAttachment() throws Exception {
-		beforeTest();
-		String url = randomSelectAndPromoteAttachment();
+	private void testPromoteAttachment(TestSession session) throws Exception {
+		String url = randomSelectAndPromoteAttachment(session);
 		System.out.println(url);
 	}
 
-	private String promoteAttachment(JPackAttachment attachment)
+	private String promoteAttachment(TestSession session, JPackAttachment attachment)
 			throws Exception {
 		API api = APIBuilder
 				.create(BASE_URL_2)
 				.setAction(COMMAND.PROMOTE_PACK_ATTACHMENT)
-				.setOauthToken(oAuthToken)
+				.setOauthToken(session.getOauthToken())
 				.addApiParam(APIConstants.PackAttachment.ID, attachment.getId())
-				.addApiParam(APIConstants.User.ID, userId).build();
+				.addApiParam(APIConstants.User.ID, session.getUserId()).build();
 		PromoteStatus promoStatus = (PromoteStatus) api.execute();
 		return promoStatus.getPublicUrl();
 	}
 
 	@SuppressWarnings("unchecked")
-	private JPackAttachment selectFirstAttachment(String packId, String topicId)
+	private JPackAttachment selectFirstAttachment(TestSession session, String packId, String topicId)
 			throws Exception {
 		JPackAttachment a = null;
 		API api = APIBuilder.create(BASE_URL)
 				.setAction(COMMAND.GET_ALL_ATTACHMENTS_IN_PACK)
-				.setOauthToken(oAuthToken)
+				.setOauthToken(session.getOauthToken())
 				.addApiParam(APIConstants.Pack.ID, packId)
 				.addApiParam(APIConstants.Topic.ID, topicId)
-				.addApiParam(APIConstants.User.ID, userId)
+				.addApiParam(APIConstants.User.ID, session.getUserId())
 				.addApiParam(APIConstants.PageInfo.PAGE_LINK, "FIRST_PAGE")
 				.build();
 		Pagination<JPackAttachment> page = (Pagination<JPackAttachment>) api
@@ -66,39 +65,39 @@ public class AttachmentPromoteTest extends BaseTest {
 	}
 
 	@SuppressWarnings("unchecked")
-	private String randomSelectAndPromoteAttachment(String topicId)
+	private String randomSelectAndPromoteAttachment(TestSession session, String topicId)
 			throws Exception {
 		API api = APIBuilder.create(BASE_URL)
 				.setAction(COMMAND.GET_ALL_PACKS_IN_TOPIC)
-				.setOauthToken(oAuthToken)
-				.addApiParam(APIConstants.User.ID, userId)
+				.setOauthToken(session.getOauthToken())
+				.addApiParam(APIConstants.User.ID, session.getUserId())
 				.addApiParam(APIConstants.Topic.ID, topicId)
 				.addApiParam(APIConstants.PageInfo.PAGE_LINK, "FIRST_PAGE")
 				.build();
 		Pagination<JPack> page = (Pagination<JPack>) api.execute();
 		List<JPack> result = page.getResult();
 		for (JPack pack : result) {
-			JPackAttachment a = selectFirstAttachment(pack.getId(), topicId);
+			JPackAttachment a = selectFirstAttachment(session, pack.getId(), topicId);
 			if (a != null) {
-				return promoteAttachment(a);
+				return promoteAttachment(session, a);
 			}
 		}
 		return null;
 	}
 
 	@SuppressWarnings({ "unchecked" })
-	private String randomSelectAndPromoteAttachmentByCategory(String category)
+	private String randomSelectAndPromoteAttachmentByCategory(TestSession session, String category)
 			throws Exception {
 		API api = APIBuilder.create(BASE_URL)
 				.setAction(COMMAND.GET_USER_FOLLOWED_TOPIC_LIST)
-				.setOauthToken(oAuthToken)
+				.setOauthToken(session.getOauthToken())
 				.addApiParam(APIConstants.PageInfo.PAGE_LINK, "FIRST_PAGE")
-				.addApiParam(APIConstants.User.ID, userId)
+				.addApiParam(APIConstants.User.ID, session.getUserId())
 				.addApiParam(APIConstants.Topic.CATEGORY, "music").build();
 		Pagination<JTopic> page = (Pagination<JTopic>) api.execute();
 		List<JTopic> result = page.getResult();
 		for (JTopic topic : result) {
-			String str = randomSelectAndPromoteAttachment(topic.getId());
+			String str = randomSelectAndPromoteAttachment(session, topic.getId());
 			if (str != null) {
 				return str;
 			}
@@ -106,11 +105,17 @@ public class AttachmentPromoteTest extends BaseTest {
 		return null;
 	}
 
-	private String randomSelectAndPromoteAttachment() throws Exception {
-		String url = randomSelectAndPromoteAttachmentByCategory("music");
+	private String randomSelectAndPromoteAttachment(TestSession session) throws Exception {
+		String url = randomSelectAndPromoteAttachmentByCategory(session, "music");
 		if (url == null) {
-			url = randomSelectAndPromoteAttachmentByCategory("photography");
+			url = randomSelectAndPromoteAttachmentByCategory(session, "photography");
 		}
 		return url;
+	}
+	
+	@Override
+	public void execute(TestSession session) throws Exception {
+		super.execute(session);
+		testPromoteAttachment(session);
 	}
 }

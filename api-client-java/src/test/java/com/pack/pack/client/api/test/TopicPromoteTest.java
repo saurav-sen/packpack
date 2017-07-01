@@ -20,44 +20,45 @@ import com.pack.pack.model.web.PromoteStatus;
  */
 public class TopicPromoteTest extends BaseTest {
 
-	public static void main(String[] args) throws Exception {
-		new TopicPromoteTest().testPromoteTopic();
-	}
-
-	public void testPromoteTopic() throws Exception {
-		beforeTest();
-		String url = randomSelectAndPromoteTopic();
+	private void testPromoteTopic(TestSession session) throws Exception {
+		String url = randomSelectAndPromoteTopic(session);
 		System.out.println(url);
 	}
 
 	@SuppressWarnings({ "unchecked" })
-	private String randomSelectAndPromoteTopicByCategory(String category)
+	private String randomSelectAndPromoteTopicByCategory(TestSession session, String category)
 			throws Exception {
 		API api = APIBuilder.create(BASE_URL)
 				.setAction(COMMAND.GET_USER_FOLLOWED_TOPIC_LIST)
-				.setOauthToken(oAuthToken)
+				.setOauthToken(session.getOauthToken())
 				.addApiParam(APIConstants.PageInfo.PAGE_LINK, "FIRST_PAGE")
-				.addApiParam(APIConstants.User.ID, userId)
+				.addApiParam(APIConstants.User.ID, session.getUserId())
 				.addApiParam(APIConstants.Topic.CATEGORY, "music").build();
 		Pagination<JTopic> page = (Pagination<JTopic>) api.execute();
 		List<JTopic> result = page.getResult();
 		if (!result.isEmpty()) {
 			JTopic topic = result.get(0);
 			api = APIBuilder.create(BASE_URL_2)
-					.setAction(COMMAND.PROMOTE_TOPIC).setOauthToken(oAuthToken)
+					.setAction(COMMAND.PROMOTE_TOPIC).setOauthToken(session.getOauthToken())
 					.addApiParam(APIConstants.Topic.ID, topic.getId())
-					.addApiParam(APIConstants.User.ID, userId).build();
+					.addApiParam(APIConstants.User.ID, session.getUserId()).build();
 			PromoteStatus promoStatus = (PromoteStatus) api.execute();
 			return promoStatus.getPublicUrl();
 		}
 		return null;
 	}
 
-	private String randomSelectAndPromoteTopic() throws Exception {
-		String url = randomSelectAndPromoteTopicByCategory("music");
+	private String randomSelectAndPromoteTopic(TestSession session) throws Exception {
+		String url = randomSelectAndPromoteTopicByCategory(session, "music");
 		if (url == null) {
-			url = randomSelectAndPromoteTopicByCategory("photography");
+			url = randomSelectAndPromoteTopicByCategory(session, "photography");
 		}
 		return url;
+	}
+	
+	@Override
+	public void execute(TestSession session) throws Exception {
+		super.execute(session);
+		testPromoteTopic(session);
 	}
 }

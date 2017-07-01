@@ -61,6 +61,7 @@ public class APIBuilderImpl extends APIBuilder {
 				|| action == COMMAND.NEGLECT_TOPIC
 				|| action == COMMAND.GET_TOPIC_BY_ID
 				|| action == COMMAND.CREATE_NEW_TOPIC
+				|| action == COMMAND.EDIT_EXISTING_TOPIC
 				|| action == COMMAND.GET_USER_OWNED_TOPICS
 				|| action == COMMAND.EDIT_TOPIC_SETTINGS
 				|| action == COMMAND.PROMOTE_TOPIC) {

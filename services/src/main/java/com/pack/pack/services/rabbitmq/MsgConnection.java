@@ -26,7 +26,7 @@ public class MsgConnection {
 	}
 
 	public Channel getChannel() throws IOException {
-		if(channel == null) {
+		if(channel == null || !channel.isOpen()) {
 			channel = connection.createChannel();
 		}
 		return channel;
