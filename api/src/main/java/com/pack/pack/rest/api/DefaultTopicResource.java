@@ -2,10 +2,10 @@ package com.pack.pack.rest.api;
 
 import javax.inject.Singleton;
 import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
@@ -35,7 +35,7 @@ public class DefaultTopicResource {
 			throws PackPackException {
 		IRssFeedService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IRssFeedService.class);
-		return service.getAllRssFeeds(userId, pageLink, null);
+		return service.getAllRssFeeds(userId, pageLink, null, null);
 	}
 	
 	@GET
@@ -44,10 +44,11 @@ public class DefaultTopicResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Pagination<JRssFeed> getRssFeeds(@PathParam("userId") String userId,
 			@PathParam("pageLink") String pageLink,
-			@PathParam("version") String apiVersion)
+			@PathParam("version") String apiVersion,
+			@QueryParam("source") String source)
 			throws PackPackException {
 		IRssFeedService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IRssFeedService.class);
-		return service.getAllRssFeeds(userId, pageLink, apiVersion);
+		return service.getAllRssFeeds(userId, pageLink, apiVersion, source);
 	}
 }

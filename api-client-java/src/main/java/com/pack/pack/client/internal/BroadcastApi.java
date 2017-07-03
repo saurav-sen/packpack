@@ -23,9 +23,9 @@ import com.pack.pack.model.web.Pagination;
  * @author Saurav
  *
  */
-class HomeApi extends BaseAPI {
+class BroadcastApi extends BaseAPI {
 
-	HomeApi(String baseUrl) {
+	BroadcastApi(String baseUrl) {
 		super(baseUrl);
 	}
 
@@ -38,9 +38,9 @@ class HomeApi extends BaseAPI {
 
 	@SuppressWarnings("unchecked")
 	private Pagination<JRssFeed> getAllFeeds(String userId, String pageLink,
-			String oAuthToken) throws Exception {
+			String oAuthToken, String source) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = getBaseUrl() + "home/usr/" + userId + "/page/" + pageLink + "/version/v2";
+		String url = getBaseUrl() + "home/usr/" + userId + "/page/" + pageLink + "/version/v2?source=" + source;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
@@ -76,12 +76,16 @@ class HomeApi extends BaseAPI {
 		public Object invoke() throws Exception {
 			if (COMMAND.GET_ALL_PROMOTIONAL_FEEDS.equals(action)) {
 				String userId = (String) params.get(APIConstants.User.ID);
+				String source = (String) params.get(APIConstants.RssFeed.FEED_TYPE);
+				if(source == null) {
+					source = "default";
+				}
 				String pageLink = (String) params
 						.get(APIConstants.PageInfo.PAGE_LINK);
 				if (pageLink == null || pageLink.trim().equals("")) {
 					pageLink = "FIRST_PAGE";
 				}
-				return getAllFeeds(userId, pageLink, oAuthToken);
+				return getAllFeeds(userId, pageLink, oAuthToken, source);
 			}
 			return null;
 		}

@@ -81,6 +81,8 @@ public final class SystemPropertyUtil {
 
 	private static final String ML_WORKING_DIR = "ml.work.dir";
 	private static final String ML_SERVER_START_MODE = "ml.server.mode";
+	
+	private static final String NEWS_API_ORG_KEY = "news.api.org.key";
 
 	public static final String ML_SERVER_TEST_MODE = "test";
 	public static final String ML_SERVER_CLASSIFY_MODE = "classify";
@@ -137,6 +139,10 @@ public final class SystemPropertyUtil {
 		} catch (Exception e) {
 			return false;
 		}
+	}
+	
+	public static String getNewsApiOrg_APIKey() {
+		return getPropertyValue(NEWS_API_ORG_KEY);
 	}
 	
 	public static String getCLoudAMQP_Uri() {

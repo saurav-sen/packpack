@@ -17,6 +17,7 @@ import com.pack.pack.model.RSSFeed;
 import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.TTL;
+import com.pack.pack.model.web.dto.RssFeedSourceType;
 import com.pack.pack.services.couchdb.RssFeedRepositoryService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
@@ -34,7 +35,7 @@ public class RssFeedServiceImpl implements IRssFeedService {
 	private static final Logger LOG = LoggerFactory.getLogger(RssFeedServiceImpl.class);
 	
 	@Override
-	public Pagination<JRssFeed> getAllRssFeeds(String userId, String pageLink, String apiVersion)
+	public Pagination<JRssFeed> getAllRssFeeds(String userId, String pageLink, String source, String apiVersion)
 			throws PackPackException {
 		if (pageLink == null || END_OF_PAGE.equals(pageLink.trim())) {
 			Pagination<JRssFeed> page = new Pagination<JRssFeed>();
@@ -55,7 +56,12 @@ public class RssFeedServiceImpl implements IRssFeedService {
 		// as much responsive as possible.
 		RssFeedRepositoryService repositoryService = ServiceRegistry.INSTANCE
 				.findService(RssFeedRepositoryService.class);
-		List<RSSFeed> feeds = repositoryService.getAllPromotionalFeeds();
+		List<RSSFeed> feeds = Collections.emptyList();
+		if(source == null || source.trim().isEmpty() || "default".equals(source) || RssFeedSourceType.SQUILL_TEAM.equals(source)) {
+			feeds = repositoryService.getAllPromotionalFeeds();
+		} else if(RssFeedSourceType.NEWS_API.equals(source)) {
+			feeds = repositoryService.getAllNewsFeeds();
+		}
 		/* **************************************************************************************************************************** */
 
 		boolean ignoreVideoFeeds = true;

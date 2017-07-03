@@ -135,8 +135,32 @@ public class RssFeedRepositoryService {
 	}
 	
 	public List<RSSFeed> getAllPromotionalFeeds() throws PackPackException {
-		RedisCommands<String, String> sync = getSyncRedisCommands();
+		/*RedisCommands<String, String> sync = getSyncRedisCommands();
 		List<String> keys = sync.keys("Feeds_*");
+		if (keys == null || keys.isEmpty())
+			return Collections.emptyList();
+		List<RSSFeed> feeds = new LinkedList<RSSFeed>();
+		for (String key : keys) {
+			String json = sync.get(key);
+			RSSFeed feed = JSONUtil.deserialize(json, RSSFeed.class, true);
+			feeds.add(feed);
+		}
+		// sync.close();
+		return feeds;*/
+		return getAllFeeds("Feeds_*");
+	}
+	
+	public List<RSSFeed> getAllNewsFeeds() throws PackPackException {
+		return getAllFeeds("News_*");
+	}
+	
+	/*public List<RSSFeed> getAllUserCustomFeeds(String city, String country) throws PackPackException {
+		return getAllFeeds("User_broadcast_*");
+	}*/
+	
+	private List<RSSFeed> getAllFeeds(String keyPattern) throws PackPackException {
+		RedisCommands<String, String> sync = getSyncRedisCommands();
+		List<String> keys = sync.keys(keyPattern);
 		if (keys == null || keys.isEmpty())
 			return Collections.emptyList();
 		List<RSSFeed> feeds = new LinkedList<RSSFeed>();

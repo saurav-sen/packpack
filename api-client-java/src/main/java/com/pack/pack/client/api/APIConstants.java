@@ -164,4 +164,8 @@ public interface APIConstants {
 		public static final String LONGITUDE = "longitude";
 		public static final String LATITUDE = "latitude";
 	}
+	
+	public static interface RssFeed {
+		public static final String FEED_TYPE = "rss_feed_type";
+	}
 }

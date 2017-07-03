@@ -123,7 +123,7 @@ public class APIBuilderImpl extends APIBuilder {
 			api = new APIWrapper(new DiscussionApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
 		} else if(action == COMMAND.GET_ALL_PROMOTIONAL_FEEDS) {
-			api = new APIWrapper(new HomeApi(baseUrl));
+			api = new APIWrapper(new BroadcastApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
 		} else if(action == COMMAND.GET_ALL_SYSTEM_SUPPORTED_CATEGORIES
 				|| action == COMMAND.SYNC_TIME
