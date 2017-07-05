@@ -1,7 +1,5 @@
 package com.pack.pack.client.api.test;
 
-import static com.pack.pack.client.api.test.TestConstants.BASE_URL;
-
 import java.util.List;
 
 import com.pack.pack.client.api.API;
@@ -17,8 +15,8 @@ import com.pack.pack.model.web.JCategory;
  */
 public class SystemInfoTest {
 
-	public void test() throws Exception {
-		API api = APIBuilder.create(BASE_URL)
+	public void test(TestSession session) throws Exception {
+		API api = APIBuilder.create(session.getBaseUrl())
 				.setAction(COMMAND.GET_ALL_SYSTEM_SUPPORTED_CATEGORIES).build();
 		JCategories categories = (JCategories) api.execute();
 		List<JCategory> list = categories.getCategories();

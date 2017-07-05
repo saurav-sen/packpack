@@ -1,7 +1,5 @@
 package com.pack.pack.client.api.test;
 
-import static com.pack.pack.client.api.test.TestConstants.BASE_URL;
-
 import com.pack.pack.client.api.API;
 import com.pack.pack.client.api.APIBuilder;
 import com.pack.pack.client.api.APIConstants;
@@ -15,7 +13,7 @@ public class TopicEditTest extends UserFollowedTopicListTest {
 		Pagination<JTopic> p = testUserFollowedTopicList(session);
 		JTopic topic = p.getResult().get(0);
 		try {
-			API api = APIBuilder.create(BASE_URL)
+			API api = APIBuilder.create(session.getBaseUrl())
 					.setAction(COMMAND.EDIT_EXISTING_TOPIC)
 					.setOauthToken(session.getOauthToken())
 					.addApiParam(APIConstants.Topic.ID, topic.getId())

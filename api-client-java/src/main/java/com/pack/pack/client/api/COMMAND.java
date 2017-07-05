@@ -84,7 +84,8 @@ public enum COMMAND {
 			APIConstants.Attachment.STORY, APIConstants.Topic.ID,
 			APIConstants.User.ID), ADD_IMAGE_TO_PACK(
 			APIConstants.Attachment.FILE_ATTACHMENT, APIConstants.Topic.ID,
-			APIConstants.Pack.ID, APIConstants.User.ID), UPLOAD_VIDEO_PACK(
+			APIConstants.Pack.ID, APIConstants.User.ID,
+			APIConstants.Attachment.TITLE, APIConstants.Attachment.DESCRIPTION), UPLOAD_VIDEO_PACK(
 			APIConstants.Attachment.FILE_ATTACHMENT,
 			APIConstants.Attachment.TITLE, APIConstants.Attachment.DESCRIPTION,
 			APIConstants.Attachment.STORY, APIConstants.Topic.ID,

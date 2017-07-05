@@ -6,8 +6,6 @@ import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.model.web.JUser;
 
-import static com.pack.pack.client.api.test.TestConstants.BASE_URL;
-
 /**
  * 
  * @author Saurav
@@ -15,29 +13,29 @@ import static com.pack.pack.client.api.test.TestConstants.BASE_URL;
  */
 public class UserInfoTest {
 
-	private String oAuthToken;
+	//private String oAuthToken;
 
-	public void beforeTest() throws Exception {
+	/*public void beforeTest() throws Exception {
 		oAuthToken = SignInUtil.signIn();
-	}
+	}*/
 
-	public void testUserInfo() {
+	public JUser getUserInfo(TestSession session) {
 		try {
 			API api = APIBuilder
-					.create(BASE_URL)
+					.create(session.getBaseUrl())
 					.setAction(COMMAND.GET_USER_BY_USERNAME)
-					.setOauthToken(oAuthToken)
+					.setOauthToken(session.getOauthToken())
 					.addApiParam(APIConstants.User.USERNAME,
-							SignInUtil.USERNAME).build();
+							TestDataSet.getInstance().getUserEmail(session.getSeqNo())).build();
 			JUser user = (JUser) api.execute();
 			String id = user.getId();
 			
-			api = APIBuilder.create(BASE_URL).setAction(COMMAND.GET_USER_BY_ID)
-					.setOauthToken(oAuthToken)
+			api = APIBuilder.create(session.getBaseUrl()).setAction(COMMAND.GET_USER_BY_ID)
+					.setOauthToken(session.getOauthToken())
 					.addApiParam(APIConstants.User.ID, id).build();
-			user = (JUser) api.execute();
+			return (JUser) api.execute();
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 }

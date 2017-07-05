@@ -1,7 +1,5 @@
 package com.pack.pack.client.api.test;
 
-import static com.pack.pack.client.api.test.TestConstants.BASE_URL;
-
 import com.pack.pack.client.api.API;
 import com.pack.pack.client.api.APIBuilder;
 import com.pack.pack.client.api.APIConstants;
@@ -9,18 +7,18 @@ import com.pack.pack.client.api.COMMAND;
 
 public class ResetPasswordTest {
 	
-	public void testIssueVerifier() throws Exception {
+	public void testIssueVerifier(TestSession session) throws Exception {
 		API api = APIBuilder
-				.create(BASE_URL)
+				.create(session.getBaseUrl())
 				.setAction(COMMAND.ISSUE_PASSWD_RESET_LINK)
 				.addApiParam(APIConstants.User.USERNAME,
 						"sourabhnits@gmail.com").build();
 		api.execute();
 	}
 
-	public void testReset() throws Exception {
+	public void testReset(TestSession session) throws Exception {
 		API api = APIBuilder
-				.create(BASE_URL)
+				.create(session.getBaseUrl())
 				.setAction(COMMAND.RESET_USER_PASSWD)
 				.addApiParam(APIConstants.User.USERNAME,
 						"sourabhnits@gmail.com")

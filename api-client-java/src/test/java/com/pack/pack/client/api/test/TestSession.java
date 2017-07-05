@@ -11,6 +11,26 @@ public class TestSession {
 	
 	private String userId;
 	
+	private int seqNo;
+	
+	private String baseUrl;
+	
+	private String baseUrl2;
+	
+	public TestSession(int seqNo, String baseUrl, String baseUrl2) {
+		this.seqNo = seqNo;
+		this.baseUrl = baseUrl;
+		this.baseUrl2 = baseUrl2;
+	}
+	
+	public String getBaseUrl() {
+		return baseUrl;
+	}
+	
+	public String getBaseUrl2() {
+		return baseUrl2;
+	}
+	
 	public void storeValue(String key, Object value) {
 		map.put(key, value);
 	}
@@ -37,5 +57,13 @@ public class TestSession {
 	
 	public boolean isInitialized() {
 		return oauthToken != null && userId != null;
+	}
+
+	public int getSeqNo() {
+		return seqNo;
+	}
+
+	public void setSeqNo(int seqNo) {
+		this.seqNo = seqNo;
 	}
 }

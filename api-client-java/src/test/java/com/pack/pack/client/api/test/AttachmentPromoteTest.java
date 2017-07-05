@@ -1,8 +1,5 @@
 package com.pack.pack.client.api.test;
 
-import static com.pack.pack.client.api.test.TestConstants.BASE_URL;
-import static com.pack.pack.client.api.test.TestConstants.BASE_URL_2;
-
 import java.util.List;
 
 import com.pack.pack.client.api.API;
@@ -34,7 +31,7 @@ public class AttachmentPromoteTest extends BaseTest {
 	private String promoteAttachment(TestSession session, JPackAttachment attachment)
 			throws Exception {
 		API api = APIBuilder
-				.create(BASE_URL_2)
+				.create(session.getBaseUrl2())
 				.setAction(COMMAND.PROMOTE_PACK_ATTACHMENT)
 				.setOauthToken(session.getOauthToken())
 				.addApiParam(APIConstants.PackAttachment.ID, attachment.getId())
@@ -47,7 +44,7 @@ public class AttachmentPromoteTest extends BaseTest {
 	private JPackAttachment selectFirstAttachment(TestSession session, String packId, String topicId)
 			throws Exception {
 		JPackAttachment a = null;
-		API api = APIBuilder.create(BASE_URL)
+		API api = APIBuilder.create(session.getBaseUrl())
 				.setAction(COMMAND.GET_ALL_ATTACHMENTS_IN_PACK)
 				.setOauthToken(session.getOauthToken())
 				.addApiParam(APIConstants.Pack.ID, packId)
@@ -67,7 +64,7 @@ public class AttachmentPromoteTest extends BaseTest {
 	@SuppressWarnings("unchecked")
 	private String randomSelectAndPromoteAttachment(TestSession session, String topicId)
 			throws Exception {
-		API api = APIBuilder.create(BASE_URL)
+		API api = APIBuilder.create(session.getBaseUrl())
 				.setAction(COMMAND.GET_ALL_PACKS_IN_TOPIC)
 				.setOauthToken(session.getOauthToken())
 				.addApiParam(APIConstants.User.ID, session.getUserId())
@@ -88,7 +85,7 @@ public class AttachmentPromoteTest extends BaseTest {
 	@SuppressWarnings({ "unchecked" })
 	private String randomSelectAndPromoteAttachmentByCategory(TestSession session, String category)
 			throws Exception {
-		API api = APIBuilder.create(BASE_URL)
+		API api = APIBuilder.create(session.getBaseUrl())
 				.setAction(COMMAND.GET_USER_FOLLOWED_TOPIC_LIST)
 				.setOauthToken(session.getOauthToken())
 				.addApiParam(APIConstants.PageInfo.PAGE_LINK, "FIRST_PAGE")

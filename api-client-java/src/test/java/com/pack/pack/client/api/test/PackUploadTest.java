@@ -15,35 +15,30 @@ import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.StatusType;
 
-import static com.pack.pack.client.api.test.TestConstants.BASE_URL;;
-
 public class PackUploadTest extends UserFollowedTopicListTest {
 
-	private void uploadIMagePackTest(TestSession session, String topicId, String imageFilePath)
+	private String createNewPack(TestSession session, String topicId)
 			throws Exception {
-		File file = new File(imageFilePath);
 		API api = APIBuilder
-				.create(BASE_URL)
-				.setAction(COMMAND.UPLOAD_IMAGE_PACK)
+				.create(session.getBaseUrl())
+				.setAction(COMMAND.CREATE_NEW_PACK)
 				.setOauthToken(session.getOauthToken())
 				.addApiParam(APIConstants.User.ID, session.getUserId())
 				.addApiParam(APIConstants.Topic.ID, topicId)
 				.addApiParam(APIConstants.Pack.TITLE, "Shantineketan")
-				.addApiParam(APIConstants.Pack.DESCRIPTION,
-						"Sample Theme of Shantineketan")
 				.addApiParam(
 						APIConstants.Pack.STORY,
 						"On the way. Where we stopped by advasi villages. Gramin beauty of nature at it best.")
-				.addApiParam(APIConstants.Attachment.FILE_ATTACHMENT, file)
 				.build();
 		JStatus status = (JStatus) api.execute();
 		assert (status.getStatus() == StatusType.OK);
+		return "";
 	}
 
 	@SuppressWarnings("unchecked")
 	private Pagination<JPack> testGetAllPacksInTopic(TestSession session, String topicId)
 			throws Exception {
-		API api = APIBuilder.create(BASE_URL).setAction(COMMAND.GET_ALL_PACKS_IN_TOPIC)
+		API api = APIBuilder.create(session.getBaseUrl()).setAction(COMMAND.GET_ALL_PACKS_IN_TOPIC)
 				.setOauthToken(session.getOauthToken())
 				.addApiParam(APIConstants.User.ID, session.getUserId())
 				.addApiParam(APIConstants.Topic.ID, topicId)
@@ -56,17 +51,19 @@ public class PackUploadTest extends UserFollowedTopicListTest {
 	private JPack testAddImageToPack(TestSession session, String topicId, String packId,
 			String imageFilePath) throws Exception {
 		File file = new File(imageFilePath);
-		API api = APIBuilder.create(BASE_URL).setAction(COMMAND.ADD_IMAGE_TO_PACK)
+		API api = APIBuilder.create(session.getBaseUrl()).setAction(COMMAND.ADD_IMAGE_TO_PACK)
 				.setOauthToken(session.getOauthToken())
 				.addApiParam(APIConstants.Topic.ID, topicId)
 				.addApiParam(APIConstants.Pack.ID, packId)
 				.addApiParam(APIConstants.User.ID, session.getUserId())
 				.addApiParam(APIConstants.Attachment.FILE_ATTACHMENT, file)
+				.addApiParam(APIConstants.Attachment.TITLE, TestDataSet.getInstance().randomAttachmentTitle())
+				.addApiParam(APIConstants.Attachment.DESCRIPTION, TestDataSet.getInstance().randomAttachmentDescription())
 				.build();
 		return (JPack) api.execute();
 	}
 	
-	private JPack testAddVideoToPack(TestSession session, String topicId, String packId,
+	/*private JPack testAddVideoToPack(TestSession session, String topicId, String packId,
 			String videoFilePath) throws Exception {
 		File file = new File(videoFilePath);
 		API api = APIBuilder.create(BASE_URL).setAction(COMMAND.ADD_VIDEO_TO_PACK)
@@ -77,12 +74,12 @@ public class PackUploadTest extends UserFollowedTopicListTest {
 				.addApiParam(APIConstants.Attachment.FILE_ATTACHMENT, file)
 				.build();
 		return (JPack) api.execute();
-	}
+	}*/
 
 	@SuppressWarnings("unchecked")
 	private Pagination<JPackAttachment> getAllPackAttachments(TestSession session, String topicId,
 			String packId, String pageLink) throws Exception {
-		API api = APIBuilder.create(BASE_URL)
+		API api = APIBuilder.create(session.getBaseUrl())
 				.setAction(COMMAND.GET_ALL_ATTACHMENTS_IN_PACK)
 				.setOauthToken(session.getOauthToken())
 				.addApiParam(APIConstants.Pack.ID, packId)
@@ -92,9 +89,9 @@ public class PackUploadTest extends UserFollowedTopicListTest {
 		return (Pagination<JPackAttachment>) api.execute();
 	}
 	
-	private void addImageToPack(TestSession session) throws Exception {
+	private void addImageToPack(TestSession session, String imageFilePath, String packTitle) throws Exception {
 		Pagination<JTopic> topicList = testUserFollowedTopicList(session);
-		String imageFilePath = "D:/Saurav/Images_Shantineketan/678_1.JPG";
+		//String imageFilePath = "D:/Saurav/Images_Shantineketan/678_1.JPG";
 		if (topicList != null) {
 			List<JTopic> result = topicList.getResult();
 			if (result == null || result.isEmpty())
@@ -110,14 +107,21 @@ public class PackUploadTest extends UserFollowedTopicListTest {
 				List<JPack> packs = page.getResult();
 				if(packs == null || packs.isEmpty())
 					continue;
+				JPack rPack = packs.get(0);
+				for(JPack pack : packs) {
+					if(packTitle.equals(pack.getTitle())) {
+						rPack = pack;
+						break;
+					}
+				}
 				System.out.println(JSONUtil.serialize(testAddImageToPack(session, 
-						topicId, packs.get(0).getId(), imageFilePath)));
+						topicId, rPack.getId(), imageFilePath)));
 				break;
 			}
 		}
 	}
 	
-	private void addVideoToPack(TestSession session) throws Exception {
+	/*private void addVideoToPack(TestSession session) throws Exception {
 		Pagination<JTopic> topicList = testUserFollowedTopicList(session);
 		String videoFilePath = "D:/Saurav/VM/packpack/65547c86-b2ba-448f-8f32-4206a7d49376.mp4";//"D:/Saurav/Lord_Ganesh.mp4";
 		if (topicList != null) {
@@ -140,22 +144,24 @@ public class PackUploadTest extends UserFollowedTopicListTest {
 				break;
 			}
 		}
-	}
+	}*/
 	
-	private void uploadPackTest(TestSession session, boolean uploadNew) throws Exception {
+	private void uploadPackTest(TestSession session, boolean uploadNew, String topicId) throws Exception {
 		Pagination<JTopic> topicList = testUserFollowedTopicList(session);
-		String[] files = new String[] {"D:/Saurav/Images_Shantineketan/123.JPG", "D:/Saurav/Images_Shantineketan/456.JPG"};
 		if(topicList != null) {
 			List<JTopic> result = topicList.getResult();
 			if(result == null || result.isEmpty())
 				return;
-			int count = 0;
-			for(JTopic r : result) {
+			//int count = 0;
+			//for(JTopic r : result) {
 				/*if(count > 1)
 					break;*/
-				String topicId = r.getId();
+				//String topicId = r.getId();
 				if(uploadNew) {
-					uploadIMagePackTest(session, topicId, files[count]);
+					String newPackTitle = createNewPack(session, topicId);
+					for(int i=0; i<10; i++) {
+						addImageToPack(session, TestDataSet.getInstance().randomPackImageFilePath(), newPackTitle);
+					}
 				}
 				System.out.println("*******************************************************");
 				Pagination<JPack> page = testGetAllPacksInTopic(session, topicId);
@@ -172,18 +178,20 @@ public class PackUploadTest extends UserFollowedTopicListTest {
 						if(attachments == null || attachments.isEmpty())
 							continue;
 						for(JPackAttachment attachment : attachments) {
+							TestDataSet.getInstance().addAttachmentIdIntoMap(session.getSeqNo(), attachment.getId());
 							System.out.println(JSONUtil.serialize(attachment));
 						}
 					}
 				}
-				count++;
-			}
+				//count++;
+			//}
 		}
 	}
 	
 	@Override
 	public void execute(TestSession session) throws Exception {
 		super.execute(session);
-		uploadPackTest(session, true);
+		JTopic topic = TestDataSet.getInstance().getTopicFromMap(session.getSeqNo());
+		uploadPackTest(session, true, topic.getId());
 	}
 }

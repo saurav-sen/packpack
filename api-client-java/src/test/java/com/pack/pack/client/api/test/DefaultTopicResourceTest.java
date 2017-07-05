@@ -1,7 +1,5 @@
 package com.pack.pack.client.api.test;
 
-import static com.pack.pack.client.api.test.TestConstants.BASE_URL;
-
 import com.pack.pack.client.api.API;
 import com.pack.pack.client.api.APIBuilder;
 import com.pack.pack.client.api.APIConstants;
@@ -14,7 +12,7 @@ public class DefaultTopicResourceTest extends BaseTest {
 
 	public void test(TestSession session) {
 		try {
-			API api = APIBuilder.create(BASE_URL).setAction(COMMAND.GET_ALL_PROMOTIONAL_FEEDS)
+			API api = APIBuilder.create(session.getBaseUrl()).setAction(COMMAND.GET_ALL_PROMOTIONAL_FEEDS)
 					.setOauthToken(session.getOauthToken())
 					.addApiParam(APIConstants.User.ID, session.getUserId())
 					.addApiParam(APIConstants.PageInfo.PAGE_LINK, "FIRST_PAGE")
@@ -35,7 +33,7 @@ public class DefaultTopicResourceTest extends BaseTest {
 			});*/
 			System.out.println(JSONUtil.serialize(page.getResult()));
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 	

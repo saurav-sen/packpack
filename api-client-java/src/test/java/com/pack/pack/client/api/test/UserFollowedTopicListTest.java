@@ -1,7 +1,5 @@
 package com.pack.pack.client.api.test;
 
-import static com.pack.pack.client.api.test.TestConstants.BASE_URL;
-
 import java.util.List;
 
 import com.pack.pack.client.api.API;
@@ -23,12 +21,12 @@ public class UserFollowedTopicListTest extends BaseTest {
 	public Pagination<JTopic> testUserFollowedTopicList(TestSession session) {
 		Pagination<JTopic> page = null;
 		try {
-			API api = APIBuilder.create(BASE_URL)
+			API api = APIBuilder.create(session.getBaseUrl())
 					.setAction(COMMAND.GET_USER_FOLLOWED_TOPIC_LIST)
 					.setOauthToken(session.getOauthToken())
 					.addApiParam(APIConstants.PageInfo.PAGE_LINK, "FIRST_PAGE")
 					.addApiParam(APIConstants.User.ID, session.getUserId())
-					.addApiParam(APIConstants.Topic.CATEGORY, "photography")
+					.addApiParam(APIConstants.Topic.CATEGORY, TestDataSet.getInstance().getTopicCategory(session.getSeqNo()))
 					.build();
 			page = (Pagination<JTopic>)api.execute();
 			List<JTopic> result = page.getResult();

@@ -1,8 +1,5 @@
 package com.pack.pack.client.api.test;
 
-import static com.pack.pack.client.api.test.TestConstants.BASE_URL;
-import static com.pack.pack.client.api.test.TestConstants.BASE_URL_2;
-
 import java.util.List;
 
 import com.pack.pack.client.api.API;
@@ -28,7 +25,7 @@ public class TopicPromoteTest extends BaseTest {
 	@SuppressWarnings({ "unchecked" })
 	private String randomSelectAndPromoteTopicByCategory(TestSession session, String category)
 			throws Exception {
-		API api = APIBuilder.create(BASE_URL)
+		API api = APIBuilder.create(session.getBaseUrl())
 				.setAction(COMMAND.GET_USER_FOLLOWED_TOPIC_LIST)
 				.setOauthToken(session.getOauthToken())
 				.addApiParam(APIConstants.PageInfo.PAGE_LINK, "FIRST_PAGE")
@@ -38,7 +35,7 @@ public class TopicPromoteTest extends BaseTest {
 		List<JTopic> result = page.getResult();
 		if (!result.isEmpty()) {
 			JTopic topic = result.get(0);
-			api = APIBuilder.create(BASE_URL_2)
+			api = APIBuilder.create(session.getBaseUrl2())
 					.setAction(COMMAND.PROMOTE_TOPIC).setOauthToken(session.getOauthToken())
 					.addApiParam(APIConstants.Topic.ID, topic.getId())
 					.addApiParam(APIConstants.User.ID, session.getUserId()).build();

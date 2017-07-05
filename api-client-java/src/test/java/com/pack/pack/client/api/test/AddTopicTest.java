@@ -8,8 +8,6 @@ import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.model.web.JTopic;
 
-import static com.pack.pack.client.api.test.TestConstants.BASE_URL;
-
 /**
  * 
  * @author Saurav
@@ -17,35 +15,36 @@ import static com.pack.pack.client.api.test.TestConstants.BASE_URL;
  */
 public class AddTopicTest extends UserFollowedTopicListTest {
 
-	private static final String TOPIC_WALLPAPER = "D:/Saurav/Freedom.jpg";
-
-	public void createNewTopic(TestSession session) {
+	public JTopic createNewTopic(TestSession session) {
 		try {
 			API api = APIBuilder
-					.create(BASE_URL)
+					.create(session.getBaseUrl())
 					.setAction(COMMAND.CREATE_NEW_TOPIC)
 					.setOauthToken(session.getOauthToken())
 					.addApiParam(APIConstants.Topic.OWNER_ID, session.getUserId())
-					.addApiParam(APIConstants.Topic.NAME, "Travel Share")
+					.addApiParam(APIConstants.Topic.NAME, TestDataSet.getInstance().randomNewTopicTitle())
 					.addApiParam(APIConstants.Topic.DESCRIPTION,
-							"Some of our work from travel last year.")
-					.addApiParam(APIConstants.Topic.CATEGORY, "lifestyle")
+							TestDataSet.getInstance().randomNewTopicDescription())
+					.addApiParam(APIConstants.Topic.CATEGORY, TestDataSet.getInstance().randomNewTopicCategory())
 					.addApiParam(APIConstants.Topic.WALLPAPER,
-							new File(TOPIC_WALLPAPER)).build();
+							new File(TestDataSet.getInstance().randomNewTopicWallpaperFilePath())).build();
 			JTopic topic = (JTopic) api.execute();
 
-			api = APIBuilder.create(BASE_URL).setAction(COMMAND.GET_TOPIC_BY_ID)
+			api = APIBuilder.create(session.getBaseUrl()).setAction(COMMAND.GET_TOPIC_BY_ID)
 					.setOauthToken(session.getOauthToken())
 					.addApiParam(APIConstants.Topic.ID, topic.getId()).build();
 			topic = (JTopic) api.execute();
+			
+			return topic;
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 	
 	@Override
 	public void execute(TestSession session) throws Exception {
 		super.execute(session);
-		createNewTopic(session);
+		JTopic topic = createNewTopic(session);
+		TestDataSet.getInstance().addToTopicsMap(session.getSeqNo(), topic);
 	}
 }

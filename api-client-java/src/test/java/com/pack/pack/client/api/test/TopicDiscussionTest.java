@@ -1,5 +1,8 @@
 package com.pack.pack.client.api.test;
 
+import java.util.List;
+import java.util.Random;
+
 import com.pack.pack.client.api.API;
 import com.pack.pack.client.api.APIBuilder;
 import com.pack.pack.client.api.APIConstants;
@@ -8,8 +11,6 @@ import com.pack.pack.model.web.JDiscussion;
 import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.Pagination;
 
-import static com.pack.pack.client.api.test.TestConstants.BASE_URL;
-
 
 public class TopicDiscussionTest extends UserFollowedTopicListTest {
 
@@ -17,8 +18,11 @@ public class TopicDiscussionTest extends UserFollowedTopicListTest {
 	public void testDiscussionAdd(TestSession session) {
 		try {
 			Pagination<JTopic> page = testUserFollowedTopicList(session);
-			JTopic topic = page.getResult().get(0);
-			API api = APIBuilder.create(BASE_URL).setAction(COMMAND.GET_ALL_DISCUSSIONS_FOR_TOPIC)
+			List<JTopic> result = page.getResult();
+			int size = result.size();
+			int index = Math.abs(new Random().nextInt() % size);
+			JTopic topic = page.getResult().get(index);
+			API api = APIBuilder.create(session.getBaseUrl()).setAction(COMMAND.GET_ALL_DISCUSSIONS_FOR_TOPIC)
 					.setOauthToken(session.getOauthToken())
 					.addApiParam(APIConstants.Topic.ID, topic.getId())
 					.addApiParam(APIConstants.User.ID, session.getUserId())
@@ -26,7 +30,7 @@ public class TopicDiscussionTest extends UserFollowedTopicListTest {
 			Pagination<JDiscussion> page1 = (Pagination<JDiscussion>)api.execute();
 			int count0 = page1.getResult() == null ? 0 : page1.getResult().size();
 			
-			api = APIBuilder.create(BASE_URL).setAction(COMMAND.START_DISCUSSION_ON_TOPIC)
+			api = APIBuilder.create(session.getBaseUrl()).setAction(COMMAND.START_DISCUSSION_ON_TOPIC)
 					.setOauthToken(session.getOauthToken())
 					.addApiParam(APIConstants.User.ID, session.getUserId())
 					.addApiParam(APIConstants.Topic.ID, topic.getId())
@@ -36,7 +40,7 @@ public class TopicDiscussionTest extends UserFollowedTopicListTest {
 			JDiscussion discussion =(JDiscussion)api.execute();
 			assert(discussion != null);
 
-			api = APIBuilder.create(BASE_URL).setAction(COMMAND.GET_ALL_DISCUSSIONS_FOR_TOPIC)
+			api = APIBuilder.create(session.getBaseUrl()).setAction(COMMAND.GET_ALL_DISCUSSIONS_FOR_TOPIC)
 					.setOauthToken(session.getOauthToken())
 					.addApiParam(APIConstants.Topic.ID, topic.getId())
 					.addApiParam(APIConstants.User.ID, session.getUserId())
