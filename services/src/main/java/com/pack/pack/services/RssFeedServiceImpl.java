@@ -57,10 +57,13 @@ public class RssFeedServiceImpl implements IRssFeedService {
 		RssFeedRepositoryService repositoryService = ServiceRegistry.INSTANCE
 				.findService(RssFeedRepositoryService.class);
 		List<RSSFeed> feeds = Collections.emptyList();
+		LOG.debug("source = " + source);
 		if(source == null || source.trim().isEmpty() || "default".equals(source) || RssFeedSourceType.SQUILL_TEAM.equals(source)) {
 			feeds = repositoryService.getAllPromotionalFeeds();
+			LOG.debug("Promotional Feeds Count = " + feeds.size());
 		} else if(RssFeedSourceType.NEWS_API.equals(source)) {
 			feeds = repositoryService.getAllNewsFeeds();
+			LOG.debug("News Feeds Count = " + feeds.size());
 		}
 		/* **************************************************************************************************************************** */
 

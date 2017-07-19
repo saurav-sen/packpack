@@ -8,8 +8,8 @@ import java.util.concurrent.Future;
 
 public class TestWorkflow {
 	
-	public static final String BASE_URL = "http://192.168.35.12:8080/packpack/";
-	public static final String BASE_URL_2 = "http://192.168.35.12:8080/RSS/";
+	public static final String BASE_URL = "http://13.126.116.95:8080/packpack/";
+	public static final String BASE_URL_2 = "http://13.126.116.95:8080/RSS/";
 	
 	private ExecutorService executors = Executors.newCachedThreadPool();
 	
@@ -89,6 +89,6 @@ public class TestWorkflow {
 	}
 
 	public static void main(String[] args) {
-		new TestWorkflow(200, 20, 20000, 2).execute();
+		new TestWorkflow(200, 20, 2000, 2).execute();
 	}
 }

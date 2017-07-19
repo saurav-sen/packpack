@@ -49,6 +49,6 @@ public class DefaultTopicResource {
 			throws PackPackException {
 		IRssFeedService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IRssFeedService.class);
-		return service.getAllRssFeeds(userId, pageLink, apiVersion, source);
+		return service.getAllRssFeeds(userId, pageLink, source, apiVersion);
 	}
 }

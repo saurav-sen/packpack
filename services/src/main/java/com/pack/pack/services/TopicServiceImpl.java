@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.pack.pack.ITopicService;
+import com.pack.pack.common.util.CommonConstants;
 import com.pack.pack.model.CategoryName;
 import com.pack.pack.model.Pack;
 import com.pack.pack.model.Topic;
@@ -233,7 +234,7 @@ public class TopicServiceImpl implements ITopicService {
 			nextLink = page != null ? "NOT_FOLLOWING" + page.getNextLink() 
 					: "NOT_FOLLOWING" + END_OF_PAGE;
 		}		
-		if(result.size() < STANDARD_PAGE_SIZE) {
+		if(result.size() < STANDARD_PAGE_SIZE && shouldReadTopicsNotFollowedByUser(categoryName)) {
 			Pagination<Topic> page = service.getAllTopicsNotFollowedByUserAndCategory(
 					userId, categoryName, pageLink);
 			List<Topic> topics = page.getResult();
@@ -254,6 +255,15 @@ public class TopicServiceImpl implements ITopicService {
 			cacheService.addToCache(key, topicPage);
 		}
 		return page;
+	}
+	
+	/*public static void main(String[] args) {
+		System.out.println("https://i.ytimg.com/vi/tdOCm9bKlPA/maxresdefault.jpg".hashCode());
+	}*/
+	
+	private boolean shouldReadTopicsNotFollowedByUser(String topicCategoryName) {
+		return !(CommonConstants.FAMILY.equalsIgnoreCase(topicCategoryName) || CommonConstants.SOCIETY
+				.equalsIgnoreCase(topicCategoryName));
 	}
 
 	@Override

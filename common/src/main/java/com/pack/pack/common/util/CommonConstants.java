@@ -33,6 +33,9 @@ public class CommonConstants {
     public static final String PAINTING = "painting";
     public static final String COOKING = "Cooking";
     
+    public static final String FAMILY = "family";
+    public static final String SOCIETY = "society";
+    
     public static final Map<String, String> secondaryVsPrimaryCategoryMap = new HashMap<String, String>();
     static {
     	secondaryVsPrimaryCategoryMap.put(HOME, HOME);
@@ -74,6 +77,9 @@ public class CommonConstants {
     	secondaryVsPrimaryCategoryMap.put(JCategoryName.COOKING.getDisplay(), OTHERS);
     	secondaryVsPrimaryCategoryMap.put(JCategoryName.FASHION.getDisplay(), OTHERS);
     	secondaryVsPrimaryCategoryMap.put(JCategoryName.FASHION.name(), OTHERS);
+    	
+    	secondaryVsPrimaryCategoryMap.put(FAMILY, FAMILY);
+    	secondaryVsPrimaryCategoryMap.put(SOCIETY, SOCIETY);
     }
     
     public static final String resolvePrimaryCategory(String secondaryCategory) {
