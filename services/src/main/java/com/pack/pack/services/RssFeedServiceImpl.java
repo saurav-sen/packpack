@@ -116,9 +116,9 @@ public class RssFeedServiceImpl implements IRssFeedService {
 		//return ModelConverter.convert(rssFeed);
 	}
 	
-	/*public static void main(String[] args) {
-		System.out.println("https://assets.labroots.com/_public/_files/system/ck/trending/solar-eclipse-151211_1280_53c0e1650f4a36ce87700410e2fbead9.png".hashCode());
-	}*/
+	public static void main(String[] args) {
+		System.out.println("https://cdn.photographylife.com/wp-content/uploads/2015/03/Red-Sky-639x960.jpg".hashCode());
+	}
 	
 	/*@Override
 	public Pagination<JRssFeed> getAllRssFeeds(String userId, String pageLink)

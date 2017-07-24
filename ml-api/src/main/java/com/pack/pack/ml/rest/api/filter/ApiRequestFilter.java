@@ -13,6 +13,7 @@ import com.pack.pack.model.web.StatusType;
 import com.pack.pack.oauth.OAuthConstants;
 import com.pack.pack.services.redis.RedisCacheService;
 import com.pack.pack.services.registry.ServiceRegistry;
+import com.pack.pack.util.SystemPropertyUtil;
 
 /**
  * 
@@ -35,6 +36,11 @@ public class ApiRequestFilter implements ContainerRequestFilter {
 					.getHeaderString(OAuthConstants.AUTHORIZATION_HEADER);
 			if (!OAuthConstants.RSS_FEED_UPLOAD_API_KEY.equals(apiKey)) {
 				allow = false;
+			} 
+			if (!SystemPropertyUtil.isProductionEnvironment()
+					&& OAuthConstants.RSS_FEED_UPLOAD_API_KEY_TEST
+							.equals(apiKey)) {
+				allow = true;
 			}
 		} else if (path.contains("/promote") && HttpMethod.PUT.equalsIgnoreCase(method)) {
 			String apiKey = requestContext

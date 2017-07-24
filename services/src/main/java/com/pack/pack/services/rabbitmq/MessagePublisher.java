@@ -3,15 +3,24 @@ package com.pack.pack.services.rabbitmq;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.amazonaws.util.json.JSONObject;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.notification.FeedMsg;
+import com.pack.pack.model.web.notification.FeedMsgType;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.rabbitmq.objects.BroadcastCriteria;
 import com.pack.pack.util.RssFeedUtil;
@@ -31,7 +40,10 @@ public class MessagePublisher {
 	
 	private static Logger logger = LoggerFactory.getLogger(MessagePublisher.class);
 	
-	public void broadcastNewRSSFeedUpload(JRssFeed feed, BroadcastCriteria criteria, boolean sendNotification) throws PackPackException {
+	public final static String AUTH_KEY_FCM = "AAAApQZn_ZI:APA91bGidkJYWfz2JYHTPXWr5a0NrLwV6K2DE-z57eIoLpBmUgqaUQ239pGVbDA8Aw_KKZqBFfsxLYv3wp2bjH1XXN-uGeRuAQNpN7LrAsfWJBikVAedOzs0GvzNzPHK2eWdSKVmLXod";
+	public final static String API_URL_FCM = "https://fcm.googleapis.com/fcm/send";
+	
+	/*public void broadcastNewRSSFeedUpload_old(JRssFeed feed, BroadcastCriteria criteria, boolean sendNotification) throws PackPackException {
 		MsgConnection connection = null;
 		try {
 			connection = connectionManager.openConnection();
@@ -43,7 +55,6 @@ public class MessagePublisher {
 			String message = JSONUtil.serialize(msg);
 			String exchange_name = resolveExchangeName(criteria);
 			channel.exchangeDeclare(exchange_name, "fanout");
-			/*String message = feed.getOgTitle();*/
 			if(sendNotification) {
 				channel.basicPublish(exchange_name, "", null, message.getBytes());
 			}
@@ -64,6 +75,45 @@ public class MessagePublisher {
 			} catch (TimeoutException e) {
 				logger.error(e.getMessage(), e);
 			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
+	}*/
+	
+	public void broadcastNewRSSFeedUpload(JRssFeed feed, BroadcastCriteria criteria, boolean sendNotification) throws PackPackException {
+		CloseableHttpClient httpClient = null;
+		try {
+			httpClient = HttpClientBuilder.create().build();
+			HttpPost POST = new HttpPost(API_URL_FCM);
+			POST.addHeader("Authorization", "key=" + AUTH_KEY_FCM);
+			POST.addHeader("Content-Type", "application/json");
+			
+			FeedMsg msg = new FeedMsg();
+			msg.setTitle(feed.getOgTitle());
+			msg.setKey(RssFeedUtil.generateUploadKey(feed));
+			msg.setTimestamp(String.valueOf(System.currentTimeMillis()));
+			msg.setMsgType(FeedMsgType.SQUILL_TEAM);
+			msg.setDataObj(JSONUtil.serialize(feed));
+			
+			JSONObject jsonObj = new JSONObject();
+			jsonObj.put("to", "/topics/allDevices");
+			String json = JSONUtil.serialize(msg);	
+			jsonObj.put("data", json);
+			
+			POST.setEntity(new StringEntity(jsonObj.toString(), ContentType.APPLICATION_JSON));
+			httpClient.execute(POST);
+		} catch (ClientProtocolException e) {
+			logger.error(e.getMessage(), e);
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		} finally {
+			try {
+				if(httpClient != null) {
+					httpClient.close();
+				}
+			} catch (IOException e) {
 				logger.error(e.getMessage(), e);
 			}
 		}

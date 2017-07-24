@@ -31,4 +31,5 @@ public interface OAuthConstants {
 	public static final String DEFAULT_ROLE = "DEFAULT_ROLE"; //$NON-NLS-1$
 	
 	public static final String RSS_FEED_UPLOAD_API_KEY = "11a1bc16d14d-1521ee187121-1161ed1dd1c6-1861fc1b718c";
+	public static final String RSS_FEED_UPLOAD_API_KEY_TEST = "1b6198138109-19c1a31ba1d4-13112613115d-1d61141f21b6";
 }
