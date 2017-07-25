@@ -39,6 +39,7 @@ import com.pack.pack.model.web.Pagination;
 @Scope("singleton")
 @Views({
 	@View(name="allForUser", map="function(doc) { if(doc.userId && doc._id && doc.topicId && doc.topicCategory) { emit(doc.userId + doc.topicCategory, doc.topicId); }}"),
+	@View(name="all", map="function(doc) { if(doc.userId && doc._id && doc.topicId && doc.topicCategory) { emit(null, doc._id); }}"),
 	@View(name="allUserForTopic", map="function(doc) { if(doc.userId && doc._id && doc.topicId) { emit(doc.topicId, doc.userId); }}"),
 	@View(name="usrVsTopicMap", map="function(doc) { if(doc.userId && doc._id && doc.topicId) { emit(doc.topicId + doc.userId); }}")
 	

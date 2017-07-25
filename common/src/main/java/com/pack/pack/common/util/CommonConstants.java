@@ -40,7 +40,7 @@ public class CommonConstants {
     static {
     	secondaryVsPrimaryCategoryMap.put(HOME, HOME);
     	
-    	secondaryVsPrimaryCategoryMap.put(ART, ART);
+    	/*secondaryVsPrimaryCategoryMap.put(ART, ART);
     	secondaryVsPrimaryCategoryMap.put(JCategoryName.ART.name(), ART);
     	secondaryVsPrimaryCategoryMap.put(JCategoryName.ART.getDisplay(), ART);
     	secondaryVsPrimaryCategoryMap.put(EDUCATION, EDUCATION);    
@@ -56,7 +56,25 @@ public class CommonConstants {
     	secondaryVsPrimaryCategoryMap.put(JCategoryName.PHOTOGRAPHY_WILD_LIFE.getDisplay(), PHOTOGRAPHY);
     	secondaryVsPrimaryCategoryMap.put(JCategoryName.PHOTOGRAPHY_WILD_LIFE.name(), PHOTOGRAPHY);
     	secondaryVsPrimaryCategoryMap.put(JCategoryName.TRAVEL.getDisplay(), PHOTOGRAPHY);
-    	secondaryVsPrimaryCategoryMap.put(JCategoryName.TRAVEL.name(), PHOTOGRAPHY);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.TRAVEL.name(), PHOTOGRAPHY);*/
+    	
+    	secondaryVsPrimaryCategoryMap.put(ART, OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.ART.name(), OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.ART.getDisplay(), OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(EDUCATION, OTHERS);    
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.EDUCATION.name(), OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.EDUCATION.getDisplay(), OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(PHOTOGRAPHY, OTHERS); 
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.PHOTOGRAPHY.getDisplay(), OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.PHOTOGRAPHY.name(), OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(OTHERS, OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.OTHERS.name(), OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.OTHERS.getDisplay(), OTHERS);
+    	
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.PHOTOGRAPHY_WILD_LIFE.getDisplay(), OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.PHOTOGRAPHY_WILD_LIFE.name(), OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.TRAVEL.getDisplay(), OTHERS);
+    	secondaryVsPrimaryCategoryMap.put(JCategoryName.TRAVEL.name(), OTHERS);
     	
     	secondaryVsPrimaryCategoryMap.put(MUSIC, OTHERS);
     	secondaryVsPrimaryCategoryMap.put(JCategoryName.MUSIC.getDisplay(), OTHERS);

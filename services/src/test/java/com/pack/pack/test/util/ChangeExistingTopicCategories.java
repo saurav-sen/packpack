@@ -5,8 +5,10 @@ import java.util.List;
 
 import com.pack.pack.common.util.CommonConstants;
 import com.pack.pack.model.Topic;
+import com.pack.pack.model.UserTopicMap;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.services.couchdb.TopicRepositoryService;
+import com.pack.pack.services.couchdb.UserTopicMapRepositoryService;
 import com.pack.pack.services.registry.ServiceRegistry;
 
 public class ChangeExistingTopicCategories {
@@ -45,6 +47,26 @@ public class ChangeExistingTopicCategories {
 			System.out.println(category + "=" + primaryCategory);
 			topic.setCategory(primaryCategory);
 			topic.setSubCategory(category);
+			service.update(topic);
+		}
+		
+		UserTopicMapRepositoryService service0 = ServiceRegistry.INSTANCE.findService(UserTopicMapRepositoryService.class);
+		List<UserTopicMap> all = service0.getAll();
+		if(all != null && !all.isEmpty()) {
+			for(UserTopicMap a : all) {
+				String category = a.getTopicCategory();
+				if (CommonConstants.LIFESTYLE.equalsIgnoreCase(category)
+						|| CommonConstants.ART.equalsIgnoreCase(category)
+						|| CommonConstants.PHOTOGRAPHY
+								.equalsIgnoreCase(category)
+						|| CommonConstants.MUSIC.equalsIgnoreCase(category)
+						|| CommonConstants.EDUCATION.equalsIgnoreCase(category)
+						|| CommonConstants.FUN.equalsIgnoreCase(category)
+						|| CommonConstants.SPIRITUAL.equalsIgnoreCase(category)) {
+					a.setTopicCategory(CommonConstants.OTHERS);
+				}
+				service0.update(a);
+			}
 		}
 	}
 

@@ -117,7 +117,7 @@ public class RssFeedServiceImpl implements IRssFeedService {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println("https://cdn.photographylife.com/wp-content/uploads/2015/03/Red-Sky-639x960.jpg".hashCode());
+		System.out.println("http://www.photodestination.co.za/images/peter_blog_post/Great%20Seascapes%20Tips/8_Tsitsikamma%20sea%20and%20rocks%20by%20wildlife%20and%20conservation%20photographer%20peter%20chadwick.jpg".hashCode());
 	}
 	
 	/*@Override
