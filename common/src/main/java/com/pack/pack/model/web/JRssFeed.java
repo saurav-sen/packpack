@@ -29,6 +29,10 @@ public class JRssFeed {
 	
 	private List<JRssSubFeed> siblings;
 	
+	private String feedType;
+	
+	private String createdBy;
+	
 	public String getOgTitle() {
 		return ogTitle;
 	}
@@ -115,5 +119,21 @@ public class JRssFeed {
 	@Override
 	public int hashCode() {
 		return ogImage.hashCode();
+	}
+
+	public String getFeedType() {
+		return feedType;
+	}
+
+	public void setFeedType(String feedType) {
+		this.feedType = feedType;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
 	}
 }

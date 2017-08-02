@@ -41,6 +41,8 @@ public class RSSFeed /*extends CouchDbDocument*/{
 	private String videoUrl;
 	
 	private List<RssSubFeed> siblings;
+	
+	private String feedType;
 
 	public String getOgTitle() {
 		return ogTitle;
@@ -147,5 +149,13 @@ public class RSSFeed /*extends CouchDbDocument*/{
 
 	public void setSiblings(List<RssSubFeed> siblings) {
 		this.siblings = siblings;
+	}
+
+	public String getFeedType() {
+		return feedType;
+	}
+
+	public void setFeedType(String feedType) {
+		this.feedType = feedType;
 	}
 }

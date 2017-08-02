@@ -6,6 +6,7 @@ import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JRssFeed;
+import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.Pagination;
 
 public class DefaultTopicResourceTest extends BaseTest {
@@ -43,9 +44,13 @@ public class DefaultTopicResourceTest extends BaseTest {
 		test(session);
 	}
 	
-	/*public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 		DefaultTopicResourceTest test = new DefaultTopicResourceTest();
-		test.beforeTest();
-		test.test();
-	}*/
+		TestSession session = new TestSession(0, TestWorkflow.BASE_URL, TestWorkflow.BASE_URL_2);
+		String oauthToken = SignInUtil.signIn(session);
+		session.setOauthToken(oauthToken);
+		JUser user = new UserInfoTest().getUserInfo(session);
+		session.setUserId(user.getId());
+		test.test(session);
+	}
 }

@@ -1,4 +1,4 @@
-package com.pack.pack.services.couchdb;
+package com.pack.pack.services.redis;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -62,6 +62,9 @@ public class RssFeedRepositoryService {
 
 	@PostConstruct
 	private void init() {
+		if(System.getProperty("service.registry.test") != null) {
+			return;
+		}
 		client = RedisClient.create(SystemPropertyUtil.getRedisURI());
 		connection = client.connect();
 	}

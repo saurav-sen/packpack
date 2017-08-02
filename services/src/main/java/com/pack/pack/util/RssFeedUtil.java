@@ -7,11 +7,13 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.pack.pack.IRssFeedService;
 import com.pack.pack.model.RSSFeed;
+import com.pack.pack.model.RssFeedType;
 import com.pack.pack.model.web.JRssFeed;
+import com.pack.pack.model.web.JRssFeedType;
 import com.pack.pack.model.web.JRssFeeds;
 import com.pack.pack.model.web.TTL;
+import com.pack.pack.rss.IRssFeedService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.rabbitmq.MessagePublisher;
 import com.pack.pack.services.registry.ServiceRegistry;
@@ -38,9 +40,9 @@ public class RssFeedUtil {
 						.findCompositeService(IRssFeedService.class);
 				for (JRssFeed feed : newFeeds) {
 					boolean f = service.upload(feed, ttl);
-					//if(f) {
+					if(f) {
 						list.add(feed);
-					//}
+					}
 				}
 				/*JRssFeeds result = new JRssFeeds();
 				result.setFeeds(list);*/
@@ -56,12 +58,34 @@ public class RssFeedUtil {
 		}
 	}
 	
+	private static final String resolvePrefix(RSSFeed feed) {
+		if(feed.getFeedType() == null) {
+			return "Feeds_";
+		} else if(RssFeedType.REFRESHMENT.name().equalsIgnoreCase(feed.getFeedType())) {
+			return "Feeds_";
+		} else if(RssFeedType.NEWS.name().equalsIgnoreCase(feed.getFeedType())) {
+			return JRssFeedType.NEWS.name() + "_";
+		}
+		return "Feeds_";
+	}
+	
+	private static final String resolvePrefix(JRssFeed feed) {
+		if(feed.getFeedType() == null) {
+			return "Feeds_";
+		} else if(RssFeedType.REFRESHMENT.name().equalsIgnoreCase(feed.getFeedType())) {
+			return "Feeds_";
+		} else if(RssFeedType.NEWS.name().equalsIgnoreCase(feed.getFeedType())) {
+			return JRssFeedType.NEWS.name() + "_";
+		}
+		return "Feeds_";
+	}
+	
 	public static final String generateUploadKey(RSSFeed feed) {
 		//return "Feeds_" + String.valueOf(feed.getOgUrl().hashCode());
-		return "Feeds_" + String.valueOf(feed.getOgImage().hashCode());
+		return resolvePrefix(feed) + String.valueOf(feed.getOgImage().hashCode());
 	}
 	
 	public static final String generateUploadKey(JRssFeed feed) {
-		return "Feeds_" + String.valueOf(feed.getOgImage().hashCode());
+		return resolvePrefix(feed) + String.valueOf(feed.getOgImage().hashCode());
 	}
 }

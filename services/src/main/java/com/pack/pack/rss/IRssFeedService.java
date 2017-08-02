@@ -1,4 +1,4 @@
-package com.pack.pack;
+package com.pack.pack.rss;
 
 import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.Pagination;

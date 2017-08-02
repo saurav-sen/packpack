@@ -17,7 +17,6 @@ import javax.ws.rs.ext.Provider;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
-import com.pack.pack.IRssFeedService;
 import com.pack.pack.ITopicService;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JRssFeed;
@@ -31,6 +30,7 @@ import com.pack.pack.model.web.dto.UserPromotion;
 import com.pack.pack.rest.api.security.interceptors.CacheControl;
 import com.pack.pack.rest.api.security.interceptors.CompressRead;
 import com.pack.pack.rest.api.security.interceptors.CompressWrite;
+import com.pack.pack.rss.IRssFeedService;
 import com.pack.pack.services.exception.ErrorCodes;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;

@@ -9,10 +9,10 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
-import com.pack.pack.IRssFeedService;
 import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.rest.api.security.interceptors.CompressWrite;
+import com.pack.pack.rss.IRssFeedService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 

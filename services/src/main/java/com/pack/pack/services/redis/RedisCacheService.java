@@ -35,6 +35,9 @@ public class RedisCacheService {
 
 	@PostConstruct
 	private void init() {
+		if(System.getProperty("service.registry.test") != null) {
+			return;
+		}
 		client = RedisClient.create(SystemPropertyUtil.getRedisURI());
 		connection = client.connect();
 	}
