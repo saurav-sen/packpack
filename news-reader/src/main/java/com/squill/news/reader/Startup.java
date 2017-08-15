@@ -97,8 +97,11 @@ public class Startup {
 		} catch (ParseException e) {
 			LOG.trace(e.getMessage(), e);
 			help();
+		} catch (Exception e) {
+			LOG.trace(e.getMessage(), e);
+			help();
 		} finally {
-			stopApp();
+			//stopApp();
 		}
 	}
 
@@ -135,34 +138,43 @@ public class Startup {
 
 		@Override
 		public void run() {
-			if (newsSources == null) {
-				return;
-			}
-
-			List<NewsFeed> newsFeedsList = new ArrayList<NewsFeed>();
-
-			for (String newsSource : newsSources) {
-				try {
-					NewsFeeds newsFeeds = readFromSource(newsSource);
-					if (newsFeeds == null)
-						continue;
-					newsFeedsList.addAll(newsFeeds.getArticles());
-				} catch (Exception e) {
-					LOG.error(e.getMessage(), e);
+			try {
+				LOG.info("Reading News from Sources");
+				if (newsSources == null) {
+					return;
 				}
-			}
 
-			uploadNewsFeeds(newsFeedsList);
+				List<NewsFeed> newsFeedsList = new ArrayList<NewsFeed>();
+
+				for (String newsSource : newsSources) {
+					try {
+						NewsFeeds newsFeeds = readFromSource(newsSource);
+						if (newsFeeds == null)
+							continue;
+						newsFeedsList.addAll(newsFeeds.getArticles());
+					} catch (Exception e) {
+						LOG.error(e.getMessage(), e);
+					}
+				}
+
+				uploadNewsFeeds(newsFeedsList);
+			} catch (Exception e) {
+				LOG.error(e.getMessage(), e);
+				throw new RuntimeException(e);
+			}
 		}
 
 		private NewsFeeds readFromSource(String newsSource)
 				throws ClientProtocolException, IOException, PackPackException {
 			HttpClient client = new DefaultHttpClient();
-			HttpGet GET = new HttpGet("https://newsapi.org/v1/articles?source="
-					+ newsSource + "&apiKey=" + newsAPIKey);
+			String get_URL = "https://newsapi.org/v1/articles?source="
+					+ newsSource + "&apiKey=" + newsAPIKey;
+			HttpGet GET = new HttpGet(get_URL);
+			LOG.debug(get_URL);
 			HttpResponse response = client.execute(GET);
 			if (response.getStatusLine().getStatusCode() == 200) {
 				String json = EntityUtils.toString(response.getEntity());
+				LOG.debug(json);
 				return JSONUtil.deserialize(json, NewsFeeds.class);
 			}
 			return null;
@@ -172,7 +184,8 @@ public class Startup {
 			NewsFeeds nfc = new NewsFeeds();
 			nfc.getArticles().addAll(newsFeeds);
 			JRssFeeds feeds = NewsFeedConverter.convert(nfc);
-			RssFeedUtil.uploadNewFeeds(feeds, true);
+			LOG.info("Uploading news feeds: Total = " + newsFeeds.size());
+			RssFeedUtil.uploadNewFeeds(feeds, false);
 		}
 	}
 }

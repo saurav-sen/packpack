@@ -48,6 +48,8 @@ public class RssFeedUtil {
 				result.setFeeds(list);*/
 				MessagePublisher messagePublisher = ServiceRegistry.INSTANCE
 						.findService(MessagePublisher.class);
+				if(!sendNotification)
+					return;
 				for (JRssFeed l : list) {
 					messagePublisher.broadcastNewRSSFeedUpload(l, null, sendNotification);
 				}
@@ -82,10 +84,18 @@ public class RssFeedUtil {
 	
 	public static final String generateUploadKey(RSSFeed feed) {
 		//return "Feeds_" + String.valueOf(feed.getOgUrl().hashCode());
-		return resolvePrefix(feed) + String.valueOf(feed.getOgImage().hashCode());
+		String key = feed.getOgImage();
+		if(key == null) {
+			key = feed.getOgUrl() != null ? feed.getOgUrl() : (feed.getHrefSource() != null ? feed.getHrefSource() : feed.getOgTitle());
+		}
+		return resolvePrefix(feed) + String.valueOf(key.hashCode());
 	}
 	
 	public static final String generateUploadKey(JRssFeed feed) {
-		return resolvePrefix(feed) + String.valueOf(feed.getOgImage().hashCode());
+		String key = feed.getOgImage();
+		if(key == null) {
+			key = feed.getOgUrl() != null ? feed.getOgUrl() : (feed.getHrefSource() != null ? feed.getHrefSource() : feed.getOgTitle());
+		}
+		return resolvePrefix(feed) + String.valueOf(key.hashCode());
 	}
 }

@@ -126,6 +126,9 @@ public final class SystemPropertyUtil {
 	}
 
 	private static String getPropertyValue(String key) {
+		if(properties == null || properties.isEmpty()) {
+			return null;
+		}
 		return properties.getProperty(key);
 	}
 	

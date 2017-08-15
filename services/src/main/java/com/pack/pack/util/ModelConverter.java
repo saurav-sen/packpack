@@ -90,6 +90,7 @@ public class ModelConverter {
 		rFeed.setOgUrl(feed.getOgUrl());
 		rFeed.setId(feed.getId());
 		rFeed.setVideoUrl(feed.getVideoUrl());
+		rFeed.setUploadTime(feed.getUploadTime());
 		List<RssSubFeed> siblings = feed.getSiblings();
 		if(siblings != null && !siblings.isEmpty()) {
 			for(RssSubFeed sibling : siblings) {
@@ -123,11 +124,13 @@ public class ModelConverter {
 		feed.setOgTitle(rFeed.getOgTitle());
 		feed.setOgType(rFeed.getOgType());
 		feed.setOgUrl(rFeed.getOgUrl());
+		feed.setFeedType(rFeed.getFeedType());
 		if(id == null) {
 			id = rFeed.getId();
 		}
 		feed.setId(id);
 		feed.setVideoUrl(rFeed.getVideoUrl());
+		feed.setUploadTime(System.currentTimeMillis());
 		List<JRssSubFeed> siblings = rFeed.getSiblings();
 		if(siblings != null && !siblings.isEmpty()) {
 			for(JRssSubFeed sibling : siblings) {

@@ -15,6 +15,7 @@ import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.client.api.MultipartRequestProgressListener;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JRssFeed;
+import com.pack.pack.model.web.JRssFeedType;
 import com.pack.pack.model.web.JRssFeeds;
 import com.pack.pack.model.web.Pagination;
 
@@ -76,10 +77,20 @@ class BroadcastApi extends BaseAPI {
 		public Object invoke() throws Exception {
 			if (COMMAND.GET_ALL_PROMOTIONAL_FEEDS.equals(action)) {
 				String userId = (String) params.get(APIConstants.User.ID);
-				String source = (String) params.get(APIConstants.RssFeed.FEED_TYPE);
+				/*String source = (String) params.get(APIConstants.RssFeed.FEED_TYPE);
 				if(source == null) {
 					source = "default";
+				}*/
+				String source = JRssFeedType.REFRESHMENT.name();
+				String pageLink = (String) params
+						.get(APIConstants.PageInfo.PAGE_LINK);
+				if (pageLink == null || pageLink.trim().equals("")) {
+					pageLink = "FIRST_PAGE";
 				}
+				return getAllFeeds(userId, pageLink, oAuthToken, source);
+			} else if(COMMAND.GET_ALL_NEWS_FEEDS.equals(action)) {
+				String userId = (String) params.get(APIConstants.User.ID);
+				String source = JRssFeedType.NEWS.name();
 				String pageLink = (String) params
 						.get(APIConstants.PageInfo.PAGE_LINK);
 				if (pageLink == null || pageLink.trim().equals("")) {

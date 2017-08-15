@@ -33,6 +33,8 @@ public class JRssFeed {
 	
 	private String createdBy;
 	
+	private long uploadTime;
+	
 	public String getOgTitle() {
 		return ogTitle;
 	}
@@ -135,5 +137,13 @@ public class JRssFeed {
 
 	public void setCreatedBy(String createdBy) {
 		this.createdBy = createdBy;
+	}
+
+	public long getUploadTime() {
+		return uploadTime;
+	}
+
+	public void setUploadTime(long uploadTime) {
+		this.uploadTime = uploadTime;
 	}
 }

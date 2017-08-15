@@ -5,7 +5,7 @@
   		<resetJUL>true</resetJUL> 
   	</contextListener>
 
-    <property scope="system" name="defaultLevel" value="info" />
+    <property scope="system" name="defaultLevel" value="trace" />
     <property scope="system" name="defaultAppender" value="FILE_APPENDER" />
     <property scope="system" name="defaultPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n" />
     

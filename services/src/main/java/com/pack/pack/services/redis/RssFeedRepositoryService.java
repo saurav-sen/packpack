@@ -154,7 +154,7 @@ public class RssFeedRepositoryService {
 	}
 	
 	public List<RSSFeed> getAllNewsFeeds() throws PackPackException {
-		return getAllFeeds("News_*");
+		return getAllFeeds("NEWS_*");
 	}
 	
 	/*public List<RSSFeed> getAllUserCustomFeeds(String city, String country) throws PackPackException {

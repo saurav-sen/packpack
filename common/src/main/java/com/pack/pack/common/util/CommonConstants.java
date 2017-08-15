@@ -20,6 +20,9 @@ public class CommonConstants {
 	
 	public static final String END_OF_PAGE = "END_OF_PAGE";
 	
+	public static final String NEXT_PAGE_LINK_PREFIX = "NEXT_";
+	public static final String PREV_PAGE_LINK_PREFIX = "PREV_";
+	
 	public static final String HOME = "home";
 	public static final String LIFESTYLE = "lifestyle";
     public static final String ART = "art";

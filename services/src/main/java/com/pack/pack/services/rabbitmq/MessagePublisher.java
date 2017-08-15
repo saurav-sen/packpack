@@ -1,18 +1,15 @@
 package com.pack.pack.services.rabbitmq;
 
 import java.io.IOException;
-import java.util.concurrent.TimeoutException;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +21,6 @@ import com.pack.pack.model.web.notification.FeedMsgType;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.rabbitmq.objects.BroadcastCriteria;
 import com.pack.pack.util.RssFeedUtil;
-import com.rabbitmq.client.Channel;
 
 /**
  * 
@@ -35,8 +31,8 @@ import com.rabbitmq.client.Channel;
 @Scope("singleton")
 public class MessagePublisher {
 	
-	@Autowired
-	private MsgConnectionManager connectionManager;
+	/*@Autowired
+	private MsgConnectionManager connectionManager;*/
 	
 	private static Logger logger = LoggerFactory.getLogger(MessagePublisher.class);
 	

@@ -114,6 +114,7 @@ public enum COMMAND {
 			APIConstants.Discussion.ID, APIConstants.User.ID), ADD_LIKE_TO_DISCUSSION(
 			APIConstants.Discussion.ID, APIConstants.User.ID,
 			APIConstants.Discussion.TYPE), GET_ALL_PROMOTIONAL_FEEDS(
+			APIConstants.User.ID, APIConstants.PageInfo.PAGE_LINK), GET_ALL_NEWS_FEEDS(
 			APIConstants.User.ID, APIConstants.PageInfo.PAGE_LINK), DELETE_ATTACHMENT(
 			APIConstants.PackAttachment.ID, APIConstants.Pack.ID,
 			APIConstants.Topic.ID), GET_ALL_SYSTEM_SUPPORTED_CATEGORIES, SYNC_TIME, VALIDATE_USER_NAME(

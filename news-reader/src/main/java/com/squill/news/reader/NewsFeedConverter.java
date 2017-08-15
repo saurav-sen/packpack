@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 
+import com.pack.pack.model.RssFeedType;
 import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.JRssFeedType;
 import com.pack.pack.model.web.JRssFeeds;
@@ -31,12 +32,14 @@ public class NewsFeedConverter {
 		DateTime dateTime = DateTime.parse(publishedAt);			
 		result.setFeedType(JRssFeedType.NEWS.name());
 		result.setId(String.valueOf(dateTime.getMillis()));
+		result.setUploadTime(dateTime.getMillis());
 		result.setOgTitle(article.getTitle());
 		result.setOgDescription(article.getDescription());
 		result.setOgImage(article.getUrlToImage());
 		result.setOgUrl(article.getUrl());
 		result.setHrefSource(article.getUrl());
 		result.setCreatedBy(article.getAuthor());
+		result.setFeedType(RssFeedType.NEWS.name());
 		return result;
 	}
 }

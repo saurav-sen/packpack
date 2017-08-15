@@ -91,6 +91,9 @@ public class RssFeedClassifier {
 		}
 		for(JRssFeed feed : feeds) {
 			feed.setId(String.valueOf(System.nanoTime()));
+			if(feed.getCreatedBy() == null || feed.getCreatedBy().trim().isEmpty()) {
+				feed.setCreatedBy("SQUILL Team");
+			}
 		}
 		ClassificationEngine.INSTANCE.uploadPreClassifiedFeeds(bulk,
 				new FeedStatusListenerImpl(sendNotification));

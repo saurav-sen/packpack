@@ -122,7 +122,8 @@ public class APIBuilderImpl extends APIBuilder {
 				|| action == COMMAND.ADD_LIKE_TO_DISCUSSION) {
 			api = new APIWrapper(new DiscussionApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
-		} else if(action == COMMAND.GET_ALL_PROMOTIONAL_FEEDS) {
+		} else if(action == COMMAND.GET_ALL_PROMOTIONAL_FEEDS
+				|| action == COMMAND.GET_ALL_NEWS_FEEDS) {
 			api = new APIWrapper(new BroadcastApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
 		} else if(action == COMMAND.GET_ALL_SYSTEM_SUPPORTED_CATEGORIES

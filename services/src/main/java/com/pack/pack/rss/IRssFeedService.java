@@ -21,8 +21,8 @@ public interface IRssFeedService {
 	 * @return
 	 * @throws PackPackException
 	 */
-	public Pagination<JRssFeed> getAllRssFeeds(String userId, String pageLink, String source, String apiVersion)
-			throws PackPackException;
+	public Pagination<JRssFeed> getAllRssFeeds(String userId, String pageLink,
+			String source, String apiVersion) throws PackPackException;
 
 	/**
 	 * 

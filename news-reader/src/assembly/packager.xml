@@ -38,7 +38,7 @@
 			<directory>src/conf</directory>
 			<outputDirectory>conf</outputDirectory>
 			<includes>
-				<include>*.properties</include>
+				<include>*.cfg</include>
 			</includes>
 		</fileSet>
 		<fileSet>

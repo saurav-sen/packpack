@@ -43,6 +43,8 @@ public class RSSFeed /*extends CouchDbDocument*/{
 	private List<RssSubFeed> siblings;
 	
 	private String feedType;
+	
+	private long uploadTime;
 
 	public String getOgTitle() {
 		return ogTitle;
@@ -157,5 +159,13 @@ public class RSSFeed /*extends CouchDbDocument*/{
 
 	public void setFeedType(String feedType) {
 		this.feedType = feedType;
+	}
+
+	public long getUploadTime() {
+		return uploadTime;
+	}
+
+	public void setUploadTime(long uploadTime) {
+		this.uploadTime = uploadTime;
 	}
 }
