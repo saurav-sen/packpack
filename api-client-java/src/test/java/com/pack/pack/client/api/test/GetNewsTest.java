@@ -38,6 +38,18 @@ public class GetNewsTest extends BaseTest {
 				};
 			});*/
 			System.out.println(JSONUtil.serialize(page.getResult()));
+			System.out.println("*****************************************");
+			while (!page.getResult().isEmpty()) {
+				api = APIBuilder
+						.create(session.getBaseUrl())
+						.setAction(COMMAND.GET_ALL_NEWS_FEEDS)
+						.setOauthToken(session.getOauthToken())
+						.addApiParam(APIConstants.User.ID, session.getUserId())
+						.addApiParam(APIConstants.PageInfo.PAGE_LINK,
+								page.getNextLink()).build();
+				page = (Pagination<JRssFeed>) api.execute();
+				System.out.println(JSONUtil.serialize(page.getResult()));
+			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

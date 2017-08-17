@@ -16,6 +16,8 @@ public class CommonConstants {
 	
 	public static final int STANDARD_PAGE_SIZE = 20;
 	
+	public static final int STANDARD_NEWS_PAGE_SIZE = 50;
+	
 	public static final String NULL_PAGE_LINK = "FIRST_PAGE";
 	
 	public static final String END_OF_PAGE = "END_OF_PAGE";

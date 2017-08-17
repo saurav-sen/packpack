@@ -5,6 +5,7 @@ import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
 import static com.pack.pack.common.util.CommonConstants.NEXT_PAGE_LINK_PREFIX;
 import static com.pack.pack.common.util.CommonConstants.PREV_PAGE_LINK_PREFIX;
 import static com.pack.pack.common.util.CommonConstants.STANDARD_PAGE_SIZE;
+import static com.pack.pack.common.util.CommonConstants.STANDARD_NEWS_PAGE_SIZE;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,6 +60,7 @@ public class RssFeedServiceImpl implements IRssFeedService {
 		// have B+-Tree implementation for our own purpose to minimize
 		// comparison (with user-location retrieved as above) to make it
 		// as much responsive as possible.
+		boolean paginationRequired = false;
 		RssFeedRepositoryService repositoryService = ServiceRegistry.INSTANCE
 				.findService(RssFeedRepositoryService.class);
 		List<RSSFeed> feeds = Collections.emptyList();
@@ -72,6 +74,7 @@ public class RssFeedServiceImpl implements IRssFeedService {
 		} else if (RssFeedSourceType.NEWS_API.equals(source)
 				|| JRssFeedType.NEWS.name().equals(source)) {
 			feeds = repositoryService.getAllNewsFeeds();
+			paginationRequired = true;
 			LOG.debug("News Feeds Count = " + feeds.size());
 		}
 		/* **************************************************************************************************************************** */
@@ -83,7 +86,12 @@ public class RssFeedServiceImpl implements IRssFeedService {
 			ignoreSlideShows = false;
 		}
 		// For now (for demo purpose lets just return all the feeds).
-		List<RSSFeed> result = paginate(feeds, pageLink).getResult();// feeds;
+		Pagination<RSSFeed> page = null;
+		List<RSSFeed> result = feeds;
+		if(paginationRequired) {
+			page = paginate(feeds, pageLink, source);
+			result = page.getResult();
+		}
 		List<JRssFeed> rows = ModelConverter.convertAllRssFeeds(result, ignoreVideoFeeds, ignoreSlideShows);
 		Collections.sort(rows, new Comparator<JRssFeed>() {
 			@Override
@@ -104,14 +112,19 @@ public class RssFeedServiceImpl implements IRssFeedService {
 				}
 			}
 		});
-		Pagination<JRssFeed> page = new Pagination<JRssFeed>();
-		page.setNextLink(END_OF_PAGE);
-		page.setPreviousLink(NULL_PAGE_LINK);
-		page.setResult(rows);
-		return page;
+		Pagination<JRssFeed> pageResult = new Pagination<JRssFeed>();
+		if(paginationRequired) {
+			pageResult.setNextLink(page.getNextLink());
+			pageResult.setPreviousLink(page.getPreviousLink());
+		} else {
+			pageResult.setNextLink(END_OF_PAGE);
+			pageResult.setPreviousLink(END_OF_PAGE);
+		}
+		pageResult.setResult(rows);
+		return pageResult;
 	}
 	
-	private Pagination<RSSFeed> paginate(List<RSSFeed> feeds, String pageLink) {
+	private Pagination<RSSFeed> paginate(List<RSSFeed> feeds, String pageLink, String source) {
 		Pagination<RSSFeed> page = new Pagination<RSSFeed>();
 		if (pageLink == null || pageLink.trim().isEmpty()) {
 			pageLink = NULL_PAGE_LINK;
@@ -138,8 +151,8 @@ public class RssFeedServiceImpl implements IRssFeedService {
 		if (NULL_PAGE_LINK.equals(pageLink)) {
 			List<RSSFeed> result = new ArrayList<RSSFeed>();
 			int len = feeds.size();
-			if (len >= STANDARD_PAGE_SIZE) {
-				len = STANDARD_PAGE_SIZE;
+			if (len >= resolvePageSize(source)) {
+				len = resolvePageSize(source);
 			}
 			RSSFeed lastFeed = null;
 			for (int i = 0; i < len; i++) {
@@ -175,34 +188,46 @@ public class RssFeedServiceImpl implements IRssFeedService {
 				int len = feeds.size();
 				int count = 0;
 				RSSFeed lastFeed = null;
-				long pageLinkTimestamp = -1;
+				int pageSize = resolvePageSize(source);
 				for (int i = 0; i < len; i++) {
-					lastFeed = feeds.get(i);
-					if (isIncludeInPage(lastFeed, uploadTime, isNext)) {
-						result.add(lastFeed);
+					RSSFeed feed = feeds.get(i);
+					if (isIncludeInPage(feed, uploadTime, isNext)) {
+						result.add(feed);
+						lastFeed = feed;
 						count++;
-						if ((isNext && pageLinkTimestamp < uploadTime)
+						/*if ((isNext && pageLinkTimestamp < uploadTime)
 								|| (!isNext && pageLinkTimestamp > uploadTime)) {
 							pageLinkTimestamp = uploadTime;
+						}*/
+						if(count == pageSize) {
+							i = len;
 						}
-					}
-					if (count == STANDARD_PAGE_SIZE) {
-						if (isNext) {
-							page.setNextLink(NEXT_PAGE_LINK_PREFIX
-									+ pageLinkTimestamp);
-							page.setPreviousLink(pageLink.replaceFirst(
-									NEXT_PAGE_LINK_PREFIX,
-									PREV_PAGE_LINK_PREFIX));
-						} else {
-							page.setPreviousLink(PREV_PAGE_LINK_PREFIX
-									+ pageLinkTimestamp);
-							page.setNextLink(pageLink.replaceFirst(
-									PREV_PAGE_LINK_PREFIX,
-									NEXT_PAGE_LINK_PREFIX));
-						}
-						i = len;
 					}
 				}
+				
+				long pageLinkTimestamp = lastFeed != null ? lastFeed.getUploadTime() : -1;
+				if (isNext) {
+					if(pageLinkTimestamp > 0) {
+						page.setNextLink(NEXT_PAGE_LINK_PREFIX
+								+ pageLinkTimestamp);
+					} else {
+						page.setNextLink(END_OF_PAGE);
+					}
+					page.setPreviousLink(pageLink.replaceFirst(
+							NEXT_PAGE_LINK_PREFIX,
+							PREV_PAGE_LINK_PREFIX));
+				} else {
+					if(pageLinkTimestamp > 0) {
+						page.setPreviousLink(PREV_PAGE_LINK_PREFIX
+								+ pageLinkTimestamp);
+					} else {
+						page.setPreviousLink(END_OF_PAGE);
+					}
+					page.setNextLink(pageLink.replaceFirst(
+							PREV_PAGE_LINK_PREFIX,
+							NEXT_PAGE_LINK_PREFIX));
+				}
+				
 				page.setResult(result);
 			} catch (NumberFormatException e) {
 				page.setResult(Collections.emptyList());
@@ -214,10 +239,28 @@ public class RssFeedServiceImpl implements IRssFeedService {
 		return page;
 	}
 	
+	private int resolvePageSize(String source) {
+		/*if (source == null || source.trim().isEmpty()
+				|| "default".equals(source)
+				|| RssFeedSourceType.SQUILL_TEAM.equals(source)
+				|| JRssFeedType.REFRESHMENT.name().equals(source)) {
+			return STANDARD_PAGE_SIZE;
+		} else if (RssFeedSourceType.NEWS_API.equals(source)
+				|| JRssFeedType.NEWS.name().equals(source)) {
+			return STANDARD_PAGE_SIZE;
+		}
+		return STANDARD_PAGE_SIZE;*/
+		if (RssFeedSourceType.NEWS_API.equals(source)
+				|| JRssFeedType.NEWS.name().equals(source)) {
+			return STANDARD_NEWS_PAGE_SIZE;
+		}
+		return STANDARD_PAGE_SIZE;
+	}
+	
 	private boolean isIncludeInPage(RSSFeed feed, long uploadTime,
 			boolean isNext) {
 		long uploadTime2 = feed.getUploadTime();
-		return isNext ? uploadTime2 > uploadTime : uploadTime2 < uploadTime;
+		return isNext ? uploadTime2 < uploadTime : uploadTime2 > uploadTime;
 	}
 	
 	@Override

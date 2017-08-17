@@ -28,8 +28,11 @@ public class NewsFeedConverter {
 	
 	public static JRssFeed convert(NewsFeed article) {
 		JRssFeed result = new JRssFeed();
-		String publishedAt = article.getPublishedAt().trim();
-		DateTime dateTime = DateTime.parse(publishedAt);			
+		DateTime dateTime = new DateTime();
+		if(article.getPublishedAt() != null) {
+			String publishedAt = article.getPublishedAt().trim();
+			dateTime = DateTime.parse(publishedAt);	
+		}
 		result.setFeedType(JRssFeedType.NEWS.name());
 		result.setId(String.valueOf(dateTime.getMillis()));
 		result.setUploadTime(dateTime.getMillis());
