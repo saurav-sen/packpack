@@ -167,6 +167,18 @@ public class ModelConverter {
 		jPack.setCreator(convert(user));
 		return jPack;
 	}
+	
+	public static List<JPackAttachment> convert(
+			List<PackAttachment> attachments, boolean loadComments)
+			throws PackPackException {
+		if (attachments == null || attachments.isEmpty())
+			return Collections.emptyList();
+		List<JPackAttachment> result = new LinkedList<JPackAttachment>();
+		for (PackAttachment attachment : attachments) {
+			result.add(convert(attachment, loadComments));
+		}
+		return result;
+	}
 
 	public static JPackAttachment convert(PackAttachment attachment,
 			boolean loadComments) throws PackPackException {

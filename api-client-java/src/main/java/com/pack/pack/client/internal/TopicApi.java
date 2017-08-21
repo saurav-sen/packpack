@@ -34,6 +34,7 @@ import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.client.api.MultipartRequestProgressListener;
 import com.pack.pack.client.internal.response.cache.CachingHttpClient;
 import com.pack.pack.common.util.JSONUtil;
+import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.JTopics;
@@ -85,6 +86,25 @@ class TopicApi extends BaseAPI {
 		JTopics topics = JSONUtil.deserialize(json, JTopics.class);
 		result = topics.getTopics();
 		page.setResult(result);
+		return page;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private Pagination<JPackAttachment> getAllSharedFeeds(String pageLink,
+			String oAuthToken, String topicId, String userId) throws Exception {
+		String url = getBaseUrl() + "topic/" + topicId + "/usr/" + userId
+				+ "/page/" + pageLink + "/feeds";
+		HttpClient client = new DefaultHttpClient();
+		if (getCacheStorage() != null) {
+			CachingHttpClient httpClient = new CachingHttpClient(client,
+					getCacheStorage(), getCacheConfig());
+			client = httpClient;
+		}
+		HttpGet GET = new HttpGet(url);
+		GET.setHeader(AUTHORIZATION_HEADER, oAuthToken);
+		HttpResponse response = client.execute(GET);
+		Pagination<JPackAttachment> page = JSONUtil.deserialize(
+				EntityUtils.toString(response.getEntity()), Pagination.class);
 		return page;
 	}
 
@@ -367,6 +387,16 @@ class TopicApi extends BaseAPI {
 				String topicId = (String) params.get(APIConstants.Topic.ID);
 				String userId = (String) params.get(APIConstants.User.ID);
 				result = promoteTopic(topicId, userId, oAuthToken);
+			} else if (action == COMMAND.GET_ALL_SHARED_FEEDS_TO_TOPIC) {
+				String pageLink = (String) params
+						.get(APIConstants.PageInfo.PAGE_LINK);
+				if (pageLink == null || pageLink.trim().equals("")) {
+					pageLink = "FIRST_PAGE";
+				}
+				String userId = (String) params.get(APIConstants.User.ID);
+				String topicId = (String) params.get(APIConstants.Topic.ID);
+				result = getAllSharedFeeds(pageLink, oAuthToken, topicId,
+						userId);
 			}
 			return result;
 		}

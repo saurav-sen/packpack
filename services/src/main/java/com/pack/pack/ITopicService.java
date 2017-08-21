@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import com.pack.pack.model.web.JPack;
+import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.JTopics;
 import com.pack.pack.model.web.Pagination;
@@ -94,7 +95,7 @@ public interface ITopicService {
 	 */
 	public JTopic createNewTopic(JTopic topic, InputStream wallpaper,
 			String wallpaperName) throws PackPackException;
-	
+
 	/**
 	 * 
 	 * @param topicId
@@ -124,7 +125,7 @@ public interface ITopicService {
 	 */
 	public JTopics getAllTopicsOwnedByUser(String userId)
 			throws PackPackException;
-	
+
 	/**
 	 * 
 	 * @param topicId
@@ -136,11 +137,37 @@ public interface ITopicService {
 	 */
 	public JTopic editTopicSettings(String topicId, String key, String value,
 			String ownerId) throws PackPackException;
-	
+
 	/**
 	 * 
 	 * @return
 	 * @throws PackPackException
 	 */
 	public List<JTopic> getAllHotTopics() throws PackPackException;
+
+	/**
+	 * 
+	 * @param file
+	 * @param fileName
+	 * @param topicId
+	 * @param title
+	 * @param description
+	 * @param userId
+	 * @return
+	 * @throws PackPackException
+	 */
+	public JPackAttachment addSharedImageFeedToTopic(InputStream file,
+			String fileName, String topicId, String title, String description,
+			String userId) throws PackPackException;
+
+	/**
+	 * 
+	 * @param topicId
+	 * @param userId
+	 * @param pageLink
+	 * @return
+	 * @throws PackPackException
+	 */
+	public Pagination<JPackAttachment> getAllSharedFeeds(String topicId,
+			String userId, String pageLink) throws PackPackException;
 }

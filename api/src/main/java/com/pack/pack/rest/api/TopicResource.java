@@ -19,6 +19,7 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import com.pack.pack.ITopicService;
 import com.pack.pack.common.util.JSONUtil;
+import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JTopic;
@@ -202,5 +203,17 @@ public class TopicResource {
 		ITopicService service = ServiceRegistry.INSTANCE
 				.findCompositeService(ITopicService.class);
 		return service.editTopicSettings(topicId, key, value, userId);
+	}
+	
+	@GET
+	@Path("{topicId}/usr/{userId}/page/{pageLink}/feeds")
+	@Produces(value = MediaType.APPLICATION_JSON)
+	public Pagination<JPackAttachment> getAllSharedFeeds(
+			@PathParam("topicId") String topicId,
+			@PathParam("userId") String userId,
+			@PathParam("pageLink") String pageLink) throws PackPackException {
+		ITopicService service = ServiceRegistry.INSTANCE
+				.findCompositeService(ITopicService.class);
+		return service.getAllSharedFeeds(topicId, userId, pageLink);
 	}
 }

@@ -64,7 +64,8 @@ public class APIBuilderImpl extends APIBuilder {
 				|| action == COMMAND.EDIT_EXISTING_TOPIC
 				|| action == COMMAND.GET_USER_OWNED_TOPICS
 				|| action == COMMAND.EDIT_TOPIC_SETTINGS
-				|| action == COMMAND.PROMOTE_TOPIC) {
+				|| action == COMMAND.PROMOTE_TOPIC
+				|| action == COMMAND.GET_ALL_SHARED_FEEDS_TO_TOPIC) {
 			api = new APIWrapper(new TopicApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
 		} else if (action == COMMAND.GET_PACK_BY_ID
@@ -99,6 +100,7 @@ public class APIBuilderImpl extends APIBuilder {
 				|| action == COMMAND.GET_ORIGINAL_VIDEO_ATTACHMENT
 				|| action == COMMAND.UPLOAD_IMAGE_PACK
 				|| action == COMMAND.ADD_IMAGE_TO_PACK
+				|| action == COMMAND.ADD_SHARED_IMAGE_TO_TOPIC
 				|| action == COMMAND.UPLOAD_VIDEO_PACK
 				|| action == COMMAND.ADD_VIDEO_TO_PACK
 				|| action == COMMAND.ADD_VIDEO_TO_PACK_EXTERNAL_LINK

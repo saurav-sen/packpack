@@ -1,5 +1,7 @@
 package com.pack.pack.services.redis;
 
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -177,5 +179,20 @@ public class RedisCacheService {
 			return;
 		sync.del(keys.toArray(new String[keys.size()]));
 		//sync.close();
+	}
+	
+	public <T> List<T> getAllFromCache(String keyPrefix, Class<T> targetType)
+			throws PackPackException {
+		RedisCommands<String, String> sync = getSyncRedisCommands();
+		List<String> keys = sync.keys(keyPrefix + "*");
+		if (keys == null || keys.isEmpty())
+			return Collections.emptyList();
+		List<T> result = new LinkedList<T>();
+		for (String key : keys) {
+			String json = sync.get(key);
+			T t = JSONUtil.deserialize(json, targetType, true);
+			result.add(t);
+		}
+		return result;
 	}
 }

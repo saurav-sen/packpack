@@ -85,7 +85,10 @@ public enum COMMAND {
 			APIConstants.User.ID), ADD_IMAGE_TO_PACK(
 			APIConstants.Attachment.FILE_ATTACHMENT, APIConstants.Topic.ID,
 			APIConstants.Pack.ID, APIConstants.User.ID,
-			APIConstants.Attachment.TITLE, APIConstants.Attachment.DESCRIPTION), UPLOAD_VIDEO_PACK(
+			APIConstants.Attachment.TITLE, APIConstants.Attachment.DESCRIPTION), ADD_SHARED_IMAGE_TO_TOPIC(
+			APIConstants.Attachment.FILE_ATTACHMENT, APIConstants.Topic.ID,
+			APIConstants.User.ID, APIConstants.Attachment.TITLE,
+			APIConstants.Attachment.DESCRIPTION), UPLOAD_VIDEO_PACK(
 			APIConstants.Attachment.FILE_ATTACHMENT,
 			APIConstants.Attachment.TITLE, APIConstants.Attachment.DESCRIPTION,
 			APIConstants.Attachment.STORY, APIConstants.Topic.ID,
@@ -126,7 +129,9 @@ public enum COMMAND {
 			APIConstants.User.USERNAME,
 			APIConstants.User.PasswordReset.VERIFIER_CODE,
 			APIConstants.User.PasswordReset.NEW_PASSWORD), ISSUE_SIGNUP_VERIFIER(
-			APIConstants.User.Register.EMAIL, APIConstants.User.Register.NAME);
+			APIConstants.User.Register.EMAIL, APIConstants.User.Register.NAME), GET_ALL_SHARED_FEEDS_TO_TOPIC(
+			APIConstants.Topic.ID, APIConstants.User.ID,
+			APIConstants.PageInfo.PAGE_LINK);
 
 	private String[] paramNames;
 

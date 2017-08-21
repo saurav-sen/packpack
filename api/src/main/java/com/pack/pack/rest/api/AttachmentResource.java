@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pack.pack.IPackService;
+import com.pack.pack.ITopicService;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JAttachmentStoryID;
 import com.pack.pack.model.web.JPack;
@@ -259,6 +260,26 @@ public class AttachmentResource {
 				.findCompositeService(IPackService.class);
 		return service.uploadPack(file, fileName, title, description, story,
 				topicId, userId, null, PackAttachmentType.IMAGE, true);
+	}
+	
+	@PUT
+	@CompressRead
+	@CompressWrite
+	@Path("image/topic/{topicId}/usr/{userId}")
+	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
+	@Produces(value = MediaType.APPLICATION_JSON)
+	public JPackAttachment modifyTopic_addSharedImageFeed(
+			@FormDataParam("file") InputStream file,
+			@FormDataParam("file") FormDataContentDisposition aboutFile,
+			@FormDataParam("title") String title,
+			@FormDataParam("description") String description,
+			@PathParam("topicId") String topicId,
+			@PathParam("userId") String userId) throws PackPackException {
+		ITopicService service = ServiceRegistry.INSTANCE
+				.findCompositeService(ITopicService.class);
+		String fileName = UUID.randomUUID().toString() + ".jpg";
+		return service.addSharedImageFeedToTopic(file, fileName, topicId,
+				title, description, userId);
 	}
 
 	// http://javapapers.com/android/android-get-address-with-street-name-city-for-location-with-geocoding/

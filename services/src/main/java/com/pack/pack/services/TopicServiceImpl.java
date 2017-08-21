@@ -1,7 +1,7 @@
 package com.pack.pack.services;
 
-import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
 import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
+import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
 import static com.pack.pack.common.util.CommonConstants.STANDARD_PAGE_SIZE;
 import static com.pack.pack.util.AttachmentUtil.resizeAndStoreUploadedAttachment;
 
@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,12 +21,15 @@ import org.springframework.stereotype.Component;
 
 import com.pack.pack.ITopicService;
 import com.pack.pack.common.util.CommonConstants;
+import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.CategoryName;
 import com.pack.pack.model.Pack;
+import com.pack.pack.model.PackAttachment;
 import com.pack.pack.model.Topic;
 import com.pack.pack.model.TopicProperty;
 import com.pack.pack.model.UserTopicMap;
 import com.pack.pack.model.web.JPack;
+import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.JTopics;
 import com.pack.pack.model.web.Pagination;
@@ -35,10 +39,11 @@ import com.pack.pack.services.couchdb.UserTopicMapRepositoryService;
 import com.pack.pack.services.es.ESUploadService;
 import com.pack.pack.services.exception.ErrorCodes;
 import com.pack.pack.services.exception.PackPackException;
-import com.pack.pack.services.redis.RedisCacheService;
 import com.pack.pack.services.redis.PackPage;
+import com.pack.pack.services.redis.RedisCacheService;
 import com.pack.pack.services.redis.TopicPage;
 import com.pack.pack.services.registry.ServiceRegistry;
+import com.pack.pack.util.AttachmentUtil;
 import com.pack.pack.util.ModelConverter;
 import com.pack.pack.util.SystemPropertyUtil;
 
@@ -53,6 +58,8 @@ public class TopicServiceImpl implements ITopicService {
 
 	private static Logger logger = LoggerFactory
 			.getLogger(TopicServiceImpl.class);
+	
+	private static final String TOPIC_ACTIVATE_KEY = "activate";
 
 	@Override
 	public Pagination<JPack> getAllPacks(String topicId, String pageLink)
@@ -431,7 +438,7 @@ public class TopicServiceImpl implements ITopicService {
 		}
 		return result;
 	}
-
+	
 	@Override
 	public JTopic editTopicSettings(String topicId, String key, String value,
 			String ownerId) throws PackPackException {
@@ -451,18 +458,25 @@ public class TopicServiceImpl implements ITopicService {
 			throw new PackPackException(ErrorCodes.PACK_ERR_93,
 					"Permission Denied. Not a valid topic Owner");
 		}
-		boolean isNew = true;
-		Iterator<TopicProperty> itr = topic.getPropeties().iterator();
-		while(itr.hasNext()) {
-			TopicProperty property = itr.next();
-			if(property.getKey().equals(key)) {
-				property.setValue(value);
-				isNew = false;
+		
+		if(TOPIC_ACTIVATE_KEY.equals(key)) {
+			boolean isActive = Boolean.parseBoolean(value.trim());
+			topic.setActive(isActive);
+		} else {
+			boolean isNew = true;
+			Iterator<TopicProperty> itr = topic.getPropeties().iterator();
+			while(itr.hasNext()) {
+				TopicProperty property = itr.next();
+				if(property.getKey().equals(key)) {
+					property.setValue(value);
+					isNew = false;
+				}
+			}
+			if(isNew) {
+				topic.getPropeties().add(new TopicProperty(key, value));
 			}
 		}
-		if(isNew) {
-			topic.getPropeties().add(new TopicProperty(key, value));
-		}
+		
 		service.update(topic);
 		return ModelConverter.convert(topic);
 	}
@@ -485,5 +499,66 @@ public class TopicServiceImpl implements ITopicService {
 			result.addAll(list);
 		}
 		return result;
+	}
+	
+	@Override
+	public JPackAttachment addSharedImageFeedToTopic(InputStream file,
+			String fileName, String topicId, String title, String description,
+			String userId) throws PackPackException {
+		String home = SystemPropertyUtil.getImageHome();
+		String location = home + File.separator + topicId;
+		File f = new File(location);
+		if (!f.exists()) {
+			f.mkdir();
+		}
+		f = new File(location);
+		if (!f.exists()) {
+			f.mkdir();
+		}
+		location = location + File.separator + fileName;
+
+		S3Path fileS3 = new S3Path(topicId, false);
+		fileS3.addChild(new S3Path(fileName, true));
+
+		PackAttachment attachment = new PackAttachment();
+		String relativeUrl = location.substring(home.length());
+		attachment.setAttachmentUrl(relativeUrl);
+		AttachmentUtil.storeUploadedAttachment(file, location, fileS3,
+				relativeUrl, true, false);
+		attachment.setCreatorId(userId);
+		attachment.setCreationTime(System.currentTimeMillis());
+		attachment.setTitle(title);
+		attachment.setDescription(description);
+		String id = UUID.randomUUID().toString();
+		attachment.setId(id);
+		String json = JSONUtil.serialize(attachment);
+		RedisCacheService redisService = ServiceRegistry.INSTANCE
+				.findService(RedisCacheService.class);
+		redisService.addToCache(topicId + "_" + id, json, 7 * 24 * 60 * 60); // TTL
+																				// 7
+																				// DAYS
+		return ModelConverter.convert(attachment, false);
+	}
+	
+	@Override
+	public Pagination<JPackAttachment> getAllSharedFeeds(String topicId,
+			String userId, String pageLink) throws PackPackException {
+		if (CommonConstants.NULL_PAGE_LINK.equals(pageLink)) {
+			Pagination<JPackAttachment> page = new Pagination<JPackAttachment>();
+			page.setNextLink(CommonConstants.END_OF_PAGE);
+			page.setPreviousLink(CommonConstants.END_OF_PAGE);
+			page.setResult(Collections.emptyList());
+			return page;
+		}
+		RedisCacheService redisService = ServiceRegistry.INSTANCE
+				.findService(RedisCacheService.class);
+		List<PackAttachment> list = redisService.getAllFromCache(topicId + "_",
+				PackAttachment.class);
+		List<JPackAttachment> result = ModelConverter.convert(list, false);
+		Pagination<JPackAttachment> page = new Pagination<JPackAttachment>();
+		page.setNextLink(CommonConstants.END_OF_PAGE);
+		page.setPreviousLink(CommonConstants.END_OF_PAGE);
+		page.setResult(result);
+		return page;
 	}
 }

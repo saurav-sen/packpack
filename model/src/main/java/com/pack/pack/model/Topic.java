@@ -42,6 +42,8 @@ public class Topic extends CouchDbDocument {
 	
 	private String subCategory;
 	
+	private boolean active;
+	
 	public String getOwnerId() {
 		return ownerId;
 	}
@@ -142,5 +144,13 @@ public class Topic extends CouchDbDocument {
 
 	public void setSubCategory(String subCategory) {
 		this.subCategory = subCategory;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 }

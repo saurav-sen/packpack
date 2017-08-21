@@ -227,6 +227,77 @@ class AttachmentsApi extends BaseAPI {
 		return JSONUtil.deserialize(EntityUtils.toString(GZipUtil.decompress(response.getEntity())),
 				JStatus.class);
 	}
+	
+	private JPackAttachment addSharedImageToTopic(Map<String, Object> params, String oAuthToken,
+			MultipartRequestProgressListener listener)
+			throws ClientProtocolException, IOException, ParseException,
+			PackPackException {
+		String topicId = (String) params.get(APIConstants.Topic.ID);
+		String userId = (String) params.get(APIConstants.User.ID);
+		String url = getBaseUrl() + ATTACHMENT + "image/topic/" + topicId
+				+ "/usr/" + userId;
+		DefaultHttpClient client = new DefaultHttpClient();
+		HttpPut PUT = new HttpPut(url);
+		MultipartEntity multipartEntity = new ProgressTrackedMultipartEntity(
+				listener);
+		// MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+		Iterator<String> itr = params.keySet().iterator();
+		while (itr.hasNext()) {
+			String key = itr.next();
+			if (APIConstants.Topic.ID.equals(key)
+					|| APIConstants.Pack.ID.equals(key)
+					|| APIConstants.User.ID.equals(key)) {
+				continue;
+			} else if (APIConstants.Attachment.FILE_ATTACHMENT.equals(key)) {
+				Object obj = params.get(key);
+				if(obj instanceof File) {
+					File file = (File) params.get(key);
+					FileBody fileBody = new FileBody(file, file.getName(),
+							HTTP.OCTET_STREAM_TYPE, null);
+					multipartEntity.addPart(key, fileBody);
+				} else if(obj instanceof ByteBody) {
+					ByteBody byteBody = (ByteBody)obj;
+					byte[] bytes = byteBody.getBytes();
+					ByteArrayBody byteArrayBody = new ByteArrayBody(bytes, 
+							UUID.randomUUID().toString());
+					multipartEntity.addPart(key, byteArrayBody);
+				} else if(obj instanceof ContentBody) {
+					ContentBody contentBody = (ContentBody)obj;
+					multipartEntity.addPart(key, contentBody);
+				}
+				/*
+				 * builder.addBinaryBody(key, file,
+				 * ContentType.APPLICATION_OCTET_STREAM, file.getName());
+				 */
+			} else if (APIConstants.Attachment.IS_COMPRESSED.equals(key)) { 
+				Boolean isCompressed = (Boolean) params.get(key);
+				if(isCompressed == null) {
+					isCompressed = true;
+				}
+				multipartEntity.addPart(key, new StringBody(String.valueOf(isCompressed)));
+			} else {
+				String text = (String) params.get(key);
+				StringBody textBody = new StringBody(text, TEXT_PLAIN, Charset.forName(UTF_8));
+				multipartEntity.addPart(key, textBody);
+				// builder.addTextBody(key, text);
+			}
+		}
+		PUT.setEntity(GZipUtil.compress(multipartEntity));
+		// HttpEntity entity = builder.build();
+		// PUT.setEntity(entity);
+		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		PUT.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
+		/*
+		 * PUT.addHeader(CONTENT_TYPE_HEADER, "multipart/form-data");
+		 */
+		/*
+		 * PUT.addHeader(CONTENT_TYPE_HEADER,
+		 * ContentType.MULTIPART_FORM_DATA.getMimeType());
+		 */
+		HttpResponse response = client.execute(PUT);
+		return JSONUtil.deserialize(EntityUtils.toString(GZipUtil.decompress(response.getEntity())),
+				JPackAttachment.class);
+	}
 
 	private JPackAttachment addImageToPack(Map<String, Object> params, String oAuthToken,
 			MultipartRequestProgressListener listener)
@@ -450,6 +521,8 @@ class AttachmentsApi extends BaseAPI {
 				result = uploadImagePack(params, oAuthToken, listener);
 			} else if (COMMAND.ADD_IMAGE_TO_PACK.equals(action)) {
 				result = addImageToPack(params, oAuthToken, listener);
+			} else if(COMMAND.ADD_SHARED_IMAGE_TO_TOPIC.equals(action)) {
+				result = addSharedImageToTopic(params, oAuthToken, listener);
 			} else if (COMMAND.UPLOAD_VIDEO_PACK.equals(action)) {
 				result = uploadVideoPack(params, oAuthToken, listener);
 			} else if(COMMAND.ADD_VIDEO_TO_PACK_EXTERNAL_LINK.equals(action)) {
