@@ -235,7 +235,7 @@ class AttachmentsApi extends BaseAPI {
 		String topicId = (String) params.get(APIConstants.Topic.ID);
 		String userId = (String) params.get(APIConstants.User.ID);
 		String url = getBaseUrl() + ATTACHMENT + "image/topic/" + topicId
-				+ "/usr/" + userId;
+				+ "/usr/" + userId + "/feeds";
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpPut PUT = new HttpPut(url);
 		MultipartEntity multipartEntity = new ProgressTrackedMultipartEntity(

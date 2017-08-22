@@ -265,7 +265,7 @@ public class AttachmentResource {
 	@PUT
 	@CompressRead
 	@CompressWrite
-	@Path("image/topic/{topicId}/usr/{userId}")
+	@Path("image/topic/{topicId}/usr/{userId}/feeds")
 	@Consumes(value = MediaType.MULTIPART_FORM_DATA)
 	@Produces(value = MediaType.APPLICATION_JSON)
 	public JPackAttachment modifyTopic_addSharedImageFeed(
