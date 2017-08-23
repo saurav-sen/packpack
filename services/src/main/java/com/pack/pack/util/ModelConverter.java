@@ -184,6 +184,9 @@ public class ModelConverter {
 			boolean loadComments) throws PackPackException {
 		JPackAttachment jAttachment = new JPackAttachment();
 		AttachmentType type = attachment.getType();
+		if(type == null) {
+			type = AttachmentType.IMAGE;
+		}
 		String baseURL = (type == AttachmentType.IMAGE ? SystemPropertyUtil
 				.getImageAttachmentBaseURL(attachment.getAttachmentUrl())
 				: SystemPropertyUtil.getVideoAttachmentBaseURL(attachment

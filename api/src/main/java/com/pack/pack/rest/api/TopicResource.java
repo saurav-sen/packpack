@@ -1,6 +1,7 @@
 package com.pack.pack.rest.api;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.UUID;
 
 import javax.inject.Singleton;
@@ -115,7 +116,20 @@ public class TopicResource {
 			@PathParam("category") String category) throws PackPackException {
 		ITopicService service = ServiceRegistry.INSTANCE
 				.findCompositeService(ITopicService.class);
-		return service.getUserFollowedTopicsFilteredByCategory(userId, category, pageLink);
+		String[] split = category.split(":");
+		
+		Pagination<JTopic> page = service
+				.getUserFollowedTopicsFilteredByCategory(userId, split[0],
+						pageLink);
+		List<JTopic> result = page.getResult();
+		for(int i=1; i<split.length; i++) {
+			Pagination<JTopic> page1 = service
+					.getUserFollowedTopicsFilteredByCategory(userId, split[i],
+							pageLink);
+			result.addAll(page1.getResult());
+		}
+		page.setResult(result);
+		return page;		
 	}
 
 	@POST

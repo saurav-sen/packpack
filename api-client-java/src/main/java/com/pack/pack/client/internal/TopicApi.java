@@ -35,6 +35,7 @@ import com.pack.pack.client.api.MultipartRequestProgressListener;
 import com.pack.pack.client.internal.response.cache.CachingHttpClient;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JPackAttachment;
+import com.pack.pack.model.web.JPackAttachments;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.JTopics;
@@ -105,6 +106,11 @@ class TopicApi extends BaseAPI {
 		HttpResponse response = client.execute(GET);
 		Pagination<JPackAttachment> page = JSONUtil.deserialize(
 				EntityUtils.toString(response.getEntity()), Pagination.class);
+		List<JPackAttachment> result = page.getResult();
+		String json = "{\"attachments\": " + JSONUtil.serialize(result, false) + "}";
+		JPackAttachments attachments = JSONUtil.deserialize(json, JPackAttachments.class);
+		result = attachments.getAttachments();
+		page.setResult(result);
 		return page;
 	}
 

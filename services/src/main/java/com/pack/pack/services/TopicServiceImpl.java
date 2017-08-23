@@ -543,22 +543,28 @@ public class TopicServiceImpl implements ITopicService {
 	@Override
 	public Pagination<JPackAttachment> getAllSharedFeeds(String topicId,
 			String userId, String pageLink) throws PackPackException {
-		if (CommonConstants.NULL_PAGE_LINK.equals(pageLink)) {
+		if (CommonConstants.NULL_PAGE_LINK.equals(pageLink) || pageLink == null
+				|| pageLink.trim().isEmpty()) {
+			RedisCacheService redisService = ServiceRegistry.INSTANCE
+					.findService(RedisCacheService.class);
+			List<PackAttachment> list = redisService.getAllFromCache(topicId + "_",
+					PackAttachment.class);
+			logger.trace("Total Count of shared Feeds @ " + pageLink
+					+ " for topic#" + topicId + " = " + list.size());
+			List<JPackAttachment> result = ModelConverter.convert(list, false);
+			logger.trace("Total Count of shared Feeds @ " + pageLink
+					+ " for topic#" + topicId
+					+ " (POST Conversionto consumer model) = " + result.size());
 			Pagination<JPackAttachment> page = new Pagination<JPackAttachment>();
 			page.setNextLink(CommonConstants.END_OF_PAGE);
 			page.setPreviousLink(CommonConstants.END_OF_PAGE);
-			page.setResult(Collections.emptyList());
+			page.setResult(result);
 			return page;
 		}
-		RedisCacheService redisService = ServiceRegistry.INSTANCE
-				.findService(RedisCacheService.class);
-		List<PackAttachment> list = redisService.getAllFromCache(topicId + "_",
-				PackAttachment.class);
-		List<JPackAttachment> result = ModelConverter.convert(list, false);
 		Pagination<JPackAttachment> page = new Pagination<JPackAttachment>();
 		page.setNextLink(CommonConstants.END_OF_PAGE);
 		page.setPreviousLink(CommonConstants.END_OF_PAGE);
-		page.setResult(result);
+		page.setResult(Collections.emptyList());
 		return page;
 	}
 }
