@@ -156,6 +156,16 @@ public class AttachmentResource {
 		return getImageAttachment(topicId, packId, fileName, width, height);
 	}
 	
+	@GET
+	@CompressWrite
+	@Path(IMAGE + URL_SEPARATOR + "{topicId}" + URL_SEPARATOR + "{fileName}")
+	@Produces({ "image/png", "image/jpg" })
+	public Response getSharedImageAttachmentOfTopic(@PathParam("topicId") String topicId,
+			@PathParam("fileName") String fileName, @QueryParam("w") int width, 
+			@QueryParam("h") int height) throws PackPackException {
+		return getImageAttachment(topicId, null, fileName, width, height);
+	}
+	
 	private Response getImageAttachment(String topicId,
 			String packId, String fileName, int width, int height) throws PackPackException {
 		try {
@@ -166,8 +176,10 @@ public class AttachmentResource {
 			}
 			path.append(topicId);
 			path.append(File.separator);
-			path.append(packId);
-			path.append(File.separator);
+			if(packId != null) {
+				path.append(packId);
+				path.append(File.separator);
+			}
 			/*if(isThumbnail) {
 				path.append("thumbnail");
 				path.append(File.separator);
