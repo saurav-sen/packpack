@@ -131,7 +131,11 @@ public enum COMMAND {
 			APIConstants.User.PasswordReset.NEW_PASSWORD), ISSUE_SIGNUP_VERIFIER(
 			APIConstants.User.Register.EMAIL, APIConstants.User.Register.NAME), GET_ALL_SHARED_FEEDS_TO_TOPIC(
 			APIConstants.Topic.ID, APIConstants.User.ID,
-			APIConstants.PageInfo.PAGE_LINK);
+			APIConstants.PageInfo.PAGE_LINK), ADD_SHARED_EXTERNAL_LINK_TO_TOPIC(
+			APIConstants.Topic.ID, APIConstants.User.ID,
+			APIConstants.Attachment.TITLE, APIConstants.Attachment.DESCRIPTION,
+			APIConstants.Attachment.ATTACHMENT_URL,
+			APIConstants.Attachment.ATTACHMENT_THUMBNAIL_URL);
 
 	private String[] paramNames;
 

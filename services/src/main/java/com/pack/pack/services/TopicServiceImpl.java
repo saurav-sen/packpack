@@ -541,6 +541,28 @@ public class TopicServiceImpl implements ITopicService {
 	}
 	
 	@Override
+	public JPackAttachment addSharedTextFeedToTopicFromExternalLink(String topicId,
+			String ogTitle, String ogDescription, String ogUrl, String ogImage,
+			String userId) throws PackPackException {
+		PackAttachment attachment = new PackAttachment();
+		attachment.setAttachmentUrl(ogUrl);
+		attachment.setCreatorId(userId);
+		attachment.setCreationTime(System.currentTimeMillis());
+		attachment.setTitle(ogTitle);
+		attachment.setDescription(ogDescription);
+		attachment.setAttachmentThumbnailUrl(ogImage);
+		String id = UUID.randomUUID().toString();
+		attachment.setId(id);
+		String json = JSONUtil.serialize(attachment);
+		RedisCacheService redisService = ServiceRegistry.INSTANCE
+				.findService(RedisCacheService.class);
+		redisService.addToCache(topicId + "_" + id, json, 7 * 24 * 60 * 60); // TTL
+																				// 7
+																				// DAYS
+		return ModelConverter.convert(attachment, false);
+	}
+	
+	@Override
 	public Pagination<JPackAttachment> getAllSharedFeeds(String topicId,
 			String userId, String pageLink) throws PackPackException {
 		if (CommonConstants.NULL_PAGE_LINK.equals(pageLink) || pageLink == null

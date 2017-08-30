@@ -164,6 +164,32 @@ class AttachmentsApi extends BaseAPI {
 				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
 						.getEntity())), JPackAttachment.class);
 	}
+	
+	private JPackAttachment uploadFromExternalLinkToTopic(String topicId,
+			String userId, String title, String description,
+			String attachmentUrl, String attachmentThumbnailUrl,
+			String oAuthToken) throws ClientProtocolException, IOException,
+			ParseException, PackPackException {
+		JRssFeed feed = new JRssFeed();
+		feed.setOgTitle(title);
+		feed.setOgDescription(description);
+		feed.setOgUrl(attachmentUrl);
+		feed.setOgImage(attachmentThumbnailUrl);
+		String json = JSONUtil.serialize(feed);
+		String url = getBaseUrl() + ATTACHMENT + "topic/" + topicId + "/usr/"
+				+ userId;
+		DefaultHttpClient client = new DefaultHttpClient();
+		HttpPut PUT = new HttpPut(url);
+		HttpEntity jsonBody = new StringEntity(json, UTF_8);
+		PUT.setEntity(GZipUtil.compress(jsonBody));
+		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
+		PUT.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
+		HttpResponse response = client.execute(PUT);
+		return JSONUtil
+				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
+						.getEntity())), JPackAttachment.class);
+	}
 
 	private JStatus uploadPack(Map<String, Object> params, String url,
 			String oAuthToken, MultipartRequestProgressListener listener)
@@ -542,6 +568,21 @@ class AttachmentsApi extends BaseAPI {
 				result = uploadVideoPackFromExternalLink(topicId, packId,
 						userId, title, description, attachmentUrl,
 						attachmentThumbnailUrl, oAuthToken);
+			} else if (COMMAND.ADD_SHARED_EXTERNAL_LINK_TO_TOPIC.equals(action)) {
+				String topicId = (String) params.get(APIConstants.Topic.ID);
+				String userId = (String) params.get(APIConstants.User.ID);
+
+				String title = (String) params
+						.get(APIConstants.Attachment.TITLE);
+				String description = (String) params
+						.get(APIConstants.Attachment.DESCRIPTION);
+				String attachmentUrl = (String) params
+						.get(APIConstants.Attachment.ATTACHMENT_URL);
+				String attachmentThumbnailUrl = (String) params
+						.get(APIConstants.Attachment.ATTACHMENT_THUMBNAIL_URL);
+				result = uploadFromExternalLinkToTopic(topicId, userId, title,
+						description, attachmentUrl, attachmentThumbnailUrl,
+						oAuthToken);
 			} else if (COMMAND.ADD_VIDEO_TO_PACK.equals(action)) {
 				result = addVideoToPack(params, oAuthToken, listener);
 			} else if(action == COMMAND.PROMOTE_PACK_ATTACHMENT) {

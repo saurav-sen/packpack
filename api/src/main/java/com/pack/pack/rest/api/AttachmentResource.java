@@ -410,6 +410,42 @@ public class AttachmentResource {
 		return attachment;
 	}
 	
+	@PUT
+	@CompressRead
+	@CompressWrite
+	@Path("topic/{topicId}/usr/{userId}")
+	@Consumes(value = MediaType.APPLICATION_JSON)
+	@Produces(value = MediaType.APPLICATION_JSON)
+	public JPackAttachment modifyTopic_addFeedExternalLink(
+			@PathParam("topicId") String topicId,
+			@PathParam("userId") String userId, String json)
+			throws PackPackException {
+		long t0 = System.currentTimeMillis();
+		JRssFeed feed = JSONUtil.deserialize(json, JRssFeed.class, true);
+		LOG.info("VIDEO upload from external link @ " + feed.getOgUrl()
+				+ " In-Progress");
+
+		String title = feed.getOgTitle();
+		String description = feed.getOgDescription();
+		String attachmentUrl = feed.getOgUrl();
+		String attachmentThumbnailUrl = feed.getOgImage();
+		
+		/*LOG.debug("Title (External) = " + title);
+		LOG.debug("\u00a5");*/
+
+		ITopicService service = ServiceRegistry.INSTANCE
+				.findCompositeService(ITopicService.class);
+		JPackAttachment attachment = service
+				.addSharedTextFeedToTopicFromExternalLink(topicId, title,
+						description, attachmentUrl, attachmentThumbnailUrl,
+						userId);
+
+		long t1 = System.currentTimeMillis();
+		LOG.info("Total time to upload VIDEO titled <" + title + "> = "
+				+ (t1 - t0) / (1000 * 60) + " minutes");
+		return attachment;
+	}
+	
 	@DELETE
 	@Path("{attachmentId}/pack/{packId}/topic/{topicId}")
 	@Produces(value = MediaType.APPLICATION_JSON)

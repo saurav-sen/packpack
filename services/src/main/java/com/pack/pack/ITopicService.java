@@ -159,6 +159,21 @@ public interface ITopicService {
 	public JPackAttachment addSharedImageFeedToTopic(InputStream file,
 			String fileName, String topicId, String title, String description,
 			String userId) throws PackPackException;
+	
+	/**
+	 * 
+	 * @param topicId
+	 * @param ogTitle
+	 * @param ogDescription
+	 * @param ogUrl
+	 * @param ogImage
+	 * @param userId
+	 * @return
+	 * @throws PackPackException
+	 */
+	public JPackAttachment addSharedTextFeedToTopicFromExternalLink(String topicId,
+			String ogTitle, String ogDescription, String ogUrl, String ogImage,
+			String userId) throws PackPackException;
 
 	/**
 	 * 
