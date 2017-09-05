@@ -28,6 +28,7 @@ public class TestSessionExecutor {
 		JUser user = new UserInfoTest().getUserInfo(session);
 		session.setUserId(user.getId());
 		new DefaultTopicResourceTest().execute(session);
+		new TopicSharedFeedsTest().execute(session);
 		/*new AddTopicTest().execute(session);
 		new PackUploadTest().execute(session);
 		new PackAttachmentStoryTest().execute(session);*/

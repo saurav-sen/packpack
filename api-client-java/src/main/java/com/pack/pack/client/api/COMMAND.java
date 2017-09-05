@@ -135,7 +135,9 @@ public enum COMMAND {
 			APIConstants.Topic.ID, APIConstants.User.ID,
 			APIConstants.Attachment.TITLE, APIConstants.Attachment.DESCRIPTION,
 			APIConstants.Attachment.ATTACHMENT_URL,
-			APIConstants.Attachment.ATTACHMENT_THUMBNAIL_URL);
+			APIConstants.Attachment.ATTACHMENT_THUMBNAIL_URL), ADD_SHARED_TEXT_MSG_TO_TOPIC(
+			APIConstants.Topic.ID, APIConstants.User.ID,
+			APIConstants.Attachment.TITLE, APIConstants.Attachment.DESCRIPTION);
 
 	private String[] paramNames;
 

@@ -1,7 +1,9 @@
 package com.pack.pack.services;
 
 import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
+import static com.pack.pack.common.util.CommonConstants.NEXT_PAGE_LINK_PREFIX;
 import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
+import static com.pack.pack.common.util.CommonConstants.PREV_PAGE_LINK_PREFIX;
 import static com.pack.pack.common.util.CommonConstants.STANDARD_PAGE_SIZE;
 import static com.pack.pack.util.AttachmentUtil.resizeAndStoreUploadedAttachment;
 
@@ -9,6 +11,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -551,6 +554,28 @@ public class TopicServiceImpl implements ITopicService {
 		attachment.setTitle(ogTitle);
 		attachment.setDescription(ogDescription);
 		attachment.setAttachmentThumbnailUrl(ogImage);
+		attachment.setIsExternalLink("true");
+		String id = UUID.randomUUID().toString();
+		attachment.setId(id);
+		String json = JSONUtil.serialize(attachment);
+		RedisCacheService redisService = ServiceRegistry.INSTANCE
+				.findService(RedisCacheService.class);
+		redisService.addToCache(topicId + "_" + id, json, 7 * 24 * 60 * 60); // TTL
+																				// 7
+																				// DAYS
+		return ModelConverter.convert(attachment, false);
+	}
+	
+	@Override
+	public JPackAttachment addSharedTextMsgFeedToTopic(String topicId,
+			String ogTitle, String ogDescription, String userId)
+			throws PackPackException {
+		PackAttachment attachment = new PackAttachment();
+		attachment.setCreatorId(userId);
+		attachment.setCreationTime(System.currentTimeMillis());
+		attachment.setTitle(ogTitle);
+		attachment.setDescription(ogDescription);
+		attachment.setIsExternalLink("false");
 		String id = UUID.randomUUID().toString();
 		attachment.setId(id);
 		String json = JSONUtil.serialize(attachment);
@@ -565,28 +590,188 @@ public class TopicServiceImpl implements ITopicService {
 	@Override
 	public Pagination<JPackAttachment> getAllSharedFeeds(String topicId,
 			String userId, String pageLink) throws PackPackException {
-		if (CommonConstants.NULL_PAGE_LINK.equals(pageLink) || pageLink == null
-				|| pageLink.trim().isEmpty()) {
-			RedisCacheService redisService = ServiceRegistry.INSTANCE
-					.findService(RedisCacheService.class);
-			List<PackAttachment> list = redisService.getAllFromCache(topicId + "_",
-					PackAttachment.class);
-			logger.trace("Total Count of shared Feeds @ " + pageLink
-					+ " for topic#" + topicId + " = " + list.size());
-			List<JPackAttachment> result = ModelConverter.convert(list, false);
-			logger.trace("Total Count of shared Feeds @ " + pageLink
-					+ " for topic#" + topicId
-					+ " (POST Conversionto consumer model) = " + result.size());
+		if (CommonConstants.END_OF_PAGE.equals(pageLink)) {
 			Pagination<JPackAttachment> page = new Pagination<JPackAttachment>();
 			page.setNextLink(CommonConstants.END_OF_PAGE);
 			page.setPreviousLink(CommonConstants.END_OF_PAGE);
-			page.setResult(result);
+			page.setResult(Collections.emptyList());
 			return page;
 		}
-		Pagination<JPackAttachment> page = new Pagination<JPackAttachment>();
+		RedisCacheService redisService = ServiceRegistry.INSTANCE
+				.findService(RedisCacheService.class);
+		List<PackAttachment> list = redisService.getAllFromCache(topicId + "_",
+				PackAttachment.class);
+		/*logger.trace("Total Count of shared Feeds @ " + pageLink
+				+ " for topic#" + topicId + " = " + list.size());
+		List<JPackAttachment> result = ModelConverter.convert(list, false);
+		logger.trace("Total Count of shared Feeds @ " + pageLink
+				+ " for topic#" + topicId
+				+ " (POST Conversionto consumer model) = " + result.size());*/
+		/*Pagination<JPackAttachment> page = new Pagination<JPackAttachment>();
 		page.setNextLink(CommonConstants.END_OF_PAGE);
 		page.setPreviousLink(CommonConstants.END_OF_PAGE);
-		page.setResult(Collections.emptyList());
+		page.setResult(result);
+		return page;*/
+		
+		Pagination<PackAttachment> page = null;
+		page = paginate(list, pageLink);
+		list = page.getResult();
+		List<JPackAttachment> rows = ModelConverter.convert(list, false);
+		Collections.sort(rows, new Comparator<JPackAttachment>() {
+			@Override
+			public int compare(JPackAttachment o1, JPackAttachment o2) {
+				try {
+					//long l = Long.parseLong(o2.getId().trim()) - Long.parseLong(o1.getId().trim());
+					long l = o2.getCreationTime() - o1.getCreationTime();
+					if(l == 0) {
+						return 0;
+					}
+					if(l > 0) {
+						return 1;
+					}
+					return -1;
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+					return 0;
+				}
+			}
+		});
+		Pagination<JPackAttachment> pageResult = new Pagination<JPackAttachment>();
+		pageResult.setNextLink(page.getNextLink());
+		pageResult.setPreviousLink(page.getPreviousLink());
+		/*if(paginationRequired) {
+			pageResult.setNextLink(page.getNextLink());
+			pageResult.setPreviousLink(page.getPreviousLink());
+		} else {
+			pageResult.setNextLink(END_OF_PAGE);
+			pageResult.setPreviousLink(END_OF_PAGE);
+		}*/
+		pageResult.setResult(rows);
+		return pageResult;
+	}
+	
+	private Pagination<PackAttachment> paginate(List<PackAttachment> feeds, String pageLink) {
+		Pagination<PackAttachment> page = new Pagination<PackAttachment>();
+		if (pageLink == null || pageLink.trim().isEmpty()) {
+			pageLink = NULL_PAGE_LINK;
+		}
+
+		Collections.sort(feeds, new Comparator<PackAttachment>() {
+			@Override
+			public int compare(PackAttachment o1, PackAttachment o2) {
+				try {
+					long l = o2.getCreationTime() - o1.getCreationTime();
+					if (l == 0) {
+						return 0;
+					}
+					if (l > 0) {
+						return 1;
+					}
+					return -1;
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+					return 0;
+				}
+			}
+		});
+		if (NULL_PAGE_LINK.equals(pageLink)) {
+			List<PackAttachment> result = new ArrayList<PackAttachment>();
+			int len = feeds.size();
+			if (len >= resolvePageSize()) {
+				len = resolvePageSize();
+			}
+			PackAttachment lastFeed = null;
+			for (int i = 0; i < len; i++) {
+				lastFeed = feeds.get(i);
+				result.add(lastFeed);
+			}
+			page.setResult(result);
+			if (lastFeed != null) {
+				page.setNextLink(NEXT_PAGE_LINK_PREFIX
+						+ String.valueOf(lastFeed.getCreationTime()));
+			} else {
+				page.setNextLink(END_OF_PAGE);
+			}
+			page.setPreviousLink(END_OF_PAGE);
+		} else if (END_OF_PAGE.equals(pageLink)) {
+			page.setResult(Collections.emptyList());
+			page.setPreviousLink(END_OF_PAGE);
+			page.setNextLink(END_OF_PAGE);
+		} else {
+			try {
+				String link = pageLink.trim();
+				boolean isNext = true;
+				String timestamp = link.replaceFirst(NEXT_PAGE_LINK_PREFIX, "");
+				if (link.startsWith(PREV_PAGE_LINK_PREFIX)) {
+					isNext = false;
+					timestamp = link.replaceFirst(PREV_PAGE_LINK_PREFIX, "");
+				}
+
+				logger.debug("Timestamp from pageLink = " + timestamp);
+
+				long uploadTime = Long.parseLong(timestamp);
+				List<PackAttachment> result = new ArrayList<PackAttachment>();
+				int len = feeds.size();
+				int count = 0;
+				PackAttachment lastFeed = null;
+				int pageSize = resolvePageSize();
+				for (int i = 0; i < len; i++) {
+					PackAttachment feed = feeds.get(i);
+					if (isIncludeInPage(feed, uploadTime, isNext)) {
+						result.add(feed);
+						lastFeed = feed;
+						count++;
+						/*if ((isNext && pageLinkTimestamp < uploadTime)
+								|| (!isNext && pageLinkTimestamp > uploadTime)) {
+							pageLinkTimestamp = uploadTime;
+						}*/
+						if(count == pageSize) {
+							i = len;
+						}
+					}
+				}
+				
+				long pageLinkTimestamp = lastFeed != null ? lastFeed.getCreationTime() : -1;
+				if (isNext) {
+					if(pageLinkTimestamp > 0) {
+						page.setNextLink(NEXT_PAGE_LINK_PREFIX
+								+ pageLinkTimestamp);
+					} else {
+						page.setNextLink(END_OF_PAGE);
+					}
+					page.setPreviousLink(pageLink.replaceFirst(
+							NEXT_PAGE_LINK_PREFIX,
+							PREV_PAGE_LINK_PREFIX));
+				} else {
+					if(pageLinkTimestamp > 0) {
+						page.setPreviousLink(PREV_PAGE_LINK_PREFIX
+								+ pageLinkTimestamp);
+					} else {
+						page.setPreviousLink(END_OF_PAGE);
+					}
+					page.setNextLink(pageLink.replaceFirst(
+							PREV_PAGE_LINK_PREFIX,
+							NEXT_PAGE_LINK_PREFIX));
+				}
+				
+				page.setResult(result);
+			} catch (NumberFormatException e) {
+				page.setResult(Collections.emptyList());
+				page.setNextLink(pageLink);
+				logger.error("Failed parsing pagelink :: " + pageLink, e);
+			}
+
+		}
 		return page;
+	}
+	
+	private int resolvePageSize() {
+		return STANDARD_PAGE_SIZE;
+	}
+	
+	private boolean isIncludeInPage(PackAttachment feed, long uploadTime,
+			boolean isNext) {
+		long uploadTime2 = feed.getCreationTime();
+		return isNext ? uploadTime2 < uploadTime : uploadTime2 > uploadTime;
 	}
 }

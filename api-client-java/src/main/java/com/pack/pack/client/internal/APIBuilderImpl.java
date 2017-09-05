@@ -104,6 +104,7 @@ public class APIBuilderImpl extends APIBuilder {
 				|| action == COMMAND.UPLOAD_VIDEO_PACK
 				|| action == COMMAND.ADD_VIDEO_TO_PACK
 				|| action == COMMAND.ADD_VIDEO_TO_PACK_EXTERNAL_LINK
+				|| action == COMMAND.ADD_SHARED_TEXT_MSG_TO_TOPIC
 				|| action == COMMAND.ADD_SHARED_EXTERNAL_LINK_TO_TOPIC
 				|| action == COMMAND.PROMOTE_PACK_ATTACHMENT
 				|| action == COMMAND.DELETE_ATTACHMENT

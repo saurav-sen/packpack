@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
+import com.pack.pack.common.util.CommonConstants;
 import com.pack.pack.model.web.JTopic;
 
 public class TestDataSet {
@@ -18,7 +19,7 @@ public class TestDataSet {
 	//private static final String PROFILE_PICTURE = "D:/Saurav/myphoto.jpg";
 	
 	//public static final String USERNAME = "sourabhnits@gmail.com";
-	public static final String PASSWORD = "P@$$w0rd123";//"$$EN@0x5f3759df"
+	public static final String PASSWORD = "$$EN@0x5f3759df";//"P@$$w0rd123";
 	
 	private static String[] names = new String[] {"Lawrence Conniff  ", "Darnell Valois  ", "Jean Hersom  ", "Valentin Lawley  ", "Freeman Plantz  ", "Boris Goodin  ", "Kris Dipaolo  ", "Carlos Brandstetter  ", "Rich Layfield  ", "Peter Turberville  ", "Lowell Roberie  ", "Blaine Roda  ", "Herschel Parkerson  ", "Haywood Dziedzic  ", "Lewis Games  ", "Millard Clancy  ", "Jose Pillsbury  ", "Lee Beegle  ", "Jordan Quinby  ", "Coy Ahner  ", "Jules Donaghy  ", "Silas Knott  ", "Buster Brubaker  ", "Cary Cogdell  ", "Mickey Craghead  ", "Jeffery Gutirrez  ", "Carey Daughtridge  ", "Cesar Kolodziej  ", "Jerome Mendel  ", "Jason Mcginley  ", "Anderson Serrano  ", "Tyson Suther  ", "Shawn Gosney  ", "Granville Weide  ", "Antoine Sanfilippo  ", "Waldo Robinett  ", "Charley Corrao  ", "Clemente Millen  ", "Damien Council  ", "Lesley Abrego  ", "Ray Neault  ", "Vito Coty  ", "Brock Ranieri  ", "Desmond Folsom  ", "Claude Cothren  ", "Monroe Joly  ", "Mckinley Lisowski  ", "Sandy Gaal  ", "Jessie Landrith  ", "Bo Placencia  ", "Sharon Boozer  ", "Catalina Sama  ", "Vikki Poon  ", "Lue Sifuentes  ", "Enda Provencher  ", "Awilda Janowski  ", "Emogene Marasco  ", "Ida Olivieri  ", "Annmarie Britton  ", "Arline Valla  ", "Marylouise Monterroso  ", "Jaimee Belt  ", "Delphia Babineaux  ", "Madge Griffeth  ", "Irish Blinn  ", "Shae Lough  ", "Winnifred Robeson  ", "Karisa Considine  ", "Betsey Leblanc  ", "Terrilyn Beagle  ", "Valda Stroope  ", "Rosie Rexrode  ", "Lorie Meurer  ", "Tashina Vasques  ", "Sharice Hoffer  ", "Vanetta Hwang  ", "Ayanna Wei  ", "Saundra Mariano  ", "Candis Cap  ", "Macy Duplessis  ", "Andra Romines  ", "Mireille Mickel  ", "Shantay Neiss  ", "Arvilla Piccirillo  ", "Elenore Ehrenberg  ", "Danyell Rohman  ", "Chae Gibney  ", "Tiesha Mirabal  ", "Wynell Thakkar  ", "Velia Span  ", "Dorthey Kinley  ", "Ava Blewett  ", "Codi Christain  ", "Athena Levenson  ", "Roselle Millett  ", "Leonarda Kowalski  ", "Micha Rolen  ", "Hortensia Foti  ", "Tracee Smits  ", "Jeanie Coil"};
 	
@@ -31,7 +32,7 @@ public class TestDataSet {
 	
 	private static final String ATTACHMENT_STORY = "<h4>An Unordered List:</h4><ul><li>Coffee</li><li>Tea</li><li>Milk</li></ul><br/>cx, nsj.";
 	
-	private static final String CATEGORY_PHOTOGRAPHY = "photography";
+	private static final String CATEGORY_PHOTOGRAPHY = CommonConstants.SOCIETY;//"photography";
 	
 	private Map<Integer, List<String>> attachmentIdMap = new HashMap<Integer, List<String>>();
 	
