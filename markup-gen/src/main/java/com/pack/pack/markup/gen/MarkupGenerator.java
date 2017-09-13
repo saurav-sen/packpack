@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.pack.pack.model.web.JPackAttachment;
+import com.pack.pack.model.web.JSharedFeed;
 import com.pack.pack.model.web.JTopic;
 
 import freemarker.template.Configuration;
@@ -27,16 +28,26 @@ public class MarkupGenerator {
 		generatorsMap.put(JTopic.class.getName(), new TopicPageGenerator());
 		generatorsMap.put(JPackAttachment.class.getName(),
 				new PackAttachmentPageGenerator());
+		generatorsMap.put(JSharedFeed.class.getName(),
+				new SharedExternalLinkPageGenerator());
 	}
 
 	MarkupGenerator() {
+	}
+	
+	public <T> void generateMarkup(String entityId, Class<T> type, IMarkup markup)
+			throws Exception {
+		IMarkupGenerator generator = generatorsMap.get(type.getName());
+		if (generator != null) {
+			generator.generate(entityId, markup);
+		}
 	}
 
 	public <T> void generateAndUpload(String entityId, Class<T> type)
 			throws Exception {
 		IMarkupGenerator generator = generatorsMap.get(type.getName());
 		if (generator != null) {
-			generator.generateAndUpload(entityId);
+			generator.generate(entityId, new Markup());
 		}
 	}
 	
@@ -98,6 +109,17 @@ public class MarkupGenerator {
 			if (writer != null) {
 				writer.close();
 			}
+		}
+	}
+	
+	private class Markup implements IMarkup {
+		
+		@Override
+		public void setContentType(String contentType) {
+		}
+		
+		@Override
+		public void setContent(String content) {
 		}
 	}
 }

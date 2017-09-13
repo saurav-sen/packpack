@@ -24,7 +24,7 @@ import freemarker.template.Template;
 public class PackAttachmentPageGenerator implements IMarkupGenerator {
 
 	@Override
-	public <T> void generateAndUpload(String entityId) throws Exception {
+	public <T> void generate(String entityId, IMarkup markup) throws Exception {
 		IPackService packService = ServiceRegistry.INSTANCE
 				.findCompositeService(IPackService.class);
 		JPackAttachment attachment = packService

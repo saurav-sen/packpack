@@ -35,6 +35,7 @@ import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JPacks;
 import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.JRssSubFeed;
+import com.pack.pack.model.web.JSharedFeed;
 import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.JeGift;
@@ -91,6 +92,7 @@ public class ModelConverter {
 		rFeed.setId(feed.getId());
 		rFeed.setVideoUrl(feed.getVideoUrl());
 		rFeed.setUploadTime(feed.getUploadTime());
+		rFeed.setShareableUrl(feed.getShareableUrl());
 		List<RssSubFeed> siblings = feed.getSiblings();
 		if(siblings != null && !siblings.isEmpty()) {
 			for(RssSubFeed sibling : siblings) {
@@ -137,6 +139,7 @@ public class ModelConverter {
 				feed.getSiblings().add(convert(sibling));
 			}
 		}
+		feed.setShareableUrl(rFeed.getShareableUrl());
 		return feed;
 	}
 	
@@ -622,5 +625,15 @@ public class ModelConverter {
 		 * = convert(jReply); discussion.getReplies().add(reply); } }
 		 */
 		return discussion;
+	}
+	
+	public static JSharedFeed convertToShareableFeed(JRssFeed feed) {
+		JSharedFeed sharedFeed = new JSharedFeed();
+		sharedFeed.setActualUrl(feed.getHrefSource() != null ? feed
+				.getHrefSource() : feed.getOgUrl());
+		sharedFeed.setDescription(feed.getOgDescription());
+		sharedFeed.setTitle(feed.getOgTitle());
+		sharedFeed.setImageLink(feed.getOgImage());
+		return sharedFeed;
 	}
 }

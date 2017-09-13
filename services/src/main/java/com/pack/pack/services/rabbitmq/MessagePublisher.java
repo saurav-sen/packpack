@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import com.amazonaws.util.json.JSONObject;
 import com.pack.pack.common.util.JSONUtil;
+import com.pack.pack.model.RssFeedType;
 import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.notification.FeedMsg;
 import com.pack.pack.model.web.notification.FeedMsgType;
@@ -34,10 +35,20 @@ public class MessagePublisher {
 	/*@Autowired
 	private MsgConnectionManager connectionManager;*/
 	
-	private static Logger logger = LoggerFactory.getLogger(MessagePublisher.class);
+	private static Logger LOG = LoggerFactory.getLogger(MessagePublisher.class);
 	
 	public final static String AUTH_KEY_FCM = "AAAApQZn_ZI:APA91bGidkJYWfz2JYHTPXWr5a0NrLwV6K2DE-z57eIoLpBmUgqaUQ239pGVbDA8Aw_KKZqBFfsxLYv3wp2bjH1XXN-uGeRuAQNpN7LrAsfWJBikVAedOzs0GvzNzPHK2eWdSKVmLXod";
 	public final static String API_URL_FCM = "https://fcm.googleapis.com/fcm/send";
+	
+	public static void main(String[] args) throws Exception {
+		JRssFeed feed = new JRssFeed();
+		feed.setOgTitle("\"Test Java 123\"");
+		System.out.println(JSONUtil.serialize(feed, false));
+		feed = JSONUtil.deserialize(JSONUtil.serialize(feed, false), JRssFeed.class);
+		System.out.println(feed.getOgTitle());
+		new MessagePublisher().broadcastNewRSSFeedUploadSummary("Test Java 123");
+		
+	}
 	
 	/*public void broadcastNewRSSFeedUpload_old(JRssFeed feed, BroadcastCriteria criteria, boolean sendNotification) throws PackPackException {
 		MsgConnection connection = null;
@@ -76,43 +87,109 @@ public class MessagePublisher {
 		}
 	}*/
 	
-	public void broadcastNewRSSFeedUpload(JRssFeed feed, BroadcastCriteria criteria, boolean sendNotification) throws PackPackException {
+	public void broadcastNewRSSFeedUploadSummary(String notification) throws PackPackException {
 		CloseableHttpClient httpClient = null;
 		try {
+			LOG.debug("broadcastNewRSSFeedUpload");
+			
 			httpClient = HttpClientBuilder.create().build();
 			HttpPost POST = new HttpPost(API_URL_FCM);
 			POST.addHeader("Authorization", "key=" + AUTH_KEY_FCM);
 			POST.addHeader("Content-Type", "application/json");
 			
-			FeedMsg msg = new FeedMsg();
-			msg.setTitle(feed.getOgTitle());
-			msg.setKey(RssFeedUtil.generateUploadKey(feed));
-			msg.setTimestamp(String.valueOf(System.currentTimeMillis()));
-			msg.setMsgType(FeedMsgType.SQUILL_TEAM);
-			msg.setDataObj(JSONUtil.serialize(feed));
+			LOG.trace("Sending notification using firebase service @ " + API_URL_FCM);
 			
 			JSONObject jsonObj = new JSONObject();
+			//jsonObj.put("to", "/topics/squillWorld");
 			jsonObj.put("to", "/topics/allDevices");
-			String json = JSONUtil.serialize(msg);	
-			jsonObj.put("data", json);
+			JSONObject j = new JSONObject();
+			j.put("title", notification);
+			jsonObj.put("notification", j);
+			
+			
+			LOG.info("Sending notification \n " + notification);
+			LOG.debug(jsonObj.toString());
 			
 			POST.setEntity(new StringEntity(jsonObj.toString(), ContentType.APPLICATION_JSON));
 			httpClient.execute(POST);
 		} catch (ClientProtocolException e) {
-			logger.error(e.getMessage(), e);
+			LOG.error(e.getMessage(), e);
 		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
+			LOG.error(e.getMessage(), e);
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			LOG.error(e.getMessage(), e);
 		} finally {
 			try {
 				if(httpClient != null) {
 					httpClient.close();
 				}
 			} catch (IOException e) {
-				logger.error(e.getMessage(), e);
+				LOG.error(e.getMessage(), e);
 			}
 		}
+	}
+	
+	public void broadcastNewRSSFeedUpload(JRssFeed feed, BroadcastCriteria criteria, int sequenceID, boolean sendNotification) throws PackPackException {
+		CloseableHttpClient httpClient = null;
+		try {
+			LOG.debug("broadcastNewRSSFeedUpload");
+			
+			httpClient = HttpClientBuilder.create().build();
+			HttpPost POST = new HttpPost(API_URL_FCM);
+			POST.addHeader("Authorization", "key=" + AUTH_KEY_FCM);
+			POST.addHeader("Content-Type", "application/json");
+			
+			LOG.trace("Sending notification using firebase service @ " + API_URL_FCM);
+			
+			FeedMsg msg = new FeedMsg();
+			msg.setTitle("\"" + feed.getOgTitle() + "\"");
+			msg.setKey(RssFeedUtil.generateUploadKey(feed));
+			msg.setTimestamp(String.valueOf(System.currentTimeMillis()));
+			msg.setMsgType(resolveMsgType(feed));
+			//msg.setDataObj(JSONUtil.serialize(feed));
+			
+			JSONObject jsonObj = new JSONObject();
+			//jsonObj.put("to", "/topics/squillWorld");
+			jsonObj.put("to", "/topics/allDevices");
+			String json = JSONUtil.serialize(msg, false);
+			JSONObject j = new JSONObject();
+			j.put("title", msg.getTitle());
+			j.put("msgType", msg.getMsgType().name());
+			j.put("timestamp", msg.getTimestamp());
+			j.put("key", msg.getKey());
+			j.put("sequenceId", String.valueOf(sequenceID));
+			jsonObj.put("data", j);
+			
+			
+			LOG.info("Sending notification \n " + json);
+			LOG.debug(jsonObj.toString());
+			
+			POST.setEntity(new StringEntity(jsonObj.toString(), ContentType.APPLICATION_JSON));
+			httpClient.execute(POST);
+		} catch (ClientProtocolException e) {
+			LOG.error(e.getMessage(), e);
+		} catch (IOException e) {
+			LOG.error(e.getMessage(), e);
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+		} finally {
+			try {
+				if(httpClient != null) {
+					httpClient.close();
+				}
+			} catch (IOException e) {
+				LOG.error(e.getMessage(), e);
+			}
+		}
+	}
+	
+	private FeedMsgType resolveMsgType(JRssFeed feed) {
+		if(RssFeedType.REFRESHMENT.equals(feed.getFeedType())) {
+			return FeedMsgType.SQUILL_TEAM;
+		} else if(RssFeedType.NEWS.equals(feed.getFeedType())) {
+			return FeedMsgType.NEWS;
+		}
+		return FeedMsgType.UNKNOWN;
 	}
 	
 	private String resolveExchangeName(BroadcastCriteria criteria) {

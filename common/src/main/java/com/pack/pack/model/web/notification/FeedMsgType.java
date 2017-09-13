@@ -8,5 +8,6 @@ package com.pack.pack.model.web.notification;
 public enum FeedMsgType {
 
 	SQUILL_TEAM,
-	NEWS
+	NEWS,
+	UNKNOWN
 }

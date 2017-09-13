@@ -89,7 +89,7 @@ class FeedReaderApi extends BaseAPI {
 		private COMMAND action;
 
 		private Map<String, Object> params;
-
+		
 		@Override
 		public void setConfiguration(Configuration configuration) {
 			action = configuration.getAction();

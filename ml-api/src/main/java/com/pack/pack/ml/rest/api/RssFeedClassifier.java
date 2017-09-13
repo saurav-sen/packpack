@@ -1,6 +1,7 @@
 package com.pack.pack.ml.rest.api;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
@@ -22,6 +23,7 @@ import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.JRssFeeds;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.StatusType;
+import com.pack.pack.model.web.TTL;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.util.RssFeedUtil;
 
@@ -135,7 +137,10 @@ public class RssFeedClassifier {
 		@Override
 		public void completed(JRssFeeds feeds) {
 			JRssFeeds jRssFeeds = FeedUploadUtil.reloadSelectiveFeeds();
-			RssFeedUtil.uploadNewFeeds(jRssFeeds, sendNotification);
+			TTL ttl = new TTL();
+			ttl.setTime((short)2);
+			ttl.setUnit(TimeUnit.DAYS);
+			RssFeedUtil.uploadNewFeeds(jRssFeeds, ttl, sendNotification);
 		}
 
 		@Override

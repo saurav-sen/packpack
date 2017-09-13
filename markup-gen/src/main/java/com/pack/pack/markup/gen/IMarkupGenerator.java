@@ -8,6 +8,6 @@ package com.pack.pack.markup.gen;
  */
 public interface IMarkupGenerator {
 
-	public <T> void generateAndUpload(String entityId)
+	public <T> void generate(String entityId, IMarkup markup)
 			throws Exception;
 }

@@ -35,6 +35,8 @@ public class JRssFeed {
 	
 	private long uploadTime;
 	
+	private String shareableUrl;
+	
 	public String getOgTitle() {
 		return ogTitle;
 	}
@@ -145,5 +147,13 @@ public class JRssFeed {
 
 	public void setUploadTime(long uploadTime) {
 		this.uploadTime = uploadTime;
+	}
+
+	public String getShareableUrl() {
+		return shareableUrl;
+	}
+
+	public void setShareableUrl(String shareableUrl) {
+		this.shareableUrl = shareableUrl;
 	}
 }

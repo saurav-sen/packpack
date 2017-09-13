@@ -106,6 +106,10 @@ public final class SystemPropertyUtil {
 	
 	private static final String ENABLE_WEKA_CLASSIFICATION = "enable.weka.classification";
 	
+	private static final String EXTERNAL_SHARED_LINK_BASE_URL = "external.shared.link.base.url";
+	
+	private static final String EXTERNAL_SHARED_LINK_BASE_URL_DEFAULT = "http://www.squill.co.in/RSS/public/ext";
+	
 	private SystemPropertyUtil() {
 	}
 
@@ -256,6 +260,12 @@ public final class SystemPropertyUtil {
 
 	public static final String getWebPagesRootPath() {
 		return getPropertyValue(WEB_PAGES_ROOT_PATH);
+	}
+	
+	public static final String getExternalSharedLinkBaseUrl() {
+		String value = getPropertyValue(EXTERNAL_SHARED_LINK_BASE_URL);
+		return value != null && !value.trim().isEmpty() ? value
+				: EXTERNAL_SHARED_LINK_BASE_URL_DEFAULT;
 	}
 	
 	public static String getAttachmentArticleBaseURL() {

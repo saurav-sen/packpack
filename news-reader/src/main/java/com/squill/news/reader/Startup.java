@@ -27,10 +27,12 @@ import org.slf4j.LoggerFactory;
 
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JRssFeeds;
+import com.pack.pack.model.web.TTL;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.services.registry.ServiceRegistryModes;
 import com.pack.pack.util.RssFeedUtil;
+import com.pack.pack.util.SystemPropertyUtil;
 
 public class Startup {
 
@@ -87,6 +89,7 @@ public class Startup {
 				System.setProperty(NEWS_SOURCES, list);
 				System.setProperty(NEWS_API_KEY, newsAPIKey);
 
+				SystemPropertyUtil.init();
 				ServiceRegistry.INSTANCE
 						.init(ServiceRegistryModes.REDIS_ONLY_SERVICES);
 				Runnable cmd = new NewsReader();
@@ -185,7 +188,10 @@ public class Startup {
 			nfc.getArticles().addAll(newsFeeds);
 			JRssFeeds feeds = NewsFeedConverter.convert(nfc);
 			LOG.info("Uploading news feeds: Total = " + newsFeeds.size());
-			RssFeedUtil.uploadNewFeeds(feeds, false);
+			TTL ttl = new TTL();
+			ttl.setTime((short)1);
+			ttl.setUnit(TimeUnit.DAYS);
+			RssFeedUtil.uploadNewFeeds(feeds, ttl, true);
 		}
 	}
 }

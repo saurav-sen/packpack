@@ -2,6 +2,7 @@ package com.pack.pack.util;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -27,19 +28,20 @@ public class RssFeedUtil {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(RssFeedUtil.class);
 
-	public static void uploadNewFeeds(JRssFeeds feeds, boolean sendNotification) {
+	public static void uploadNewFeeds(JRssFeeds feeds, TTL ttl, boolean sendNotification) {
 		LOG.info("Classification done. Uploading feeds to DB");
 		try {
 			List<JRssFeed> list = new LinkedList<JRssFeed>();
 			List<JRssFeed> newFeeds = feeds.getFeeds();
 			if (newFeeds != null && !newFeeds.isEmpty()) {
-				TTL ttl = new TTL();
+				//TTL ttl = new TTL();
 				ttl.setTime((short) 2);
 				ttl.setUnit(TimeUnit.DAYS);
 				IRssFeedService service = ServiceRegistry.INSTANCE
 						.findCompositeService(IRssFeedService.class);
 				for (JRssFeed feed : newFeeds) {
 					boolean f = service.upload(feed, ttl);
+					LOG.info("Upleaded News Feed = " + f);
 					if(f) {
 						list.add(feed);
 					}
@@ -50,8 +52,43 @@ public class RssFeedUtil {
 						.findService(MessagePublisher.class);
 				if(!sendNotification)
 					return;
-				for (JRssFeed l : list) {
-					messagePublisher.broadcastNewRSSFeedUpload(l, null, sendNotification);
+				final int size = list.size();
+				LOG.info("Sending Notifications = " + list.size());
+				if(size > 0) {
+					Thread t0 = new Thread(new Runnable() {
+						
+						@Override
+						public void run() {
+							try {
+								messagePublisher.broadcastNewRSSFeedUploadSummary("You have " + size + " news and recent happenings");
+							} catch (Exception e) {
+								LOG.error(e.getMessage(), e);
+							}
+						}
+					});
+					t0.start();
+					
+					final int sequenceID = new Random().nextInt();
+					for (JRssFeed l : list) {
+						LOG.trace("Publishing :: ");
+						LOG.debug("Is messagePublisher loaded = " + (messagePublisher != null));
+						try {
+							Thread t = new Thread(new Runnable() {
+								
+								@Override
+								public void run() {
+									try {
+										messagePublisher.broadcastNewRSSFeedUpload(l, null, sequenceID, sendNotification);
+									} catch (Exception e) {
+										LOG.error(e.getMessage(), e);
+									}
+								}
+							});
+							t.start();
+						} catch (Exception e) {
+							LOG.error(e.getMessage(), e);
+						}
+					}
 				}
 			}
 			LOG.info("Successfully uploaded feeds in DB");

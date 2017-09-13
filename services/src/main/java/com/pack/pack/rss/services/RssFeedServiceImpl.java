@@ -1,11 +1,11 @@
 package com.pack.pack.rss.services;
 
 import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
-import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
 import static com.pack.pack.common.util.CommonConstants.NEXT_PAGE_LINK_PREFIX;
+import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
 import static com.pack.pack.common.util.CommonConstants.PREV_PAGE_LINK_PREFIX;
-import static com.pack.pack.common.util.CommonConstants.STANDARD_PAGE_SIZE;
 import static com.pack.pack.common.util.CommonConstants.STANDARD_NEWS_PAGE_SIZE;
+import static com.pack.pack.common.util.CommonConstants.STANDARD_PAGE_SIZE;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,11 +21,13 @@ import com.pack.pack.model.RSSFeed;
 import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.JRssFeedType;
 import com.pack.pack.model.web.Pagination;
+import com.pack.pack.model.web.ShortenUrlInfo;
 import com.pack.pack.model.web.TTL;
 import com.pack.pack.model.web.dto.RssFeedSourceType;
 import com.pack.pack.rss.IRssFeedService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.redis.RssFeedRepositoryService;
+import com.pack.pack.services.redis.UrlShortener;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.ModelConverter;
 
@@ -265,13 +267,14 @@ public class RssFeedServiceImpl implements IRssFeedService {
 	
 	@Override
 	public boolean upload(JRssFeed feed, TTL ttl) throws PackPackException {
-		//RSSFeed rssFeed = ModelConverter.convert(feed, String.valueOf(System.nanoTime()));
-		//feed.setId(String.valueOf(System.nanoTime()));
-		RSSFeed rssFeed = ModelConverter.convert(feed);
 		RssFeedRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(RssFeedRepositoryService.class);
 		boolean checkFeedExists = service.checkFeedExists(feed);
 		if(!checkFeedExists) {
+			ShortenUrlInfo shortenUrlInfo = UrlShortener.calculateShortenShareableUrl(feed);
+			feed.setShareableUrl(shortenUrlInfo.getUrl());
+			
+			RSSFeed rssFeed = ModelConverter.convert(feed);
 			service.uploadPromotionalFeed(rssFeed, ttl);
 		}
 		return !checkFeedExists;

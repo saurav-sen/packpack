@@ -20,7 +20,7 @@
         	<artifactId>services</artifactId>
          	<version>${packpack.release}</version>          	
         </dependency>
-		<dependency>
+		<!--dependency>
 		  <groupId>org.apache.httpcomponents</groupId>
 		  <artifactId>httpclient</artifactId>
 		  <version>4.2.2</version>
@@ -39,7 +39,7 @@
 		  <groupId>org.apache.httpcomponents</groupId>
 		  <artifactId>httpmime</artifactId>
 		  <version>4.2.2</version>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
@@ -272,6 +272,36 @@
 					<include>META-INF/*.json</include>
 				</includes>
 			</resource>
+			<resource>
+				<directory>${basedir}/src/conf</directory>
+				<includes>
+					<include>conf/*.properties</include>
+				</includes>
+			</resource>
 		</resources>
 	</build>
+	<profiles>
+	    <profile>
+	      <id>development_local</id>
+	      <properties>
+	        <external.shared.link.base.url>http://192.168.35.12:8080/RSS/public/ext</external.shared.link.base.url>
+	        <!--ektorp.compression>false</ektorp.compression-->
+	      </properties>
+	    </profile>
+		<profile>
+	      <id>development</id>
+	      <properties>
+	        <external.shared.link.base.url>http://13.126.116.95:8080/RSS/public/ext</external.shared.link.base.url>
+	        <!--ektorp.compression>false</ektorp.compression-->
+	      </properties>
+	    </profile>
+	    <!-- Production environment @ production server -->
+	    <profile>
+	      <id>production</id>
+	      <properties>
+	        <external.shared.link.base.url>http://www.squill.co.in/RSS/public/ext</external.shared.link.base.url>
+	        <!--ektorp.compression>true</ektorp.compression-->
+	      </properties>
+	    </profile>
+	  </profiles>
 </project>

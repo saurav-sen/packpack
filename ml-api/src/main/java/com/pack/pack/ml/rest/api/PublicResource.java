@@ -21,7 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pack.pack.ITopicService;
+import com.pack.pack.markup.gen.IMarkup;
+import com.pack.pack.markup.gen.MarkupGenerator;
 import com.pack.pack.markup.gen.util.PromotedFileUtil;
+import com.pack.pack.model.web.JSharedFeed;
 import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.JTopics;
 import com.pack.pack.services.exception.ErrorCodes;
@@ -40,7 +43,25 @@ public class PublicResource {
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(PublicResource.class);
-	
+
+	@GET
+	@Path("ext/{id}")
+	@Produces(MediaType.TEXT_HTML)
+	public String getExternallySharedProxyPage(@PathParam("id") String id)
+			throws PackPackException {
+		try {
+			Markup markup = new Markup();
+			MarkupGenerator.INSTANCE.generateMarkup(id, JSharedFeed.class,
+					markup);
+			return markup.getContent();
+		} catch (Exception e) {
+			LOG.error("Promotion failed");
+			LOG.error(e.getMessage(), e);
+			throw new PackPackException(ErrorCodes.PACK_ERR_61,
+					"Failed Generating Proxy Page for Shared Link", e);
+		}
+	}
+
 	@GET
 	@Path("visions/top")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -198,5 +219,29 @@ public class PublicResource {
 			}
 		}
 		return result;
+	}
+
+	private class Markup implements IMarkup {
+
+		private String contentType;
+
+		private String content;
+
+		private Markup() {
+		}
+
+		@Override
+		public void setContentType(String contentType) {
+			this.contentType = contentType;
+		}
+
+		@Override
+		public void setContent(String content) {
+			this.content = content;
+		}
+
+		private String getContent() {
+			return content;
+		}
 	}
 }

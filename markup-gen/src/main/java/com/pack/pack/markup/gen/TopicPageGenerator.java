@@ -212,7 +212,7 @@ public class TopicPageGenerator implements IMarkupGenerator {
 	}
 
 	@Override
-	public <T> void generateAndUpload(String entityId) throws Exception {
+	public <T> void generate(String entityId, IMarkup markup) throws Exception {
 		promoteTopic(entityId);
 	}
 }

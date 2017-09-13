@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pack.pack.model.web.JRssFeeds;
+import com.pack.pack.model.web.TTL;
 import com.pack.pack.util.RssFeedUtil;
 
 /**
@@ -48,7 +49,10 @@ public class PeriodicFeedUploader {
 			try {
 				LOG.info("Uploading Selective Feeds (*** Periodic Feed Uploader ***)");
 				JRssFeeds jRssFeeds = FeedUploadUtil.reloadSelectiveFeeds();
-				RssFeedUtil.uploadNewFeeds(jRssFeeds, false);
+				TTL ttl = new TTL();
+				ttl.setTime((short)2);
+				ttl.setUnit(TimeUnit.DAYS);
+				RssFeedUtil.uploadNewFeeds(jRssFeeds, ttl, false);
 				LOG.info("Uploaded" + jRssFeeds.getFeeds().size()
 						+ " Feeds (*** Periodic Feed Uploader ***)");
 			} catch (Throwable e) {

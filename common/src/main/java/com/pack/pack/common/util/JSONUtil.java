@@ -3,6 +3,7 @@ package com.pack.pack.common.util;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.pack.pack.model.web.notification.FeedMsg;
 import com.pack.pack.services.exception.PackPackException;
 /*import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;*/
@@ -35,6 +36,16 @@ public class JSONUtil {
 		assert(millis - millis2 == 0);
 		assert(millis1 - millis2 == 0);
 	}*/
+	
+	public static void main(String[] args) throws Exception {
+		FeedMsg msg = new FeedMsg();
+		msg.setKey("key1");
+		msg.setTitle("title1");
+		System.out.println(serialize(msg, false));
+		msg = deserialize(serialize(msg), FeedMsg.class, true);
+		System.out.println(msg.getKey());
+		System.out.println(msg.getTitle());
+	}
 	
 	public static String serialize(Object object) throws PackPackException {
 		return serialize(object, true);

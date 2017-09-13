@@ -45,6 +45,8 @@ public class RSSFeed /*extends CouchDbDocument*/{
 	private String feedType;
 	
 	private long uploadTime;
+	
+	private String shareableUrl;
 
 	public String getOgTitle() {
 		return ogTitle;
@@ -167,5 +169,13 @@ public class RSSFeed /*extends CouchDbDocument*/{
 
 	public void setUploadTime(long uploadTime) {
 		this.uploadTime = uploadTime;
+	}
+
+	public String getShareableUrl() {
+		return shareableUrl;
+	}
+
+	public void setShareableUrl(String shareableUrl) {
+		this.shareableUrl = shareableUrl;
 	}
 }
