@@ -8,6 +8,7 @@ import com.pack.pack.model.web.JSharedFeed;
 import com.pack.pack.services.redis.RedisCacheService;
 import com.pack.pack.services.redis.UrlShortener;
 import com.pack.pack.services.registry.ServiceRegistry;
+import com.pack.pack.util.SystemPropertyUtil;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -35,9 +36,17 @@ public class SharedExternalLinkPageGenerator implements IMarkupGenerator {
 		dataModel.put("ogDescription", sharedFeed.getDescription());
 		dataModel.put("ogImage", sharedFeed.getImageLink());
 		dataModel.put("ogUrl", sharedFeed.getActualUrl());
+		String jsBaseURL = SystemPropertyUtil.getJSBaseURL();
+		if(jsBaseURL == null) {
+			jsBaseURL = "http://www.squill.co.in";
+		}
+		if(jsBaseURL.endsWith("/")) {
+			jsBaseURL = jsBaseURL.substring(0, jsBaseURL.length() - 1);
+		}
+		dataModel.put("jsBaseUrl", jsBaseURL);
 		generateProxyPage(dataModel, markup);
 	}
-
+	
 	private void generateProxyPage(Map<String, Object> dataModel, IMarkup markup)
 			throws Exception {
 		StringWriter writer = null;

@@ -3,7 +3,7 @@
 		<meta property="og:title" content="${ogTitle}"/>
 		<meta property="og:description" content="${ogDescription}"/>
 		<meta property="og:image" content="${ogImage}"/>
-		<script src="./jquery.min.js"></script>
+		<script src="${jsBaseUrl}/js/jquery.min-3.1.1.js"></script>
 		
 		<script type="text/javascript">   
 			$(document).ready(function(){
@@ -18,6 +18,6 @@
 	</head>
 	<body>
 		<button>Skip Me</button>
-		<img src="./squill_adv.gif"/>
+		<img src="${jsBaseUrl}/images/squill_adv.gif"/>
 	</body>
 </html>

@@ -291,7 +291,7 @@
 		<profile>
 	      <id>development</id>
 	      <properties>
-	        <external.shared.link.base.url>http://13.126.116.95:8080/RSS/public/ext</external.shared.link.base.url>
+	        <external.shared.link.base.url>http://www.squill.in/RSS/public/ext</external.shared.link.base.url>
 	        <!--ektorp.compression>false</ektorp.compression-->
 	      </properties>
 	    </profile>

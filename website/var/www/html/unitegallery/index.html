@@ -22,10 +22,10 @@
 	<script src="js/jquery.min-3.1.1.js"></script>
 	<script src="js/bootstrap.min-3.3.7.js"></script>
 	
-	<script src="jquery/jquery.hoverGrid.js"></script>
+	<script src="jquery.hoverGrid.js"></script>
 	
-	<script type="text/javascript">
-		/*$( document ).ready(function() {
+	<script type="javascript">
+		$( document ).ready(function() {
 			$('#contact_submit').click(function() {
 				var name = $('#contact_name').val();
 				var email = $('#contact_email').val();
@@ -47,28 +47,22 @@
 					}
 				});
 			});
-		});*/
-		$(document).ready(function() {
-			//alert("Hi")
+		});
+		$( document ).ready(function() {
 			$.ajax({
 				type: 'GET',
 				url: "RSS/public/visions/top",
 				success: function(data) {
-					var response = data.topics;//$.parseJSON(data);
-					//console.log(response);
+					var response = $.parseJSON(data);
+					console.log(response);
 					$.each(response, function(i, vision) {
-						var $div = $('<div>').addClass('item');
-						var $img = $('<img>').attr('width', 200).attr('height', 200).attr('src', vision.wallpaperUrl).attr('style', "max-width: 100%; max-height: 100%");
-						var $div1 = $('<div>').addClass('caption').attr('style', 'display: none;');
-						var $h2 = $('<h2>').text(vision.name);
-						var $p = $('<p>').text("by - " + vision.ownerName);
-						$div1.append($h2);
-						$div1.append($p);
-						$div.append($img);
-						$div.append($div1);
-						$('#layout').append($div);				
+						var $div = $('<div>').addClass('item')
+							.append($('img').attr('width', 400).attr('height', 400).attr('src', vision.wallpaperUrl))
+							.append($('div').addClass('caption').attr('style', 'display: none;')
+								.append($('h2').text(vision.title))
+								.append($('p').text("by - " + vision.ownerName))));
+						$('#layout').append($div);					
 					});
-					//console.log($('#layout').html())
 					$('#layout').hoverGrid();
 				},
 				error: function() {
@@ -77,13 +71,6 @@
 		});
 	</script>
 	
-       <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-	<script>
-  	(adsbygoogle = window.adsbygoogle || []).push({
-    		google_ad_client: "ca-pub-7140006360447078",
-    		enable_page_level_ads: true
-  	});
-	</script>
 </head>
 <body data-spy="scroll" data-target=".navbar" data-offset="50">
 	<div class="navbar navbar-inverse">
