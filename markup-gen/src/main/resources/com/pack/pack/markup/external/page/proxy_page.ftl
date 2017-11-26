@@ -3,6 +3,7 @@
 		<meta property="og:title" content="${ogTitle}"/>
 		<meta property="og:description" content="${ogDescription}"/>
 		<meta property="og:image" content="${ogImage}"/>
+		<meta property="og:url" content="${ogUrl}"/>
 		<script src="${jsBaseUrl}/js/jquery.min-3.1.1.js"></script>
 		
 		<script type="text/javascript">   

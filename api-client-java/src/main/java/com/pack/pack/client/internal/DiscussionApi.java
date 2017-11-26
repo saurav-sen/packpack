@@ -251,6 +251,7 @@ class DiscussionApi extends BaseAPI {
 
 		@Override
 		public Object invoke() throws Exception {
+			Object result = null;
 			if (COMMAND.GET_ALL_DISCUSSIONS_FOR_TOPIC.equals(action)) {
 				String topicId = (String) params.get(APIConstants.Topic.ID);
 				String userId = (String) params.get(APIConstants.User.ID);
@@ -259,7 +260,7 @@ class DiscussionApi extends BaseAPI {
 				if (pageLink == null || pageLink.trim().equals("")) {
 					pageLink = "FIRST_PAGE";
 				}
-				return getAllDiscussionsForTopic(topicId, userId, pageLink,
+				result = getAllDiscussionsForTopic(topicId, userId, pageLink,
 						oAuthToken);
 			} else if (COMMAND.GET_ALL_DISCUSSIONS_FOR_PACK.equals(action)) {
 				String packId = (String) params.get(APIConstants.Pack.ID);
@@ -269,7 +270,7 @@ class DiscussionApi extends BaseAPI {
 				if (pageLink == null || pageLink.trim().equals("")) {
 					pageLink = "FIRST_PAGE";
 				}
-				return getAllDiscussionsForPack(packId, userId, pageLink,
+				result = getAllDiscussionsForPack(packId, userId, pageLink,
 						oAuthToken);
 			} else if (COMMAND.GET_ALL_REPLIES_FOR_DISCUSSION.equals(action)) {
 				String discussionId = (String) params.get(APIConstants.Discussion.ID);
@@ -279,7 +280,7 @@ class DiscussionApi extends BaseAPI {
 				if (pageLink == null || pageLink.trim().equals("")) {
 					pageLink = "FIRST_PAGE";
 				}
-				return getAllRepliesForDiscussion(discussionId, userId, pageLink,
+				result = getAllRepliesForDiscussion(discussionId, userId, pageLink,
 						oAuthToken);
 			} else if (COMMAND.START_DISCUSSION_ON_TOPIC.equals(action)) {
 				String topicId = (String) params.get(APIConstants.Topic.ID);
@@ -288,7 +289,7 @@ class DiscussionApi extends BaseAPI {
 						.get(APIConstants.Discussion.TITLE);
 				String content = (String) params
 						.get(APIConstants.Discussion.CONTENT);
-				return startDiscussionOnTopic(topicId, userId, title, content,
+				result = startDiscussionOnTopic(topicId, userId, title, content,
 						oAuthToken);
 			} else if (COMMAND.START_DISCUSSION_ON_PACK.equals(action)) {
 				String packId = (String) params.get(APIConstants.Pack.ID);
@@ -297,7 +298,7 @@ class DiscussionApi extends BaseAPI {
 						.get(APIConstants.Discussion.TITLE);
 				String content = (String) params
 						.get(APIConstants.Discussion.CONTENT);
-				return startDiscussionOnPack(packId, userId, title, content,
+				result = startDiscussionOnPack(packId, userId, title, content,
 						oAuthToken);
 			} else if (COMMAND.ADD_REPLY_TO_DISCUSSION.equals(action)) {
 				String discussionId = (String) params
@@ -307,28 +308,28 @@ class DiscussionApi extends BaseAPI {
 				String content = (String) params
 						.get(APIConstants.Discussion.CONTENT);
 				if (EntityType.DISCUSSION.name().equalsIgnoreCase(type)) {
-					return addReplyToDiscussion(discussionId, userId, content,
+					result = addReplyToDiscussion(discussionId, userId, content,
 							EntityType.DISCUSSION, oAuthToken);
 				}
 			} else if (COMMAND.GET_DISCUSSION_BY_ID.equals(action)) {
 				String discussionId = (String) params
 						.get(APIConstants.Discussion.ID);
 				String userId = (String) params.get(APIConstants.User.ID);
-				return getDiscussionById(discussionId, userId, oAuthToken);
+				result = getDiscussionById(discussionId, userId, oAuthToken);
 			} else if (COMMAND.ADD_LIKE_TO_DISCUSSION.equals(action)) {
 				String discussionId = (String) params
 						.get(APIConstants.Discussion.ID);
 				String userId = (String) params.get(APIConstants.User.ID);
 				String type = (String) params.get(APIConstants.Discussion.TYPE);
 				if (EntityType.DISCUSSION.name().equalsIgnoreCase(type)) {
-					return addLikeToDiscussion(discussionId, userId,
+					result = addLikeToDiscussion(discussionId, userId,
 							EntityType.DISCUSSION, oAuthToken);
 				} else if (EntityType.REPLY.name().equalsIgnoreCase(type)) {
-					return addLikeToReply(discussionId, userId,
+					result = addLikeToReply(discussionId, userId,
 							EntityType.REPLY, oAuthToken);
 				}
 			}
-			return null;
+			return result;
 		}
 
 		@Override
