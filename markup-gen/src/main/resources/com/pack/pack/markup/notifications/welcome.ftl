@@ -228,8 +228,14 @@
                             <b>Hello ${name}, thanks for signing up!</b>
                             <br/>
                             We're really excited for having you with us as our ${count} user! 
-							Hope you will enjoy exploring/promoting/contributing to the works of arts, painting, music & many more.
-							SQUILL Team stays committed to provide you with latest updates and happening in the world of art & culture. Also, to provide you with more explore options each day.
+                            With SQUILL now you can save/share your family photos/memories with your near and dear one.
+                            You can form your society with your colony mates, or with neighbours in your apartment/society.
+                            SQUILL smart-society can help you to deal with social affairs in your society with better ease.
+                            SQUILL Team stays committed stays committed to add many-more support in smart-society as we go along.
+                            Follow latest trends and news across the globe thereby putting an end to browsing 10 different forums & websites.
+							SQUILL refreshment will provide you with unique & amazing feeds for music/art/stunt works etc.. to revitalize your mind each day.
+							Hope you will enjoy your stay with us for longer.
+							We shall be very thankful to hear your feedback @ <a href="mailto:support@squill.co.in">SQUILL Support</a>
 							Please activate your account now, as you are just a click away.
                           </td>
                         </tr>
