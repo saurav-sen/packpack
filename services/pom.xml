@@ -260,13 +260,27 @@
 	      </properties>
 	    </profile>
 	    <!-- Production environment @ production server -->
-	    <profile>
+	    <!--profile>
 	      <id>production</id>
 	      <properties>
 	        <couchdb.url>https://ritgho.cloudant.com/</couchdb.url>
 	        <couchdb.username>ritgho</couchdb.username>
-	        <couchdb.password>P@$$w0rd4sQui11</couchdb.password>
+	        <couchdb.password>Password4sQui11$</couchdb.password>
 	        <couchdb.enableSSL>true</couchdb.enableSSL>
+	        <couchdb.relaxedSSLSettings>true</couchdb.relaxedSSLSettings>
+	        <couchdb.maxConnections>20</couchdb.maxConnections>
+	        <couchdb.connectionTimeout>1000</couchdb.connectionTimeout>
+	        <couchdb.socketTimeout>10000</couchdb.socketTimeout>
+	        <couchdb.autoUpdateViewOnChange>true</couchdb.autoUpdateViewOnChange>
+	      </properties>
+	    </profile-->
+		<profile>
+	      <id>production</id>
+	      <properties>
+	        <couchdb.url>http://localhost:4895/</couchdb.url>
+	        <couchdb.username>ritgho</couchdb.username>
+	        <couchdb.password>P@$$word4sQui11</couchdb.password>
+	        <couchdb.enableSSL>false</couchdb.enableSSL>
 	        <couchdb.relaxedSSLSettings>true</couchdb.relaxedSSLSettings>
 	        <couchdb.maxConnections>20</couchdb.maxConnections>
 	        <couchdb.connectionTimeout>1000</couchdb.connectionTimeout>
