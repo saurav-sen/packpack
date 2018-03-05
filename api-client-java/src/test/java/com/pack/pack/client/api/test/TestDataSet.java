@@ -8,7 +8,6 @@ import java.util.Random;
 import java.util.UUID;
 
 import com.pack.pack.common.util.CommonConstants;
-import com.pack.pack.model.web.JTopic;
 
 public class TestDataSet {
 	
@@ -35,8 +34,6 @@ public class TestDataSet {
 	private static final String CATEGORY_PHOTOGRAPHY = CommonConstants.SOCIETY;//"photography";
 	
 	private Map<Integer, List<String>> attachmentIdMap = new HashMap<Integer, List<String>>();
-	
-	private Map<Integer, JTopic> topicsMap = new HashMap<Integer, JTopic>();
 	
 	private Map<Integer, String> userIdsMap = new HashMap<Integer, String>();
 	
@@ -109,14 +106,6 @@ public class TestDataSet {
 	
 	public String getTopicCategory(int seqNo) {
 		return CATEGORY_PHOTOGRAPHY;
-	}
-	
-	public void addToTopicsMap(int seqNo, JTopic topic) {
-		topicsMap.put(seqNo, topic);
-	}
-	
-	public JTopic getTopicFromMap(int seqNo) {
-		return topicsMap.get(seqNo);
 	}
 	
 	public String randomNewTopicTitle() {

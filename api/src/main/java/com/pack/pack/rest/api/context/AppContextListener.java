@@ -5,12 +5,8 @@ import java.util.UUID;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import com.pack.pack.event.IEventListener;
-import com.pack.pack.event.MsgEvent;
-import com.pack.pack.message.listeners.EventListener;
 import com.pack.pack.oauth.registry.TokenRegistry;
 import com.pack.pack.services.aws.S3UploadTaskExecutor;
-import com.pack.pack.services.registry.EventManager;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.SystemPropertyUtil;
 
@@ -19,7 +15,7 @@ import com.pack.pack.util.SystemPropertyUtil;
  * @author Saurav
  *
  */
-public class AppContextListener implements ServletContextListener, IEventListener {
+public class AppContextListener implements ServletContextListener {
 	
 	public static void main(String[] args) {
 		System.out.println(UUID.randomUUID());
@@ -37,7 +33,6 @@ public class AppContextListener implements ServletContextListener, IEventListene
 			S3UploadTaskExecutor.INSTANCE.start();
 			//logger.info("Started service-registry, successfully");
 			//logger.info("Starting event-manager & registering generic listener");
-			EventManager.INSTANCE.registerListener(new EventListener());
 			//logger.info("Started event-manager & registered generic listener, successfully");
 		} catch (Exception e) {
 			//logger.error("Failed to start application: " + e.getMessage(), e);
@@ -49,11 +44,5 @@ public class AppContextListener implements ServletContextListener, IEventListene
 	public void contextDestroyed(ServletContextEvent sce) {
 		S3UploadTaskExecutor.INSTANCE.stop();
 		ServiceRegistry.INSTANCE.stop();
-	}
-
-	@Override
-	public void handleEvent(MsgEvent event) {
-		// TODO Auto-generated method stub
-		
 	}
 }

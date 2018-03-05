@@ -1,9 +1,7 @@
 package com.pack.pack;
 
 import java.io.InputStream;
-import java.util.List;
 
-import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.services.exception.PackPackException;
 
@@ -31,16 +29,6 @@ public interface IUserService {
 			String city, String country, String dob,
 			InputStream profilePicture, String profilePictureFileName)
 			throws PackPackException;
-
-	/**
-	 * 
-	 * @param userId
-	 * @param categories
-	 * @return
-	 * @throws PackPackException
-	 */
-	public JStatus editUserFollowedCategories(String userId,
-			List<String> categories) throws PackPackException;
 
 	/**
 	 * 

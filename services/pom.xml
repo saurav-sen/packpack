@@ -247,7 +247,7 @@
 		<profile>
 	      <id>development</id>
 	      <properties>
-	        <couchdb.url>http://localhost:5984/</couchdb.url>
+	        <couchdb.url>http://13.126.116.95:5984/</couchdb.url>
 	        <couchdb.username>sourabhnits</couchdb.username>
 	        <couchdb.password>P@$$w0rd4SQui11</couchdb.password>
 	        <couchdb.enableSSL>false</couchdb.enableSSL>

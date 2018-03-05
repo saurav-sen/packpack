@@ -5,17 +5,12 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.pack.pack.model.Topic;
 import com.pack.pack.model.User;
-import com.pack.pack.model.es.TopicDetail;
 import com.pack.pack.model.es.UserDetail;
 
 /**
@@ -63,14 +58,6 @@ public class ESUploadService {
 		}
 	}
 
-	public void uploadNewTopicDetails(Topic topic) {
-		if (!stopSignal) {
-			logger.info("Scheduling newly added topic " + topic.getName()
-					+ " for upload to Elasticsearch store.");
-			producerQueue.add(topic);
-		}
-	}
-
 	private class ConsumerTask implements Runnable {
 
 		private ConsumerTask() {
@@ -84,9 +71,6 @@ public class ESUploadService {
 					if (object instanceof User) {
 						User newUser = (User) object;
 						uploadNewUserDetails(newUser);
-					} else if (object instanceof Topic) {
-						Topic topic = (Topic) object;
-						uploadNewTopcDetails(topic);
 					}
 				}
 			} catch (Exception e) {
@@ -94,28 +78,11 @@ public class ESUploadService {
 			}
 		}
 
-		private void uploadNewTopcDetails(Topic topic) throws Exception {
-			TopicDetail topicDetail = convert(topic);
-			// TODO -- call an check this once we add ES infrastructure
-			// IndexUploadService.INSTANCE.uploadNewTopcDetails(topicDetail);
-			logger.info("Successfully uploaded newly created topic details to ES");
-		}
-
 		private void uploadNewUserDetails(User newUser) throws Exception {
 			UserDetail userDetail = convert(newUser);
 			// TODO -- call an check this once we add ES infrastructure
 			// IndexUploadService.INSTANCE.uploadNewUserDetails(userDetail);
 			logger.info("Successfully uploaded new user details to ES");
-		}
-
-		private TopicDetail convert(Topic topic) {
-			TopicDetail esTopic = new TopicDetail();
-			esTopic.setCategory(topic.getCategory());
-			esTopic.setDescription(topic.getDescription());
-			esTopic.setName(topic.getName());
-			esTopic.setOwnerId(topic.getOwnerId());
-			esTopic.setTopicId(topic.getId());
-			return esTopic;
 		}
 
 		private UserDetail convert(User newUser) {

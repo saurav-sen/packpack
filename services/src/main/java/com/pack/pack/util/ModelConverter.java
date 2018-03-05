@@ -1,45 +1,25 @@
 package com.pack.pack.util;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pack.pack.IUserService;
 import com.pack.pack.common.util.CommonConstants;
-import com.pack.pack.model.AttachmentType;
-import com.pack.pack.model.Comment;
-import com.pack.pack.model.Discussion;
-import com.pack.pack.model.EGift;
-import com.pack.pack.model.Pack;
-import com.pack.pack.model.PackAttachment;
 import com.pack.pack.model.RSSFeed;
 import com.pack.pack.model.RssSubFeed;
-import com.pack.pack.model.Topic;
-import com.pack.pack.model.TopicProperty;
 import com.pack.pack.model.User;
 import com.pack.pack.model.UserInfo;
 import com.pack.pack.model.es.UserDetail;
-import com.pack.pack.model.web.JComment;
-import com.pack.pack.model.web.JDiscussion;
-import com.pack.pack.model.web.JPack;
-import com.pack.pack.model.web.JPackAttachment;
-import com.pack.pack.model.web.JPacks;
 import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.JRssSubFeed;
 import com.pack.pack.model.web.JSharedFeed;
-import com.pack.pack.model.web.JTopic;
 import com.pack.pack.model.web.JUser;
-import com.pack.pack.model.web.JeGift;
-import com.pack.pack.services.couchdb.UserRepositoryService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 
@@ -153,182 +133,6 @@ public class ModelConverter {
 		return result;
 	}
 
-	public static JPack convert(Pack pack) {
-		JPack jPack = new JPack();
-		jPack.setId(pack.getId());
-		jPack.setCreationTime(pack.getCreationTime());
-		jPack.setLikes(pack.getLikes());
-		jPack.setStory(pack.getStory());
-		jPack.setTitle(pack.getTitle());
-		jPack.setViews(pack.getViews());
-		String userId = pack.getCreatorId();
-		UserRepositoryService service = ServiceRegistry.INSTANCE
-				.findService(UserRepositoryService.class);
-		User user = service.get(userId);
-		jPack.setCreatorName(user.getName());
-		jPack.setParentTopicId(pack.getPackParentTopicId());
-		jPack.setCreator(convert(user));
-		return jPack;
-	}
-	
-	public static List<JPackAttachment> convert(
-			List<PackAttachment> attachments, boolean loadComments)
-			throws PackPackException {
-		if (attachments == null || attachments.isEmpty())
-			return Collections.emptyList();
-		List<JPackAttachment> result = new LinkedList<JPackAttachment>();
-		for (PackAttachment attachment : attachments) {
-			result.add(convert(attachment, loadComments));
-		}
-		return result;
-	}
-
-	public static JPackAttachment convert(PackAttachment attachment,
-			boolean loadComments) throws PackPackException {
-		JPackAttachment jAttachment = new JPackAttachment();
-		AttachmentType type = attachment.getType();
-		if(type == null) {
-			type = AttachmentType.IMAGE;
-		}
-		String baseURL = (type == AttachmentType.IMAGE ? SystemPropertyUtil
-				.getImageAttachmentBaseURL(attachment.getAttachmentUrl())
-				: SystemPropertyUtil.getVideoAttachmentBaseURL(attachment
-						.getAttachmentUrl()));
-		/*
-		 * String thumbnailUrl = attachment.getAttachmentThumbnailUrl();
-		 * thumbnailUrl = thumbnailUrl.replaceAll(File.separator,
-		 * SystemPropertyUtil.URL_SEPARATOR); if
-		 * (!thumbnailUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR) &&
-		 * !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) { thumbnailUrl =
-		 * baseURL + SystemPropertyUtil.URL_SEPARATOR + thumbnailUrl; } else if
-		 * (baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR) &&
-		 * thumbnailUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-		 * thumbnailUrl = baseURL.substring(0, baseURL.length() - 1) +
-		 * thumbnailUrl; } else { thumbnailUrl = baseURL + thumbnailUrl; }
-		 * jAttachment.setAttachmentThumbnailUrl(thumbnailUrl);
-		 */
-		jAttachment.setAttachmentType(type.name());
-		String url = attachment.getAttachmentUrl();
-
-		String isExternalLink = attachment.getIsExternalLink();
-		if (isExternalLink == null || isExternalLink.trim().isEmpty()) {
-			jAttachment.setExternalLink(false);
-		} else {
-			try {
-				boolean b = Boolean.parseBoolean(isExternalLink.trim());
-				jAttachment.setExternalLink(b);
-			} catch (Exception e) {
-				// Ignore this
-				jAttachment.setExternalLink(false);
-			}
-		}
-
-		String storyId = attachment.getStoryId();
-		if (storyId == null || storyId.trim().isEmpty()) {
-			storyId = null;
-		}
-		jAttachment.setStoryId(storyId);
-
-		Map<String, String> extraMetaData = attachment.getExtraMetaData();
-		if (extraMetaData != null && !extraMetaData.isEmpty()) {
-			Iterator<String> itr = extraMetaData.keySet().iterator();
-			while (itr.hasNext()) {
-				String key = itr.next();
-				String value = extraMetaData.get(key);
-				jAttachment.getExtraMetaData().put(key, value);
-			}
-		}
-
-		if (!url.startsWith(HTTP) && !url.startsWith(HTTPS)) {
-			url = url.replaceAll(File.separator,
-					SystemPropertyUtil.URL_SEPARATOR);
-			if (!url.startsWith(SystemPropertyUtil.URL_SEPARATOR)
-					&& !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-				url = baseURL + SystemPropertyUtil.URL_SEPARATOR + url;
-			} else if (baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)
-					&& url.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-				url = baseURL.substring(0, baseURL.length() - 1) + url;
-			} else {
-				url = baseURL + url;
-			}
-		}
-
-		String thumbnailUrl = attachment.getAttachmentThumbnailUrl();
-
-		if (thumbnailUrl != null && !thumbnailUrl.trim().isEmpty()) {
-			if (!thumbnailUrl.startsWith(HTTP)
-					&& !thumbnailUrl.startsWith(HTTPS)) {
-				thumbnailUrl = thumbnailUrl.replaceAll(File.separator,
-						SystemPropertyUtil.URL_SEPARATOR);
-				if (!thumbnailUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)
-						&& !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-					thumbnailUrl = baseURL + SystemPropertyUtil.URL_SEPARATOR
-							+ thumbnailUrl;
-				} else if (baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)
-						&& thumbnailUrl
-								.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-					thumbnailUrl = baseURL.substring(0, baseURL.length() - 1)
-							+ thumbnailUrl;
-				} else {
-					thumbnailUrl = baseURL + thumbnailUrl;
-				}
-				jAttachment.setAttachmentThumbnailUrl(thumbnailUrl);
-			} else {
-				jAttachment.setAttachmentThumbnailUrl(thumbnailUrl);
-			}
-		}
-
-		jAttachment.setId(attachment.getId());
-		jAttachment.setAttachmentUrl(url);
-		jAttachment.setMimeType(attachment.getMimeType());
-		jAttachment.setTitle(attachment.getTitle());
-		jAttachment.setDescription(attachment.getDescription());
-		jAttachment.setLikes(attachment.getLikes());
-		jAttachment.setViews(attachment.getViews());
-		jAttachment.setCreationTime(attachment.getCreationTime());
-		if (loadComments) {
-			Collection<Comment> recentComments = attachment.getRecentComments();
-			if (recentComments != null && !recentComments.isEmpty()) {
-				for (Comment comment : recentComments) {
-					JComment jComment = ModelConverter.convert(comment);
-					jAttachment.addOrEditComment(jComment);
-				}
-			}
-		}
-		String userId = attachment.getCreatorId();
-		IUserService service = ServiceRegistry.INSTANCE
-				.findCompositeService(IUserService.class);
-		JUser user = service.findUserById(userId);
-		jAttachment.setCreator(user);
-		return jAttachment;
-	}
-
-	public static JPacks convert(List<Pack> packs) {
-		if (packs == null)
-			return null;
-		JPacks jPacks = new JPacks();
-		for (Pack pack : packs) {
-			JPack jPack = convert(pack);
-			if (jPack != null) {
-				jPacks.getPacks().add(jPack);
-			}
-		}
-		return jPacks;
-	}
-
-	public static List<JPack> convertAll(List<Pack> packs) {
-		if (packs == null)
-			return Collections.emptyList();
-		List<JPack> jPacks = new ArrayList<JPack>();
-		for (Pack pack : packs) {
-			JPack jPack = convert(pack);
-			if (jPack != null) {
-				jPacks.add(jPack);
-			}
-		}
-		return jPacks;
-	}
-
 	public static JUser convert(User user) {
 		JUser jUser = new JUser();
 		jUser.setId(user.getId());
@@ -423,128 +227,14 @@ public class ModelConverter {
 		return topicWallpaperUrl;
 	}
 
-	public static Comment convert(JComment jComment) {
-		Comment comment = new Comment();
-		comment.setId(jComment.getId());
-		comment.setComment(jComment.getComment());
-		comment.setDateTime(jComment.getDateTime());
-		comment.setFromUser(jComment.getFromUserId());
-		//comment.setFromUser(jComment.getFromUserName());
-		return comment;
-	}
-
-	public static JComment convert(Comment comment) throws PackPackException {
-		JComment jComment = new JComment();
-		jComment.setId(comment.getId());
-		jComment.setComment(comment.getComment());
-		jComment.setDateTime(comment.getDateTime());
-		String fromUserId = comment.getFromUser();
-		jComment.setFromUserId(comment.getFromUser());
-		JUser user = getUserInfo(fromUserId);
-		if (user != null) {
-			jComment.setFromUserDisplayName(user.getName());
-			jComment.setFromUserName(user.getUsername());
-			jComment.setFromUserProfilePictureUrl(resolveProfilePictureUrl(user
-					.getProfilePictureUrl()));
-		}
-		return jComment;
-	}
-
-	public static List<JComment> convertComments(Collection<Comment> comments)
-			throws PackPackException {
-		List<JComment> jComments = new LinkedList<JComment>();
-		if (comments == null)
-			return jComments;
-		for (Comment comment : comments) {
-			JComment jComment = convert(comment);
-			if (jComment == null)
-				continue;
-			jComments.add(jComment);
-		}
-		return jComments;
-	}
-
-	public static JTopic convert(Topic topic) throws PackPackException {
-		return convert(topic, false);
-	}
-
-	public static JTopic convert(Topic topic, boolean isFollowing)
-			throws PackPackException {
-		JTopic jTopic = new JTopic();
-		jTopic.setDescription(topic.getDescription());
-		jTopic.setFollowers(topic.getFollowers());
-		jTopic.setName(topic.getName());
-		String userId = topic.getOwnerId();
-		jTopic.setOwnerId(userId);
-		jTopic.setId(topic.getId());
-		jTopic.setCategory(topic.getCategory());
-		jTopic.setWallpaperUrl(resolveTopicWallpaperUrl(topic.getWallpaperUrl()));
-		jTopic.setFollowing(isFollowing);
-		jTopic.setAddress(topic.getAddress());
-		jTopic.setLongitude(topic.getLongitude());
-		jTopic.setLatitude(topic.getLatitude());
-		JUser user = getUserInfo(userId);
-		if (user != null) {
-			jTopic.setOwnerName(user.getName());
-			jTopic.setOwnerProfilePicture(user.getProfilePictureUrl());
-
-		}
-		List<TopicProperty> settings = topic.getPropeties();
-		for (TopicProperty prop : settings) {
-			jTopic.getProperties().put(prop.getKey(), prop.getValue());
-		}
-		return jTopic;
-	}
-
-	public static List<JTopic> convertTopicList(List<Topic> topics)
-			throws PackPackException {
-		return convertTopicList(topics, false);
-	}
-
-	public static List<JTopic> convertTopicList(List<Topic> topics,
-			boolean isFollowing) throws PackPackException {
-		List<JTopic> jTopics = new ArrayList<JTopic>();
-		for (Topic topic : topics) {
-			JTopic jTopic = convert(topic, isFollowing);
-			jTopics.add(jTopic);
-		}
-		return jTopics;
-	}
-
 	private static JUser getUserInfo(String userId) throws PackPackException {
 		IUserService service = ServiceRegistry.INSTANCE
 				.findCompositeService(IUserService.class);
 		return service.findUserById(userId);
 	}
 
-	public static Topic convert(JTopic jTopic) {
-		Topic topic = new Topic();
-		topic.setDescription(jTopic.getDescription());
-		topic.setName(jTopic.getName());
-		topic.setOwnerId(jTopic.getOwnerId());
-		String category = jTopic.getCategory();
-		topic.setSubCategory(category);
-		topic.setCategory(resolveTopicPrimaryCategory(category));
-		topic.setLongitude(jTopic.getLongitude());
-		topic.setLatitude(jTopic.getLatitude());
-		return topic;
-	}
-	
 	public static String resolveTopicPrimaryCategory(String subCategory) {
 		return CommonConstants.resolvePrimaryCategory(subCategory);
-	}
-
-	public static JeGift convert(EGift eGift) {
-		JeGift jeGift = new JeGift();
-		jeGift.setBrandId(eGift.getBrandId());
-		jeGift.setBrandInfo(eGift.getBrandInfo());
-		jeGift.setCategory(eGift.getCategory());
-		jeGift.setId(eGift.getId());
-		jeGift.setImageThumbnailUrl(resolveEGiftUrl(eGift
-				.getImageThumbnailUrl()));
-		jeGift.setImageUrl(resolveEGiftUrl(eGift.getImageUrl()));
-		jeGift.setTitle(eGift.getTitle());
-		return jeGift;
 	}
 
 	private static String resolveEGiftUrl(String url) {
@@ -559,21 +249,6 @@ public class ModelConverter {
 			resolvedUrl = baseURL + resolvedUrl;
 		}
 		return resolvedUrl;
-	}
-
-	public static JDiscussion convert(Discussion discussion) {
-		if (discussion == null)
-			return null;
-		JDiscussion jDiscussion = new JDiscussion();
-		jDiscussion.setId(discussion.getId());
-		jDiscussion.setContent(discussion.getContent());
-		jDiscussion.setParentId(discussion.getParentEntityId());
-		jDiscussion.setParentType(discussion.getParentEntityType());
-		jDiscussion.setFromUserId(discussion.getStartedByUserId());
-		jDiscussion.setTitle(discussion.getDiscussionTitle());
-		jDiscussion.setLikes(discussion.getLikes());
-		jDiscussion.setLikeUsers(discussion.getLikeUsers());
-		return jDiscussion;
 	}
 
 	/*
@@ -610,23 +285,6 @@ public class ModelConverter {
 	 * reply.setReplies(replies); } return reply; }
 	 */
 
-	public static Discussion convert(JDiscussion jDiscussion) {
-		Discussion discussion = new Discussion();
-		discussion.setContent(jDiscussion.getContent());
-		discussion.setDiscussionTitle(jDiscussion.getTitle());
-		discussion.setStartedByUserId(jDiscussion.getFromUserId());
-		discussion.setLikes(jDiscussion.getLikes());
-		discussion.setParentEntityId(jDiscussion.getParentId());
-		discussion.setParentEntityType(jDiscussion.getParentType());
-		discussion.setLikeUsers(jDiscussion.getLikeUsers());
-		/*
-		 * List<JReply> jReplies = jDiscussion.getReplies(); if(jReplies != null
-		 * && !jReplies.isEmpty()) { for(JReply jReply : jReplies) { Reply reply
-		 * = convert(jReply); discussion.getReplies().add(reply); } }
-		 */
-		return discussion;
-	}
-	
 	public static JSharedFeed convertToShareableFeed(JRssFeed feed) {
 		JSharedFeed sharedFeed = new JSharedFeed();
 		sharedFeed.setActualUrl(feed.getHrefSource() != null ? feed

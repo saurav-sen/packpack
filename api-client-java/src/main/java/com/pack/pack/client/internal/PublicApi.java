@@ -11,7 +11,6 @@ import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.client.api.MultipartRequestProgressListener;
 import com.pack.pack.common.util.JSONUtil;
-import com.pack.pack.model.web.JCategories;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.Timestamp;
 
@@ -31,15 +30,6 @@ public class PublicApi extends BaseAPI {
 	@Override
 	protected ApiInvoker getInvoker() {
 		return invoker;
-	}
-
-	private JCategories getAllSystemSupportedCategories() throws Exception {
-		DefaultHttpClient client = new DefaultHttpClient();
-		String url = getBaseUrl() + "sys.info/categories";
-		HttpGet GET = new HttpGet(url);
-		HttpResponse response = client.execute(GET);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				JCategories.class);
 	}
 
 	private Long getServerTimeInMilliseconds() throws Exception {

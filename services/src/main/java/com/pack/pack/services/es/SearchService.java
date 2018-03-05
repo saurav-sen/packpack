@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.pack.pack.model.es.CityLocation;
-import com.pack.pack.model.es.TopicDetail;
 import com.pack.pack.model.es.UserDetail;
 import com.pack.pack.services.exception.PackPackException;
 
@@ -31,13 +30,6 @@ public class SearchService {
 			throws PackPackException {
 		// TODO -- call an check this once we add ES infrastructure
 		//return IndexSearchService.INSTANCE.searchUserByName(pattern);
-		return Collections.emptyList();
-	}
-
-	public List<TopicDetail> searchTopic(String pattern)
-			throws PackPackException {
-		// TODO -- call an check this once we add ES infrastructure
-		//return IndexSearchService.INSTANCE.searchTopic(pattern);
 		return Collections.emptyList();
 	}
 }

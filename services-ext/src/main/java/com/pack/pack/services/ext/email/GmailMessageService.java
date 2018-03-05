@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -16,7 +15,6 @@ import java.util.Properties;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
-import javax.annotation.PostConstruct;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Session;
@@ -27,9 +25,6 @@ import javax.mail.internet.MimeMultipart;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -45,12 +40,6 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.GmailScopes;
 import com.google.api.services.gmail.model.Message;
-import com.pack.pack.model.AttachmentType;
-import com.pack.pack.model.Pack;
-import com.pack.pack.model.PackAttachment;
-import com.pack.pack.model.web.dto.PackReceipent;
-import com.pack.pack.services.couchdb.PackAttachmentRepositoryService;
-import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.SystemPropertyUtil;
 
 /**
@@ -105,51 +94,6 @@ public class GmailMessageService {
 		Credential credential = authorize();
 		service = new Gmail.Builder(httpTransport, JSON_FACTORY, credential)
 				.setApplicationName(APPLICATION_NAME).build();
-	}
-
-	public void forwardPack(Pack pack, PackReceipent receipent,
-			String fromUserEmail) throws Exception {
-		PackAttachmentRepositoryService repositoryService = ServiceRegistry.INSTANCE
-				.findService(PackAttachmentRepositoryService.class);
-		List<PackAttachment> packAttachments = repositoryService
-				.getAllListOfPackAttachments(pack.getId());
-		List<File> mailAttachments = new ArrayList<File>();
-		if (packAttachments != null && !packAttachments.isEmpty()) {
-			for (PackAttachment packAttachment : packAttachments) {
-				String filePath = packAttachment.getAttachmentUrl();
-				AttachmentType type = packAttachment.getType();
-				File f = null;
-				switch (type) {
-				case IMAGE:
-					String imageHome = SystemPropertyUtil.getImageHome();
-					if (!imageHome.endsWith(File.separator)
-							&& !filePath.startsWith(File.separator)) {
-						filePath = imageHome + File.separator + filePath;
-					}
-					f = new File(filePath);
-					mailAttachments.add(f);
-					break;
-				case VIDEO:
-					String videoHome = SystemPropertyUtil.getVideoHome();
-					if (!videoHome.endsWith(File.separator)
-							&& !filePath.startsWith(File.separator)) {
-						filePath = videoHome + File.separator + filePath;
-					}
-					f = new File(filePath);
-					mailAttachments.add(f);
-					break;
-				}
-			}
-		}
-		sendPack(receipent.getToUserId(), fromUserEmail, pack.getTitle(),
-				pack.getStory(), mailAttachments);
-	}
-
-	private void sendPack(String to, String from, String subject, String body,
-			List<File> attachments) throws IOException, MessagingException {
-		MimeMessage email = createEmailWithAttachment(to, from, subject, body,
-				attachments);
-		sendMessage(service, "me", email);
 	}
 
 	private Credential authorize() throws Exception {

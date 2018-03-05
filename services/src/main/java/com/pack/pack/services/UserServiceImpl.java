@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import com.pack.pack.IUserService;
 import com.pack.pack.model.User;
-import com.pack.pack.model.UserInfo;
 import com.pack.pack.model.UserLocation;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JUser;
@@ -88,44 +87,6 @@ public class UserServiceImpl implements IUserService {
 		return ModelConverter.convert(user);
 	}
 	
-	@Override
-	public JStatus editUserFollowedCategories(String userId,
-			List<String> categories) throws PackPackException {
-		UserRepositoryService service = ServiceRegistry.INSTANCE
-				.findService(UserRepositoryService.class);
-		User user = service.get(userId);
-		if(user == null) {
-			JStatus status = new JStatus();
-			status.setStatus(StatusType.ERROR);
-			status.setInfo("Failed to find user with ID = " + userId);
-			return status;
-		}
-		List<UserInfo> infos = user.getExtraInfoMap();
-		UserInfo userInfo = null;
-		for(UserInfo info : infos) {
-			if(UserInfo.FOLLOWED_CATEGORIES.equals(info.getKey())) {
-				userInfo = info;
-				break;
-			}
-		}
-		if(userInfo == null) {
-			userInfo = new UserInfo();
-			userInfo.setKey(UserInfo.FOLLOWED_CATEGORIES);
-			infos.add(userInfo);
-		}
-		StringBuilder categoriesValue = new StringBuilder();
-		for(String category : categories) {
-			categoriesValue.append(category.trim().toLowerCase());
-			categoriesValue.append(":");
-		}
-		userInfo.setValue(categoriesValue.toString());
-		service.update(user);
-		JStatus status = new JStatus();
-		status.setStatus(StatusType.OK);
-		status.setInfo("Successfully updated user information");
-		return status;
-	}
-
 	@Override
 	public JUser findUserById(String userId) throws PackPackException {
 		UserRepositoryService service = ServiceRegistry.INSTANCE

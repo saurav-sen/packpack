@@ -219,23 +219,6 @@ public class UserResource {
 				verificationCode);
 	}
 
-	@PUT
-	@CompressRead
-	@CompressWrite
-	@Path("id/{id}/follow/category")
-	@Consumes(MediaType.TEXT_PLAIN)
-	@Produces(MediaType.APPLICATION_JSON)
-	public JUser editUserFollowedCategories(@PathParam("id") String userId,
-			String followedCategories) throws PackPackException {
-		IUserService service = ServiceRegistry.INSTANCE
-				.findCompositeService(IUserService.class);
-		String[] split = followedCategories
-				.split(UserInfo.FOLLOWED_CATEGORIES_SEPARATOR);
-		List<String> categories = Arrays.asList(split);
-		service.editUserFollowedCategories(userId, categories);
-		return getUserById(userId);
-	}
-
 	@GET
 	@CompressWrite
 	@Path("id/{id}/follow/category")

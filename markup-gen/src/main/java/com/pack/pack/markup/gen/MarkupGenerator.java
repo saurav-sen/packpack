@@ -6,9 +6,7 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.pack.pack.model.web.JPackAttachment;
 import com.pack.pack.model.web.JSharedFeed;
-import com.pack.pack.model.web.JTopic;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -25,9 +23,6 @@ public class MarkupGenerator {
 
 	private static Map<String, IMarkupGenerator> generatorsMap = new HashMap<String, IMarkupGenerator>();
 	static {
-		generatorsMap.put(JTopic.class.getName(), new TopicPageGenerator());
-		generatorsMap.put(JPackAttachment.class.getName(),
-				new PackAttachmentPageGenerator());
 		generatorsMap.put(JSharedFeed.class.getName(),
 				new SharedExternalLinkPageGenerator());
 	}
@@ -73,7 +68,7 @@ public class MarkupGenerator {
 			dataModel.put("count", userCountStr);
 			dataModel.put("OTP", OTP);
 			
-			cfg.setClassForTemplateLoading(TopicPageGenerator.class,
+			cfg.setClassForTemplateLoading(SharedExternalLinkPageGenerator.class,
 					"/com/pack/pack/markup/notifications");
 			Template template = cfg.getTemplate("welcome.ftl");
 			
@@ -96,7 +91,7 @@ public class MarkupGenerator {
 		try {
 			dataModel.put("otp", OTP);
 			
-			cfg.setClassForTemplateLoading(TopicPageGenerator.class,
+			cfg.setClassForTemplateLoading(SharedExternalLinkPageGenerator.class,
 					"/com/pack/pack/markup/notifications");
 			Template template = cfg.getTemplate("passwd_reset_token.ftl");
 			

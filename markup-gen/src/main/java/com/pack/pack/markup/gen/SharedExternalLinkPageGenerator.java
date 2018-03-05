@@ -52,7 +52,7 @@ public class SharedExternalLinkPageGenerator implements IMarkupGenerator {
 		StringWriter writer = null;
 		Configuration cfg = new Configuration();
 		try {
-			cfg.setClassForTemplateLoading(TopicPageGenerator.class,
+			cfg.setClassForTemplateLoading(SharedExternalLinkPageGenerator.class,
 					"/com/pack/pack/markup/external/page");
 			Template template = cfg.getTemplate("proxy_page.ftl");
 

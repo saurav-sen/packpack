@@ -67,28 +67,6 @@ public class RssFeedUtil {
 						}
 					});
 					t0.start();
-					
-					final int sequenceID = new Random().nextInt();
-					for (JRssFeed l : list) {
-						LOG.trace("Publishing :: ");
-						LOG.debug("Is messagePublisher loaded = " + (messagePublisher != null));
-						try {
-							Thread t = new Thread(new Runnable() {
-								
-								@Override
-								public void run() {
-									try {
-										messagePublisher.broadcastNewRSSFeedUpload(l, null, sequenceID, sendNotification);
-									} catch (Exception e) {
-										LOG.error(e.getMessage(), e);
-									}
-								}
-							});
-							t.start();
-						} catch (Exception e) {
-							LOG.error(e.getMessage(), e);
-						}
-					}
 				}
 			}
 			LOG.info("Successfully uploaded feeds in DB");

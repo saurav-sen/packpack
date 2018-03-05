@@ -4,8 +4,6 @@ import static com.pack.pack.services.es.Constants.CONTENT_TYPE_HEADER_NAME;
 import static com.pack.pack.services.es.Constants.ES_BASE_URL;
 import static com.pack.pack.services.es.Constants.ES_CITY_DOC;
 import static com.pack.pack.services.es.Constants.ES_LOCALITY_INDEX;
-import static com.pack.pack.services.es.Constants.ES_TOPIC_DETAIL_INDEX;
-import static com.pack.pack.services.es.Constants.ES_TOPIC_DOC;
 import static com.pack.pack.services.es.Constants.ES_USER_DETAIL_INDEX;
 import static com.pack.pack.services.es.Constants.ES_USER_DOC;
 import static com.pack.pack.services.es.Constants.URL_SEPARATOR;
@@ -28,7 +26,6 @@ import org.json.JSONObject;
 
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.es.CityLocation;
-import com.pack.pack.model.es.TopicDetail;
 import com.pack.pack.model.es.UserDetail;
 import com.pack.pack.services.exception.PackPackException;
 
@@ -147,52 +144,6 @@ public class IndexSearchService {
 				UserDetail cityLocation = JSONUtil.deserialize(
 						jsonObj.toString(), UserDetail.class);
 				result.add(cityLocation);
-			}
-			return result;
-		} catch (ClientProtocolException e) {
-			throw new PackPackException("TODO", e.getMessage(), e);
-		} catch (IOException e) {
-			throw new PackPackException("TODO", e.getMessage(), e);
-		}
-	}
-
-	public List<TopicDetail> searchTopic(String pattern)
-			throws PackPackException {
-		List<TopicDetail> result = null;
-		try {
-			String esUrl = new StringBuilder(esBaseURL).append(ES_TOPIC_DOC)
-					.append(URL_SEPARATOR).append(ES_TOPIC_DETAIL_INDEX)
-					.append(URL_SEPARATOR).append(_SEARCH).toString();
-			HttpPost POST = new HttpPost(esUrl);
-			POST.addHeader(CONTENT_TYPE_HEADER_NAME,
-					ContentType.APPLICATION_JSON.getMimeType());
-			JSONObject jsonObj = new JSONObject();
-			JSONObject queryObj = new JSONObject();
-			JSONObject matchObj = new JSONObject();
-			JSONObject nameQueryObj = new JSONObject();
-			nameQueryObj.put(QUERY, pattern);
-			nameQueryObj.put(FUZZINESS, 2);
-			nameQueryObj.put(PREFIX_LENGTH, 1);
-			matchObj.put("name", nameQueryObj);
-			queryObj.put(MATCH, matchObj);
-			jsonObj.put(QUERY, queryObj);
-			String json = jsonObj.toString();
-			HttpEntity jsonQuery = new StringEntity(json,
-					ContentType.APPLICATION_JSON);
-			POST.setEntity(jsonQuery);
-			CloseableHttpResponse response = client.execute(POST);
-			json = EntityUtils.toString(response.getEntity());
-			jsonObj = new JSONObject(json);
-			jsonObj = jsonObj.getJSONObject(HITS);
-			JSONArray jsonArray = jsonObj.getJSONArray(HITS);
-			int len = jsonArray.length();
-			result = new ArrayList<TopicDetail>((int) (len * 1.5f));
-			for (int i = 0; i < len; i++) {
-				jsonObj = jsonArray.getJSONObject(i);
-				jsonObj = jsonObj.getJSONObject(_SOURCE);
-				TopicDetail topicDetail = JSONUtil.deserialize(
-						jsonObj.toString(), TopicDetail.class);
-				result.add(topicDetail);
 			}
 			return result;
 		} catch (ClientProtocolException e) {
