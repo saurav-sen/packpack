@@ -56,82 +56,18 @@ public class APIBuilderImpl extends APIBuilder {
 				|| action == COMMAND.ISSUE_SIGNUP_VERIFIER) {
 			api = new APIWrapper(new UserManagementApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
-		} else if (action == COMMAND.GET_USER_FOLLOWED_TOPIC_LIST
-				|| action == COMMAND.FOLLOW_TOPIC
-				|| action == COMMAND.NEGLECT_TOPIC
-				|| action == COMMAND.GET_TOPIC_BY_ID
-				|| action == COMMAND.CREATE_NEW_TOPIC
-				|| action == COMMAND.EDIT_EXISTING_TOPIC
-				|| action == COMMAND.GET_USER_OWNED_TOPICS
-				|| action == COMMAND.EDIT_TOPIC_SETTINGS
-				|| action == COMMAND.PROMOTE_TOPIC
-				|| action == COMMAND.GET_ALL_SHARED_FEEDS_TO_TOPIC) {
-			api = new APIWrapper(new TopicApi(baseUrl));
-			api.getInvoker().setConfiguration(config);
-		} else if (action == COMMAND.GET_PACK_BY_ID
-				|| action == COMMAND.GET_ALL_ATTACHMENT_COMMENTS
-				|| action == COMMAND.GET_ALL_PACKS_IN_DEFAULT_TOPICS
-				|| action == COMMAND.GET_ALL_PACKS_IN_TOPIC
-				|| action == COMMAND.GET_ALL_ATTACHMENTS_IN_PACK
-				/*|| action == COMMAND.FORWARD_PACK
-				|| action == COMMAND.FORWARD_PACK_OVER_EMAIL*/
-				|| action == COMMAND.ADD_COMMENT_TO_PACK_ATTACHMENT
-				|| action == COMMAND.ADD_LIKE_TO_PACK
-				|| action == COMMAND.ADD_LIKE_TO_PACK_ATTACHMENT
-				|| action == COMMAND.CREATE_NEW_PACK
-				|| action == COMMAND.PROMOTE_PACK) {
-			api = new APIWrapper(new PackApi(baseUrl));
-			api.getInvoker().setConfiguration(config);
-		} else if (action == COMMAND.GET_EGIFT_BY_ID
-				|| action == COMMAND.GET_EGIFTS_BY_BRAND_ID
-				|| action == COMMAND.GET_EGIFTS_BY_CATEGORY
-				|| action == COMMAND.FORWARD_EGIFT
-				/*|| action == COMMAND.FORWARD_PACK_OVER_EMAIL*/
-				|| action == COMMAND.ADD_COMMENT_TO_PACK
-				|| action == COMMAND.ADD_LIKE_TO_PACK) {
-			api = new APIWrapper(new EGiftApi(baseUrl));
-			api.getInvoker().setConfiguration(config);
-		} else if (action == COMMAND.SEARCH_BRANDS_INFO) {
-			api = new APIWrapper(new BrandsApi(baseUrl));
-			api.getInvoker().setConfiguration(config);
-		} else if (action == COMMAND.GET_PROFILE_PICTURE
-				|| action == COMMAND.GET_ORIGINAL_IMAGE_ATTACHMENT
-				|| action == COMMAND.GET_THUMBNAIL_VIDEO_ATTACHMENT
-				|| action == COMMAND.GET_ORIGINAL_VIDEO_ATTACHMENT
-				|| action == COMMAND.UPLOAD_IMAGE_PACK
-				|| action == COMMAND.ADD_IMAGE_TO_PACK
-				|| action == COMMAND.ADD_SHARED_IMAGE_TO_TOPIC
-				|| action == COMMAND.UPLOAD_VIDEO_PACK
-				|| action == COMMAND.ADD_VIDEO_TO_PACK
-				|| action == COMMAND.ADD_VIDEO_TO_PACK_EXTERNAL_LINK
-				|| action == COMMAND.ADD_SHARED_TEXT_MSG_TO_TOPIC
-				|| action == COMMAND.ADD_SHARED_EXTERNAL_LINK_TO_TOPIC
-				|| action == COMMAND.PROMOTE_PACK_ATTACHMENT
-				|| action == COMMAND.DELETE_ATTACHMENT
-				|| action == COMMAND.ADD_STORY_TO_ATTACHMENT
-				|| action == COMMAND.GET_STORY_FROM_ATTACHMENT) {
+		} else if (action == COMMAND.GET_PROFILE_PICTURE) {
 			api = new APIWrapper(new AttachmentsApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
 		} else if (action == COMMAND.LOAD_RESOURCE
 				|| action == COMMAND.LOAD_EXTERNAL_RESOURCE) {
 			api = new APIWrapper(new ResourceLoaderApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
-		} else if (action == COMMAND.GET_ALL_DISCUSSIONS_FOR_TOPIC
-				|| action == COMMAND.GET_ALL_DISCUSSIONS_FOR_PACK
-				|| action == COMMAND.GET_ALL_REPLIES_FOR_DISCUSSION
-				|| action == COMMAND.START_DISCUSSION_ON_TOPIC
-				|| action == COMMAND.START_DISCUSSION_ON_PACK
-				|| action == COMMAND.ADD_REPLY_TO_DISCUSSION
-				|| action == COMMAND.GET_DISCUSSION_BY_ID
-				|| action == COMMAND.ADD_LIKE_TO_DISCUSSION) {
-			api = new APIWrapper(new DiscussionApi(baseUrl));
-			api.getInvoker().setConfiguration(config);
 		} else if(action == COMMAND.GET_ALL_PROMOTIONAL_FEEDS
 				|| action == COMMAND.GET_ALL_NEWS_FEEDS) {
 			api = new APIWrapper(new BroadcastApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
-		} else if(action == COMMAND.GET_ALL_SYSTEM_SUPPORTED_CATEGORIES
-				|| action == COMMAND.SYNC_TIME
+		} else if(action == COMMAND.SYNC_TIME
 				|| action == COMMAND.VALIDATE_USER_NAME
 				|| action == COMMAND.ANDROID_APK_URL) {
 			api = new APIWrapper(new PublicApi(baseUrl));

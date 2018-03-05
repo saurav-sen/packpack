@@ -16,9 +16,9 @@ public class TestSessionExecutor {
 		JUser user = new UserInfoTest().getUserInfo(session);
 		session.setUserId(user.getId());
 		new DefaultTopicResourceTest().execute(session);
-		new AddTopicTest().execute(session);
+		/*new AddTopicTest().execute(session);
 		new PackUploadTest().execute(session);
-		new PackAttachmentStoryTest().execute(session);
+		new PackAttachmentStoryTest().execute(session);*/
 	}
 	
 	private void execute_0(TestSession session) throws Exception {
@@ -27,8 +27,8 @@ public class TestSessionExecutor {
 		session.setOauthToken(oAuthToken);
 		JUser user = new UserInfoTest().getUserInfo(session);
 		session.setUserId(user.getId());
-		new DefaultTopicResourceTest().execute(session);
-		new TopicSharedFeedsTest().execute(session);
+		//new DefaultTopicResourceTest().execute(session);
+		//new TopicSharedFeedsTest().execute(session);
 		/*new AddTopicTest().execute(session);
 		new PackUploadTest().execute(session);
 		new PackAttachmentStoryTest().execute(session);*/

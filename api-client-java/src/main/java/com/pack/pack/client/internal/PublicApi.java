@@ -84,9 +84,7 @@ public class PublicApi extends BaseAPI {
 
 		@Override
 		public Object invoke() throws Exception {
-			if (COMMAND.GET_ALL_SYSTEM_SUPPORTED_CATEGORIES.equals(action)) {
-				return getAllSystemSupportedCategories();
-			} else if (COMMAND.SYNC_TIME.equals(action)) {
+			if (COMMAND.SYNC_TIME.equals(action)) {
 				return getServerTimeInMilliseconds();
 			} else if (COMMAND.VALIDATE_USER_NAME.equals(action)) {
 				String userName = (String) params
