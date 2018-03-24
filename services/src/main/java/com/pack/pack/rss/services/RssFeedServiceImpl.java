@@ -75,7 +75,18 @@ public class RssFeedServiceImpl implements IRssFeedService {
 			LOG.debug("Promotional Feeds Count = " + feeds.size());
 		} else if (RssFeedSourceType.NEWS_API.equals(source)
 				|| JRssFeedType.NEWS.name().equals(source)) {
-			feeds = repositoryService.getAllNewsFeeds();
+			feeds = repositoryService.getAllNewsFeeds(JRssFeedType.NEWS.name());
+			paginationRequired = true;
+			LOG.debug("News Feeds Count = " + feeds.size());
+		} else if (JRssFeedType.NEWS_SCIENCE_TECHNOLOGY.name().equals(source)) {
+			feeds = repositoryService
+					.getAllNewsFeeds(JRssFeedType.NEWS_SCIENCE_TECHNOLOGY
+							.name());
+			paginationRequired = true;
+			LOG.debug("News Feeds Count = " + feeds.size());
+		} else if (JRssFeedType.NEWS_SPORTS.name().equals(source)) {
+			feeds = repositoryService.getAllNewsFeeds(JRssFeedType.NEWS_SPORTS
+					.name());
 			paginationRequired = true;
 			LOG.debug("News Feeds Count = " + feeds.size());
 		}

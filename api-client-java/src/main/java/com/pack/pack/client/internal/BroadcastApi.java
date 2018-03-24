@@ -97,6 +97,24 @@ class BroadcastApi extends BaseAPI {
 					pageLink = "FIRST_PAGE";
 				}
 				return getAllFeeds(userId, pageLink, oAuthToken, source);
+			} else if(COMMAND.GET_ALL_SPORTS_NEWS_FEEDS.equals(action)) {
+				String userId = (String) params.get(APIConstants.User.ID);
+				String source = JRssFeedType.NEWS_SPORTS.name();
+				String pageLink = (String) params
+						.get(APIConstants.PageInfo.PAGE_LINK);
+				if (pageLink == null || pageLink.trim().equals("")) {
+					pageLink = "FIRST_PAGE";
+				}
+				return getAllFeeds(userId, pageLink, oAuthToken, source);
+			} else if(COMMAND.GET_ALL_SCIENCE_AND_TECHNOLOGY_NEWS_FEEDS.equals(action)) {
+				String userId = (String) params.get(APIConstants.User.ID);
+				String source = JRssFeedType.NEWS_SCIENCE_TECHNOLOGY.name();
+				String pageLink = (String) params
+						.get(APIConstants.PageInfo.PAGE_LINK);
+				if (pageLink == null || pageLink.trim().equals("")) {
+					pageLink = "FIRST_PAGE";
+				}
+				return getAllFeeds(userId, pageLink, oAuthToken, source);
 			}
 			return null;
 		}

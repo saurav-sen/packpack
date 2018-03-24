@@ -64,7 +64,9 @@ public class APIBuilderImpl extends APIBuilder {
 			api = new APIWrapper(new ResourceLoaderApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
 		} else if(action == COMMAND.GET_ALL_PROMOTIONAL_FEEDS
-				|| action == COMMAND.GET_ALL_NEWS_FEEDS) {
+				|| action == COMMAND.GET_ALL_NEWS_FEEDS
+				|| action == COMMAND.GET_ALL_SPORTS_NEWS_FEEDS
+				|| action == COMMAND.GET_ALL_SCIENCE_AND_TECHNOLOGY_NEWS_FEEDS) {
 			api = new APIWrapper(new BroadcastApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
 		} else if(action == COMMAND.SYNC_TIME

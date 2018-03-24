@@ -8,5 +8,8 @@ package com.pack.pack.model;
 public enum RssFeedType {
 
 	REFRESHMENT,
-	NEWS;
+	NEWS,
+	NEWS_SCIENCE_TECHNOLOGY,
+	NEWS_SPORTS,
+	ARTICLE;
 }

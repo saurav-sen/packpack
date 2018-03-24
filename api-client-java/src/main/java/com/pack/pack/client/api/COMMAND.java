@@ -21,6 +21,8 @@ public enum COMMAND {
 			APIConstants.Image.WIDTH, APIConstants.Image.HEIGHT), LOAD_EXTERNAL_RESOURCE(
 			APIConstants.ExternalResource.RESOURCE_URL), GET_ALL_PROMOTIONAL_FEEDS(
 			APIConstants.User.ID, APIConstants.PageInfo.PAGE_LINK), GET_ALL_NEWS_FEEDS(
+			APIConstants.User.ID, APIConstants.PageInfo.PAGE_LINK), GET_ALL_SPORTS_NEWS_FEEDS(
+			APIConstants.User.ID, APIConstants.PageInfo.PAGE_LINK), GET_ALL_SCIENCE_AND_TECHNOLOGY_NEWS_FEEDS(
 			APIConstants.User.ID, APIConstants.PageInfo.PAGE_LINK), SYNC_TIME, VALIDATE_USER_NAME(
 			APIConstants.User.USERNAME), ANDROID_APK_URL(), CRAWL_FEED(
 			APIConstants.ExternalResource.RESOURCE_URL), ISSUE_PASSWD_RESET_LINK(

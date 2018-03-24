@@ -2,7 +2,6 @@ package com.pack.pack.util;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -76,23 +75,26 @@ public class RssFeedUtil {
 	}
 	
 	private static final String resolvePrefix(RSSFeed feed) {
-		if(feed.getFeedType() == null) {
-			return "Feeds_";
-		} else if(RssFeedType.REFRESHMENT.name().equalsIgnoreCase(feed.getFeedType())) {
-			return "Feeds_";
-		} else if(RssFeedType.NEWS.name().equalsIgnoreCase(feed.getFeedType())) {
-			return JRssFeedType.NEWS.name() + "_";
-		}
-		return "Feeds_";
+		return resolvePrefix(feed.getFeedType());
 	}
 	
 	private static final String resolvePrefix(JRssFeed feed) {
-		if(feed.getFeedType() == null) {
+		return resolvePrefix(feed.getFeedType());
+	}
+	
+	public static final String resolvePrefix(String feedType) {
+		if(feedType == null) {
 			return "Feeds_";
-		} else if(RssFeedType.REFRESHMENT.name().equalsIgnoreCase(feed.getFeedType())) {
+		} else if(RssFeedType.REFRESHMENT.name().equalsIgnoreCase(feedType)) {
 			return "Feeds_";
-		} else if(RssFeedType.NEWS.name().equalsIgnoreCase(feed.getFeedType())) {
+		} else if(RssFeedType.NEWS.name().equalsIgnoreCase(feedType)) {
 			return JRssFeedType.NEWS.name() + "_";
+		} else if(RssFeedType.NEWS_SCIENCE_TECHNOLOGY.name().equalsIgnoreCase(feedType)) {
+			return JRssFeedType.NEWS_SCIENCE_TECHNOLOGY.name() + "_";
+		} else if(RssFeedType.NEWS_SPORTS.name().equalsIgnoreCase(feedType)) {
+			return JRssFeedType.NEWS_SPORTS.name() + "_";
+		} else if(RssFeedType.ARTICLE.name().equalsIgnoreCase(feedType)) {
+			return JRssFeedType.ARTICLE.name() + "_";
 		}
 		return "Feeds_";
 	}

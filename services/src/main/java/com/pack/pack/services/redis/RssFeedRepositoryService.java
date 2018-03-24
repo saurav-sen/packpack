@@ -153,8 +153,9 @@ public class RssFeedRepositoryService {
 		return getAllFeeds("Feeds_*");
 	}
 	
-	public List<RSSFeed> getAllNewsFeeds() throws PackPackException {
-		return getAllFeeds("NEWS_*");
+	public List<RSSFeed> getAllNewsFeeds(String newsType) throws PackPackException {
+		//return getAllFeeds("NEWS_*");
+		return getAllFeeds(RssFeedUtil.resolvePrefix(newsType) + "*");
 	}
 	
 	/*public List<RSSFeed> getAllUserCustomFeeds(String city, String country) throws PackPackException {

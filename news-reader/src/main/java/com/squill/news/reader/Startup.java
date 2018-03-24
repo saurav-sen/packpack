@@ -3,7 +3,10 @@ package com.squill.news.reader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Executors;
@@ -26,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pack.pack.common.util.JSONUtil;
+import com.pack.pack.model.web.JRssFeedType;
 import com.pack.pack.model.web.JRssFeeds;
 import com.pack.pack.model.web.TTL;
 import com.pack.pack.services.exception.PackPackException;
@@ -83,16 +87,17 @@ public class Startup {
 				Properties properties = new Properties();
 				properties.load(new FileReader(new File(optionValue)));
 
-				String list = (String) properties.get(NEWS_SOURCES);
+				String news_sources_file_name = (String) properties
+						.get(NEWS_SOURCES);
 				String newsAPIKey = (String) properties
 						.getProperty(NEWS_API_KEY);
-				System.setProperty(NEWS_SOURCES, list);
-				System.setProperty(NEWS_API_KEY, newsAPIKey);
+
+				List<NewsSource> newsSources = readNewsSources(news_sources_file_name);
 
 				SystemPropertyUtil.init();
 				ServiceRegistry.INSTANCE
 						.init(ServiceRegistryModes.REDIS_ONLY_SERVICES);
-				Runnable cmd = new NewsReader();
+				Runnable cmd = new NewsReader(newsSources, newsAPIKey);
 				scheduler.scheduleAtFixedRate(cmd, 0, 2, TimeUnit.HOURS);
 			} else {
 				help();
@@ -104,8 +109,17 @@ public class Startup {
 			LOG.trace(e.getMessage(), e);
 			help();
 		} finally {
-			//stopApp();
+			// stopApp();
 		}
+	}
+
+	private List<NewsSource> readNewsSources(String news_sources_file_name)
+			throws Exception {
+		String content = new String(Files.readAllBytes(Paths
+				.get(news_sources_file_name)), Charset.forName("UTF-8"));
+		NewsSources newsSources = JSONUtil.deserialize(content,
+				NewsSources.class);
+		return newsSources.getSources();
 	}
 
 	private void stopApp() {
@@ -129,14 +143,13 @@ public class Startup {
 
 	private class NewsReader implements Runnable {
 
-		private String[] newsSources;
+		private List<NewsSource> newsSources;
 
 		private String newsAPIKey;
 
-		NewsReader() {
-			String list = System.getProperty(NEWS_SOURCES);
-			this.newsSources = list.split(",");
-			this.newsAPIKey = System.getProperty(NEWS_API_KEY);
+		NewsReader(List<NewsSource> newsSources, String newsAPIKey) {
+			this.newsSources = newsSources;
+			this.newsAPIKey = newsAPIKey;
 		}
 
 		@Override
@@ -147,20 +160,30 @@ public class Startup {
 					return;
 				}
 
-				List<NewsFeed> newsFeedsList = new ArrayList<NewsFeed>();
-
-				for (String newsSource : newsSources) {
+				List<Startup.NewsFeedGroup> newsFeedGroups = new LinkedList<Startup.NewsFeedGroup>();
+				for (NewsSource newsSource : newsSources) {
 					try {
-						NewsFeeds newsFeeds = readFromSource(newsSource);
+						Startup.NewsFeedGroup newsFeedGroup = new Startup.NewsFeedGroup();
+						List<NewsFeed> newsFeedsList = new LinkedList<NewsFeed>();
+						String feedType = JRssFeedType.NEWS.name();
+						if (newsSource.getFeedType() != null) {
+							feedType = newsSource.getFeedType().toUpperCase();
+						}
+						NewsFeeds newsFeeds = readFromSource(newsSource.getId());
 						if (newsFeeds == null)
 							continue;
 						newsFeedsList.addAll(newsFeeds.getArticles());
+
+						newsFeedGroup.setFeedType(feedType);
+						newsFeedGroup.getNewsFeeds().addAll(newsFeedsList);
+
+						newsFeedGroups.add(newsFeedGroup);
 					} catch (Exception e) {
 						LOG.error(e.getMessage(), e);
 					}
 				}
 
-				uploadNewsFeeds(newsFeedsList);
+				uploadNewsFeeds(newsFeedGroups);
 			} catch (Exception e) {
 				LOG.error(e.getMessage(), e);
 				throw new RuntimeException(e);
@@ -183,15 +206,45 @@ public class Startup {
 			return null;
 		}
 
-		private void uploadNewsFeeds(List<NewsFeed> newsFeeds) {
+		private void uploadNewsFeeds(List<Startup.NewsFeedGroup> newsFeedGroups) {
+			for (NewsFeedGroup newsFeedGroup : newsFeedGroups) {
+				uploadNewsFeeds(newsFeedGroup);
+			}
+		}
+
+		private void uploadNewsFeeds(Startup.NewsFeedGroup newsFeedGroup) {
+			List<NewsFeed> newsFeeds = newsFeedGroup.getNewsFeeds();
 			NewsFeeds nfc = new NewsFeeds();
 			nfc.getArticles().addAll(newsFeeds);
-			JRssFeeds feeds = NewsFeedConverter.convert(nfc);
+			JRssFeeds feeds = NewsFeedConverter.convert(nfc,
+					newsFeedGroup.getFeedType());
 			LOG.info("Uploading news feeds: Total = " + newsFeeds.size());
 			TTL ttl = new TTL();
-			ttl.setTime((short)1);
+			ttl.setTime((short) 1);
 			ttl.setUnit(TimeUnit.DAYS);
 			RssFeedUtil.uploadNewFeeds(feeds, ttl, true);
+		}
+	}
+
+	private class NewsFeedGroup {
+
+		private String feedType;
+
+		private List<NewsFeed> newsFeeds;
+
+		public String getFeedType() {
+			return feedType;
+		}
+
+		public void setFeedType(String feedType) {
+			this.feedType = feedType;
+		}
+
+		public List<NewsFeed> getNewsFeeds() {
+			if (newsFeeds == null) {
+				newsFeeds = new LinkedList<NewsFeed>();
+			}
+			return newsFeeds;
 		}
 	}
 }
