@@ -41,7 +41,8 @@ class BroadcastApi extends BaseAPI {
 	private Pagination<JRssFeed> getAllFeeds(String userId, String pageLink,
 			String oAuthToken, String source) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = getBaseUrl() + "home/usr/" + userId + "/page/" + pageLink + "/version/v2?source=" + source;
+		String url = getBaseUrl() + "home/usr/" + userId + "/page/" + pageLink
+				+ "/version/v2?source=" + source;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);
@@ -77,10 +78,11 @@ class BroadcastApi extends BaseAPI {
 		public Object invoke() throws Exception {
 			if (COMMAND.GET_ALL_PROMOTIONAL_FEEDS.equals(action)) {
 				String userId = (String) params.get(APIConstants.User.ID);
-				/*String source = (String) params.get(APIConstants.RssFeed.FEED_TYPE);
-				if(source == null) {
-					source = "default";
-				}*/
+				/*
+				 * String source = (String)
+				 * params.get(APIConstants.RssFeed.FEED_TYPE); if(source ==
+				 * null) { source = "default"; }
+				 */
 				String source = JRssFeedType.REFRESHMENT.name();
 				String pageLink = (String) params
 						.get(APIConstants.PageInfo.PAGE_LINK);
@@ -88,7 +90,7 @@ class BroadcastApi extends BaseAPI {
 					pageLink = "FIRST_PAGE";
 				}
 				return getAllFeeds(userId, pageLink, oAuthToken, source);
-			} else if(COMMAND.GET_ALL_NEWS_FEEDS.equals(action)) {
+			} else if (COMMAND.GET_ALL_NEWS_FEEDS.equals(action)) {
 				String userId = (String) params.get(APIConstants.User.ID);
 				String source = JRssFeedType.NEWS.name();
 				String pageLink = (String) params
@@ -97,7 +99,7 @@ class BroadcastApi extends BaseAPI {
 					pageLink = "FIRST_PAGE";
 				}
 				return getAllFeeds(userId, pageLink, oAuthToken, source);
-			} else if(COMMAND.GET_ALL_SPORTS_NEWS_FEEDS.equals(action)) {
+			} else if (COMMAND.GET_ALL_SPORTS_NEWS_FEEDS.equals(action)) {
 				String userId = (String) params.get(APIConstants.User.ID);
 				String source = JRssFeedType.NEWS_SPORTS.name();
 				String pageLink = (String) params
@@ -106,9 +108,19 @@ class BroadcastApi extends BaseAPI {
 					pageLink = "FIRST_PAGE";
 				}
 				return getAllFeeds(userId, pageLink, oAuthToken, source);
-			} else if(COMMAND.GET_ALL_SCIENCE_AND_TECHNOLOGY_NEWS_FEEDS.equals(action)) {
+			} else if (COMMAND.GET_ALL_SCIENCE_AND_TECHNOLOGY_NEWS_FEEDS
+					.equals(action)) {
 				String userId = (String) params.get(APIConstants.User.ID);
 				String source = JRssFeedType.NEWS_SCIENCE_TECHNOLOGY.name();
+				String pageLink = (String) params
+						.get(APIConstants.PageInfo.PAGE_LINK);
+				if (pageLink == null || pageLink.trim().equals("")) {
+					pageLink = "FIRST_PAGE";
+				}
+				return getAllFeeds(userId, pageLink, oAuthToken, source);
+			} else if (COMMAND.GET_ALL_ARTICLES_FEEDS.equals(action)) {
+				String userId = (String) params.get(APIConstants.User.ID);
+				String source = JRssFeedType.ARTICLE.name();
 				String pageLink = (String) params
 						.get(APIConstants.PageInfo.PAGE_LINK);
 				if (pageLink == null || pageLink.trim().equals("")) {
