@@ -1,16 +1,20 @@
 package com.squill.og.crawler.internal;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
+import java.util.Base64;
+import java.util.Properties;
+
+import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.lambdaworks.redis.RedisClient;
-import com.lambdaworks.redis.api.StatefulRedisConnection;
-import com.lambdaworks.redis.api.sync.RedisCommands;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.EncryptionUtil;
 import com.squill.og.crawler.internal.utils.JSONUtil;
@@ -26,127 +30,69 @@ import com.squill.services.exception.PackPackException;
 @Scope("singleton")
 public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 
-	private RedisClient client;
-	private StatefulRedisConnection<String, String> connection;
+	private static final String HISTORY_TRACKER_FILE = "history.tracker.file";
 
-	private static final String REDIS_HISTORY_TRACKER_URI_CONFIG = "redis.history.tracker.uri";
+	private Properties db;
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(DefaultWebLinkTrackerService.class);
-	
-	private boolean initialized = false;
-	
-	private boolean errored = false;
-	
-	private RedisCommands<String, String> sync;
-	
-	/*public static void main(String[] args) {
-		System.setProperty(REDIS_HISTORY_TRACKER_URI_CONFIG, "redis://192.168.35.15");
-		DefaultWebLinkTrackerService a1 = new DefaultWebLinkTrackerService();
-		a1.abc();
-		DefaultWebLinkTrackerService a2 = new DefaultWebLinkTrackerService();
-		a2.xyz();
-		a1.dispose();
-		a2.dispose();
-	}
-	
-	private void abc() {
-		init();
-		sync.set("myKey", "myValue");
-		System.out.println(sync.get("myKey"));
-		dispose();
-	}
-	
-	private void xyz() {
-		init();
-		System.out.println(sync.get("myKey"));
-		dispose();
-	}*/
 
+	@PostConstruct
 	private void init() {
 		try {
-			if(initialized || errored) {
-				return;
-			}
-			if (connection == null || !connection.isOpen()) {
-				client = RedisClient.create(System
-						.getProperty(REDIS_HISTORY_TRACKER_URI_CONFIG));
-				connection = client.connect();
-			}
-			initialized = true;
-			errored = false;
-			/*if(sync == null) {
-				sync = sync();
-			}*/
-		} catch (Throwable e) {
-			LOG.info("Error Initializing Redis Connection");
-			LOG.info(e.getMessage(), e);
-			errored = true;
+			db = new Properties();
+			db.load(new FileReader(new File(System
+					.getProperty(HISTORY_TRACKER_FILE))));
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+			throw new RuntimeException(e);
 		}
 	}
 
+	@Override
 	public void dispose() {
-		if(!initialized) {
-			return;
-		}
-		/*if(sync != null) {
-			sync.close();
-		}*/
-		if (connection != null && connection.isOpen()) {
-			/*
-			 * try { clearAll(""); } catch (PackPackException e) {
-			 * LOG.debug(e.getErrorCode(), e.getMessage(), e); }
-			 */
-			connection.close();
-		}
-		initialized = false;
+		save();
 	}
 
-	private RedisCommands<String, String> sync() {
-		if(!initialized && !errored) {
-			init();
+	private void save() {
+		try {
+			db.store(
+					new FileWriter(new File(System
+							.getProperty(HISTORY_TRACKER_FILE))), "");
+		} catch (IOException e) {
+			LOG.error(e.getMessage(), e);
 		}
-		/*if(sync != null && sync.isOpen()) {
-			sync.close();
-			sync = connection.sync();
-		}*/
-		if(sync != null) {
-			return sync;
-		} else if(connection != null && connection.isOpen()) {
-			sync = connection.sync();
-		}
-		return sync;
 	}
 
+	@Override
 	public void addCrawledInfo(String link, WebSpiderTracker value,
 			long ttlSeconds) {
-		RedisCommands<String, String> sync = null;
 		try {
 			String key = EncryptionUtil.generateMD5HashKey(link, false, false);
-			sync = sync();
 			String json = JSONUtil.serialize(value);
-			sync.setex(key, ttlSeconds, json);
+			String base64EncodedJson = new String(Base64.getEncoder().encode(
+					json.getBytes()));
+			db.put(key, base64EncodedJson);
 		} catch (NoSuchAlgorithmException e) {
 			LOG.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		} catch (PackPackException e) {
 			LOG.error(e.getMessage(), e);
-		} /*finally {
-			if (sync != null) {
-				sync.close();
-			}
-		}*/
+		} finally {
+			save();
+		}
 	}
 
+	@Override
 	public WebSpiderTracker getTrackedInfo(String link) {
-		RedisCommands<String, String> sync = null;
 		try {
 			String key = EncryptionUtil.generateMD5HashKey(link, false, false);
-			if (!isKeyExists(key)) {
+			if (!db.containsKey(key)) {
 				return null;
 			}
-			sync = sync();
-			String json = sync.get(key);
+			String base64EncodedJson = db.getProperty(key);
+			String json = new String(Base64.getDecoder().decode(
+					base64EncodedJson));
 			return JSONUtil.deserialize(json, WebSpiderTracker.class);
 		} catch (NoSuchAlgorithmException e) {
 			LOG.error(e.getMessage(), e);
@@ -154,33 +100,12 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 		} catch (PackPackException e) {
 			LOG.error(e.getMessage(), e);
 			return null;
-		} /*finally {
-			if (sync != null) {
-				sync.close();
-			}
-		}*/
-	}
-
-	private boolean isKeyExists(String key) {
-		RedisCommands<String, String> sync = sync();
-		if(sync == null) {
-			return false;
 		}
-		String value = sync.get(key);
-		//sync.close();
-		return value != null;
 	}
 
+	@Override
 	public void clearAll() {
-
-	}
-
-	protected void clearAll(String keyPrefix) throws PackPackException {
-		RedisCommands<String, String> sync = sync();
-		List<String> keys = sync.keys(keyPrefix + "*");
-		if (keys == null || keys.isEmpty())
-			return;
-		sync.del(keys.toArray(new String[keys.size()]));
-		//sync.close();
+		db.clear();
+		save();
 	}
 }

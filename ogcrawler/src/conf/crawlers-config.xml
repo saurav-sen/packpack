@@ -8,6 +8,7 @@
     </Properties>
     
     <WebTracker>
+        <!--serviceId>redisWebLinkTrackerService</serviceId-->
         <serviceId>defaultWebLinkTrackerService</serviceId>
     </WebTracker>
     <!-- Articles -->
