@@ -52,12 +52,21 @@ public class WebSpiderUtils {
 			URL robotsUrl = new URL(domainUrl + "/" + "robots.txt");
 			BaseRobotRules rules = RobotUtils.getRobotRules(fetcher, parser, robotsUrl);
 			List<String> sitemaps = rules.getSitemaps();
+			IRobotScope robotScope = webSite.getRobotScope();
+			if(robotScope != null) {
+				robotScope.setRobotRules(rules);
+			}
 			if(!sitemaps.isEmpty()) {
 				//System.out.println();
 				return parseSiteMap(sitemaps, new URL(domainUrl + "/"), webSite);
 			}
-			if(!rules.isAllowAll()) {
+			if(rules.isAllowNone()) {
 				return Collections.emptyList();
+			}
+			else {
+				List<ILink> links = new ArrayList<ILink>();
+				links.add(new HyperLink(domainUrl));
+				return links;
 			}
 		}
 		HttpRequestExecutor executor = new HttpRequestExecutor();

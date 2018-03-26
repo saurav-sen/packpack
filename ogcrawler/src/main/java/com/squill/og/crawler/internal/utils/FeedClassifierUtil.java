@@ -3,8 +3,8 @@ package com.squill.og.crawler.internal.utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.squill.og.crawler.model.web.FeedClassifier;
 import com.squill.og.crawler.model.web.JRssFeed;
+import com.squill.og.crawler.model.web.JRssFeedType;
 
 /**
  * 
@@ -19,14 +19,14 @@ public class FeedClassifierUtil {
 	private FeedClassifierUtil() {
 	}
 
-	public static FeedClassifier classify(JRssFeed feed) {
+	public static String classify(JRssFeed feed) {
 		String classifiedType = feed.getPreClassifiedType();
 		if (classifiedType != null) {
 			try {
-				FeedClassifier classifier = FeedClassifier
+				JRssFeedType classifier = JRssFeedType
 						.valueOf(classifiedType.toUpperCase());
 				if (classifier != null) {
-					return classifier;
+					return classifier.name();
 				}
 			} catch (Exception e) {
 				LOG.info(e.getMessage(), e);

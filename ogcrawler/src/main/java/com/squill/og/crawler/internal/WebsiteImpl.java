@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
+import com.squill.og.crawler.AbstractRobotScope;
 import com.squill.og.crawler.ICrawlSchedule;
 import com.squill.og.crawler.ILink;
 import com.squill.og.crawler.IRobotScope;
@@ -43,10 +44,10 @@ public class WebsiteImpl implements IWebSite {
 
 	@Override
 	public IRobotScope getRobotScope() {
-		return new IRobotScope() {
+		return new AbstractRobotScope() {
 
 			@Override
-			public boolean isScoped(String link) {
+			public boolean ifScoped(String link) {
 				LinkFilter linkFilter = crawlerDef.getLinkFilter();
 				if (linkFilter == null)
 					return true;

@@ -18,7 +18,6 @@ import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
 import com.squill.og.crawler.internal.utils.CoreConstants;
 import com.squill.og.crawler.internal.utils.FeedClassifierUtil;
-import com.squill.og.crawler.model.web.FeedClassifier;
 import com.squill.og.crawler.model.web.JRssFeed;
 import com.squill.og.crawler.model.web.JRssFeeds;
 
@@ -57,11 +56,34 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 		if (metaOgTitle != null) {
 			title = metaOgTitle.attr("content");
 		}
+		
+		String pageTile = null;
+		Elements docTile = doc.select("title");
+		if (docTile != null) {
+			pageTile = docTile.val();
+		}
+
+		if (title == null) {
+			title = pageTile;
+		}
 
 		String description = null;
 		Elements metaOgDescription = doc.select("meta[property=og:description]");
 		if (metaOgDescription != null) {
 			description = metaOgDescription.attr("content");
+		}
+		
+		String pageDescription = null;
+		Elements docDescription = doc.select("meta[name=description]");
+		if (docDescription != null) {
+			pageDescription = docDescription.attr("content");
+		}
+
+		if (description == null) {
+			description = pageDescription;
+		} else if (pageDescription != null
+				&& pageDescription.length() > description.length()) {
+			description = pageDescription;
 		}
 
 		String type = null;
@@ -119,7 +141,10 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 		try {
 			JRssFeeds rssFeeds = new JRssFeeds();
 			for (JRssFeed feed : feeds) {
-				classify(feed);
+				String classifier = classifyFeedType(feed);
+				if(classifier != null) {
+					feed.setOgType(classifier);
+				}
 				rssFeeds.getFeeds().add(feed);
 			}
 			if(feedUploader != null) {
@@ -129,12 +154,30 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 			e.printStackTrace();
 		}
 	}
+	
+	protected IFeedClassificationResolver getClassificationResolver() {
+		return new IFeedClassificationResolver() {
 
-	private void classify(JRssFeed feed) {
-		FeedClassifier classifier = FeedClassifierUtil.classify(feed);
-		if (classifier != null) {
-			feed.setOgType(classifier.name());
+			@Override
+			public String resolveClassifierType(String feedTitle,
+					String feedDescription, String url) {
+				// TODO Need to integrate AI based classifier engine here
+				return null;
+			}
+		};
+	}
+
+	private String classifyFeedType(JRssFeed feed) {
+		String classifier = FeedClassifierUtil.classify(feed);
+		if (classifier == null) {
+			IFeedClassificationResolver classificationResolver = getClassificationResolver();
+			if (classificationResolver != null) {
+				return classificationResolver.resolveClassifierType(
+						feed.getOgTitle(), feed.getOgDescription(),
+						feed.getOgUrl());
+			}
 		}
+		return null;
 	}
 
 	@Override
