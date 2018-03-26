@@ -7,10 +7,6 @@
         <Property key="API_KEY" value="11a1bc16d14d-1521ee187121-1161ed1dd1c6-1861fc1b718c"/>
     </Properties>
     
-    <WebTracker>
-        <!--serviceId>redisWebLinkTrackerService</serviceId-->
-        <serviceId>defaultWebLinkTrackerService</serviceId>
-    </WebTracker>
     <!-- Articles -->
     <WebCrawler id="qz.com" domainUrl="https://qz.com/" flushFrequency="50" thresholdFrequency="10" robotRulesExists="false">
         <name>Quartz</name>
@@ -27,6 +23,10 @@
         <linkFilter>
             <!--condition>$_link.contains("collections/")</condition-->
         </linkFilter>
+        <WebTracker>
+	        <!--serviceId>redisWebLinkTrackerService</serviceId-->
+	        <serviceId>defaultWebLinkTrackerService</serviceId>
+	    </WebTracker>
         <scheduler initialDelay="0" periodicDelay="1" timeUnit="DAYS"/>
     </WebCrawler>
 </webCrawlers>

@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
 import com.squill.og.crawler.ICrawlSchedule;
 import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.WebSiteSpider;
-import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.services.exception.PackPackException;
 
 @Component
@@ -27,8 +26,6 @@ public class WebSpiderService {
 
 	private ScheduledExecutorService pool;
 
-	private IWebLinkTrackerService trackerService;
-	
 	private static Logger LOG = LoggerFactory.getLogger(WebSpiderService.class);
 
 	@PostConstruct
@@ -49,9 +46,9 @@ public class WebSpiderService {
 		List<Future<?>> list = new ArrayList<Future<?>>();
 		int count = 0;
 		int len = webSites.size();
-		for(int i=0; i<len; i++) {
+		for (int i = 0; i < len; i++) {
 			IWebSite webSite = webSites.get(i);
-			
+
 			ICrawlSchedule schedule = webSite.getSchedule();
 			long period = schedule.getPeriodicDelay();
 			TimeUnit timeUnit = schedule.getTimeUnit();
@@ -62,47 +59,52 @@ public class WebSpiderService {
 					timeUnit = TimeUnit.DAYS;
 				}
 			}
-			long crawlSchedulePeriodicTimeInMillis = crawlSchedulePeriodicTimeInMillis(period, timeUnit);
-			WebSiteSpider spider = new WebSiteSpider(webSite, crawlSchedulePeriodicTimeInMillis, trackerService);
+			long crawlSchedulePeriodicTimeInMillis = crawlSchedulePeriodicTimeInMillis(
+					period, timeUnit);
+			WebSiteSpider spider = new WebSiteSpider(webSite,
+					crawlSchedulePeriodicTimeInMillis,
+					webSite.getTrackerService());
 			Future<?> future = pool.scheduleAtFixedRate(spider,
-					schedule.getInitialDelay(), crawlSchedulePeriodicTimeInMillis, TimeUnit.MILLISECONDS);
+					schedule.getInitialDelay(),
+					crawlSchedulePeriodicTimeInMillis, TimeUnit.MILLISECONDS);
 			list.add(future);
 			count++;
-			if(count >= 10) {
+			if (count >= 10) {
 				try {
 					// To optimize concurrency.
-					Thread.sleep(30*60*1000);
+					Thread.sleep(30 * 60 * 1000);
 				} catch (InterruptedException e) {
 					LOG.debug(e.getMessage(), e);
 				} finally {
 					count = 0;
 				}
 			}
-			/*if(count == 20) { // Max concurrent submission allowed
-				waitFor(list.subList(0, 20/2));
-				count = 0;
-			}*/
+			/*
+			 * if(count == 20) { // Max concurrent submission allowed
+			 * waitFor(list.subList(0, 20/2)); count = 0; }
+			 */
 		}
 		// Main thread should keep waiting forever.
 		waitFor(list);
 	}
-	
-	private long crawlSchedulePeriodicTimeInMillis(long period, TimeUnit timeUnit) {
+
+	private long crawlSchedulePeriodicTimeInMillis(long period,
+			TimeUnit timeUnit) {
 		long result = period;
 		switch (timeUnit) {
 		case DAYS:
-			result = result*24*60*60*1000;
+			result = result * 24 * 60 * 60 * 1000;
 			break;
 		case HOURS:
-			result = result*60*60*1000;
+			result = result * 60 * 60 * 1000;
 			break;
 		default:
-			result = result*24*60*60*1000;
+			result = result * 24 * 60 * 60 * 1000;
 			break;
 		}
 		return result;
 	}
-	
+
 	private void waitFor(List<Future<?>> list) {
 		Iterator<Future<?>> itr = list.iterator();
 		while (itr.hasNext()) {
@@ -116,9 +118,5 @@ public class WebSpiderService {
 			}
 			itr.remove();
 		}
-	}
-
-	public void setTrackerService(IWebLinkTrackerService trackerService) {
-		this.trackerService = trackerService;
 	}
 }

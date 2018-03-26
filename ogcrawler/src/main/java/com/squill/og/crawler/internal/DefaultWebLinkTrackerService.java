@@ -31,6 +31,7 @@ import com.squill.services.exception.PackPackException;
 public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 
 	private static final String HISTORY_TRACKER_FILE = "history.tracker.file";
+	private static final String DEFAULT_HISTORY_TRACKER_FILE_PATH = "../conf/web-tracker.db";
 
 	private Properties db;
 
@@ -41,12 +42,18 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 	private void init() {
 		try {
 			db = new Properties();
-			db.load(new FileReader(new File(System
-					.getProperty(HISTORY_TRACKER_FILE))));
+			db.load(new FileReader(new File(resolveHistoryTrackerFilePath())));
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
+	}
+
+	private String resolveHistoryTrackerFilePath() {
+		String property = System.getProperty(HISTORY_TRACKER_FILE);
+		if (property != null && !property.trim().isEmpty())
+			return property;
+		return DEFAULT_HISTORY_TRACKER_FILE_PATH;
 	}
 
 	@Override
@@ -56,9 +63,8 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 
 	private void save() {
 		try {
-			db.store(
-					new FileWriter(new File(System
-							.getProperty(HISTORY_TRACKER_FILE))), "");
+			db.store(new FileWriter(new File(resolveHistoryTrackerFilePath())),
+					"");
 		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
 		}

@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import com.squill.og.crawler.AbstractRobotScope;
@@ -15,12 +17,14 @@ import com.squill.og.crawler.content.handlers.ExpressionContext;
 import com.squill.og.crawler.content.handlers.ExpressionContext.EvalContext;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
+import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.CoreConstants;
 import com.squill.og.crawler.model.Config;
 import com.squill.og.crawler.model.ContentHandler;
 import com.squill.og.crawler.model.FeedUploader;
 import com.squill.og.crawler.model.LinkFilter;
 import com.squill.og.crawler.model.WebCrawler;
+import com.squill.og.crawler.model.WebTracker;
 
 /**
  * 
@@ -32,6 +36,10 @@ public class WebsiteImpl implements IWebSite {
 	private WebCrawler crawlerDef;
 	
 	private IHtmlContentHandler contentHandler;
+	
+	private IWebLinkTrackerService historyTracker;
+	
+	private static final Logger LOG = LoggerFactory.getLogger(WebsiteImpl.class);
 	
 	public WebsiteImpl(WebCrawler crawlerDef) {
 		this.crawlerDef = crawlerDef;
@@ -198,5 +206,36 @@ public class WebsiteImpl implements IWebSite {
 	@Override
 	public boolean shouldCheckRobotRules() {
 		return crawlerDef.isRobotRulesExists();
+	}
+	
+	@Override
+	public IWebLinkTrackerService getTrackerService() {
+		if(historyTracker != null)
+			return historyTracker;
+		WebTracker webTracker = crawlerDef.getWebTracker();
+		if(webTracker == null)
+			return null;
+		String serviceId = webTracker.getServiceId();
+		try {
+			historyTracker = AppContext.INSTANCE.findService(
+					serviceId, IWebLinkTrackerService.class);
+		} catch (NoSuchBeanDefinitionException e) {
+			LOG.error(e.getMessage(), e);
+		}
+		if(historyTracker == null) {
+			try {
+				Object newInstance = Class.forName(serviceId).newInstance();
+				if(newInstance instanceof IWebLinkTrackerService) {
+					historyTracker = (IWebLinkTrackerService)newInstance;
+				}
+			} catch (InstantiationException e) {
+				LOG.error(e.getMessage(), e);
+			} catch (IllegalAccessException e) {
+				LOG.error(e.getMessage(), e);
+			} catch (ClassNotFoundException e) {
+				LOG.error(e.getMessage(), e);
+			}
+		}
+		return historyTracker;
 	}
 }

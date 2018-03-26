@@ -1,6 +1,7 @@
 package com.squill.og.crawler;
 
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
+import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 
 
 /**
@@ -21,4 +22,6 @@ public interface IWebSite {
 	public ICrawlSchedule getSchedule();
 	
 	public boolean shouldCheckRobotRules();
+	
+	public IWebLinkTrackerService getTrackerService();
 }

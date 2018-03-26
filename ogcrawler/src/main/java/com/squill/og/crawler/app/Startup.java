@@ -17,10 +17,8 @@ import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import com.squill.og.crawler.IWebSite;
-import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.AppContext;
 import com.squill.og.crawler.internal.WebSpiderService;
 import com.squill.og.crawler.internal.WebsiteImpl;
@@ -50,7 +48,7 @@ public class Startup {
 	private String[] args;
 	private Options options = new Options();
 	
-	private IWebLinkTrackerService historyTracker;
+	//private IWebLinkTrackerService historyTracker;
 	
 	private WebSpiderService service;
 	
@@ -93,7 +91,6 @@ public class Startup {
 				List<IWebSite> websites = readCrawlerDefinition();
 				if(websites == null || websites.isEmpty())
 					return;
-				service.setTrackerService(historyTracker);
 				service.crawlWebSites(websites);
 			} else {
 				help();
@@ -145,39 +142,10 @@ public class Startup {
 			}
 		}
 		List<WebCrawler> crawlers = crawlersDef.getWebCrawler();
-		historyTracker = loadWebHistoryTracker(crawlersDef.getWebTracker());
 		for (WebCrawler crawler : crawlers) {
 			IWebSite webSite = new WebsiteImpl(crawler);
 			webSites.add(webSite);
 		}
 		return webSites;
-	}
-	
-	private IWebLinkTrackerService loadWebHistoryTracker(WebTracker webTracker) {
-		if(webTracker == null)
-			return null;
-		IWebLinkTrackerService historyTracker = null;
-		String serviceId = webTracker.getServiceId();
-		try {
-			historyTracker = AppContext.INSTANCE.findService(
-					serviceId, IWebLinkTrackerService.class);
-		} catch (NoSuchBeanDefinitionException e) {
-			LOG.error(e.getMessage(), e);
-		}
-		if(historyTracker == null) {
-			try {
-				Object newInstance = Class.forName(serviceId).newInstance();
-				if(newInstance instanceof IWebLinkTrackerService) {
-					historyTracker = (IWebLinkTrackerService)newInstance;
-				}
-			} catch (InstantiationException e) {
-				LOG.error(e.getMessage(), e);
-			} catch (IllegalAccessException e) {
-				LOG.error(e.getMessage(), e);
-			} catch (ClassNotFoundException e) {
-				LOG.error(e.getMessage(), e);
-			}
-		}
-		return historyTracker;
 	}
 }
