@@ -10,6 +10,8 @@ import com.squill.og.crawler.hooks.IWebLinkTrackerService;
  *
  */
 public interface IWebSite {
+	
+	public String getUniqueId();
 
 	public String getDomainUrl();
 	

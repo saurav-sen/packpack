@@ -1,5 +1,6 @@
 package com.squill.og.crawler.hooks;
 
+import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.model.WebSpiderTracker;
 
 /**
@@ -8,6 +9,8 @@ import com.squill.og.crawler.model.WebSpiderTracker;
  *
  */
 public interface IWebLinkTrackerService {
+	
+	public void init(IWebSite webSite);
 
 	public void dispose();
 	

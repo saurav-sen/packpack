@@ -44,7 +44,13 @@ public class WebsiteImpl implements IWebSite {
 	public WebsiteImpl(WebCrawler crawlerDef) {
 		this.crawlerDef = crawlerDef;
 	}
-
+	
+	@Override
+	public String getUniqueId() {
+		String id = crawlerDef.getId();
+		return id.replaceAll(" ", "_");
+	}
+	
 	@Override
 	public String getDomainUrl() {
 		return crawlerDef.getDomainUrl();

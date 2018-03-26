@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import com.lambdaworks.redis.RedisClient;
 import com.lambdaworks.redis.api.StatefulRedisConnection;
 import com.lambdaworks.redis.api.sync.RedisCommands;
+import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.EncryptionUtil;
 import com.squill.og.crawler.internal.utils.JSONUtil;
@@ -62,8 +63,12 @@ public class RedisWebLinkTrackerService implements IWebLinkTrackerService {
 		System.out.println(sync.get("myKey"));
 		dispose();
 	}*/
+	
+	@Override
+	public void init(IWebSite webSite) {
+	}
 
-	private void init() {
+	private void init0() {
 		try {
 			if(initialized || errored) {
 				return;
@@ -104,7 +109,7 @@ public class RedisWebLinkTrackerService implements IWebLinkTrackerService {
 
 	private RedisCommands<String, String> sync() {
 		if(!initialized && !errored) {
-			init();
+			init0();
 		}
 		/*if(sync != null && sync.isOpen()) {
 			sync.close();

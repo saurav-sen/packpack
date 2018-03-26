@@ -8,13 +8,12 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Properties;
 
-import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.EncryptionUtil;
 import com.squill.og.crawler.internal.utils.JSONUtil;
@@ -27,33 +26,33 @@ import com.squill.services.exception.PackPackException;
  *
  */
 @Component("defaultWebLinkTrackerService")
-@Scope("singleton")
+@Scope("prototype")
 public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 
-	private static final String HISTORY_TRACKER_FILE = "history.tracker.file";
-	private static final String DEFAULT_HISTORY_TRACKER_FILE_PATH = "../conf/web-tracker.db";
+	private static final String DEFAULT_HISTORY_TRACKER_FOLDER = "../conf/";
 
 	private Properties db;
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(DefaultWebLinkTrackerService.class);
 
-	@PostConstruct
-	private void init() {
+	private IWebSite webSite;
+
+	@Override
+	public void init(IWebSite webSite) {
+		this.webSite = webSite;
 		try {
 			db = new Properties();
-			db.load(new FileReader(new File(resolveHistoryTrackerFilePath())));
+			db.load(new FileReader(new File(
+					resolveHistoryTrackerFilePath(webSite))));
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
 	}
 
-	private String resolveHistoryTrackerFilePath() {
-		String property = System.getProperty(HISTORY_TRACKER_FILE);
-		if (property != null && !property.trim().isEmpty())
-			return property;
-		return DEFAULT_HISTORY_TRACKER_FILE_PATH;
+	private String resolveHistoryTrackerFilePath(IWebSite webSite) {
+		return DEFAULT_HISTORY_TRACKER_FOLDER + webSite.getUniqueId();
 	}
 
 	@Override
@@ -63,8 +62,8 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 
 	private void save() {
 		try {
-			db.store(new FileWriter(new File(resolveHistoryTrackerFilePath())),
-					"");
+			db.store(new FileWriter(new File(
+					resolveHistoryTrackerFilePath(webSite))), "");
 		} catch (IOException e) {
 			LOG.error(e.getMessage(), e);
 		}
