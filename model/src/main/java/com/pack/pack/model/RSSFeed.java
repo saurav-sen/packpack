@@ -47,6 +47,12 @@ public class RSSFeed /*extends CouchDbDocument*/{
 	private long uploadTime;
 	
 	private String shareableUrl;
+	
+	private String articleSummaryText;
+	
+	private String fullArticleText;
+	
+	private List<GeoTag> geoTags;
 
 	public String getOgTitle() {
 		return ogTitle;
@@ -177,5 +183,32 @@ public class RSSFeed /*extends CouchDbDocument*/{
 
 	public void setShareableUrl(String shareableUrl) {
 		this.shareableUrl = shareableUrl;
+	}
+
+	public String getArticleSummaryText() {
+		return articleSummaryText;
+	}
+
+	public void setArticleSummaryText(String articleSummaryText) {
+		this.articleSummaryText = articleSummaryText;
+	}
+
+	public String getFullArticleText() {
+		return fullArticleText;
+	}
+
+	public void setFullArticleText(String fullArticleText) {
+		this.fullArticleText = fullArticleText;
+	}
+
+	public List<GeoTag> getGeoTags() {
+		if(geoTags == null) {
+			geoTags = new LinkedList<GeoTag>();
+		}
+		return geoTags;
+	}
+
+	public void setGeoTags(List<GeoTag> geoTags) {
+		this.geoTags = geoTags;
 	}
 }

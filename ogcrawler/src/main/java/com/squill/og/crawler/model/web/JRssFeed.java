@@ -1,5 +1,8 @@
 package com.squill.og.crawler.model.web;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
@@ -25,6 +28,12 @@ public class JRssFeed {
 	
 	@JsonIgnore
 	private String preClassifiedType;
+	
+	private String articleSummaryText;
+	
+	private String fullArticleText;
+	
+	private List<JGeoTag> geoTags;
 
 	public String getOgTitle() {
 		return ogTitle;
@@ -88,5 +97,32 @@ public class JRssFeed {
 
 	public void setPreClassifiedType(String preClassifiedType) {
 		this.preClassifiedType = preClassifiedType;
+	}
+
+	public String getArticleSummaryText() {
+		return articleSummaryText;
+	}
+
+	public void setArticleSummaryText(String articleSummaryText) {
+		this.articleSummaryText = articleSummaryText;
+	}
+
+	public String getFullArticleText() {
+		return fullArticleText;
+	}
+
+	public void setFullArticleText(String fullArticleText) {
+		this.fullArticleText = fullArticleText;
+	}
+
+	public List<JGeoTag> getGeoTags() {
+		if(geoTags == null) {
+			geoTags = new LinkedList<JGeoTag>();
+		}
+		return geoTags;
+	}
+
+	public void setGeoTags(List<JGeoTag> geoTags) {
+		this.geoTags = geoTags;
 	}
 }

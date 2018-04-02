@@ -16,12 +16,14 @@ import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.content.handlers.ExpressionContext;
 import com.squill.og.crawler.content.handlers.ExpressionContext.EvalContext;
 import com.squill.og.crawler.hooks.IFeedUploader;
+import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.CoreConstants;
 import com.squill.og.crawler.model.Config;
 import com.squill.og.crawler.model.ContentHandler;
 import com.squill.og.crawler.model.FeedUploader;
+import com.squill.og.crawler.model.GeoTagResolver;
 import com.squill.og.crawler.model.LinkFilter;
 import com.squill.og.crawler.model.WebCrawler;
 import com.squill.og.crawler.model.WebTracker;
@@ -36,6 +38,8 @@ public class WebsiteImpl implements IWebSite {
 	private WebCrawler crawlerDef;
 	
 	private IHtmlContentHandler contentHandler;
+	
+	private IGeoLocationResolver goGeoLocationResolver;
 	
 	private IWebLinkTrackerService historyTracker;
 	
@@ -82,6 +86,11 @@ public class WebsiteImpl implements IWebSite {
 			}
 		};
 	}
+	
+	@Override
+	public IGeoLocationResolver getTargetLocationResolver() {
+		return goGeoLocationResolver;
+	}
 
 	@Override
 	public IHtmlContentHandler getContentHandler() {
@@ -101,6 +110,13 @@ public class WebsiteImpl implements IWebSite {
 			IFeedUploader feedUploader = loadFeedUploader(feedUploaderDef);
 			if (feedUploader != null) {
 				contentHandler.setFeedUploader(feedUploader);
+			}
+			GeoTagResolver defaultGeoTagResolver = crawlerDef.getDefaultGeoTagResolver();
+			if(defaultGeoTagResolver != null) {
+				String resolver = defaultGeoTagResolver.getResolver();
+				if(resolver != null && !resolver.trim().isEmpty()) {
+					goGeoLocationResolver = loadGeoTargetLocationResolver(defaultGeoTagResolver);
+				}
 			}
 		}
 		return contentHandler;
@@ -153,7 +169,7 @@ public class WebsiteImpl implements IWebSite {
 	
 	private IHtmlContentHandler loadContentHandler(ContentHandler contentHandlerDef) {
 		IHtmlContentHandler contentHandler = null;
-		String handler = contentHandlerDef.getHandler();
+		String handler = contentHandlerDef.getHandler().trim();
 		try {
 			contentHandler = AppContext.INSTANCE.findService(
 					handler, IHtmlContentHandler.class);
@@ -179,6 +195,36 @@ public class WebsiteImpl implements IWebSite {
 			}
 		}
 		return contentHandler;
+	}
+	
+	private IGeoLocationResolver loadGeoTargetLocationResolver(GeoTagResolver goGeoTagResolver) {
+		IGeoLocationResolver geoLocationResolver = null;
+		String resolver = goGeoTagResolver.getResolver().trim();
+		try {
+			geoLocationResolver = AppContext.INSTANCE.findService(
+					resolver, IGeoLocationResolver.class);
+		} catch (NoSuchBeanDefinitionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if(geoLocationResolver == null) {
+			try {
+				Object newInstance = Class.forName(resolver).newInstance();
+				if(newInstance instanceof IGeoLocationResolver) {
+					geoLocationResolver = (IGeoLocationResolver)newInstance;
+				}
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return geoLocationResolver;
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.squill.og.crawler.ILink;
+import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.internal.utils.CoreConstants;
 
 
@@ -20,17 +21,25 @@ public class PageLink implements ILink {
 	
 	private HtmlPage parent;
 	
-	public PageLink() {
-		this(null);
+	private IWebSite root;
+	
+	public PageLink(IWebSite root) {
+		this(null, root);
 	}
 	
-	public PageLink(String link) {
-		this(link, null);
+	public PageLink(String link, IWebSite root) {
+		this(link, null, root);
 	}
 	
-	public PageLink(String link, String text) {
+	public PageLink(String link, String text, IWebSite root) {
 		setLink(link);
 		setText(text);
+		setRoot(root);
+	}
+	
+	@Override
+	public IWebSite getRoot() {
+		return root;
 	}
 
 	public String getLink() {
@@ -111,5 +120,9 @@ public class PageLink implements ILink {
 	@Override
 	public List<String> getTags() {
 		return Collections.emptyList();
+	}
+
+	public void setRoot(IWebSite root) {
+		this.root = root;
 	}
 }

@@ -1,12 +1,16 @@
 package com.squill.og.crawler;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.squill.og.crawler.hooks.GenSession;
+import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.HtmlPage;
@@ -42,7 +46,9 @@ public class WebSiteSpider implements Runnable {
 
 	@Override
 	public void run() {
+		GenSession session = new GenSessionImpl(webSite);
 		IHtmlContentHandler contentHandler = webSite.getContentHandler();
+		IGeoLocationResolver geoLocationResolver = webSite.getTargetLocationResolver();
 		try {
 			if (links.isEmpty()) {
 				List<? extends ILink> parseCrawlableURLs = WebSpiderUtils.parseCrawlableURLs(webSite);
@@ -51,33 +57,34 @@ public class WebSiteSpider implements Runnable {
 				}
 			}
 			IRobotScope robotScope = webSite.getRobotScope();
-			doCrawl(links, robotScope, contentHandler);
+			doCrawl(links, robotScope, contentHandler, geoLocationResolver, session);
 			List<? extends ILink> parseCrawlableURLs = robotScope.getAnyLeftOverLinks();
 			for(ILink parseCrawlableURL : parseCrawlableURLs) {
 				links.offer(parseCrawlableURL);
 			}
-			doCrawl(links, robotScope, contentHandler);
+			doCrawl(links, robotScope, contentHandler, geoLocationResolver, session);
 		} catch (Throwable e) {
 			LOG.error(e.getMessage(), e);
 		} finally {
-			contentHandler.postComplete();
+			contentHandler.postComplete(session);
 		}
 	}
 	
 	private void doCrawl(Queue<ILink> links, IRobotScope robotScope,
-			IHtmlContentHandler contentHandler) throws Exception {
+			IHtmlContentHandler contentHandler,
+			IGeoLocationResolver geoLocationResolver, GenSession session) throws Exception {
 		int count = 0;
 		int max = 0;
 		while(links != null && !links.isEmpty()) {
 			ILink link = links.poll();
 			if(contentHandler.getThresholdFrequency() > 0 
 					&& max >= contentHandler.getThresholdFrequency()) {
-				contentHandler.flush();
+				contentHandler.flush(session);
 				LOG.info("Threshold value reached... crawler will hung up for next scheduled time.");
 				return;
 			}
 			if(count >= contentHandler.getFlushFrequency()) {
-				contentHandler.flush();
+				contentHandler.flush(session);
 				count = 0;
 			}
 			WebSpiderTracker info = null;
@@ -100,7 +107,7 @@ public class WebSiteSpider implements Runnable {
 				info.setLink(link.getUrl());
 				
 				LOG.info("Visiting " + url);
-				contentHandler.preProcess(link);
+				contentHandler.preProcess(link, geoLocationResolver, session);
 				
 				String html = new HttpRequestExecutor().GET(url, info);
 				
@@ -113,7 +120,7 @@ public class WebSiteSpider implements Runnable {
 				
 				HtmlPage htmlPage = ResponseUtil.getParseableHtml(html, link.getUrl());
 				List<PageLink> extractAllPageLinks = new PageLinkExtractor(
-						robotScope, null).extractAllPageLinks(htmlPage);
+						robotScope, null).extractAllPageLinks(htmlPage, webSite);
 				LOG.info("*** Extracted Page Links ***");
 				if(extractAllPageLinks != null && !extractAllPageLinks.isEmpty()) {
 					links.addAll(extractAllPageLinks);
@@ -126,7 +133,7 @@ public class WebSiteSpider implements Runnable {
 				LOG.info("********************************");
 				
 				try {
-					contentHandler.postProcess(html, link);
+					contentHandler.postProcess(html, link, geoLocationResolver, session);
 				} catch (Exception e1) {
 					LOG.error(e1.getMessage());
 					return;
@@ -144,6 +151,32 @@ public class WebSiteSpider implements Runnable {
 				count++;
 				max++;
 			}
+		}
+	}
+	
+	private class GenSessionImpl implements GenSession {
+		
+		private Map<String, Object> attrMap = new HashMap<String, Object>();
+		
+		private IWebSite currentWebSite;
+		
+		GenSessionImpl(IWebSite currentWebSite) {
+			this.currentWebSite = currentWebSite;
+		}
+
+		@Override
+		public void addAttr(String key, Object value) {
+			attrMap.put(key, value);
+		}
+
+		@Override
+		public Object getAttr(String key) {
+			return attrMap.get(key);
+		}
+		
+		@Override
+		public IWebSite getCurrentWebSite() {
+			return currentWebSite;
 		}
 	}
 }

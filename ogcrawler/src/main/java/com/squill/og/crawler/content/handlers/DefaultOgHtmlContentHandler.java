@@ -2,6 +2,7 @@ package com.squill.og.crawler.content.handlers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -14,12 +15,19 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.squill.og.crawler.ILink;
+import com.squill.og.crawler.IWebSite;
+import com.squill.og.crawler.hooks.GenSession;
+import com.squill.og.crawler.hooks.GeoLocation;
 import com.squill.og.crawler.hooks.IFeedUploader;
+import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
 import com.squill.og.crawler.internal.utils.CoreConstants;
 import com.squill.og.crawler.internal.utils.FeedClassifierUtil;
+import com.squill.og.crawler.model.web.JGeoTag;
 import com.squill.og.crawler.model.web.JRssFeed;
 import com.squill.og.crawler.model.web.JRssFeeds;
+import com.squill.og.crawler.text.summarizer.ArticleTextSummarizer;
+import com.squill.og.crawler.text.summarizer.AylienSummarization;
 
 /**
  * 
@@ -30,7 +38,7 @@ import com.squill.og.crawler.model.web.JRssFeeds;
 @Scope("prototype")
 public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 
-	private List<JRssFeed> feeds = new ArrayList<JRssFeed>();
+	private Map<String, List<JRssFeed>> feeds = new HashMap<String, List<JRssFeed>>();
 
 	private int flushFrequency = 50;
 
@@ -40,15 +48,19 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 	
 	private Map<String, Object> metaInfoMap = new HashMap<String, Object>(2);
 	
+	private static final String LOCATION_RESOLVER = "LOCATION_RESOLVER";
+	
 	private static final Logger LOG = LoggerFactory
 			.getLogger(DefaultOgHtmlContentHandler.class);
 	
 	@Override
-	public void preProcess(ILink link) {
+	public void preProcess(ILink link, IGeoLocationResolver locationResolver, GenSession session) {
+		session.addAttr(LOCATION_RESOLVER, locationResolver);
 	}
 
 	@Override
-	public void postProcess(String htmlContent, ILink link) {
+	public void postProcess(String htmlContent, ILink link,
+			IGeoLocationResolver locationResolver, GenSession session) {
 		Document doc = Jsoup.parse(htmlContent);
 
 		String title = null;
@@ -116,8 +128,14 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 		if (preClassifiedFeedType != null) {
 			feed.setPreClassifiedType(preClassifiedFeedType);
 		}
-
-		feeds.add(feed);
+		
+		String domainUrl = link.getRoot().getDomainUrl();
+		List<JRssFeed> list = feeds.get(domainUrl);
+		if(list == null) {
+			list = new ArrayList<JRssFeed>();
+			feeds.put(domainUrl, list);
+		}
+		list.add(feed);
 		/*
 		 * try { System.out.println(JSONUtil.serialize(feed)); } catch
 		 * (PackPackException e) { e.printStackTrace(); }
@@ -125,27 +143,60 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 	}
 
 	@Override
-	public void postComplete() {
+	public void postComplete(GenSession session) {
 		if(feeds == null || feeds.isEmpty()) {
 			LOG.warn("Skipping Uploading empty list of feeds recceived from og-crawler");
 			return;
 		}
-		List<JRssFeed> list = new ArrayList<JRssFeed>();
-		list.addAll(feeds);
+		Map<String, List<JRssFeed>> feedsMap = new HashMap<String, List<JRssFeed>>();
+		feedsMap.putAll(feeds);
 		feeds.clear();
-		uploadAll(list);
-		list.clear();
+		deDuplicateFeeds(feedsMap);
+		uploadAll(feedsMap, session);
+		feedsMap.clear();
+	}
+	
+	private void deDuplicateFeeds(Map<String, List<JRssFeed>> feedsMap) {
+		
 	}
 
-	private void uploadAll(List<JRssFeed> feeds) {
+	private void uploadAll(Map<String, List<JRssFeed>> feedsMap, GenSession session) {
+		IWebSite currentWebSite = session.getCurrentWebSite();
+		String domainUrl = currentWebSite.getDomainUrl();
+		IGeoLocationResolver geoLocationResolver = (IGeoLocationResolver) session.getAttr(LOCATION_RESOLVER);
 		try {
 			JRssFeeds rssFeeds = new JRssFeeds();
-			for (JRssFeed feed : feeds) {
-				String classifier = classifyFeedType(feed);
-				if(classifier != null) {
-					feed.setOgType(classifier);
+			Iterator<String> itr = feedsMap.keySet().iterator();
+			while(itr.hasNext()) {
+				String key = itr.next();
+				List<JRssFeed> feeds = feedsMap.get(key);
+				if(feeds == null)
+					continue;
+				for (JRssFeed feed : feeds) {
+					String classifier = classifyFeedType(feed);
+					if(classifier != null) {
+						feed.setOgType(classifier);
+					}
+					AylienSummarization response = new ArticleTextSummarizer()
+							.summarize(feed.getOgUrl());
+					if (response != null) {
+						feed.setArticleSummaryText(response
+								.extractedAllSummary(false));
+						feed.setFullArticleText(response.getText());
+					}
+					if(geoLocationResolver != null) {
+						GeoLocation[] geoLocations = geoLocationResolver.resolveGeoLocation(feed.getOgUrl(), domainUrl, feed);
+						if(geoLocations != null && geoLocations.length > 0) {
+							for(GeoLocation geoLocation : geoLocations) {
+								JGeoTag geoTag = new JGeoTag();
+								geoTag.setLatitude(geoLocation.getLatitude());
+								geoTag.setLongitude(geoLocation.getLongitude());
+								feed.getGeoTags().add(geoTag);
+							}
+						}
+					}
+					rssFeeds.getFeeds().add(feed);
 				}
-				rssFeeds.getFeeds().add(feed);
 			}
 			if(feedUploader != null) {
 				feedUploader.uploadBulk(rssFeeds);
@@ -201,8 +252,8 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 	}
 
 	@Override
-	public void flush() {
-		postComplete();
+	public void flush(GenSession session) {
+		postComplete(session);
 	}
 
 	@Override

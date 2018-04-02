@@ -14,6 +14,7 @@ import org.jsoup.nodes.Element;
 import com.squill.og.crawler.DefaultNonAjaxLinkResolver;
 import com.squill.og.crawler.ILinkResolver;
 import com.squill.og.crawler.IRobotScope;
+import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.internal.utils.CoreConstants;
 
 /**
@@ -40,11 +41,12 @@ public class PageLinkExtractor {
 	 * 
 	 * @param html
 	 *            html content for validation
+	 * @param root
 	 * @return List links and link text
 	 * @throws ScriptException 
 	 * @throws NoSuchMethodException 
 	 */
-	public List<PageLink> extractAllPageLinks(HtmlPage htmlPage) throws NoSuchMethodException, ScriptException {
+	public List<PageLink> extractAllPageLinks(HtmlPage htmlPage, IWebSite root) throws NoSuchMethodException, ScriptException {
 		List<PageLink> result = new ArrayList<PageLink>();
 		String html = htmlPage.getHtmlContent();
 		Invocable jsEngine = htmlPage.getJsEngine();
@@ -78,7 +80,7 @@ public class PageLinkExtractor {
 					continue;
 			}
 			String text = linkElement.text();
-			PageLink pageLink = new PageLink(link, text);
+			PageLink pageLink = new PageLink(link, text, root);
 			//pageLink.setContext(ctx);
 			pageLink.setParent(htmlPage);
 			if (linkFilter.isCrawlable(pageLink)) {

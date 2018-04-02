@@ -11,11 +11,13 @@ import org.slf4j.LoggerFactory;
 
 import com.pack.pack.IUserService;
 import com.pack.pack.common.util.CommonConstants;
+import com.pack.pack.model.GeoTag;
 import com.pack.pack.model.RSSFeed;
 import com.pack.pack.model.RssSubFeed;
 import com.pack.pack.model.User;
 import com.pack.pack.model.UserInfo;
 import com.pack.pack.model.es.UserDetail;
+import com.pack.pack.model.web.JGeoTag;
 import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.JRssSubFeed;
 import com.pack.pack.model.web.JSharedFeed;
@@ -79,7 +81,29 @@ public class ModelConverter {
 				rFeed.getSiblings().add(convert(sibling));
 			}
 		}
+		rFeed.setArticleSummaryText(feed.getArticleSummaryText());
+		rFeed.setFullArticleText(feed.getFullArticleText());
+		List<GeoTag> geoTags = feed.getGeoTags();
+		if(geoTags != null && !geoTags.isEmpty()) {
+			for(GeoTag geoTag : geoTags) {
+				rFeed.getGeoTags().add(convert(geoTag));
+			}
+		}
 		return rFeed;
+	}
+	
+	private static JGeoTag convert(GeoTag geoTag) {
+		JGeoTag jGeoTag = new JGeoTag();
+		jGeoTag.setLatitude(geoTag.getLatitude());
+		jGeoTag.setLongitude(geoTag.getLongitude());
+		return jGeoTag;
+	}
+	
+	private static GeoTag convert(JGeoTag jGeoTag) {
+		GeoTag geoTag = new GeoTag();
+		geoTag.setLatitude(jGeoTag.getLatitude());
+		geoTag.setLongitude(jGeoTag.getLongitude());
+		return geoTag;
 	}
 	
 	private static JRssSubFeed convert(RssSubFeed sibling) {
@@ -120,6 +144,14 @@ public class ModelConverter {
 			}
 		}
 		feed.setShareableUrl(rFeed.getShareableUrl());
+		feed.setArticleSummaryText(rFeed.getArticleSummaryText());
+		feed.setFullArticleText(rFeed.getFullArticleText());
+		List<JGeoTag> rGeoTags = rFeed.getGeoTags();
+		if(rGeoTags != null && !rGeoTags.isEmpty()) {
+			for(JGeoTag rGeoTag : rGeoTags) {
+				feed.getGeoTags().add(convert(rGeoTag));
+			}
+		}
 		return feed;
 	}
 	

@@ -8,6 +8,8 @@ import java.util.List;
  *
  */
 public interface ILink {
+	
+	public IWebSite getRoot();
 
 	public String getUrl();
 	

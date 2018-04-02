@@ -57,7 +57,7 @@ public class ResponseUtil {
 			}
 			link = link.substring(0, index);
 		}
-		return new HtmlPage(htmlContent, jsEngine, link);
+		return new HtmlPage(document, htmlContent, jsEngine, link);
 	}
 	
 	public static HtmlPage getParseableHtml(String html, String pageLink) throws ClientProtocolException, IOException {
@@ -96,7 +96,7 @@ public class ResponseUtil {
 			}
 			link = link.substring(0, index);
 		}
-		return new HtmlPage(htmlContent, null, link);
+		return new HtmlPage(document, htmlContent, null, link);
 	}
 	
 	private static Invocable initializeJSEngine(Document document) {

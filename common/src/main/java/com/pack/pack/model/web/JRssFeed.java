@@ -37,6 +37,12 @@ public class JRssFeed {
 	
 	private String shareableUrl;
 	
+	private String articleSummaryText;
+	
+	private String fullArticleText;
+	
+	private List<JGeoTag> geoTags;
+	
 	public String getOgTitle() {
 		return ogTitle;
 	}
@@ -155,5 +161,32 @@ public class JRssFeed {
 
 	public void setShareableUrl(String shareableUrl) {
 		this.shareableUrl = shareableUrl;
+	}
+
+	public String getArticleSummaryText() {
+		return articleSummaryText;
+	}
+
+	public void setArticleSummaryText(String articleSummaryText) {
+		this.articleSummaryText = articleSummaryText;
+	}
+
+	public String getFullArticleText() {
+		return fullArticleText;
+	}
+
+	public void setFullArticleText(String fullArticleText) {
+		this.fullArticleText = fullArticleText;
+	}
+
+	public List<JGeoTag> getGeoTags() {
+		if(geoTags == null) {
+			geoTags = new LinkedList<JGeoTag>();
+		}
+		return geoTags;
+	}
+
+	public void setGeoTags(List<JGeoTag> geoTags) {
+		this.geoTags = geoTags;
 	}
 }

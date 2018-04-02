@@ -65,7 +65,7 @@ public class WebSpiderUtils {
 			}
 			else {
 				List<ILink> links = new ArrayList<ILink>();
-				links.add(new HyperLink(domainUrl));
+				links.add(new HyperLink(domainUrl, webSite));
 				return links;
 			}
 		}
@@ -73,7 +73,7 @@ public class WebSpiderUtils {
 		String html = executor.GET(domainUrl, "");
 		HtmlPage page = ResponseUtil.getParseableHtml(html, domainUrl);
 		PageLinkExtractor extractor = new PageLinkExtractor();
-		return extractor.extractAllPageLinks(page);
+		return extractor.extractAllPageLinks(page, webSite);
 		/*DefaultHttpClient client = new DefaultHttpClient();
 		HttpGet getRobotRules = new HttpGet("http://www.medindia.net/robots.txt");
 		getRobotRules.setHeader("User-agent", "Mozilla");
@@ -130,7 +130,7 @@ public class WebSpiderUtils {
 								}
 								reader.close();
 								//System.out.println(asm2.getUrl());
-								return parseSiteMapText(gzipContent.toString(), domainUrl);
+								return parseSiteMapText(gzipContent.toString(), domainUrl, webSite);
 							}
 						}						
 					}
@@ -140,7 +140,7 @@ public class WebSpiderUtils {
 		return Collections.emptyList();
 	}
 	
-	private static List<ILink> parseSiteMapText(String content, URL domainUrl) throws Exception {
+	private static List<ILink> parseSiteMapText(String content, URL domainUrl, IWebSite root) throws Exception {
 		List<ILink> result = new ArrayList<ILink>();
 		SiteMapParser parser = new SiteMapParser();
 		String contentType = "text/xml";
@@ -153,7 +153,7 @@ public class WebSpiderUtils {
 				while(itr.hasNext()) {
 					SiteMapURL url = itr.next();
 					String urlPath = url.getUrl().toString().trim();
-					ILink link = new HyperLink(urlPath);
+					ILink link = new HyperLink(urlPath, root);
 					result.add(link);
 				}
 			}
@@ -176,13 +176,21 @@ public class WebSpiderUtils {
 		private String url;
 		private List<String> tags;
 		
-		public HyperLink(String url) {
+		private IWebSite root;
+		
+		public HyperLink(String url, IWebSite root) {
 			this.url = url;
+			this.root = root;
 		}
 
 		@Override
 		public String getUrl() {
 			return url;
+		}
+		
+		@Override
+		public IWebSite getRoot() {
+			return root;
 		}
 
 		@Override

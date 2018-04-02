@@ -6,9 +6,11 @@ import java.util.List;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -29,9 +31,26 @@ import com.squill.og.crawler.model.WebSpiderTracker;
  */
 public class HttpRequestExecutor {
 
+	@SuppressWarnings("deprecation")
+	private DefaultHttpClient newClient() {
+		DefaultHttpClient client = new DefaultHttpClient();
+		SSLSocketFactory socketFactory = (SSLSocketFactory) client
+				.getConnectionManager().getSchemeRegistry().get("https")
+				.getSchemeSocketFactory();
+		socketFactory
+				.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+		return client;
+	}
+
+	public HttpResponse GET(HttpGet GET)
+			throws ClientProtocolException, IOException {
+		DefaultHttpClient client = newClient();
+		return client.execute(GET);
+	}
+
 	public String GET(String link, String domainName) throws ParseException,
 			IOException {
-		DefaultHttpClient client = new DefaultHttpClient();
+		DefaultHttpClient client = newClient();
 		HttpGet get = new HttpGet(link);
 		HttpResponse response = client.execute(get);
 		int responseCode = response.getStatusLine().getStatusCode();
@@ -82,7 +101,7 @@ public class HttpRequestExecutor {
 	}
 
 	public String GET(String link, WebSpiderTracker info) throws Exception {
-		DefaultHttpClient client = new DefaultHttpClient();
+		DefaultHttpClient client = newClient();
 		HttpParams params = client.getParams();
 		HttpConnectionParams.setConnectionTimeout(params, 200000);
 		HttpConnectionParams.setSoTimeout(params, 200000);

@@ -1,7 +1,8 @@
 package com.squill.og.crawler;
 
+import com.squill.og.crawler.hooks.GenSession;
+import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
-
 
 /**
  * 
@@ -12,21 +13,22 @@ public abstract class NonFunctionalContentHandler implements
 		IHtmlContentHandler {
 
 	@Override
-	public void preProcess(ILink link) {
+	public void preProcess(ILink link, IGeoLocationResolver locationResolver, GenSession session) {
 	}
 
 	@Override
-	public void postProcess(String content, ILink link) {
+	public void postProcess(String content, ILink link,
+			IGeoLocationResolver locationResolver, GenSession session) {
 		handleContent(content, link);
 	}
 
 	@Override
-	public void postComplete() {
+	public void postComplete(GenSession session) {
 		handleFlush();
 	}
 
 	@Override
-	public void flush() {
+	public void flush(GenSession session) {
 		handleFlush();
 	}
 
@@ -39,8 +41,8 @@ public abstract class NonFunctionalContentHandler implements
 	public int getThresholdFrequency() {
 		return -1;
 	}
-	
+
 	protected abstract void handleFlush();
-	
+
 	protected abstract void handleContent(String content, ILink link);
 }

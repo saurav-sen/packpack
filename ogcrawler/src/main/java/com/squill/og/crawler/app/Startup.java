@@ -43,6 +43,7 @@ public class Startup {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Startup.class);
 	
+	public static final String WEB_CRAWLERS_CONFIG_DIR = "web.crawlers.config.dir";
 	private static final String WEB_CRAWLERS_CONFIG_FILE = "web.crawlers.config.file";
 	
 	private String[] args;
