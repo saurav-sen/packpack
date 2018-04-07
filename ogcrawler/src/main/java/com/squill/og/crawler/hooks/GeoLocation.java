@@ -1,12 +1,21 @@
 package com.squill.og.crawler.hooks;
 
-public interface GeoLocation {
+public class GeoLocation {
 
-	public double getLongitude();
+	private double longitude;
 
-	public double getLatitude();
+	private double latitude;
 
-	public String getPlaceName();
+	public GeoLocation(double latitude, double longitude) {
+		this.latitude = latitude;
+		this.longitude = longitude;
+	}
 
-	public String getCountryCode();
+	public double getLongitude() {
+		return longitude;
+	}
+
+	public double getLatitude() {
+		return latitude;
+	}
 }

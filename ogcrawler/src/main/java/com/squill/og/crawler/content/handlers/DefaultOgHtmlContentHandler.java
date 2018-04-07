@@ -210,9 +210,16 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 		return new IFeedClassificationResolver() {
 
 			@Override
-			public String resolveClassifierType(String feedTitle,
+			public String resolvePrimaryClassifierType(String feedTitle,
 					String feedDescription, String url) {
 				// TODO Need to integrate AI based classifier engine here
+				return null;
+			}
+			
+			@Override
+			public List<String> resolveIPTCTypes(String feedTitle,
+					String feedDescription, String url) {
+				// TODO Auto-generated method stub
 				return null;
 			}
 		};
@@ -223,7 +230,7 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 		if (classifier == null) {
 			IFeedClassificationResolver classificationResolver = getClassificationResolver();
 			if (classificationResolver != null) {
-				return classificationResolver.resolveClassifierType(
+				return classificationResolver.resolvePrimaryClassifierType(
 						feed.getOgTitle(), feed.getOgDescription(),
 						feed.getOgUrl());
 			}

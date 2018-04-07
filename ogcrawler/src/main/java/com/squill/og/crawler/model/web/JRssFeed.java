@@ -1,9 +1,11 @@
 package com.squill.og.crawler.model.web;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.squill.og.crawler.entity.extraction.Concept;
 
 /**
  * 
@@ -34,6 +36,8 @@ public class JRssFeed {
 	private String fullArticleText;
 	
 	private List<JGeoTag> geoTags;
+	
+	private List<Concept> concepts;
 
 	public String getOgTitle() {
 		return ogTitle;
@@ -124,5 +128,16 @@ public class JRssFeed {
 
 	public void setGeoTags(List<JGeoTag> geoTags) {
 		this.geoTags = geoTags;
+	}
+
+	public List<Concept> getConcepts() {
+		if(concepts == null) {
+			concepts = new ArrayList<Concept>();
+		}
+		return concepts;
+	}
+
+	public void setConcepts(List<Concept> concepts) {
+		this.concepts = concepts;
 	}
 }
