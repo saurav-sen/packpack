@@ -107,7 +107,7 @@ public class WebSiteSpider implements Runnable {
 				info.setLink(link.getUrl());
 				
 				LOG.info("Visiting " + url);
-				contentHandler.preProcess(link, geoLocationResolver, session);
+				contentHandler.preProcess(link, session);
 				
 				String html = new HttpRequestExecutor().GET(url, info);
 				
@@ -133,7 +133,7 @@ public class WebSiteSpider implements Runnable {
 				LOG.info("********************************");
 				
 				try {
-					contentHandler.postProcess(html, link, geoLocationResolver, session);
+					contentHandler.postProcess(html, link, session);
 				} catch (Exception e1) {
 					LOG.error(e1.getMessage());
 					return;

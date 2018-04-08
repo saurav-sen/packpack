@@ -18,6 +18,7 @@ import com.squill.og.crawler.content.handlers.ExpressionContext.EvalContext;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
+import com.squill.og.crawler.hooks.ITaxonomyResolver;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.CoreConstants;
 import com.squill.og.crawler.model.Config;
@@ -25,6 +26,7 @@ import com.squill.og.crawler.model.ContentHandler;
 import com.squill.og.crawler.model.FeedUploader;
 import com.squill.og.crawler.model.GeoTagResolver;
 import com.squill.og.crawler.model.LinkFilter;
+import com.squill.og.crawler.model.TaxonomyClassifier;
 import com.squill.og.crawler.model.WebCrawler;
 import com.squill.og.crawler.model.WebTracker;
 
@@ -36,25 +38,32 @@ import com.squill.og.crawler.model.WebTracker;
 public class WebsiteImpl implements IWebSite {
 
 	private WebCrawler crawlerDef;
-	
+
 	private IHtmlContentHandler contentHandler;
+
+	private IGeoLocationResolver geoLocationResolver;
 	
-	private IGeoLocationResolver goGeoLocationResolver;
+	private boolean isGeoLocationResolverLoadTried = false;
+
+	private ITaxonomyResolver taxonomyResolver;
 	
+	private boolean isTaxonomyResolverLoadTried = false;
+
 	private IWebLinkTrackerService historyTracker;
-	
-	private static final Logger LOG = LoggerFactory.getLogger(WebsiteImpl.class);
-	
+
+	private static final Logger LOG = LoggerFactory
+			.getLogger(WebsiteImpl.class);
+
 	public WebsiteImpl(WebCrawler crawlerDef) {
 		this.crawlerDef = crawlerDef;
 	}
-	
+
 	@Override
 	public String getUniqueId() {
 		String id = crawlerDef.getId();
 		return id.replaceAll(" ", "_");
 	}
-	
+
 	@Override
 	public String getDomainUrl() {
 		return crawlerDef.getDomainUrl();
@@ -86,10 +95,36 @@ public class WebsiteImpl implements IWebSite {
 			}
 		};
 	}
-	
+
 	@Override
 	public IGeoLocationResolver getTargetLocationResolver() {
-		return goGeoLocationResolver;
+		if (geoLocationResolver == null && !isGeoLocationResolverLoadTried) {
+			GeoTagResolver geoTagResolver = crawlerDef.getGeoTagResolver();
+			if (geoTagResolver != null) {
+				String resolver = geoTagResolver.getResolver();
+				if (resolver != null && !resolver.trim().isEmpty()) {
+					geoLocationResolver = loadGeoTargetLocationResolver(geoTagResolver);
+				}
+			}
+			isGeoLocationResolverLoadTried = true;
+		}
+		return geoLocationResolver;
+	}
+
+	@Override
+	public ITaxonomyResolver getTaxonomyResolver() {
+		if (taxonomyResolver == null && !isTaxonomyResolverLoadTried) {
+			TaxonomyClassifier taxonomyClassifier = crawlerDef
+					.getTaxonomyClassifier();
+			if (taxonomyClassifier != null) {
+				String resolver = taxonomyClassifier.getResolver();
+				if (resolver != null && !resolver.trim().isEmpty()) {
+					taxonomyResolver = loadTaxonomyClassifier(taxonomyClassifier);
+				}
+			}
+			isTaxonomyResolverLoadTried = true;
+		}
+		return taxonomyResolver;
 	}
 
 	@Override
@@ -111,13 +146,6 @@ public class WebsiteImpl implements IWebSite {
 			if (feedUploader != null) {
 				contentHandler.setFeedUploader(feedUploader);
 			}
-			GeoTagResolver defaultGeoTagResolver = crawlerDef.getDefaultGeoTagResolver();
-			if(defaultGeoTagResolver != null) {
-				String resolver = defaultGeoTagResolver.getResolver();
-				if(resolver != null && !resolver.trim().isEmpty()) {
-					goGeoLocationResolver = loadGeoTargetLocationResolver(defaultGeoTagResolver);
-				}
-			}
 		}
 		return contentHandler;
 	}
@@ -126,17 +154,17 @@ public class WebsiteImpl implements IWebSite {
 		IFeedUploader feedUploader = null;
 		String uploader = feedUploaderDef.getUploader();
 		try {
-			feedUploader = AppContext.INSTANCE.findService(
-					uploader, IFeedUploader.class);
+			feedUploader = AppContext.INSTANCE.findService(uploader,
+					IFeedUploader.class);
 		} catch (NoSuchBeanDefinitionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if(feedUploader == null) {
+		if (feedUploader == null) {
 			try {
 				Object newInstance = Class.forName(uploader).newInstance();
-				if(newInstance instanceof IFeedUploader) {
-					feedUploader = (IFeedUploader)newInstance;
+				if (newInstance instanceof IFeedUploader) {
+					feedUploader = (IFeedUploader) newInstance;
 				}
 			} catch (InstantiationException e) {
 				// TODO Auto-generated catch block
@@ -149,14 +177,15 @@ public class WebsiteImpl implements IWebSite {
 				e.printStackTrace();
 			}
 		}
-		if(feedUploader != null) {
+		if (feedUploader != null) {
 			List<Config> configs = feedUploaderDef.getConfig();
-			if(configs != null && !configs.isEmpty()) {
-				for(Config config : configs) {
+			if (configs != null && !configs.isEmpty()) {
+				for (Config config : configs) {
 					String key = config.getKey();
 					String value = config.getValue();
-					if(value != null && !value.isEmpty() && value.startsWith("${") && value.endsWith("}")) {
-						value = value.substring(0, value.length()-1);
+					if (value != null && !value.isEmpty()
+							&& value.startsWith("${") && value.endsWith("}")) {
+						value = value.substring(0, value.length() - 1);
 						value = value.replaceFirst("\\$\\{", "");
 						value = System.getProperty(value);
 					}
@@ -166,22 +195,23 @@ public class WebsiteImpl implements IWebSite {
 		}
 		return feedUploader;
 	}
-	
-	private IHtmlContentHandler loadContentHandler(ContentHandler contentHandlerDef) {
+
+	private IHtmlContentHandler loadContentHandler(
+			ContentHandler contentHandlerDef) {
 		IHtmlContentHandler contentHandler = null;
 		String handler = contentHandlerDef.getHandler().trim();
 		try {
-			contentHandler = AppContext.INSTANCE.findService(
-					handler, IHtmlContentHandler.class);
+			contentHandler = AppContext.INSTANCE.findService(handler,
+					IHtmlContentHandler.class);
 		} catch (NoSuchBeanDefinitionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if(contentHandler == null) {
+		if (contentHandler == null) {
 			try {
 				Object newInstance = Class.forName(handler).newInstance();
-				if(newInstance instanceof IHtmlContentHandler) {
-					contentHandler = (IHtmlContentHandler)newInstance;
+				if (newInstance instanceof IHtmlContentHandler) {
+					contentHandler = (IHtmlContentHandler) newInstance;
 				}
 			} catch (InstantiationException e) {
 				// TODO Auto-generated catch block
@@ -196,35 +226,61 @@ public class WebsiteImpl implements IWebSite {
 		}
 		return contentHandler;
 	}
-	
-	private IGeoLocationResolver loadGeoTargetLocationResolver(GeoTagResolver goGeoTagResolver) {
+
+	private IGeoLocationResolver loadGeoTargetLocationResolver(
+			GeoTagResolver goGeoTagResolver) {
 		IGeoLocationResolver geoLocationResolver = null;
 		String resolver = goGeoTagResolver.getResolver().trim();
 		try {
-			geoLocationResolver = AppContext.INSTANCE.findService(
-					resolver, IGeoLocationResolver.class);
+			geoLocationResolver = AppContext.INSTANCE.findService(resolver,
+					IGeoLocationResolver.class);
 		} catch (NoSuchBeanDefinitionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if(geoLocationResolver == null) {
+		if (geoLocationResolver == null) {
 			try {
 				Object newInstance = Class.forName(resolver).newInstance();
-				if(newInstance instanceof IGeoLocationResolver) {
-					geoLocationResolver = (IGeoLocationResolver)newInstance;
+				if (newInstance instanceof IGeoLocationResolver) {
+					geoLocationResolver = (IGeoLocationResolver) newInstance;
 				}
 			} catch (InstantiationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOG.error(e.getMessage(), e);
 			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOG.error(e.getMessage(), e);
 			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOG.error(e.getMessage(), e);
 			}
 		}
 		return geoLocationResolver;
+	}
+
+	private ITaxonomyResolver loadTaxonomyClassifier(
+			TaxonomyClassifier taxonomyClassifier) {
+		ITaxonomyResolver taxonomyResolver = null;
+		String resolver = taxonomyClassifier.getResolver().trim();
+		try {
+			taxonomyResolver = AppContext.INSTANCE.findService(resolver,
+					ITaxonomyResolver.class);
+		} catch (NoSuchBeanDefinitionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (taxonomyResolver == null) {
+			try {
+				Object newInstance = Class.forName(resolver).newInstance();
+				if (newInstance instanceof ITaxonomyResolver) {
+					taxonomyResolver = (ITaxonomyResolver) newInstance;
+				}
+			} catch (InstantiationException e) {
+				LOG.error(e.getMessage(), e);
+			} catch (IllegalAccessException e) {
+				LOG.error(e.getMessage(), e);
+			} catch (ClassNotFoundException e) {
+				LOG.error(e.getMessage(), e);
+			}
+		}
+		return taxonomyResolver;
 	}
 
 	@Override
@@ -233,7 +289,8 @@ public class WebsiteImpl implements IWebSite {
 
 			@Override
 			public TimeUnit getTimeUnit() {
-				String timeUnit = crawlerDef.getScheduler().getTimeUnit().toUpperCase();
+				String timeUnit = crawlerDef.getScheduler().getTimeUnit()
+						.toUpperCase();
 				TimeUnit unit = null;
 				try {
 					unit = TimeUnit.valueOf(timeUnit);
@@ -259,26 +316,26 @@ public class WebsiteImpl implements IWebSite {
 	public boolean shouldCheckRobotRules() {
 		return crawlerDef.isRobotRulesExists();
 	}
-	
+
 	@Override
 	public IWebLinkTrackerService getTrackerService() {
-		if(historyTracker != null)
+		if (historyTracker != null)
 			return historyTracker;
-		WebTracker webTracker = crawlerDef.getWebTracker();
-		if(webTracker == null)
+		WebTracker webTracker = crawlerDef.getWebLinkTracker();
+		if (webTracker == null)
 			return null;
 		String serviceId = webTracker.getServiceId();
 		try {
-			historyTracker = AppContext.INSTANCE.findService(
-					serviceId, IWebLinkTrackerService.class);
+			historyTracker = AppContext.INSTANCE.findService(serviceId,
+					IWebLinkTrackerService.class);
 		} catch (NoSuchBeanDefinitionException e) {
 			LOG.error(e.getMessage(), e);
 		}
-		if(historyTracker == null) {
+		if (historyTracker == null) {
 			try {
 				Object newInstance = Class.forName(serviceId).newInstance();
-				if(newInstance instanceof IWebLinkTrackerService) {
-					historyTracker = (IWebLinkTrackerService)newInstance;
+				if (newInstance instanceof IWebLinkTrackerService) {
+					historyTracker = (IWebLinkTrackerService) newInstance;
 				}
 			} catch (InstantiationException e) {
 				LOG.error(e.getMessage(), e);

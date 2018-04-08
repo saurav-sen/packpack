@@ -22,7 +22,7 @@ public final class ArticleTextSummarizer {
 			.getLogger(ArticleTextSummarizer.class);
 
 	private static String resolveAylienRequestUrl_GET(String url) {
-		return AylienConstants.AYLIEN_SUMMARY_API_URL + "?" + "sentences_number=" + 4 + "&" + "url="
+		return NLPApiConstants.AYLIEN_SUMMARY_API_URL + "?" + "sentences_number=" + 4 + "&" + "url="
 				+ url;
 	}
 
@@ -31,8 +31,8 @@ public final class ArticleTextSummarizer {
 		AylienSummarization aylienResponse = null;
 		String GET_URL = resolveAylienRequestUrl_GET(url);
 		HttpGet GET = new HttpGet(GET_URL);
-		GET.addHeader("X-AYLIEN-TextAPI-Application-Key", AylienConstants.AYLIEN_API_KEY);
-		GET.addHeader("X-AYLIEN-TextAPI-Application-ID", AylienConstants.AYLIEN_API_APP_ID);
+		GET.addHeader("X-AYLIEN-TextAPI-Application-Key", NLPApiConstants.AYLIEN_API_KEY);
+		GET.addHeader("X-AYLIEN-TextAPI-Application-ID", NLPApiConstants.AYLIEN_API_APP_ID);
 		HttpResponse response = new HttpRequestExecutor().GET(GET);
 		int responseCode = response.getStatusLine().getStatusCode();
 		if (responseCode == 200) { // HTTP OK

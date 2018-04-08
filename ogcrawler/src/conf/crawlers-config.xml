@@ -23,10 +23,16 @@
         <linkFilter>
             <!--condition>$_link.contains("collections/")</condition-->
         </linkFilter>
-        <WebTracker>
+        <webLinkTracker>
 	        <!--serviceId>redisWebLinkTrackerService</serviceId-->
 	        <serviceId>defaultWebLinkTrackerService</serviceId>
-	    </WebTracker>
+	    </webLinkTracker>
+	    <geoTagResolver>
+	        <resolver>defaultGeoLocationResolver</resolver>
+	    </geoTagResolver>
+	    <taxonomyClassifier>
+	        <resolver>defaultTaxonomyResolver</resolver>
+	    </taxonomyClassifier>
         <scheduler initialDelay="0" periodicDelay="1" timeUnit="DAYS"/>
     </WebCrawler>
 </webCrawlers>

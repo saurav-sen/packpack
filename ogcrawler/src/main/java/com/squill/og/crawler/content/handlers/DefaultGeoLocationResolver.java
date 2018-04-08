@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import com.squill.og.crawler.entity.extraction.Concept;
 import com.squill.og.crawler.entity.extraction.DandelionEntityExtractor;
@@ -11,13 +13,15 @@ import com.squill.og.crawler.hooks.GeoLocation;
 import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.model.web.JRssFeed;
 
+@Component("defaultGeoLocationResolver")
+@Scope("prototype")
 public class DefaultGeoLocationResolver implements IGeoLocationResolver {
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(DefaultGeoLocationResolver.class);
 
 	@Override
-	public GeoLocation[] resolveGeoLocation(String linkUrl, String domainUrl,
+	public GeoLocation[] resolveGeoLocations(String linkUrl, String domainUrl,
 			JRssFeed feed) {
 		String ogTitle = feed.getOgTitle();
 		try {

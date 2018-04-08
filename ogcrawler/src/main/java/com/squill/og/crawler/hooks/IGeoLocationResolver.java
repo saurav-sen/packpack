@@ -4,6 +4,6 @@ import com.squill.og.crawler.model.web.JRssFeed;
 
 public interface IGeoLocationResolver {
 
-	public GeoLocation[] resolveGeoLocation(String linkUrl, String domainUrl,
+	public GeoLocation[] resolveGeoLocations(String linkUrl, String domainUrl,
 			JRssFeed feed);
 }

@@ -11,14 +11,14 @@ import com.squill.og.crawler.entity.extraction.ExtractedEntityResponse;
 import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
 import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.og.crawler.internal.utils.ResponseUtil;
-import com.squill.og.crawler.text.summarizer.AylienConstants;
+import com.squill.og.crawler.text.summarizer.NLPApiConstants;
 
 public class DandelionEntityExtractionTestSample {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(DandelionEntityExtractionTestSample.class);
 	
 	private static String resolveDandelionRequestUrl_GET(String text) throws Exception {
-		StringBuilder url = new StringBuilder(AylienConstants.DANDELION_ENTITY_EXTRACTION_API_URL);
+		StringBuilder url = new StringBuilder(NLPApiConstants.DANDELION_ENTITY_EXTRACTION_API_URL);
 		url.append("?");
 		url.append("min_confidence=0.6");
 		url.append("&");
@@ -30,7 +30,7 @@ public class DandelionEntityExtractionTestSample {
 		url.append("&");
 		url.append("include=image%2Cabstract%2Ctypes%2Ccategories%2Clod");
 		url.append("&");
-		url.append("token=").append(AylienConstants.DANDELION_API_KEY);
+		url.append("token=").append(NLPApiConstants.DANDELION_API_KEY);
 		return url.toString();
 	}
 

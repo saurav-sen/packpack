@@ -38,6 +38,8 @@ public class JRssFeed {
 	private List<JGeoTag> geoTags;
 	
 	private List<Concept> concepts;
+	
+	private List<JTaxonomy> taxonomies;
 
 	public String getOgTitle() {
 		return ogTitle;
@@ -139,5 +141,16 @@ public class JRssFeed {
 
 	public void setConcepts(List<Concept> concepts) {
 		this.concepts = concepts;
+	}
+
+	public List<JTaxonomy> getTaxonomies() {
+		if(taxonomies == null) {
+			taxonomies = new ArrayList<JTaxonomy>();
+		}
+		return taxonomies;
+	}
+
+	public void setTaxonomies(List<JTaxonomy> taxonomies) {
+		this.taxonomies = taxonomies;
 	}
 }

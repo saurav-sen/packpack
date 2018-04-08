@@ -2,6 +2,7 @@ package com.squill.og.crawler;
 
 import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
+import com.squill.og.crawler.hooks.ITaxonomyResolver;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 
 /**
@@ -28,4 +29,6 @@ public interface IWebSite {
 	public IWebLinkTrackerService getTrackerService();
 
 	public IGeoLocationResolver getTargetLocationResolver();
+	
+	public ITaxonomyResolver getTaxonomyResolver();
 }

@@ -21,11 +21,13 @@ import com.squill.og.crawler.hooks.GeoLocation;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
+import com.squill.og.crawler.hooks.ITaxonomyResolver;
 import com.squill.og.crawler.internal.utils.CoreConstants;
 import com.squill.og.crawler.internal.utils.FeedClassifierUtil;
 import com.squill.og.crawler.model.web.JGeoTag;
 import com.squill.og.crawler.model.web.JRssFeed;
 import com.squill.og.crawler.model.web.JRssFeeds;
+import com.squill.og.crawler.model.web.JTaxonomy;
 import com.squill.og.crawler.text.summarizer.ArticleTextSummarizer;
 import com.squill.og.crawler.text.summarizer.AylienSummarization;
 
@@ -48,19 +50,15 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 	
 	private Map<String, Object> metaInfoMap = new HashMap<String, Object>(2);
 	
-	private static final String LOCATION_RESOLVER = "LOCATION_RESOLVER";
-	
 	private static final Logger LOG = LoggerFactory
 			.getLogger(DefaultOgHtmlContentHandler.class);
 	
 	@Override
-	public void preProcess(ILink link, IGeoLocationResolver locationResolver, GenSession session) {
-		session.addAttr(LOCATION_RESOLVER, locationResolver);
+	public void preProcess(ILink link, GenSession session) {
 	}
 
 	@Override
-	public void postProcess(String htmlContent, ILink link,
-			IGeoLocationResolver locationResolver, GenSession session) {
+	public void postProcess(String htmlContent, ILink link, GenSession session) {
 		Document doc = Jsoup.parse(htmlContent);
 
 		String title = null;
@@ -163,7 +161,9 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 	private void uploadAll(Map<String, List<JRssFeed>> feedsMap, GenSession session) {
 		IWebSite currentWebSite = session.getCurrentWebSite();
 		String domainUrl = currentWebSite.getDomainUrl();
-		IGeoLocationResolver geoLocationResolver = (IGeoLocationResolver) session.getAttr(LOCATION_RESOLVER);
+//		IGeoLocationResolver geoLocationResolver = (IGeoLocationResolver) session.getAttr(LOCATION_RESOLVER);
+		IGeoLocationResolver geoLocationResolver = currentWebSite.getTargetLocationResolver();
+		ITaxonomyResolver taxonomyResolver = currentWebSite.getTaxonomyResolver();
 		try {
 			JRssFeeds rssFeeds = new JRssFeeds();
 			Iterator<String> itr = feedsMap.keySet().iterator();
@@ -185,7 +185,7 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 						feed.setFullArticleText(response.getText());
 					}
 					if(geoLocationResolver != null) {
-						GeoLocation[] geoLocations = geoLocationResolver.resolveGeoLocation(feed.getOgUrl(), domainUrl, feed);
+						GeoLocation[] geoLocations = geoLocationResolver.resolveGeoLocations(feed.getOgUrl(), domainUrl, feed);
 						if(geoLocations != null && geoLocations.length > 0) {
 							for(GeoLocation geoLocation : geoLocations) {
 								JGeoTag geoTag = new JGeoTag();
@@ -195,6 +195,16 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 							}
 						}
 					}
+					
+					if(taxonomyResolver != null) {
+						JTaxonomy[] taxonomies = taxonomyResolver.resolveTaxonomies(feed.getOgUrl(), feed.getOgTitle());
+						if(taxonomies != null && taxonomies.length > 0) {
+							for(JTaxonomy taxonomy : taxonomies) {
+								feed.getTaxonomies().add(taxonomy);
+							}
+						}
+					}
+					
 					rssFeeds.getFeeds().add(feed);
 				}
 			}

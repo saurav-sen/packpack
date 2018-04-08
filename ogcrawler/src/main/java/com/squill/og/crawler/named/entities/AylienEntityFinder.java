@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
 import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.og.crawler.internal.utils.ResponseUtil;
-import com.squill.og.crawler.text.summarizer.AylienConstants;
+import com.squill.og.crawler.text.summarizer.NLPApiConstants;
 import com.squill.services.exception.PackPackException;
 
 public class AylienEntityFinder {
@@ -20,7 +20,7 @@ public class AylienEntityFinder {
 			.getLogger(AylienEntityFinder.class);
 
 	private static String resolveAylienRequestUrl_GET(String url) {
-		return AylienConstants.AYLIEN_ENTITIES_API_URL + "?" + "url="
+		return NLPApiConstants.AYLIEN_ENTITIES_API_URL + "?" + "url="
 				+ url;
 	}
 
@@ -29,8 +29,8 @@ public class AylienEntityFinder {
 		AylienEntitiesResponse aylienResponse = null;
 		String GET_URL = resolveAylienRequestUrl_GET(url);
 		HttpGet GET = new HttpGet(GET_URL);
-		GET.addHeader("X-AYLIEN-TextAPI-Application-Key", AylienConstants.AYLIEN_API_KEY);
-		GET.addHeader("X-AYLIEN-TextAPI-Application-ID", AylienConstants.AYLIEN_API_APP_ID);
+		GET.addHeader("X-AYLIEN-TextAPI-Application-Key", NLPApiConstants.AYLIEN_API_KEY);
+		GET.addHeader("X-AYLIEN-TextAPI-Application-ID", NLPApiConstants.AYLIEN_API_APP_ID);
 		HttpResponse response = new HttpRequestExecutor().GET(GET);
 		int responseCode = response.getStatusLine().getStatusCode();
 		if (responseCode == 200) { // HTTP OK

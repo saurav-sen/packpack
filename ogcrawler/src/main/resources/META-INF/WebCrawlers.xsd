@@ -38,11 +38,13 @@
 			<element name="name" type="string" maxOccurs="1" minOccurs="1" />
 			<element name="description" type="string" maxOccurs="1"
 				minOccurs="1" />
-			<element name="WebTracker" type="tns:WebTracker"
+			<element name="webLinkTracker" type="tns:WebTracker"
 				maxOccurs="1" minOccurs="0"></element>
 			<element name="contentHandler" type="tns:ContentHandler"
 				maxOccurs="1" minOccurs="1" />
-			<element name="defaultGeoTagResolver" type="tns:GeoTagResolver"
+			<element name="geoTagResolver" type="tns:GeoTagResolver"
+				maxOccurs="1" minOccurs="0" />
+			<element name="taxonomyClassifier" type="tns:TaxonomyClassifier"
 				maxOccurs="1" minOccurs="0" />
 			<element name="linkFilter" type="tns:LinkFilter" maxOccurs="1"
 				minOccurs="0"></element>
@@ -76,6 +78,13 @@
 	</complexType>
 	
 	<complexType name="GeoTagResolver">
+		<sequence>
+			<element name="resolver" type="string" maxOccurs="1"
+				minOccurs="1" />
+		</sequence>
+	</complexType>
+	
+	<complexType name="TaxonomyClassifier">
 		<sequence>
 			<element name="resolver" type="string" maxOccurs="1"
 				minOccurs="1" />

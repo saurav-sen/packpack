@@ -9,10 +9,9 @@ import com.squill.og.crawler.ILink;
  */
 public interface IHtmlContentHandler {
 
-	public void preProcess(ILink link, IGeoLocationResolver locationResolver, GenSession session);
+	public void preProcess(ILink link, GenSession session);
 
-	public void postProcess(String htmlContent, ILink link,
-			IGeoLocationResolver locationResolver, GenSession session);
+	public void postProcess(String htmlContent, ILink link, GenSession session);
 
 	public void postComplete(GenSession session);
 
