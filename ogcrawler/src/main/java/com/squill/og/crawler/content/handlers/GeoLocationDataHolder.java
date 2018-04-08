@@ -1,6 +1,8 @@
 package com.squill.og.crawler.content.handlers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.squill.og.crawler.hooks.GeoLocation;
@@ -19,19 +21,28 @@ public class GeoLocationDataHolder {
 		domainVsDefaultTgtPlace.put("aljazeera.com", new String[] { "Qatar" });
 	}
 
-	private Map<String, GeoLocation> placeNameVsGeoLocation = new HashMap<String, GeoLocation>();
+	private Map<String, List<GeoLocation>> entityNameVsGeoLocation = new HashMap<String, List<GeoLocation>>();
 
 	public static final GeoLocationDataHolder INSTANCE = new GeoLocationDataHolder();
 
 	private GeoLocationDataHolder() {
 	}
 
-	public GeoLocation getGeoLocationByPlaceName(String placeName) {
-		return placeNameVsGeoLocation.get(placeName);
+	public List<GeoLocation> getGeoLocationByEntityName(String entityName) {
+		return entityNameVsGeoLocation.get(entityName);
 	}
 
-	public void addInfoOfGeoLocation(String placeName, GeoLocation geoLocation) {
-		placeNameVsGeoLocation.put(placeName, geoLocation);
+	public void addInfoOfGeoLocation(String entityName, GeoLocation geoLocation) {
+		List<GeoLocation> geoLocations = getGeoLocationByEntityName(entityName);
+		if(geoLocations == null) {
+			geoLocations = new ArrayList<GeoLocation>();
+			entityNameVsGeoLocation.put(entityName, geoLocations);
+		}
+		geoLocations.add(geoLocation);
+	}
+	
+	public void addInfoOfGeoLocations(String entityName, List<GeoLocation> geoLocations) {
+		entityNameVsGeoLocation.put(entityName, geoLocations);
 	}
 
 	public String[] getTargetDefaultPlacesByDomainUrl(String domainUrl) {
@@ -48,6 +59,10 @@ public class GeoLocationDataHolder {
 
 		if (result.indexOf("www.") >= 0) {
 			result = result.substring("www.".length());
+		}
+		int index = result.indexOf("/");
+		if(index >= 0) {
+			result = result.substring(0, index);
 		}
 		return result;
 	}

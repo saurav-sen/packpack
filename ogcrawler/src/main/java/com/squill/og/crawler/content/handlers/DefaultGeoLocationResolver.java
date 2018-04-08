@@ -31,20 +31,19 @@ public class DefaultGeoLocationResolver implements IGeoLocationResolver {
 					List<GeoLocation> geoLocationTags = dbpediaBasedLocationResolver
 							.resolveGeoLocationTags(concepts);
 					if (geoLocationTags == null || geoLocationTags.isEmpty()) {
+						String urlId = domainUrl;
+						if(urlId == null || urlId.trim().isEmpty()) {
+							urlId = linkUrl;
+						}
 						String[] places = GeoLocationDataHolder.INSTANCE
-								.getTargetDefaultPlacesByDomainUrl(domainUrl);
+								.getTargetDefaultPlacesByDomainUrl(urlId);
 						if (places != null) {
 							for (String place : places) {
-								GeoLocation geoLocationTag = GeoLocationDataHolder.INSTANCE
-										.getGeoLocationByPlaceName(place);
-								if (geoLocationTag == null) {
-									geoLocationTag = dbpediaBasedLocationResolver
-											.resolveGeoLocationsForPlaceByName(place);
-									GeoLocationDataHolder.INSTANCE
-											.addInfoOfGeoLocation(place,
-													geoLocationTag);
+								List<GeoLocation> list = dbpediaBasedLocationResolver
+										.resolveGeoLocationsForPlaceByName(place);
+								if(list != null) {
+									geoLocationTags.addAll(list);
 								}
-								geoLocationTags.add(geoLocationTag);
 							}
 						}
 					}
