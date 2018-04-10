@@ -1,5 +1,6 @@
 package com.squill.og.crawler;
 
+import com.squill.og.crawler.hooks.IArticleTextSummarizer;
 import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
 import com.squill.og.crawler.hooks.ITaxonomyResolver;
@@ -31,4 +32,6 @@ public interface IWebSite {
 	public IGeoLocationResolver getTargetLocationResolver();
 	
 	public ITaxonomyResolver getTaxonomyResolver();
+	
+	public IArticleTextSummarizer getArticleTextSummarizer();
 }

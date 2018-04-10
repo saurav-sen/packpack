@@ -15,12 +15,12 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for GeoTagResolver complex type.
+ * <p>Java class for ArticleSummarizer complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="GeoTagResolver">
+ * &lt;complexType name="ArticleSummarizer">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
@@ -34,10 +34,10 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "GeoTagResolver", propOrder = {
+@XmlType(name = "ArticleSummarizer", propOrder = {
     "resolver"
 })
-public class GeoTagResolver {
+public class ArticleSummarizer {
 
     @XmlElement(required = true)
     protected String resolver;

@@ -15,15 +15,14 @@ import com.squill.og.crawler.IRobotScope;
 import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.content.handlers.ExpressionContext;
 import com.squill.og.crawler.content.handlers.ExpressionContext.EvalContext;
-import com.squill.og.crawler.hooks.IFeedUploader;
+import com.squill.og.crawler.hooks.IArticleTextSummarizer;
 import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
 import com.squill.og.crawler.hooks.ITaxonomyResolver;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.CoreConstants;
-import com.squill.og.crawler.model.Config;
+import com.squill.og.crawler.model.ArticleSummarizer;
 import com.squill.og.crawler.model.ContentHandler;
-import com.squill.og.crawler.model.FeedUploader;
 import com.squill.og.crawler.model.GeoTagResolver;
 import com.squill.og.crawler.model.LinkFilter;
 import com.squill.og.crawler.model.TaxonomyClassifier;
@@ -47,10 +46,14 @@ public class WebsiteImpl implements IWebSite {
 
 	private ITaxonomyResolver taxonomyResolver;
 	
+	private IArticleTextSummarizer articleTextSummarizer;
+	
 	private boolean isTaxonomyResolverLoadTried = false;
+	
+	private boolean isTextSummarizerResolverLoadTried = false;
 
 	private IWebLinkTrackerService historyTracker;
-
+	
 	private static final Logger LOG = LoggerFactory
 			.getLogger(WebsiteImpl.class);
 
@@ -126,6 +129,22 @@ public class WebsiteImpl implements IWebSite {
 		}
 		return taxonomyResolver;
 	}
+	
+	@Override
+	public IArticleTextSummarizer getArticleTextSummarizer() {
+		if (articleTextSummarizer == null && !isTextSummarizerResolverLoadTried) {
+			ArticleSummarizer articleSummarizer = crawlerDef
+					.getArticleSummarizer();
+			if (articleSummarizer != null) {
+				String resolver = articleSummarizer.getResolver();
+				if (resolver != null && !resolver.trim().isEmpty()) {
+					articleTextSummarizer = loadArticleTextSummarizer(articleSummarizer);
+				}
+			}
+			isTextSummarizerResolverLoadTried = true;
+		}
+		return articleTextSummarizer;
+	}
 
 	@Override
 	public IHtmlContentHandler getContentHandler() {
@@ -141,59 +160,8 @@ public class WebsiteImpl implements IWebSite {
 						CoreConstants.PRE_CLASSIFIED_FEED_TYPE,
 						preClassifiedType);
 			}
-			FeedUploader feedUploaderDef = contentHandlerDef.getFeedUploader();
-			IFeedUploader feedUploader = loadFeedUploader(feedUploaderDef);
-			if (feedUploader != null) {
-				contentHandler.setFeedUploader(feedUploader);
-			}
 		}
 		return contentHandler;
-	}
-
-	private IFeedUploader loadFeedUploader(FeedUploader feedUploaderDef) {
-		IFeedUploader feedUploader = null;
-		String uploader = feedUploaderDef.getUploader();
-		try {
-			feedUploader = AppContext.INSTANCE.findService(uploader,
-					IFeedUploader.class);
-		} catch (NoSuchBeanDefinitionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		if (feedUploader == null) {
-			try {
-				Object newInstance = Class.forName(uploader).newInstance();
-				if (newInstance instanceof IFeedUploader) {
-					feedUploader = (IFeedUploader) newInstance;
-				}
-			} catch (InstantiationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		if (feedUploader != null) {
-			List<Config> configs = feedUploaderDef.getConfig();
-			if (configs != null && !configs.isEmpty()) {
-				for (Config config : configs) {
-					String key = config.getKey();
-					String value = config.getValue();
-					if (value != null && !value.isEmpty()
-							&& value.startsWith("${") && value.endsWith("}")) {
-						value = value.substring(0, value.length() - 1);
-						value = value.replaceFirst("\\$\\{", "");
-						value = System.getProperty(value);
-					}
-					feedUploader.addConfig(key, value);
-				}
-			}
-		}
-		return feedUploader;
 	}
 
 	private IHtmlContentHandler loadContentHandler(
@@ -205,7 +173,7 @@ public class WebsiteImpl implements IWebSite {
 					IHtmlContentHandler.class);
 		} catch (NoSuchBeanDefinitionException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.error(e.getMessage(), e);
 		}
 		if (contentHandler == null) {
 			try {
@@ -215,13 +183,13 @@ public class WebsiteImpl implements IWebSite {
 				}
 			} catch (InstantiationException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOG.error(e.getMessage(), e);
 			} catch (IllegalAccessException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOG.error(e.getMessage(), e);
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				LOG.error(e.getMessage(), e);
 			}
 		}
 		return contentHandler;
@@ -236,7 +204,7 @@ public class WebsiteImpl implements IWebSite {
 					IGeoLocationResolver.class);
 		} catch (NoSuchBeanDefinitionException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.error(e.getMessage(), e);
 		}
 		if (geoLocationResolver == null) {
 			try {
@@ -264,7 +232,7 @@ public class WebsiteImpl implements IWebSite {
 					ITaxonomyResolver.class);
 		} catch (NoSuchBeanDefinitionException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.error(e.getMessage(), e);
 		}
 		if (taxonomyResolver == null) {
 			try {
@@ -282,6 +250,34 @@ public class WebsiteImpl implements IWebSite {
 		}
 		return taxonomyResolver;
 	}
+	
+	private IArticleTextSummarizer loadArticleTextSummarizer(
+			ArticleSummarizer articleSummarizer) {
+		IArticleTextSummarizer articleTextSummarizer = null;
+		String resolver = articleSummarizer.getResolver().trim();
+		try {
+			articleTextSummarizer = AppContext.INSTANCE.findService(resolver,
+					IArticleTextSummarizer.class);
+		} catch (NoSuchBeanDefinitionException e) {
+			// TODO Auto-generated catch block
+			LOG.error(e.getMessage(), e);
+		}
+		if (articleTextSummarizer == null) {
+			try {
+				Object newInstance = Class.forName(resolver).newInstance();
+				if (newInstance instanceof IArticleTextSummarizer) {
+					articleTextSummarizer = (IArticleTextSummarizer) newInstance;
+				}
+			} catch (InstantiationException e) {
+				LOG.error(e.getMessage(), e);
+			} catch (IllegalAccessException e) {
+				LOG.error(e.getMessage(), e);
+			} catch (ClassNotFoundException e) {
+				LOG.error(e.getMessage(), e);
+			}
+		}
+		return articleTextSummarizer;
+	}
 
 	@Override
 	public ICrawlSchedule getSchedule() {
@@ -295,7 +291,7 @@ public class WebsiteImpl implements IWebSite {
 				try {
 					unit = TimeUnit.valueOf(timeUnit);
 				} catch (Exception e) {
-					e.printStackTrace();
+					LOG.error(e.getMessage(), e);
 				}
 				return unit != null ? unit : TimeUnit.DAYS;
 			}
@@ -346,5 +342,18 @@ public class WebsiteImpl implements IWebSite {
 			}
 		}
 		return historyTracker;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof IWebSite) {
+			return this.getUniqueId().equals(((IWebSite)obj).getUniqueId());
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.getUniqueId().hashCode();
 	}
 }

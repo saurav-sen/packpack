@@ -15,10 +15,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.squill.og.crawler.SpiderSessionFactory;
+import com.squill.og.crawler.SpiderSession;
 import com.squill.og.crawler.ICrawlSchedule;
 import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.WebSiteSpider;
-import com.squill.services.exception.PackPackException;
+import com.squill.og.crawler.hooks.IFeedUploader;
+import com.squill.services.exception.OgCrawlException;
 
 @Component
 @Scope("singleton")
@@ -29,23 +32,24 @@ public class WebSpiderService {
 	private static Logger LOG = LoggerFactory.getLogger(WebSpiderService.class);
 
 	@PostConstruct
-	public void startup() throws PackPackException {
+	public void startup() throws OgCrawlException {
 		pool = Executors
 				.newScheduledThreadPool(2, new ControlledInstantiator());
 	}
 
-	public void shutdown() throws PackPackException {
+	public void shutdown() throws OgCrawlException {
 		if (pool != null) {
 			pool.shutdown();
 		}
 	}
 
-	public void crawlWebSites(List<IWebSite> webSites) {
+	public void crawlWebSites(List<IWebSite> webSites, IFeedUploader feedUploader) {
 		if (webSites == null || webSites.isEmpty())
 			return;
 		List<Future<?>> list = new ArrayList<Future<?>>();
 		int count = 0;
 		int len = webSites.size();
+		SpiderSession session = SpiderSessionFactory.INSTANCE.createNewSession(feedUploader);
 		for (int i = 0; i < len; i++) {
 			IWebSite webSite = webSites.get(i);
 
@@ -63,7 +67,7 @@ public class WebSpiderService {
 					period, timeUnit);
 			WebSiteSpider spider = new WebSiteSpider(webSite,
 					crawlSchedulePeriodicTimeInMillis,
-					webSite.getTrackerService());
+					webSite.getTrackerService(), session);
 			Future<?> future = pool.scheduleAtFixedRate(spider,
 					schedule.getInitialDelay(),
 					crawlSchedulePeriodicTimeInMillis, TimeUnit.MILLISECONDS);
@@ -86,6 +90,7 @@ public class WebSpiderService {
 		}
 		// Main thread should keep waiting forever.
 		waitFor(list);
+		feedUploader.postCompleteAll(session);
 	}
 
 	private long crawlSchedulePeriodicTimeInMillis(long period,

@@ -1,7 +1,8 @@
 package com.squill.og.crawler;
 
-import com.squill.og.crawler.hooks.GenSession;
+import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
+import com.squill.og.crawler.model.web.JRssFeeds;
 
 /**
  * 
@@ -12,22 +13,17 @@ public abstract class NonFunctionalContentHandler implements
 		IHtmlContentHandler {
 
 	@Override
-	public void preProcess(ILink link, GenSession session) {
+	public void preProcess(ILink link, ISpiderSession session) {
 	}
 
 	@Override
-	public void postProcess(String content, ILink link, GenSession session) {
+	public void postProcess(String content, ILink link, ISpiderSession session) {
 		handleContent(content, link);
 	}
 
 	@Override
-	public void postComplete(GenSession session) {
-		handleFlush();
-	}
-
-	@Override
-	public void flush(GenSession session) {
-		handleFlush();
+	public JRssFeeds postComplete(ISpiderSession session) {
+		return handleFlush();
 	}
 
 	@Override
@@ -40,7 +36,7 @@ public abstract class NonFunctionalContentHandler implements
 		return -1;
 	}
 
-	protected abstract void handleFlush();
+	protected abstract JRssFeeds handleFlush();
 
 	protected abstract void handleContent(String content, ILink link);
 }

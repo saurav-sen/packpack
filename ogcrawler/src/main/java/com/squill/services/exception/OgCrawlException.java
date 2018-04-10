@@ -5,7 +5,7 @@ package com.squill.services.exception;
  * @author Saurav
  *
  */
-public class PackPackException extends Exception {
+public class OgCrawlException extends Exception {
 
 	/**
 	 * 
@@ -17,15 +17,15 @@ public class PackPackException extends Exception {
 
 	private String errorCode;
 	
-	public PackPackException(String errorCode, Throwable cause) {
+	public OgCrawlException(String errorCode, Throwable cause) {
 		this(errorCode, cause.getMessage(), cause);
 	}
 	
-	public PackPackException(String errorCode, String errorMsg) {
+	public OgCrawlException(String errorCode, String errorMsg) {
 		this(errorCode, errorMsg, null);
 	}
 	
-	public PackPackException(String errorCode, String errorMsg, Throwable cause) {
+	public OgCrawlException(String errorCode, String errorMsg, Throwable cause) {
 		super(errorMsg, cause);
 		this.errorCode = errorCode;
 	}

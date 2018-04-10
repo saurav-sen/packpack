@@ -1,6 +1,7 @@
 package com.squill.og.crawler.hooks;
 
 import com.squill.og.crawler.ILink;
+import com.squill.og.crawler.model.web.JRssFeeds;
 
 /**
  * 
@@ -9,13 +10,11 @@ import com.squill.og.crawler.ILink;
  */
 public interface IHtmlContentHandler {
 
-	public void preProcess(ILink link, GenSession session);
+	public void preProcess(ILink link, ISpiderSession session);
 
-	public void postProcess(String htmlContent, ILink link, GenSession session);
+	public void postProcess(String htmlContent, ILink link, ISpiderSession session);
 
-	public void postComplete(GenSession session);
-
-	public void flush(GenSession session);
+	public JRssFeeds postComplete(ISpiderSession session);
 
 	public int getFlushFrequency();
 
@@ -24,8 +23,6 @@ public interface IHtmlContentHandler {
 	public void setFlushFrequency(int flushFrequency);
 
 	public void setThresholdFrequency(int thresholdFrequency);
-
-	public void setFeedUploader(IFeedUploader feedUploader);
 
 	public void addMetaInfo(String key, Object value);
 }

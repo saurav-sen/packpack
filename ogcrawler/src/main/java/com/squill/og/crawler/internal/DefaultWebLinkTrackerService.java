@@ -18,7 +18,7 @@ import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.EncryptionUtil;
 import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.og.crawler.model.WebSpiderTracker;
-import com.squill.services.exception.PackPackException;
+import com.squill.services.exception.OgCrawlException;
 
 /**
  * 
@@ -81,7 +81,7 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 		} catch (NoSuchAlgorithmException e) {
 			LOG.error(e.getMessage(), e);
 			throw new RuntimeException(e);
-		} catch (PackPackException e) {
+		} catch (OgCrawlException e) {
 			LOG.error(e.getMessage(), e);
 		} finally {
 			save();
@@ -102,7 +102,7 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 		} catch (NoSuchAlgorithmException e) {
 			LOG.error(e.getMessage(), e);
 			throw new RuntimeException(e);
-		} catch (PackPackException e) {
+		} catch (OgCrawlException e) {
 			LOG.error(e.getMessage(), e);
 			return null;
 		}

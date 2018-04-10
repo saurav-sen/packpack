@@ -3,7 +3,7 @@ package com.squill.og.crawler.text.summarizer;
 import java.util.LinkedList;
 import java.util.List;
 
-public class AylienSummarization {
+public class TextSummarization {
 
 	private String text;
 

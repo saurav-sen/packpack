@@ -12,7 +12,7 @@ import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
 import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.og.crawler.internal.utils.ResponseUtil;
 import com.squill.og.crawler.text.summarizer.NLPApiConstants;
-import com.squill.services.exception.PackPackException;
+import com.squill.services.exception.OgCrawlException;
 
 public class AylienEntityFinder {
 	
@@ -25,7 +25,7 @@ public class AylienEntityFinder {
 	}
 
 	public AylienEntitiesResponse findNames(String url) throws ClientProtocolException,
-			IOException, PackPackException {
+			IOException, OgCrawlException {
 		AylienEntitiesResponse aylienResponse = null;
 		String GET_URL = resolveAylienRequestUrl_GET(url);
 		HttpGet GET = new HttpGet(GET_URL);

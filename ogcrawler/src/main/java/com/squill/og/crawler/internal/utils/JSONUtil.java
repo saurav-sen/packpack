@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.squill.services.exception.PackPackException;
+import com.squill.services.exception.OgCrawlException;
 
 /**
  * 
@@ -36,11 +36,11 @@ public class JSONUtil {
 		assert(millis1 - millis2 == 0);
 	}*/
 	
-	public static String serialize(Object object) throws PackPackException {
+	public static String serialize(Object object) throws OgCrawlException {
 		return serialize(object, true);
 	}
 
-	public static String serialize(Object object, boolean wrapRoot) throws PackPackException {
+	public static String serialize(Object object, boolean wrapRoot) throws OgCrawlException {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
 		mapper.configure(DeserializationFeature.EAGER_DESERIALIZER_FETCH, true);
@@ -50,19 +50,19 @@ public class JSONUtil {
 			json = mapper.writeValueAsString(object);
 
 		} catch (JsonProcessingException e) {
-			throw new PackPackException("TODO",
+			throw new OgCrawlException("TODO",
 					"Error writing JSON to response");
 		}
 		return json;
 	}
 
 	public static <T> T deserialize(String json, Class<T> type)
-			throws PackPackException {
+			throws OgCrawlException {
 		return deserialize(json, type, false);
 	}
 
 	public static <T> T deserialize(String json, Class<T> type,
-			boolean unWrapRootValue) throws PackPackException {
+			boolean unWrapRootValue) throws OgCrawlException {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
 				false);
@@ -74,7 +74,7 @@ public class JSONUtil {
 		try {
 			jsonJavaObj = mapper.readValue(json.getBytes("UTF-8"), type);
 		} catch (Exception e) {
-			throw new PackPackException("TODO",
+			throw new OgCrawlException("TODO",
 					"Couldn't parse the given JSON. Check payload.");
 		}
 		return jsonJavaObj;

@@ -1,15 +1,14 @@
 package com.squill.og.crawler;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.squill.og.crawler.hooks.GenSession;
+import com.squill.og.crawler.hooks.IFeedUploader;
+import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
@@ -21,6 +20,7 @@ import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
 import com.squill.og.crawler.internal.utils.ResponseUtil;
 import com.squill.og.crawler.internal.utils.WebSpiderUtils;
 import com.squill.og.crawler.model.WebSpiderTracker;
+import com.squill.og.crawler.model.web.JRssFeeds;
 
 /**
  * 
@@ -38,18 +38,23 @@ public class WebSiteSpider implements Runnable {
 	
 	private long crawlSchedulePeriodicTimeInMillis;
 	
-	public WebSiteSpider(IWebSite domain, long crawlSchedulePeriodicTimeInMillis, IWebLinkTrackerService tracker) {
+	private SpiderSession session;
+	
+	public WebSiteSpider(IWebSite domain, long crawlSchedulePeriodicTimeInMillis, IWebLinkTrackerService tracker, SpiderSession session) {
 		this.webSite = domain;
 		this.crawlSchedulePeriodicTimeInMillis = crawlSchedulePeriodicTimeInMillis;
 		this.tracker = tracker;
+		this.session = session;
 	}
 
 	@Override
 	public void run() {
-		GenSession session = new GenSessionImpl(webSite);
+		session.setCurrentWebSite(webSite);
 		IHtmlContentHandler contentHandler = webSite.getContentHandler();
 		IGeoLocationResolver geoLocationResolver = webSite.getTargetLocationResolver();
+		IFeedUploader feedUploader = session.getFeedUploader();
 		try {
+			feedUploader.preProcess(session);
 			if (links.isEmpty()) {
 				List<? extends ILink> parseCrawlableURLs = WebSpiderUtils.parseCrawlableURLs(webSite);
 				for(ILink parseCrawlableURL : parseCrawlableURLs) {
@@ -57,34 +62,36 @@ public class WebSiteSpider implements Runnable {
 				}
 			}
 			IRobotScope robotScope = webSite.getRobotScope();
-			doCrawl(links, robotScope, contentHandler, geoLocationResolver, session);
+			doCrawl(links, robotScope, contentHandler, geoLocationResolver, feedUploader, session);
 			List<? extends ILink> parseCrawlableURLs = robotScope.getAnyLeftOverLinks();
 			for(ILink parseCrawlableURL : parseCrawlableURLs) {
 				links.offer(parseCrawlableURL);
 			}
-			doCrawl(links, robotScope, contentHandler, geoLocationResolver, session);
+			doCrawl(links, robotScope, contentHandler, geoLocationResolver, feedUploader, session);
+			JRssFeeds rssFeeds = contentHandler.postComplete(session);
+			session.addAttr(ISpiderSession.RSS_FEEDS_KEY, rssFeeds);
+			feedUploader.postComplete(session, session.getCurrentWebSite());
+			session.done(webSite);
 		} catch (Throwable e) {
 			LOG.error(e.getMessage(), e);
-		} finally {
-			contentHandler.postComplete(session);
 		}
 	}
 	
 	private void doCrawl(Queue<ILink> links, IRobotScope robotScope,
 			IHtmlContentHandler contentHandler,
-			IGeoLocationResolver geoLocationResolver, GenSession session) throws Exception {
+			IGeoLocationResolver geoLocationResolver, IFeedUploader feedUploader, ISpiderSession session) throws Exception {
 		int count = 0;
 		int max = 0;
 		while(links != null && !links.isEmpty()) {
 			ILink link = links.poll();
 			if(contentHandler.getThresholdFrequency() > 0 
 					&& max >= contentHandler.getThresholdFrequency()) {
-				contentHandler.flush(session);
+				feedUploader.flush(session);
 				LOG.info("Threshold value reached... crawler will hung up for next scheduled time.");
 				return;
 			}
 			if(count >= contentHandler.getFlushFrequency()) {
-				contentHandler.flush(session);
+				feedUploader.flush(session);
 				count = 0;
 			}
 			WebSpiderTracker info = null;
@@ -151,32 +158,6 @@ public class WebSiteSpider implements Runnable {
 				count++;
 				max++;
 			}
-		}
-	}
-	
-	private class GenSessionImpl implements GenSession {
-		
-		private Map<String, Object> attrMap = new HashMap<String, Object>();
-		
-		private IWebSite currentWebSite;
-		
-		GenSessionImpl(IWebSite currentWebSite) {
-			this.currentWebSite = currentWebSite;
-		}
-
-		@Override
-		public void addAttr(String key, Object value) {
-			attrMap.put(key, value);
-		}
-
-		@Override
-		public Object getAttr(String key) {
-			return attrMap.get(key);
-		}
-		
-		@Override
-		public IWebSite getCurrentWebSite() {
-			return currentWebSite;
 		}
 	}
 }

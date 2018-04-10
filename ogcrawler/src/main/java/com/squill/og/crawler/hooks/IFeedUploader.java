@@ -1,6 +1,7 @@
 package com.squill.og.crawler.hooks;
 
-import com.squill.og.crawler.model.web.JRssFeeds;
+import com.squill.og.crawler.IWebSite;
+
 
 /**
  * 
@@ -9,7 +10,13 @@ import com.squill.og.crawler.model.web.JRssFeeds;
  */
 public interface IFeedUploader {
 
+	public void preProcess(ISpiderSession session);
+	
 	public void addConfig(String key, String value);
 	
-	public void uploadBulk(JRssFeeds rssFeeds) throws Exception ;
+	public void flush(ISpiderSession session);
+	
+	public void postComplete(ISpiderSession session, IWebSite webSite);
+	
+	public void postCompleteAll(ISpiderSession session);
 }

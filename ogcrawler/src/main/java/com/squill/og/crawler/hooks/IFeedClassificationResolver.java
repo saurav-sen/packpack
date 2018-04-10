@@ -1,4 +1,4 @@
-package com.squill.og.crawler.content.handlers;
+package com.squill.og.crawler.hooks;
 
 import java.util.List;
 

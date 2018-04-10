@@ -11,6 +11,8 @@
 			<element name="WebCrawler" type="tns:WebCrawler" maxOccurs="unbounded"
 				minOccurs="0">
 			</element>
+			<element name="feedUploader" type="tns:FeedUploader"
+				maxOccurs="1" minOccurs="1" />
 		</sequence>
 	</complexType>
 
@@ -46,6 +48,8 @@
 				maxOccurs="1" minOccurs="0" />
 			<element name="taxonomyClassifier" type="tns:TaxonomyClassifier"
 				maxOccurs="1" minOccurs="0" />
+			<element name="articleSummarizer" type="tns:ArticleSummarizer"
+				maxOccurs="1" minOccurs="0" />
 			<element name="linkFilter" type="tns:LinkFilter" maxOccurs="1"
 				minOccurs="0"></element>
 			<element name="scheduler" type="tns:scheduler" maxOccurs="1"
@@ -62,8 +66,6 @@
 		<sequence>
 			<element name="handler" type="string" maxOccurs="1"
 				minOccurs="1" />
-			<element name="feedUploader" type="tns:FeedUploader"
-				maxOccurs="1" minOccurs="1" />
 		</sequence>
 		<attribute name="preClassifiedType" type="string" use="optional"></attribute>
 	</complexType>
@@ -85,6 +87,13 @@
 	</complexType>
 	
 	<complexType name="TaxonomyClassifier">
+		<sequence>
+			<element name="resolver" type="string" maxOccurs="1"
+				minOccurs="1" />
+		</sequence>
+	</complexType>
+	
+	<complexType name="ArticleSummarizer">
 		<sequence>
 			<element name="resolver" type="string" maxOccurs="1"
 				minOccurs="1" />

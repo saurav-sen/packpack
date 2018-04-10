@@ -16,11 +16,12 @@ import org.springframework.stereotype.Component;
 
 import com.squill.og.crawler.ILink;
 import com.squill.og.crawler.IWebSite;
-import com.squill.og.crawler.hooks.GenSession;
 import com.squill.og.crawler.hooks.GeoLocation;
-import com.squill.og.crawler.hooks.IFeedUploader;
+import com.squill.og.crawler.hooks.IArticleTextSummarizer;
+import com.squill.og.crawler.hooks.IFeedClassificationResolver;
 import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
+import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.hooks.ITaxonomyResolver;
 import com.squill.og.crawler.internal.utils.CoreConstants;
 import com.squill.og.crawler.internal.utils.FeedClassifierUtil;
@@ -28,8 +29,7 @@ import com.squill.og.crawler.model.web.JGeoTag;
 import com.squill.og.crawler.model.web.JRssFeed;
 import com.squill.og.crawler.model.web.JRssFeeds;
 import com.squill.og.crawler.model.web.JTaxonomy;
-import com.squill.og.crawler.text.summarizer.ArticleTextSummarizer;
-import com.squill.og.crawler.text.summarizer.AylienSummarization;
+import com.squill.og.crawler.text.summarizer.TextSummarization;
 
 /**
  * 
@@ -46,19 +46,17 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 
 	private int thresholdFrequency = 10;
 
-	private IFeedUploader feedUploader;
-	
 	private Map<String, Object> metaInfoMap = new HashMap<String, Object>(2);
 	
 	private static final Logger LOG = LoggerFactory
 			.getLogger(DefaultOgHtmlContentHandler.class);
 	
 	@Override
-	public void preProcess(ILink link, GenSession session) {
+	public void preProcess(ILink link, ISpiderSession session) {
 	}
 
 	@Override
-	public void postProcess(String htmlContent, ILink link, GenSession session) {
+	public void postProcess(String htmlContent, ILink link, ISpiderSession session) {
 		Document doc = Jsoup.parse(htmlContent);
 
 		String title = null;
@@ -141,31 +139,31 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 	}
 
 	@Override
-	public void postComplete(GenSession session) {
+	public JRssFeeds postComplete(ISpiderSession session) {
 		if(feeds == null || feeds.isEmpty()) {
 			LOG.warn("Skipping Uploading empty list of feeds recceived from og-crawler");
-			return;
+			return null;
 		}
 		Map<String, List<JRssFeed>> feedsMap = new HashMap<String, List<JRssFeed>>();
 		feedsMap.putAll(feeds);
 		feeds.clear();
 		deDuplicateFeeds(feedsMap);
-		uploadAll(feedsMap, session);
+		JRssFeeds rssFeeds = postComplete(feedsMap, session);
 		feedsMap.clear();
+		return rssFeeds;
 	}
 	
 	private void deDuplicateFeeds(Map<String, List<JRssFeed>> feedsMap) {
 		
 	}
 
-	private void uploadAll(Map<String, List<JRssFeed>> feedsMap, GenSession session) {
+	private JRssFeeds postComplete(Map<String, List<JRssFeed>> feedsMap, ISpiderSession session) {
 		IWebSite currentWebSite = session.getCurrentWebSite();
 		String domainUrl = currentWebSite.getDomainUrl();
-//		IGeoLocationResolver geoLocationResolver = (IGeoLocationResolver) session.getAttr(LOCATION_RESOLVER);
 		IGeoLocationResolver geoLocationResolver = currentWebSite.getTargetLocationResolver();
 		ITaxonomyResolver taxonomyResolver = currentWebSite.getTaxonomyResolver();
+		JRssFeeds rssFeeds = new JRssFeeds();
 		try {
-			JRssFeeds rssFeeds = new JRssFeeds();
 			Iterator<String> itr = feedsMap.keySet().iterator();
 			while(itr.hasNext()) {
 				String key = itr.next();
@@ -177,12 +175,17 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 					if(classifier != null) {
 						feed.setOgType(classifier);
 					}
-					AylienSummarization response = new ArticleTextSummarizer()
-							.summarize(feed.getOgUrl());
-					if (response != null) {
-						feed.setArticleSummaryText(response
-								.extractedAllSummary(false));
-						feed.setFullArticleText(response.getText());
+					IArticleTextSummarizer articleTextSummarizer = currentWebSite
+							.getArticleTextSummarizer();
+					if (articleTextSummarizer != null) {
+						TextSummarization response = articleTextSummarizer
+								.summarize(feed.getOgUrl(), feed.getOgTitle(),
+										feed.getOgDescription());
+						if (response != null) {
+							feed.setArticleSummaryText(response
+									.extractedAllSummary(false));
+							feed.setFullArticleText(response.getText());
+						}
 					}
 					if(geoLocationResolver != null) {
 						GeoLocation[] geoLocations = geoLocationResolver.resolveGeoLocations(feed.getOgUrl(), domainUrl, feed);
@@ -208,12 +211,14 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 					rssFeeds.getFeeds().add(feed);
 				}
 			}
+			/*IFeedUploader feedUploader = currentWebSite.getFeedUploader();
 			if(feedUploader != null) {
 				feedUploader.uploadBulk(rssFeeds);
-			}
+			}*/
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return rssFeeds;
 	}
 	
 	protected IFeedClassificationResolver getClassificationResolver() {
@@ -266,16 +271,6 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 	@Override
 	public void setFlushFrequency(int flushFrequency) {
 		this.flushFrequency = flushFrequency;
-	}
-
-	@Override
-	public void flush(GenSession session) {
-		postComplete(session);
-	}
-
-	@Override
-	public void setFeedUploader(IFeedUploader feedUploader) {
-		this.feedUploader = feedUploader;
 	}
 
 	protected Object getMetaInfo(String key) {

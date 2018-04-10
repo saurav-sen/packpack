@@ -15,7 +15,7 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.squill.og.crawler.entity.extraction.Concept;
 import com.squill.og.crawler.hooks.GeoLocation;
 import com.squill.og.crawler.internal.utils.JSONUtil;
-import com.squill.services.exception.PackPackException;
+import com.squill.services.exception.OgCrawlException;
 
 public class DbpediaGeoLocationReader {
 	
@@ -244,7 +244,7 @@ public class DbpediaGeoLocationReader {
 			LOG.error("Ontology types not resolved for concept");
 			try {
 				LOG.debug(JSONUtil.serialize(concept));
-			} catch (PackPackException e) {
+			} catch (OgCrawlException e) {
 				LOG.error(e.getMessage(), e);
 			}
 			return false;
@@ -265,7 +265,7 @@ public class DbpediaGeoLocationReader {
 			LOG.error("Dbpedia Link is not resolved for concept");
 			try {
 				LOG.debug(JSONUtil.serialize(concept));
-			} catch (PackPackException e) {
+			} catch (OgCrawlException e) {
 				LOG.error(e.getMessage(), e);
 			}
 			return null;

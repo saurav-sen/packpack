@@ -16,7 +16,7 @@ import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.EncryptionUtil;
 import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.og.crawler.model.WebSpiderTracker;
-import com.squill.services.exception.PackPackException;
+import com.squill.services.exception.OgCrawlException;
 
 /**
  * 
@@ -134,7 +134,7 @@ public class RedisWebLinkTrackerService implements IWebLinkTrackerService {
 		} catch (NoSuchAlgorithmException e) {
 			LOG.error(e.getMessage(), e);
 			throw new RuntimeException(e);
-		} catch (PackPackException e) {
+		} catch (OgCrawlException e) {
 			LOG.error(e.getMessage(), e);
 		} /*finally {
 			if (sync != null) {
@@ -156,7 +156,7 @@ public class RedisWebLinkTrackerService implements IWebLinkTrackerService {
 		} catch (NoSuchAlgorithmException e) {
 			LOG.error(e.getMessage(), e);
 			throw new RuntimeException(e);
-		} catch (PackPackException e) {
+		} catch (OgCrawlException e) {
 			LOG.error(e.getMessage(), e);
 			return null;
 		} /*finally {
@@ -180,7 +180,7 @@ public class RedisWebLinkTrackerService implements IWebLinkTrackerService {
 
 	}
 
-	protected void clearAll(String keyPrefix) throws PackPackException {
+	protected void clearAll(String keyPrefix) throws OgCrawlException {
 		RedisCommands<String, String> sync = sync();
 		List<String> keys = sync.keys(keyPrefix + "*");
 		if (keys == null || keys.isEmpty())

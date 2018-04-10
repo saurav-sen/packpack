@@ -11,24 +11,24 @@ import org.slf4j.LoggerFactory;
 import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
 import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.og.crawler.internal.utils.ResponseUtil;
-import com.squill.services.exception.PackPackException;
+import com.squill.services.exception.OgCrawlException;
 
-public final class ArticleTextSummarizer {
+public final class AylienArticleTextSummarizer {
 
 	// private static final String DEEP_API_KEY =
 	// "d0eb5617-e7f2-4422-b1a3-e16794709086";
 
 	private static final Logger LOG = LoggerFactory
-			.getLogger(ArticleTextSummarizer.class);
+			.getLogger(AylienArticleTextSummarizer.class);
 
-	private static String resolveAylienRequestUrl_GET(String url) {
+	private String resolveAylienRequestUrl_GET(String url) {
 		return NLPApiConstants.AYLIEN_SUMMARY_API_URL + "?" + "sentences_number=" + 4 + "&" + "url="
 				+ url;
 	}
 
-	public AylienSummarization summarize(String url) throws ClientProtocolException,
-			IOException, PackPackException {
-		AylienSummarization aylienResponse = null;
+	public TextSummarization summarize(String url) throws ClientProtocolException,
+			IOException, OgCrawlException {
+		TextSummarization aylienResponse = null;
 		String GET_URL = resolveAylienRequestUrl_GET(url);
 		HttpGet GET = new HttpGet(GET_URL);
 		GET.addHeader("X-AYLIEN-TextAPI-Application-Key", NLPApiConstants.AYLIEN_API_KEY);
@@ -40,7 +40,7 @@ public final class ArticleTextSummarizer {
 			String textSummary = ResponseUtil.getResponseBodyContent(response);
 			LOG.debug(textSummary);
 			aylienResponse = JSONUtil.deserialize(textSummary,
-					AylienSummarization.class);
+					TextSummarization.class);
 		} else {
 			LOG.debug("FAILED");
 		}

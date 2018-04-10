@@ -17,8 +17,10 @@ import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import com.squill.og.crawler.IWebSite;
+import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.internal.AppContext;
 import com.squill.og.crawler.internal.WebSpiderService;
 import com.squill.og.crawler.internal.WebsiteImpl;
@@ -32,7 +34,7 @@ import com.squill.og.crawler.model.Scheduler;
 import com.squill.og.crawler.model.WebCrawler;
 import com.squill.og.crawler.model.WebCrawlers;
 import com.squill.og.crawler.model.WebTracker;
-import com.squill.services.exception.PackPackException;
+import com.squill.services.exception.OgCrawlException;
 
 /**
  * 
@@ -89,10 +91,12 @@ public class Startup {
 				System.setProperty(WEB_CRAWLERS_CONFIG_FILE, optionValue);
 				AppContext appContext = AppContext.INSTANCE.init();
 				service = appContext.findService(WebSpiderService.class);
-				List<IWebSite> websites = readCrawlerDefinition();
+				WebCrawlers crawlersDef = readCrawlerDefinition();
+				IFeedUploader feedUploader = loadFeedUploader(crawlersDef);
+				List<IWebSite> websites = readCrawlableWebSites(crawlersDef);
 				if(websites == null || websites.isEmpty())
 					return;
-				service.crawlWebSites(websites);
+				service.crawlWebSites(websites, feedUploader);
 			} else {
 				help();
 			}
@@ -109,7 +113,7 @@ public class Startup {
 			if (service != null) {
 				service.shutdown();
 			}
-		} catch (PackPackException e) {
+		} catch (OgCrawlException e) {
 			LOG.debug(e.getMessage(), e);
 		}
 	}
@@ -120,8 +124,7 @@ public class Startup {
 		System.exit(0);
 	}
 	
-	private List<IWebSite> readCrawlerDefinition() throws JAXBException {
-		List<IWebSite> webSites = new ArrayList<IWebSite>();
+	private WebCrawlers readCrawlerDefinition() throws JAXBException {
 		String loc = System.getProperty(WEB_CRAWLERS_CONFIG_FILE);
 		File file = new File(loc);
 		JAXBContext jaxbInstance = JAXBContext.newInstance(WebCrawlers.class,
@@ -142,6 +145,54 @@ public class Startup {
 				}
 			}
 		}
+		return crawlersDef;
+	}
+	
+	private IFeedUploader loadFeedUploader(WebCrawlers crawlersDef) {
+		IFeedUploader feedUploader = null;
+		FeedUploader feedUploaderDef = crawlersDef.getFeedUploader();
+		String uploader = feedUploaderDef.getUploader();
+		try {
+			feedUploader = AppContext.INSTANCE.findService(uploader,
+					IFeedUploader.class);
+		} catch (NoSuchBeanDefinitionException e) {
+			LOG.error(e.getMessage(), e);
+		}
+		if (feedUploader == null) {
+			try {
+				Object newInstance = Class.forName(uploader).newInstance();
+				if (newInstance instanceof IFeedUploader) {
+					feedUploader = (IFeedUploader) newInstance;
+				}
+			} catch (InstantiationException e) {
+				LOG.error(e.getMessage(), e);
+			} catch (IllegalAccessException e) {
+				LOG.error(e.getMessage(), e);
+			} catch (ClassNotFoundException e) {
+				LOG.error(e.getMessage(), e);
+			}
+		}
+		if (feedUploader != null) {
+			List<Config> configs = feedUploaderDef.getConfig();
+			if (configs != null && !configs.isEmpty()) {
+				for (Config config : configs) {
+					String key = config.getKey();
+					String value = config.getValue();
+					if (value != null && !value.isEmpty()
+							&& value.startsWith("${") && value.endsWith("}")) {
+						value = value.substring(0, value.length() - 1);
+						value = value.replaceFirst("\\$\\{", "");
+						value = System.getProperty(value);
+					}
+					feedUploader.addConfig(key, value);
+				}
+			}
+		}
+		return feedUploader;
+	}
+	
+	private List<IWebSite> readCrawlableWebSites(WebCrawlers crawlersDef) {
+		List<IWebSite> webSites = new ArrayList<IWebSite>();
 		List<WebCrawler> crawlers = crawlersDef.getWebCrawler();
 		for (WebCrawler crawler : crawlers) {
 			IWebSite webSite = new WebsiteImpl(crawler);
