@@ -1,6 +1,6 @@
 package com.squill.og.crawler.hooks;
 
-import com.squill.og.crawler.IWebSite;
+import com.squill.og.crawler.IWebCrawlable;
 import com.squill.og.crawler.model.web.JRssFeeds;
 
 public interface ISpiderSession {
@@ -11,11 +11,11 @@ public interface ISpiderSession {
 
 	public Object getAttr(String key);
 
-	public IWebSite getCurrentWebSite();
+	public IWebCrawlable getCurrentWebCrawlable();
 	
-	public JRssFeeds getFeeds(IWebSite webSite);
+	public JRssFeeds getFeeds(IWebCrawlable webSite);
 	
-	public void done(IWebSite webSite);
+	public void done(IWebCrawlable webSite);
 	
-	public IWebSite[] getAllCompleted();
+	public IWebCrawlable[] getAllCompleted();
 }

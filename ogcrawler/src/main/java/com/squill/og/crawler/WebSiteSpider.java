@@ -27,7 +27,7 @@ import com.squill.og.crawler.model.web.JRssFeeds;
  * @author Saurav
  *
  */
-public class WebSiteSpider implements Runnable {
+public class WebSiteSpider implements Spider {
 	
 	private IWebSite webSite;
 	private IWebLinkTrackerService tracker;
@@ -49,7 +49,7 @@ public class WebSiteSpider implements Runnable {
 
 	@Override
 	public void run() {
-		session.setCurrentWebSite(webSite);
+		session.setCurrentWebCrawlable(webSite);
 		IHtmlContentHandler contentHandler = webSite.getContentHandler();
 		IGeoLocationResolver geoLocationResolver = webSite.getTargetLocationResolver();
 		IFeedUploader feedUploader = session.getFeedUploader();
@@ -70,7 +70,7 @@ public class WebSiteSpider implements Runnable {
 			doCrawl(links, robotScope, contentHandler, geoLocationResolver, feedUploader, session);
 			JRssFeeds rssFeeds = contentHandler.postComplete(session);
 			session.addAttr(ISpiderSession.RSS_FEEDS_KEY, rssFeeds);
-			feedUploader.postComplete(session, session.getCurrentWebSite());
+			feedUploader.postComplete(session, session.getCurrentWebCrawlable());
 			session.done(webSite);
 		} catch (Throwable e) {
 			LOG.error(e.getMessage(), e);

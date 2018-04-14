@@ -16,19 +16,19 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for WebCrawler complex type.
+ * <p>Java class for ApiReader complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="WebCrawler">
+ * &lt;complexType name="ApiReader">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
  *         &lt;element name="name" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="description" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="webLinkTracker" type="{http://www.squilla.co.in/WebCrawlers}WebTracker" minOccurs="0"/>
- *         &lt;element name="contentHandler" type="{http://www.squilla.co.in/WebCrawlers}ContentHandler"/>
+ *         &lt;element name="apiRequestExecutor" type="{http://www.squilla.co.in/WebCrawlers}ApiRequestExecutor"/>
  *         &lt;element name="geoTagResolver" type="{http://www.squilla.co.in/WebCrawlers}GeoTagResolver" minOccurs="0"/>
  *         &lt;element name="taxonomyClassifier" type="{http://www.squilla.co.in/WebCrawlers}TaxonomyClassifier" minOccurs="0"/>
  *         &lt;element name="articleSummarizer" type="{http://www.squilla.co.in/WebCrawlers}ArticleSummarizer" minOccurs="0"/>
@@ -36,10 +36,7 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element name="scheduler" type="{http://www.squilla.co.in/WebCrawlers}scheduler"/>
  *       &lt;/sequence>
  *       &lt;attribute name="id" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="domainUrl" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
- *       &lt;attribute name="flushFrequency" type="{http://www.w3.org/2001/XMLSchema}int" />
- *       &lt;attribute name="thresholdFrequency" type="{http://www.w3.org/2001/XMLSchema}int" />
- *       &lt;attribute name="robotRulesExists" use="required" type="{http://www.w3.org/2001/XMLSchema}boolean" />
+ *       &lt;attribute name="preClassifiedType" type="{http://www.w3.org/2001/XMLSchema}string" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -48,18 +45,18 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "WebCrawler", propOrder = {
+@XmlType(name = "ApiReader", propOrder = {
     "name",
     "description",
     "webLinkTracker",
-    "contentHandler",
+    "apiRequestExecutor",
     "geoTagResolver",
     "taxonomyClassifier",
     "articleSummarizer",
     "linkFilter",
     "scheduler"
 })
-public class WebCrawler {
+public class ApiReader {
 
     @XmlElement(required = true)
     protected String name;
@@ -67,7 +64,7 @@ public class WebCrawler {
     protected String description;
     protected WebTracker webLinkTracker;
     @XmlElement(required = true)
-    protected ContentHandler contentHandler;
+    protected ApiRequestExecutor apiRequestExecutor;
     protected GeoTagResolver geoTagResolver;
     protected TaxonomyClassifier taxonomyClassifier;
     protected ArticleSummarizer articleSummarizer;
@@ -76,14 +73,8 @@ public class WebCrawler {
     protected Scheduler scheduler;
     @XmlAttribute(name = "id", required = true)
     protected String id;
-    @XmlAttribute(name = "domainUrl", required = true)
-    protected String domainUrl;
-    @XmlAttribute(name = "flushFrequency")
-    protected Integer flushFrequency;
-    @XmlAttribute(name = "thresholdFrequency")
-    protected Integer thresholdFrequency;
-    @XmlAttribute(name = "robotRulesExists", required = true)
-    protected boolean robotRulesExists;
+    @XmlAttribute(name = "preClassifiedType")
+    protected String preClassifiedType;
 
     /**
      * Gets the value of the name property.
@@ -158,27 +149,27 @@ public class WebCrawler {
     }
 
     /**
-     * Gets the value of the contentHandler property.
+     * Gets the value of the apiRequestExecutor property.
      * 
      * @return
      *     possible object is
-     *     {@link ContentHandler }
+     *     {@link ApiRequestExecutor }
      *     
      */
-    public ContentHandler getContentHandler() {
-        return contentHandler;
+    public ApiRequestExecutor getApiRequestExecutor() {
+        return apiRequestExecutor;
     }
 
     /**
-     * Sets the value of the contentHandler property.
+     * Sets the value of the apiRequestExecutor property.
      * 
      * @param value
      *     allowed object is
-     *     {@link ContentHandler }
+     *     {@link ApiRequestExecutor }
      *     
      */
-    public void setContentHandler(ContentHandler value) {
-        this.contentHandler = value;
+    public void setApiRequestExecutor(ApiRequestExecutor value) {
+        this.apiRequestExecutor = value;
     }
 
     /**
@@ -326,91 +317,27 @@ public class WebCrawler {
     }
 
     /**
-     * Gets the value of the domainUrl property.
+     * Gets the value of the preClassifiedType property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getDomainUrl() {
-        return domainUrl;
+    public String getPreClassifiedType() {
+        return preClassifiedType;
     }
 
     /**
-     * Sets the value of the domainUrl property.
+     * Sets the value of the preClassifiedType property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setDomainUrl(String value) {
-        this.domainUrl = value;
-    }
-
-    /**
-     * Gets the value of the flushFrequency property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *     
-     */
-    public Integer getFlushFrequency() {
-        return flushFrequency;
-    }
-
-    /**
-     * Sets the value of the flushFrequency property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *     
-     */
-    public void setFlushFrequency(Integer value) {
-        this.flushFrequency = value;
-    }
-
-    /**
-     * Gets the value of the thresholdFrequency property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *     
-     */
-    public Integer getThresholdFrequency() {
-        return thresholdFrequency;
-    }
-
-    /**
-     * Sets the value of the thresholdFrequency property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *     
-     */
-    public void setThresholdFrequency(Integer value) {
-        this.thresholdFrequency = value;
-    }
-
-    /**
-     * Gets the value of the robotRulesExists property.
-     * 
-     */
-    public boolean isRobotRulesExists() {
-        return robotRulesExists;
-    }
-
-    /**
-     * Sets the value of the robotRulesExists property.
-     * 
-     */
-    public void setRobotRulesExists(boolean value) {
-        this.robotRulesExists = value;
+    public void setPreClassifiedType(String value) {
+        this.preClassifiedType = value;
     }
 
 }

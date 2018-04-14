@@ -5,7 +5,7 @@ import com.squill.og.crawler.hooks.ISpiderSession;
 
 public abstract class SpiderSession implements ISpiderSession {
 	
-	private ThreadLocal<IWebSite> threadLocal = new ThreadLocal<IWebSite>();
+	private ThreadLocal<IWebCrawlable> threadLocal = new ThreadLocal<IWebCrawlable>();
 
 	private IFeedUploader feedUploader;
 	
@@ -13,12 +13,12 @@ public abstract class SpiderSession implements ISpiderSession {
 		this.feedUploader = feedUploader;
 	}
 	
-	public void setCurrentWebSite(IWebSite currentWebSite) {
+	public void setCurrentWebCrawlable(IWebCrawlable currentWebSite) {
 		threadLocal.set(currentWebSite);
 	}
 	
 	@Override
-	public IWebSite getCurrentWebSite() {
+	public IWebCrawlable getCurrentWebCrawlable() {
 		return threadLocal.get();
 	}
 	

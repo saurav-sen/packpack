@@ -15,16 +15,16 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for WebTracker complex type.
+ * <p>Java class for ApiRequestExecutor complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="WebTracker">
+ * &lt;complexType name="ApiRequestExecutor">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="serviceId" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="executor" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -34,36 +34,36 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "WebTracker", propOrder = {
-    "serviceId"
+@XmlType(name = "ApiRequestExecutor", propOrder = {
+    "executor"
 })
-public class WebTracker {
+public class ApiRequestExecutor {
 
     @XmlElement(required = true)
-    protected String serviceId;
+    protected String executor;
 
     /**
-     * Gets the value of the serviceId property.
+     * Gets the value of the executor property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getServiceId() {
-        return serviceId;
+    public String getExecutor() {
+        return executor;
     }
 
     /**
-     * Sets the value of the serviceId property.
+     * Sets the value of the executor property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setServiceId(String value) {
-        this.serviceId = value;
+    public void setExecutor(String value) {
+        this.executor = value;
     }
 
 }

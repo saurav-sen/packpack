@@ -19,11 +19,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
+import com.squill.og.crawler.ICrawlable;
+import com.squill.og.crawler.IWebCrawlable;
 import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.internal.AppContext;
+import com.squill.og.crawler.internal.WebApiImpl;
 import com.squill.og.crawler.internal.WebSpiderService;
 import com.squill.og.crawler.internal.WebsiteImpl;
+import com.squill.og.crawler.model.ApiReader;
 import com.squill.og.crawler.model.Config;
 import com.squill.og.crawler.model.ContentHandler;
 import com.squill.og.crawler.model.FeedUploader;
@@ -50,10 +54,6 @@ public class Startup {
 	
 	private String[] args;
 	private Options options = new Options();
-	
-	//private IWebLinkTrackerService historyTracker;
-	
-	private WebSpiderService service;
 	
 	public Startup(String[] args) {
 		this.args = args;
@@ -89,14 +89,21 @@ public class Startup {
 			} else if(command.hasOption("f")) {
 				String optionValue = command.getOptionValue("f");
 				System.setProperty(WEB_CRAWLERS_CONFIG_FILE, optionValue);
+				File file = new File(optionValue);
+				System.setProperty(WEB_CRAWLERS_CONFIG_DIR, file.getParent());
 				AppContext appContext = AppContext.INSTANCE.init();
-				service = appContext.findService(WebSpiderService.class);
 				WebCrawlers crawlersDef = readCrawlerDefinition();
 				IFeedUploader feedUploader = loadFeedUploader(crawlersDef);
 				List<IWebSite> websites = readCrawlableWebSites(crawlersDef);
+				List<IWebCrawlable> webApis = readRegisteredWebApis(crawlersDef);
+				List<ICrawlable> allCrawlables = new ArrayList<ICrawlable>();
+				allCrawlables.addAll(websites);
+				allCrawlables.addAll(webApis);
 				if(websites == null || websites.isEmpty())
 					return;
-				service.crawlWebSites(websites, feedUploader);
+				WebSpiderService webSpiderService = appContext
+						.findService(WebSpiderService.class);
+				webSpiderService.startCrawling(allCrawlables, feedUploader);
 			} else {
 				help();
 			}
@@ -110,8 +117,10 @@ public class Startup {
 	
 	private void stopApp() {
 		try {
-			if (service != null) {
-				service.shutdown();
+			AppContext appContext = AppContext.INSTANCE.init();
+			WebSpiderService webSpiderService = appContext.findService(WebSpiderService.class);
+			if (webSpiderService != null) {
+				webSpiderService.shutdown();
 			}
 		} catch (OgCrawlException e) {
 			LOG.debug(e.getMessage(), e);
@@ -199,5 +208,15 @@ public class Startup {
 			webSites.add(webSite);
 		}
 		return webSites;
+	}
+	
+	private List<IWebCrawlable> readRegisteredWebApis(WebCrawlers crawlersDef) {
+		List<IWebCrawlable> webApis = new ArrayList<IWebCrawlable>();
+		List<ApiReader> apiReaders = crawlersDef.getApiReader();
+		for (ApiReader apiReader : apiReaders) {
+			IWebCrawlable webApi = new WebApiImpl(apiReader);
+			webApis.add(webApi);
+		}
+		return webApis;
 	}
 }

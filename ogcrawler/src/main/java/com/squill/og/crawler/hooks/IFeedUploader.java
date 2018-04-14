@@ -1,6 +1,6 @@
 package com.squill.og.crawler.hooks;
 
-import com.squill.og.crawler.IWebSite;
+import com.squill.og.crawler.IWebCrawlable;
 
 
 /**
@@ -16,7 +16,7 @@ public interface IFeedUploader {
 	
 	public void flush(ISpiderSession session);
 	
-	public void postComplete(ISpiderSession session, IWebSite webSite);
+	public void postComplete(ISpiderSession session, IWebCrawlable webSite);
 	
 	public void postCompleteAll(ISpiderSession session);
 }

@@ -15,12 +15,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.squill.og.crawler.SpiderSessionFactory;
-import com.squill.og.crawler.SpiderSession;
 import com.squill.og.crawler.ICrawlSchedule;
-import com.squill.og.crawler.IWebSite;
-import com.squill.og.crawler.WebSiteSpider;
+import com.squill.og.crawler.ICrawlable;
+import com.squill.og.crawler.Spider;
+import com.squill.og.crawler.SpiderSession;
 import com.squill.og.crawler.hooks.IFeedUploader;
+import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.services.exception.OgCrawlException;
 
 @Component
@@ -43,17 +43,17 @@ public class WebSpiderService {
 		}
 	}
 
-	public void crawlWebSites(List<IWebSite> webSites, IFeedUploader feedUploader) {
-		if (webSites == null || webSites.isEmpty())
+	public void startCrawling(List<? extends ICrawlable> crawlables, IFeedUploader feedUploader) {
+		if (crawlables == null || crawlables.isEmpty())
 			return;
 		List<Future<?>> list = new ArrayList<Future<?>>();
 		int count = 0;
-		int len = webSites.size();
-		SpiderSession session = SpiderSessionFactory.INSTANCE.createNewSession(feedUploader);
+		int len = crawlables.size();
+		ISpiderSession session = SpiderSessionFactory.INSTANCE.createNewSession(feedUploader);
 		for (int i = 0; i < len; i++) {
-			IWebSite webSite = webSites.get(i);
+			ICrawlable crawlable = crawlables.get(i);
 
-			ICrawlSchedule schedule = webSite.getSchedule();
+			ICrawlSchedule schedule = crawlable.getSchedule();
 			long period = schedule.getPeriodicDelay();
 			TimeUnit timeUnit = schedule.getTimeUnit();
 			if (period < 0 || timeUnit == null) {
@@ -65,9 +65,13 @@ public class WebSpiderService {
 			}
 			long crawlSchedulePeriodicTimeInMillis = crawlSchedulePeriodicTimeInMillis(
 					period, timeUnit);
-			WebSiteSpider spider = new WebSiteSpider(webSite,
-					crawlSchedulePeriodicTimeInMillis,
-					webSite.getTrackerService(), session);
+			Spider spider = SpiderFactory.INSTANCE.createNewSpiderInstance(
+					crawlable, crawlSchedulePeriodicTimeInMillis,
+					crawlable.getTrackerService(), (SpiderSession) session);
+			if(spider == null) {
+				LOG.error("Failed to initialize Spider instance for <" + crawlable.getUniqueId() + ">");
+				continue;
+			}
 			Future<?> future = pool.scheduleAtFixedRate(spider,
 					schedule.getInitialDelay(),
 					crawlSchedulePeriodicTimeInMillis, TimeUnit.MILLISECONDS);

@@ -158,7 +158,7 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 	}
 
 	private JRssFeeds postComplete(Map<String, List<JRssFeed>> feedsMap, ISpiderSession session) {
-		IWebSite currentWebSite = session.getCurrentWebSite();
+		IWebSite currentWebSite = (IWebSite) session.getCurrentWebCrawlable();
 		String domainUrl = currentWebSite.getDomainUrl();
 		IGeoLocationResolver geoLocationResolver = currentWebSite.getTargetLocationResolver();
 		ITaxonomyResolver taxonomyResolver = currentWebSite.getTaxonomyResolver();

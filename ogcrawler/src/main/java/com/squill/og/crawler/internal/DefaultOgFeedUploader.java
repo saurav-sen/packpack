@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.squill.og.crawler.IWebSite;
+import com.squill.og.crawler.IWebCrawlable;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.internal.utils.CoreConstants;
@@ -54,12 +54,12 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 	}
 	
 	@Override
-	public void postComplete(ISpiderSession session, IWebSite webSite) {
+	public void postComplete(ISpiderSession session, IWebCrawlable webSite) {
 		try {
 			if(isUploadEachCrawlerIndependently()) {
 				JRssFeeds feeds = session.getFeeds(webSite);
 				if(feeds != null) {
-					Map<IWebSite, List<JRssFeed>> map = new HashMap<IWebSite, List<JRssFeed>>();
+					Map<IWebCrawlable, List<JRssFeed>> map = new HashMap<IWebCrawlable, List<JRssFeed>>();
 					map.put(webSite, feeds.getFeeds());
 					feeds = deDuplicate(map);
 					uploadBulk(feeds);
@@ -72,13 +72,13 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 	
 	@Override
 	public void postCompleteAll(ISpiderSession session) {
-		IWebSite[] webSites = session.getAllCompleted();
+		IWebCrawlable[] webSites = session.getAllCompleted();
 		if (webSites == null) {
 			LOG.error("This is embarrasing!!! No web site found after crawling through all registered. Upload All failed");
 			return;
 		}
-		Map<IWebSite, List<JRssFeed>> map = new HashMap<IWebSite, List<JRssFeed>>();
-		for (IWebSite webSite : webSites) {
+		Map<IWebCrawlable, List<JRssFeed>> map = new HashMap<IWebCrawlable, List<JRssFeed>>();
+		for (IWebCrawlable webSite : webSites) {
 			JRssFeeds feeds = session.getFeeds(webSite);
 			if(feeds == null) {
 				LOG.debug("No feeds found for :: " + webSite.getUniqueId());
@@ -99,7 +99,7 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		}
 	}
 	
-	protected JRssFeeds deDuplicate(Map<IWebSite, List<JRssFeed>> map) {
+	protected JRssFeeds deDuplicate(Map<IWebCrawlable, List<JRssFeed>> map) {
 		JRssFeeds allFeeds = new JRssFeeds();
 		Collection<List<JRssFeed>> values = map.values();
 		allFeeds.setFeeds(Arrays.asList(values.toArray(new JRssFeed[values.size()])));
