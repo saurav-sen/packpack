@@ -50,51 +50,55 @@ public class WebSpiderService {
 		int count = 0;
 		int len = crawlables.size();
 		ISpiderSession session = SpiderSessionFactory.INSTANCE.createNewSession(feedUploader);
-		for (int i = 0; i < len; i++) {
-			ICrawlable crawlable = crawlables.get(i);
+		try {
+			for (int i = 0; i < len; i++) {
+				ICrawlable crawlable = crawlables.get(i);
 
-			ICrawlSchedule schedule = crawlable.getSchedule();
-			long period = schedule.getPeriodicDelay();
-			TimeUnit timeUnit = schedule.getTimeUnit();
-			if (period < 0 || timeUnit == null) {
-				period = 0;
-				if (timeUnit == null) {
-					period = 1;
-					timeUnit = TimeUnit.DAYS;
+				ICrawlSchedule schedule = crawlable.getSchedule();
+				long period = schedule.getPeriodicDelay();
+				TimeUnit timeUnit = schedule.getTimeUnit();
+				if (period < 0 || timeUnit == null) {
+					period = 0;
+					if (timeUnit == null) {
+						period = 1;
+						timeUnit = TimeUnit.DAYS;
+					}
 				}
-			}
-			long crawlSchedulePeriodicTimeInMillis = crawlSchedulePeriodicTimeInMillis(
-					period, timeUnit);
-			Spider spider = SpiderFactory.INSTANCE.createNewSpiderInstance(
-					crawlable, crawlSchedulePeriodicTimeInMillis,
-					crawlable.getTrackerService(), (SpiderSession) session);
-			if(spider == null) {
-				LOG.error("Failed to initialize Spider instance for <" + crawlable.getUniqueId() + ">");
-				continue;
-			}
-			Future<?> future = pool.scheduleAtFixedRate(spider,
-					schedule.getInitialDelay(),
-					crawlSchedulePeriodicTimeInMillis, TimeUnit.MILLISECONDS);
-			list.add(future);
-			count++;
-			if (count >= 10) {
-				try {
-					// To optimize concurrency.
-					Thread.sleep(30 * 60 * 1000);
-				} catch (InterruptedException e) {
-					LOG.debug(e.getMessage(), e);
-				} finally {
-					count = 0;
+				long crawlSchedulePeriodicTimeInMillis = crawlSchedulePeriodicTimeInMillis(
+						period, timeUnit);
+				Spider spider = SpiderFactory.INSTANCE.createNewSpiderInstance(
+						crawlable, crawlSchedulePeriodicTimeInMillis,
+						crawlable.getTrackerService(), (SpiderSession) session);
+				if(spider == null) {
+					LOG.error("Failed to initialize Spider instance for <" + crawlable.getUniqueId() + ">");
+					continue;
 				}
+				Future<?> future = pool.scheduleAtFixedRate(spider,
+						schedule.getInitialDelay(),
+						crawlSchedulePeriodicTimeInMillis, TimeUnit.MILLISECONDS);
+				list.add(future);
+				count++;
+				if (count >= 10) {
+					try {
+						// To optimize concurrency.
+						Thread.sleep(30 * 60 * 1000);
+					} catch (InterruptedException e) {
+						LOG.debug(e.getMessage(), e);
+					} finally {
+						count = 0;
+					}
+				}
+				/*
+				 * if(count == 20) { // Max concurrent submission allowed
+				 * waitFor(list.subList(0, 20/2)); count = 0; }
+				 */
 			}
-			/*
-			 * if(count == 20) { // Max concurrent submission allowed
-			 * waitFor(list.subList(0, 20/2)); count = 0; }
-			 */
+			// Main thread should keep waiting forever.
+			waitFor(list);
+			feedUploader.postCompleteAll(session);
+		} finally {
+			session.clearSessionData();
 		}
-		// Main thread should keep waiting forever.
-		waitFor(list);
-		feedUploader.postCompleteAll(session);
 	}
 
 	private long crawlSchedulePeriodicTimeInMillis(long period,

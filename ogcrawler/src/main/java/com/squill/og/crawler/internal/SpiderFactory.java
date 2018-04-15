@@ -5,8 +5,6 @@ import com.squill.og.crawler.IWebApi;
 import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.Spider;
 import com.squill.og.crawler.SpiderSession;
-import com.squill.og.crawler.WebApiSpider;
-import com.squill.og.crawler.WebSiteSpider;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 
 public class SpiderFactory {

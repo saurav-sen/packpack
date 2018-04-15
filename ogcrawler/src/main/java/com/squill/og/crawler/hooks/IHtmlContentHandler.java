@@ -1,7 +1,10 @@
 package com.squill.og.crawler.hooks;
 
+import java.util.List;
+import java.util.Map;
+
 import com.squill.og.crawler.ILink;
-import com.squill.og.crawler.model.web.JRssFeeds;
+import com.squill.og.crawler.model.web.JRssFeed;
 
 /**
  * 
@@ -14,7 +17,7 @@ public interface IHtmlContentHandler {
 
 	public void postProcess(String htmlContent, ILink link, ISpiderSession session);
 
-	public JRssFeeds postComplete(ISpiderSession session);
+	public Map<String, List<JRssFeed>> getCollectiveFeeds(ISpiderSession session);
 
 	public int getFlushFrequency();
 

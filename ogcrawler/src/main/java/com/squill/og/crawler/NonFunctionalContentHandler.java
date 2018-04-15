@@ -1,7 +1,11 @@
 package com.squill.og.crawler;
 
+import java.util.List;
+import java.util.Map;
+
 import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
+import com.squill.og.crawler.model.web.JRssFeed;
 import com.squill.og.crawler.model.web.JRssFeeds;
 
 /**
@@ -22,8 +26,9 @@ public abstract class NonFunctionalContentHandler implements
 	}
 
 	@Override
-	public JRssFeeds postComplete(ISpiderSession session) {
-		return handleFlush();
+	public Map<String, List<JRssFeed>> getCollectiveFeeds(ISpiderSession session) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override

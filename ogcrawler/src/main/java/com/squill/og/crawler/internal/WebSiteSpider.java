@@ -1,25 +1,30 @@
-package com.squill.og.crawler;
+package com.squill.og.crawler.internal;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.squill.og.crawler.ILink;
+import com.squill.og.crawler.IRobotScope;
+import com.squill.og.crawler.IWebSite;
+import com.squill.og.crawler.Spider;
+import com.squill.og.crawler.SpiderSession;
 import com.squill.og.crawler.hooks.IFeedUploader;
-import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
+import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
-import com.squill.og.crawler.internal.HtmlPage;
-import com.squill.og.crawler.internal.PageLink;
-import com.squill.og.crawler.internal.PageLinkExtractor;
 import com.squill.og.crawler.internal.utils.CoreConstants;
 import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
 import com.squill.og.crawler.internal.utils.ResponseUtil;
 import com.squill.og.crawler.internal.utils.WebSpiderUtils;
 import com.squill.og.crawler.model.WebSpiderTracker;
+import com.squill.og.crawler.model.web.JRssFeed;
 import com.squill.og.crawler.model.web.JRssFeeds;
 
 /**
@@ -68,13 +73,29 @@ public class WebSiteSpider implements Spider {
 				links.offer(parseCrawlableURL);
 			}
 			doCrawl(links, robotScope, contentHandler, geoLocationResolver, feedUploader, session);
-			JRssFeeds rssFeeds = contentHandler.postComplete(session);
+			Map<String, List<JRssFeed>> collectiveFeeds = contentHandler.getCollectiveFeeds(session);
+			AllInOneAITaskExecutor allInOneAITaskExecutor = new AllInOneAITaskExecutor(session);
+			collectiveFeeds = allInOneAITaskExecutor.executeTasks(collectiveFeeds);
+			JRssFeeds rssFeeds = uniteAll(collectiveFeeds);
 			session.addAttr(ISpiderSession.RSS_FEEDS_KEY, rssFeeds);
 			feedUploader.postComplete(session, session.getCurrentWebCrawlable());
 			session.done(webSite);
 		} catch (Throwable e) {
 			LOG.error(e.getMessage(), e);
 		}
+	}
+	
+	private JRssFeeds uniteAll(Map<String, List<JRssFeed>> collectiveFeeds) {
+		JRssFeeds rssFeeds = new JRssFeeds();
+		Iterator<String> itr = collectiveFeeds.keySet().iterator();
+		while(itr.hasNext()) {
+			String key = itr.next();
+			List<JRssFeed> values = collectiveFeeds.get(key);
+			if(values == null || values.isEmpty())
+				continue;
+			rssFeeds.getFeeds().addAll(values);
+		}
+		return rssFeeds;
 	}
 	
 	private void doCrawl(Queue<ILink> links, IRobotScope robotScope,

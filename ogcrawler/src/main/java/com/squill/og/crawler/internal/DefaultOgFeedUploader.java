@@ -1,8 +1,7 @@
 package com.squill.og.crawler.internal;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -101,8 +100,13 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 	
 	protected JRssFeeds deDuplicate(Map<IWebCrawlable, List<JRssFeed>> map) {
 		JRssFeeds allFeeds = new JRssFeeds();
-		Collection<List<JRssFeed>> values = map.values();
-		allFeeds.setFeeds(Arrays.asList(values.toArray(new JRssFeed[values.size()])));
+		Iterator<List<JRssFeed>> itr = map.values().iterator();
+		while(itr.hasNext()) {
+			List<JRssFeed> list = itr.next();
+			if(list == null || list.isEmpty())
+				continue;
+			allFeeds.getFeeds().addAll(list);
+		}
 		return allFeeds;
 	}
 

@@ -61,5 +61,11 @@ public class SpiderSessionFactory {
 		public IWebSite[] getAllCompleted() {
 			return webSites.toArray(new IWebSite[webSites.size()]);
 		}
+		
+		@Override
+		public void clearSessionData() {
+			webSites.clear();
+			attrMap.clear();
+		}
 	}
 }

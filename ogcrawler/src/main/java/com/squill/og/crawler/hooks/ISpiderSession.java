@@ -18,4 +18,6 @@ public interface ISpiderSession {
 	public void done(IWebCrawlable webSite);
 	
 	public IWebCrawlable[] getAllCompleted();
+	
+	public void clearSessionData();
 }
