@@ -91,8 +91,10 @@ public class Startup {
 				System.setProperty(SystemPropertyKeys.WEB_CRAWLERS_CONFIG_FILE, optionValue);
 				File file = new File(optionValue);
 				System.setProperty(SystemPropertyKeys.WEB_CRAWLERS_CONFIG_DIR, file.getParent());
-				AppContext appContext = AppContext.INSTANCE.init();
+				File parentFile = file.getParentFile();
+				System.setProperty(SystemPropertyKeys.WEB_CRAWLERS_BASE_DIR, parentFile.getParent());
 				WebCrawlers crawlersDef = readCrawlerDefinition();
+				readSystemPropertiesConfigured(crawlersDef);
 				IFeedUploader feedUploader = loadFeedUploader(crawlersDef);
 				List<IWebSite> websites = readCrawlableWebSites(crawlersDef);
 				List<IWebCrawlable> webApis = readRegisteredWebApis(crawlersDef);
@@ -101,6 +103,7 @@ public class Startup {
 				allCrawlables.addAll(webApis);
 				if(websites == null || websites.isEmpty())
 					return;
+				AppContext appContext = AppContext.INSTANCE.init();
 				WebSpiderService webSpiderService = appContext
 						.findService(WebSpiderService.class);
 				webSpiderService.startCrawling(allCrawlables, feedUploader);
@@ -145,6 +148,10 @@ public class Startup {
 				TaxonomyClassifier.class);
 		Unmarshaller unmarshaller = jaxbInstance.createUnmarshaller();
 		WebCrawlers crawlersDef = (WebCrawlers) unmarshaller.unmarshal(file);
+		return crawlersDef;
+	}
+	
+	private void readSystemPropertiesConfigured(WebCrawlers crawlersDef) {
 		Properties properties = crawlersDef.getProperties();
 		if(properties != null) {
 			List<Property> list = properties.getProperty();
@@ -165,7 +172,6 @@ public class Startup {
 				}
 			}
 		}
-		return crawlersDef;
 	}
 	
 	private IFeedUploader loadFeedUploader(WebCrawlers crawlersDef) {

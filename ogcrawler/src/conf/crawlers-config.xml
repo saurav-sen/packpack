@@ -6,6 +6,7 @@
         <Property key="url.part" value="/feeds/train"/>
         <Property key="API_KEY" value="11a1bc16d14d-1521ee187121-1161ed1dd1c6-1861fc1b718c"/>
         <Property key="enable.upload" value="false"/>
+        <Property key="newsapi.org_sources.file" value="conf/news-sources.cfg"/>
     </Properties>
     
     <!-- Articles -->
