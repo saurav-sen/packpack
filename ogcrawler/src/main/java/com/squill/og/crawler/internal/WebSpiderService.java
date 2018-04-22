@@ -95,9 +95,8 @@ public class WebSpiderService {
 			}
 			// Main thread should keep waiting forever.
 			waitFor(list);
-			feedUploader.postCompleteAll(session);
 		} finally {
-			session.clearSessionData();
+			
 		}
 	}
 

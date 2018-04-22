@@ -1,5 +1,9 @@
 package com.squill.og.crawler.internal;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -8,12 +12,14 @@ import java.util.Map;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.squill.og.crawler.IWebCrawlable;
+import com.squill.og.crawler.app.Startup;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.internal.utils.CoreConstants;
@@ -30,13 +36,11 @@ import com.squill.og.crawler.model.web.JRssFeeds;
 @Scope("prototype")
 public class DefaultOgFeedUploader implements IFeedUploader {
 
-	private Map<String, String> configuration = new HashMap<String, String>(5);
-
 	private static final String BASE_URL_CONFIG = "BASE_URL";
 	private static final String URL_PART_CONFIG = "URL_PART";
 	private static final String API_KEY_CONFIG = "API_KEY";
 	
-	private static final String IS_UPLOAD_EACH_CRAWLER_INDEPENDENTLY = "upload.each.crawler.independently";
+	private static final String ENABLE_UPLOAD_CONFIG = "ENABLE_UPLOAD";
 	
 	private static final String CONTENT_TYPE_HEADER = "Content-Type";
 	private static final String APPLICATION_JSON = "application/json";
@@ -44,61 +48,52 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 	private static final Logger LOG = LoggerFactory
 			.getLogger(DefaultOgFeedUploader.class);
 	
-	@Override
-	public void preProcess(ISpiderSession session) {
-	}
+	private static final String DEFAULT_ARCHIVE_FOLDER = "archive/";
+	
+	private Map<String, List<JRssFeed>> aggregatedFeedsMap = new HashMap<String, List<JRssFeed>>();
+	private int count = 0;
 	
 	@Override
-	public void flush(ISpiderSession session) {
-	}
-	
-	@Override
-	public void postComplete(ISpiderSession session, IWebCrawlable webSite) {
-		try {
-			if(isUploadEachCrawlerIndependently()) {
-				JRssFeeds feeds = session.getFeeds(webSite);
-				if(feeds != null) {
-					Map<IWebCrawlable, List<JRssFeed>> map = new HashMap<IWebCrawlable, List<JRssFeed>>();
-					map.put(webSite, feeds.getFeeds());
-					feeds = deDuplicate(map);
-					uploadBulk(feeds);
-				}
-			}
-		} catch (Exception e) {
-			LOG.error(e.getMessage(), e);
+	public void beginEach(ISpiderSession session, IWebCrawlable webCrawlable) {
+		if(!webCrawlable.isUploadIndependently()) {
+			count++;
 		}
 	}
 	
 	@Override
-	public void postCompleteAll(ISpiderSession session) {
-		IWebCrawlable[] webSites = session.getAllCompleted();
-		if (webSites == null) {
-			LOG.error("This is embarrasing!!! No web site found after crawling through all registered. Upload All failed");
+	public void endEach(ISpiderSession session, IWebCrawlable webCrawlable) {
+		Map<String, List<JRssFeed>> map = new HashMap<String, List<JRssFeed>>();
+		if(!webCrawlable.isUploadIndependently()) {
+			count--;
+			map = aggregatedFeedsMap;
+		}
+		JRssFeeds feeds = session.getFeeds(webCrawlable);
+		if(feeds == null) {
+			LOG.debug("No feeds found for :: " + webCrawlable.getUniqueId());
 			return;
 		}
-		Map<IWebCrawlable, List<JRssFeed>> map = new HashMap<IWebCrawlable, List<JRssFeed>>();
-		for (IWebCrawlable webSite : webSites) {
-			JRssFeeds feeds = session.getFeeds(webSite);
-			if(feeds == null) {
-				LOG.debug("No feeds found for :: " + webSite.getUniqueId());
-				continue;
-			}
-			List<JRssFeed> list = feeds.getFeeds();
-			if(list == null || list.isEmpty()) {
-				LOG.debug("No feeds found for :: " + webSite.getUniqueId());
-				continue;
-			}
-			map.put(webSite, list);
+		List<JRssFeed> list = feeds.getFeeds();
+		if(list == null || list.isEmpty()) {
+			LOG.debug("No feeds found for :: " + webCrawlable.getUniqueId());
+			return;
 		}
-		JRssFeeds allFeeds = deDuplicate(map);
-		try {
-			uploadBulk(allFeeds);
-		} catch (Exception e) {
-			LOG.error(e.getMessage(), e);
+		map.put(webCrawlable.getUniqueId(), list);
+		if (webCrawlable.isUploadIndependently()) {
+			try {
+				uploadBulk(map);
+			} catch (Exception e) {
+				LOG.error(e.getMessage(), e);
+			}
+		} else if (count == 0) {
+			try {
+				uploadBulk(map);
+			} catch (Exception e) {
+				LOG.error(e.getMessage(), e);
+			}
 		}
 	}
 	
-	protected JRssFeeds deDuplicate(Map<IWebCrawlable, List<JRssFeed>> map) {
+	protected JRssFeeds deDuplicate(Map<String, List<JRssFeed>> map) {
 		JRssFeeds allFeeds = new JRssFeeds();
 		Iterator<List<JRssFeed>> itr = map.values().iterator();
 		while(itr.hasNext()) {
@@ -109,36 +104,102 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		}
 		return allFeeds;
 	}
-
-	private void uploadBulk(JRssFeeds rssFeeds) throws Exception {
-		DefaultHttpClient client = new DefaultHttpClient();
-		String url = configuration.get(BASE_URL_CONFIG);
-		if(url != null && !url.isEmpty() && url.startsWith("${") && url.endsWith("}")) {
-			url = url.substring(0, url.length()-1);
-			url = url.replaceFirst("\\$\\{", "");
-			url = System.getProperty(url);
-		}
-		url = url + configuration.get(URL_PART_CONFIG);
-		HttpPut PUT = new HttpPut(url);
-		PUT.addHeader(CoreConstants.AUTHORIZATION_HEADER,
-				configuration.get(API_KEY_CONFIG));
-		PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
-		String json = JSONUtil.serialize(rssFeeds);
-		PUT.setEntity(new StringEntity(json));
-		LOG.info("Invoking 'PUT " + url
-				+ "' (ML Api) for classification and bulk upload of feeds");
-		client.execute(PUT);
-	}
-
-	@Override
-	public void addConfig(String key, String value) {
-		configuration.put(key, value);
+	
+	private String resolveArchiveFolder() {
+		return System.getProperty(Startup.WEB_CRAWLERS_CONFIG_DIR) + "/../"
+				+ DEFAULT_ARCHIVE_FOLDER;
 	}
 	
-	private boolean isUploadEachCrawlerIndependently() {
-		String value = configuration.get(IS_UPLOAD_EACH_CRAWLER_INDEPENDENTLY);
-		if (value == null)
-			return false;
+	private void storeInArchive(String id, List<JRssFeed> list) {
+		try {
+			String filePath = resolveArchiveFilePath(id);
+			File file = new File(filePath);
+			if(!file.exists()) {
+				JRssFeeds c = new JRssFeeds();
+				c.getFeeds().addAll(list);
+				String json = JSONUtil.serialize(c);
+				Files.write(Paths.get(filePath), json.getBytes(), StandardOpenOption.CREATE);
+			} else {
+				String json = new String(Files.readAllBytes(Paths.get(filePath)), "UTF-8");
+				JRssFeeds c = JSONUtil.deserialize(json, JRssFeeds.class, true);
+				c.getFeeds().addAll(list);
+				json = JSONUtil.serialize(c);
+				Files.write(Paths.get(filePath), json.getBytes(), StandardOpenOption.WRITE);
+			}
+		} catch (Exception e) {
+			LOG.error("Failed storing in archive :: " + e.getMessage(), e);
+		}
+	}
+	
+	private String resolveArchiveFilePath(String id) {
+		DateTime dateTime = new DateTime();
+		int day = dateTime.getDayOfMonth();
+		int month = dateTime.getMonthOfYear();
+		int year = dateTime.getYear();
+		String dirPath = resolveArchiveFolder() + id;
+		File file = new File(dirPath);
+		if(!file.exists()) {
+			file.mkdir();
+		}
+		StringBuilder fileName = new StringBuilder(dirPath);
+		if(day < 10) {
+			fileName.append("0");
+		}
+		fileName.append(String.valueOf(day));
+		fileName.append("-");
+		if(month < 10) {
+			fileName.append("0");
+		}
+		fileName.append(String.valueOf(month));
+		fileName.append("-");
+		fileName.append(String.valueOf(year));
+		fileName.append(".json");
+		return fileName.toString();
+	}
+	
+	private void storeInArchive(Map<String, List<JRssFeed>> map) {
+		Iterator<String> itr = map.keySet().iterator();
+		while(itr.hasNext()) {
+			String id = itr.next();
+			List<JRssFeed> list = map.get(id);
+			if(list.isEmpty())
+				continue;
+			storeInArchive(id, list);
+		}
+	}
+
+	private void uploadBulk(Map<String, List<JRssFeed>> map) throws Exception {
+		if(!uploadEnabled())
+			return;
+		storeInArchive(map);
+		try {
+			DefaultHttpClient client = new DefaultHttpClient();
+			String url = System.getProperty(BASE_URL_CONFIG);
+			if(url != null && !url.isEmpty() && url.startsWith("${") && url.endsWith("}")) {
+				url = url.substring(0, url.length()-1);
+				url = url.replaceFirst("\\$\\{", "");
+				url = System.getProperty(url);
+			}
+			url = url + System.getProperty(URL_PART_CONFIG);
+			HttpPut PUT = new HttpPut(url);
+			PUT.addHeader(CoreConstants.AUTHORIZATION_HEADER,
+					System.getProperty(API_KEY_CONFIG));
+			PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
+			JRssFeeds rssFeeds = deDuplicate(map);
+			String json = JSONUtil.serialize(rssFeeds);
+			PUT.setEntity(new StringEntity(json));
+			LOG.info("Invoking 'PUT " + url
+					+ "' (ML Api) for classification and bulk upload of feeds");
+			client.execute(PUT);
+		} finally {
+			aggregatedFeedsMap.clear();
+		}
+	}
+	
+	private boolean uploadEnabled() {
+		String value = System.getProperty(ENABLE_UPLOAD_CONFIG);
+		if(value == null)
+			return true;
 		return Boolean.parseBoolean(value.trim());
 	}
 }

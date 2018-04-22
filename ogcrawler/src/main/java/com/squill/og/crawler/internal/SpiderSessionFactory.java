@@ -1,12 +1,9 @@
 package com.squill.og.crawler.internal;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.squill.og.crawler.IWebCrawlable;
-import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.SpiderSession;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.ISpiderSession;
@@ -25,47 +22,41 @@ public class SpiderSessionFactory {
 	
 	private class SpiderSessionImpl extends SpiderSession {
 
-		private Map<String, Object> attrMap = new HashMap<String, Object>();
+		private Map<String, Map<String, Object>> attrMap = new HashMap<String, Map<String, Object>>();
 
-		private List<IWebCrawlable> webSites = new ArrayList<IWebCrawlable>();
-		
 		private SpiderSessionImpl(IFeedUploader feedUploader) {
 			super(feedUploader);
 		}
 
 		@Override
-		public void addAttr(String key, Object value) {
-			if (RSS_FEEDS_KEY.equals(key)) {
-				attrMap.put(key + "_" + getCurrentWebCrawlable().getUniqueId(), value);
-			} else {
-				attrMap.put(key, value);
+		public void addAttr(IWebCrawlable webCrawlable, String key, Object value) {
+			Map<String, Object> map = attrMap.get(webCrawlable.getUniqueId());
+			if(map == null) {
+				map = new HashMap<String, Object>();
+				attrMap.put(webCrawlable.getUniqueId(), map);
 			}
+			map.put(key, value);
 		}
 
 		@Override
-		public Object getAttr(String key) {
-			return attrMap.get(key);
+		public Object getAttr(IWebCrawlable webCrawlable, String key) {
+			Map<String, Object> map = attrMap.get(webCrawlable.getUniqueId());
+			if(map == null)
+				return null;
+			return map.get(key);
 		}
 
 		@Override
-		public JRssFeeds getFeeds(IWebCrawlable webSite) {
-			return (JRssFeeds) getAttr(RSS_FEEDS_KEY + "_" + webSite.getUniqueId());
+		public JRssFeeds getFeeds(IWebCrawlable webCrawlable) {
+			return (JRssFeeds) getAttr(webCrawlable, RSS_FEEDS_KEY);
 		}
 
 		@Override
-		public void done(IWebCrawlable webSite) {
-			webSites.add(webSite);
-		}
-		
-		@Override
-		public IWebSite[] getAllCompleted() {
-			return webSites.toArray(new IWebSite[webSites.size()]);
-		}
-		
-		@Override
-		public void clearSessionData() {
-			webSites.clear();
-			attrMap.clear();
+		public void done(IWebCrawlable webCrawlable) {
+			if(webCrawlable == null)
+				return;
+			attrMap.remove(webCrawlable.getUniqueId());
+			super.done(webCrawlable);
 		}
 	}
 }

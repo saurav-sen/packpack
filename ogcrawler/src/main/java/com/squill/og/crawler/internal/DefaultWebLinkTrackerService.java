@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.squill.og.crawler.IWebSite;
+import com.squill.og.crawler.app.Startup;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.EncryptionUtil;
 import com.squill.og.crawler.internal.utils.JSONUtil;
@@ -29,7 +30,6 @@ import com.squill.services.exception.OgCrawlException;
 @Scope("prototype")
 public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 
-	private static final String DEFAULT_HISTORY_TRACKER_FOLDER = "../conf/";
 
 	private Properties db;
 
@@ -52,7 +52,8 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 	}
 
 	private String resolveHistoryTrackerFilePath(IWebSite webSite) {
-		return DEFAULT_HISTORY_TRACKER_FOLDER + webSite.getUniqueId();
+		return System.getProperty(Startup.WEB_CRAWLERS_CONFIG_DIR)
+				+ File.separator + webSite.getUniqueId();
 	}
 
 	@Override

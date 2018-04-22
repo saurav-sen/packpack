@@ -66,6 +66,11 @@ public class WebsiteImpl implements IWebSite {
 		String id = crawlerDef.getId();
 		return id.replaceAll(" ", "_");
 	}
+	
+	@Override
+	public boolean isUploadIndependently() {
+		return crawlerDef.isUploadIndependently();
+	}
 
 	@Override
 	public String getDomainUrl() {

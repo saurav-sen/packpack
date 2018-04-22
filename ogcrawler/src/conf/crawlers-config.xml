@@ -5,11 +5,11 @@
         <Property key="base.url" value="${ML_API_BASE_URL}"/>
         <Property key="url.part" value="/feeds/train"/>
         <Property key="API_KEY" value="11a1bc16d14d-1521ee187121-1161ed1dd1c6-1861fc1b718c"/>
-        <Property key="upload.each.crawler.independently" value="false"/>
+        <Property key="enable.upload" value="false"/>
     </Properties>
     
     <!-- Articles -->
-    <WebCrawler id="qz.com" domainUrl="https://qz.com/" flushFrequency="50" thresholdFrequency="10" robotRulesExists="false">
+    <WebCrawler id="qz.com" domainUrl="https://qz.com/" flushFrequency="50" thresholdFrequency="10" robotRulesExists="false" uploadIndependently="true">
         <name>Quartz</name>
         <description>Quartz India</description>
         <contentHandler preClassifiedType="ARTICLE">
@@ -33,11 +33,11 @@
 	    </articleSummarizer>
         <scheduler initialDelay="0" periodicDelay="1" timeUnit="DAYS"/>
     </WebCrawler>
+    <ApiReader id="newsapi.org" uploadIndependently="true">
+        
+    </ApiReader>
     
     <feedUploader>
         <uploader>defaultOgFeedUploader</uploader>
-        <config key="BASE_URL" value="${base.url}"/> 
-        <config key="URL_PART" value="${url.part}"/> 
-        <config key="API_KEY" value="${API_KEY}"/> 
     </feedUploader>
 </webCrawlers>

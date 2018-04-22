@@ -59,6 +59,8 @@
 				minOccurs="1"></element>
 		</sequence>
 		<attribute name="id" type="string" use="required"></attribute>
+		<attribute name="uploadIndependently" type="boolean" use="required"></attribute>
+		<attribute name="checkDuplicate" type="boolean" use="required"></attribute>
 		<attribute name="domainUrl" type="string" use="required"></attribute>
 		<attribute name="flushFrequency" type="int" use="optional"></attribute>
 		<attribute name="thresholdFrequency" type="int" use="optional"></attribute>
@@ -70,6 +72,7 @@
 			<element name="name" type="string" maxOccurs="1" minOccurs="1" />
 			<element name="description" type="string" maxOccurs="1"
 				minOccurs="1" />
+			<element name="domainUrl" type="string" maxOccurs="1" minOccurs="1" />
 			<element name="webLinkTracker" type="tns:WebTracker"
 				maxOccurs="1" minOccurs="0"></element>
 			<element name="apiRequestExecutor" type="tns:ApiRequestExecutor"
@@ -86,6 +89,8 @@
 				minOccurs="1"></element>
 		</sequence>
 		<attribute name="id" type="string" use="required"></attribute>
+		<attribute name="uploadIndependently" type="boolean" use="required"></attribute>
+		<attribute name="checkDuplicate" type="boolean" use="required"></attribute>
 		<attribute name="preClassifiedType" type="string" use="optional"></attribute>
 	</complexType>
 	
@@ -108,8 +113,6 @@
 		<sequence>
 			<element name="uploader" type="string" maxOccurs="1"
 				minOccurs="1" />
-			<element name="config" type="tns:Config" maxOccurs="unbounded"
-				minOccurs="0" />
 		</sequence>
 	</complexType>
 	
@@ -132,11 +135,6 @@
 			<element name="resolver" type="string" maxOccurs="1"
 				minOccurs="1" />
 		</sequence>
-	</complexType>
-
-	<complexType name="Config">
-		<attribute name="key" type="string" use="required"></attribute>
-		<attribute name="value" type="string" use="required"></attribute>
 	</complexType>
 
 	<complexType name="LinkFilter">

@@ -5,6 +5,8 @@ import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.hooks.ITaxonomyResolver;
 
 public interface IWebCrawlable extends ICrawlable {
+	
+	public String getDomainUrl();
 
 	public IGeoLocationResolver getTargetLocationResolver();
 

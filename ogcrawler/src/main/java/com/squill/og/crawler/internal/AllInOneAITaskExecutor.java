@@ -7,7 +7,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.squill.og.crawler.IWebSite;
+import com.squill.og.crawler.IWebCrawlable;
 import com.squill.og.crawler.hooks.GeoLocation;
 import com.squill.og.crawler.hooks.IArticleTextSummarizer;
 import com.squill.og.crawler.hooks.IFeedClassificationResolver;
@@ -30,8 +30,8 @@ public class AllInOneAITaskExecutor {
 		this.session = session;
 	}
 	
-	public Map<String, List<JRssFeed>> executeTasks(Map<String, List<JRssFeed>> feedsMap) {
-		return executeAITasks(feedsMap, session);
+	public Map<String, List<JRssFeed>> executeTasks(Map<String, List<JRssFeed>> feedsMap, IWebCrawlable webCrawlable) {
+		return executeAITasks(feedsMap, session, webCrawlable);
 	}
 
 	private IFeedClassificationResolver getClassificationResolver() {
@@ -70,11 +70,10 @@ public class AllInOneAITaskExecutor {
 		return feedsMap;
 	}
 
-	private Map<String, List<JRssFeed>> executeAITasks(Map<String, List<JRssFeed>> feedsMap, ISpiderSession session) {
-		IWebSite currentWebSite = (IWebSite) session.getCurrentWebCrawlable();
-		String domainUrl = currentWebSite.getDomainUrl();
-		IGeoLocationResolver geoLocationResolver = currentWebSite.getTargetLocationResolver();
-		ITaxonomyResolver taxonomyResolver = currentWebSite.getTaxonomyResolver();
+	private Map<String, List<JRssFeed>> executeAITasks(Map<String, List<JRssFeed>> feedsMap, ISpiderSession session, IWebCrawlable webCrawlable) {
+		String domainUrl = webCrawlable.getDomainUrl();
+		IGeoLocationResolver geoLocationResolver = webCrawlable.getTargetLocationResolver();
+		ITaxonomyResolver taxonomyResolver = webCrawlable.getTaxonomyResolver();
 		try {
 			Iterator<String> itr = feedsMap.keySet().iterator();
 			while(itr.hasNext()) {
@@ -87,7 +86,7 @@ public class AllInOneAITaskExecutor {
 					if(classifier != null) {
 						feed.setOgType(classifier);
 					}
-					IArticleTextSummarizer articleTextSummarizer = currentWebSite
+					IArticleTextSummarizer articleTextSummarizer = webCrawlable
 							.getArticleTextSummarizer();
 					if (articleTextSummarizer != null) {
 						TextSummarization response = articleTextSummarizer

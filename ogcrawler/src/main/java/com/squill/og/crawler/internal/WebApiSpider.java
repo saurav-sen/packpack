@@ -33,22 +33,22 @@ public class WebApiSpider implements Spider {
 
 	@Override
 	public void run() {
-		session.setCurrentWebCrawlable(webApi);
 		IFeedUploader feedUploader = session.getFeedUploader();
 		try {
-			feedUploader.preProcess(session);
+			feedUploader.beginEach(session, webApi);
 			IApiRequestExecutor apiExecutor = webApi.getApiExecutor();
 			JRssFeeds rssFeeds = apiExecutor.execute(webApi.getUniqueId());
 			Map<String, List<JRssFeed>> feedsMap = new HashMap<String, List<JRssFeed>>();
 			feedsMap.put(webApi.getUniqueId(), rssFeeds.getFeeds());
 			AllInOneAITaskExecutor allInOneAITaskExecutor = new AllInOneAITaskExecutor(session);
-			feedsMap = allInOneAITaskExecutor.executeTasks(feedsMap);
+			feedsMap = allInOneAITaskExecutor.executeTasks(feedsMap, webApi);
 			rssFeeds = uniteAll(feedsMap);
-			session.addAttr(ISpiderSession.RSS_FEEDS_KEY, rssFeeds);
-			feedUploader.postComplete(session, session.getCurrentWebCrawlable());
-			session.done(webApi);
+			session.addAttr(webApi, ISpiderSession.RSS_FEEDS_KEY, rssFeeds);
+			feedUploader.endEach(session, webApi);
 		} catch (Throwable e) {
 			LOG.error(e.getMessage(), e);
+		} finally {
+			session.done(webApi);
 		}
 	}
 	

@@ -7,17 +7,11 @@ public interface ISpiderSession {
 	
 	public static final String RSS_FEEDS_KEY = "RSS_FEEDS_KEY";
 
-	public void addAttr(String key, Object value);
+	public void addAttr(IWebCrawlable webCrawlable, String key, Object value);
 
-	public Object getAttr(String key);
+	public Object getAttr(IWebCrawlable webCrawlable, String key);
 
-	public IWebCrawlable getCurrentWebCrawlable();
-	
 	public JRssFeeds getFeeds(IWebCrawlable webSite);
 	
 	public void done(IWebCrawlable webSite);
-	
-	public IWebCrawlable[] getAllCompleted();
-	
-	public void clearSessionData();
 }

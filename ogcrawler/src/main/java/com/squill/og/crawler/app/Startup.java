@@ -28,13 +28,16 @@ import com.squill.og.crawler.internal.WebApiImpl;
 import com.squill.og.crawler.internal.WebSpiderService;
 import com.squill.og.crawler.internal.WebsiteImpl;
 import com.squill.og.crawler.model.ApiReader;
-import com.squill.og.crawler.model.Config;
+import com.squill.og.crawler.model.ApiRequestExecutor;
+import com.squill.og.crawler.model.ArticleSummarizer;
 import com.squill.og.crawler.model.ContentHandler;
 import com.squill.og.crawler.model.FeedUploader;
+import com.squill.og.crawler.model.GeoTagResolver;
 import com.squill.og.crawler.model.LinkFilter;
 import com.squill.og.crawler.model.Properties;
 import com.squill.og.crawler.model.Property;
 import com.squill.og.crawler.model.Scheduler;
+import com.squill.og.crawler.model.TaxonomyClassifier;
 import com.squill.og.crawler.model.WebCrawler;
 import com.squill.og.crawler.model.WebCrawlers;
 import com.squill.og.crawler.model.WebTracker;
@@ -138,9 +141,11 @@ public class Startup {
 		File file = new File(loc);
 		JAXBContext jaxbInstance = JAXBContext.newInstance(WebCrawlers.class,
 				WebCrawler.class, Scheduler.class, LinkFilter.class,
-				FeedUploader.class, Config.class, ContentHandler.class,
-				Scheduler.class, Properties.class, Property.class,
-				WebTracker.class);
+				FeedUploader.class, ContentHandler.class, Scheduler.class,
+				Properties.class, Property.class, WebTracker.class,
+				ApiReader.class, ApiRequestExecutor.class,
+				ArticleSummarizer.class, GeoTagResolver.class,
+				TaxonomyClassifier.class);
 		Unmarshaller unmarshaller = jaxbInstance.createUnmarshaller();
 		WebCrawlers crawlersDef = (WebCrawlers) unmarshaller.unmarshal(file);
 		Properties properties = crawlersDef.getProperties();
@@ -150,6 +155,15 @@ public class Startup {
 				for(Property l : list) {
 					String key = l.getKey();
 					String value = l.getValue();
+					if (value != null && !value.isEmpty()
+							&& value.startsWith("${") && value.endsWith("}")) {
+						String v1 = value.substring(0, value.length() - 1);
+						v1 = v1.replaceFirst("\\$\\{", "");
+						v1 = System.getProperty(v1);
+						if(v1 != null) {
+							value = v1;
+						}
+					}
 					System.setProperty(key, value);
 				}
 			}
@@ -179,22 +193,6 @@ public class Startup {
 				LOG.error(e.getMessage(), e);
 			} catch (ClassNotFoundException e) {
 				LOG.error(e.getMessage(), e);
-			}
-		}
-		if (feedUploader != null) {
-			List<Config> configs = feedUploaderDef.getConfig();
-			if (configs != null && !configs.isEmpty()) {
-				for (Config config : configs) {
-					String key = config.getKey();
-					String value = config.getValue();
-					if (value != null && !value.isEmpty()
-							&& value.startsWith("${") && value.endsWith("}")) {
-						value = value.substring(0, value.length() - 1);
-						value = value.replaceFirst("\\$\\{", "");
-						value = System.getProperty(value);
-					}
-					feedUploader.addConfig(key, value);
-				}
 			}
 		}
 		return feedUploader;

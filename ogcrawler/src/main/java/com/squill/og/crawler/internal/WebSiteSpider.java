@@ -54,12 +54,11 @@ public class WebSiteSpider implements Spider {
 
 	@Override
 	public void run() {
-		session.setCurrentWebCrawlable(webSite);
 		IHtmlContentHandler contentHandler = webSite.getContentHandler();
 		IGeoLocationResolver geoLocationResolver = webSite.getTargetLocationResolver();
 		IFeedUploader feedUploader = session.getFeedUploader();
 		try {
-			feedUploader.preProcess(session);
+			feedUploader.beginEach(session, webSite);
 			if (links.isEmpty()) {
 				List<? extends ILink> parseCrawlableURLs = WebSpiderUtils.parseCrawlableURLs(webSite);
 				for(ILink parseCrawlableURL : parseCrawlableURLs) {
@@ -67,21 +66,22 @@ public class WebSiteSpider implements Spider {
 				}
 			}
 			IRobotScope robotScope = webSite.getRobotScope();
-			doCrawl(links, robotScope, contentHandler, geoLocationResolver, feedUploader, session);
+			doCrawl(links, robotScope, contentHandler, geoLocationResolver, session);
 			List<? extends ILink> parseCrawlableURLs = robotScope.getAnyLeftOverLinks();
 			for(ILink parseCrawlableURL : parseCrawlableURLs) {
 				links.offer(parseCrawlableURL);
 			}
-			doCrawl(links, robotScope, contentHandler, geoLocationResolver, feedUploader, session);
+			doCrawl(links, robotScope, contentHandler, geoLocationResolver, session);
 			Map<String, List<JRssFeed>> collectiveFeeds = contentHandler.getCollectiveFeeds(session);
 			AllInOneAITaskExecutor allInOneAITaskExecutor = new AllInOneAITaskExecutor(session);
-			collectiveFeeds = allInOneAITaskExecutor.executeTasks(collectiveFeeds);
+			collectiveFeeds = allInOneAITaskExecutor.executeTasks(collectiveFeeds, webSite);
 			JRssFeeds rssFeeds = uniteAll(collectiveFeeds);
-			session.addAttr(ISpiderSession.RSS_FEEDS_KEY, rssFeeds);
-			feedUploader.postComplete(session, session.getCurrentWebCrawlable());
-			session.done(webSite);
+			session.addAttr(webSite, ISpiderSession.RSS_FEEDS_KEY, rssFeeds);
+			feedUploader.endEach(session, webSite);
 		} catch (Throwable e) {
 			LOG.error(e.getMessage(), e);
+		} finally {
+			session.done(webSite);
 		}
 	}
 	
@@ -100,21 +100,19 @@ public class WebSiteSpider implements Spider {
 	
 	private void doCrawl(Queue<ILink> links, IRobotScope robotScope,
 			IHtmlContentHandler contentHandler,
-			IGeoLocationResolver geoLocationResolver, IFeedUploader feedUploader, ISpiderSession session) throws Exception {
-		int count = 0;
+			IGeoLocationResolver geoLocationResolver, ISpiderSession session) throws Exception {
+		//int count = 0;
 		int max = 0;
 		while(links != null && !links.isEmpty()) {
 			ILink link = links.poll();
 			if(contentHandler.getThresholdFrequency() > 0 
 					&& max >= contentHandler.getThresholdFrequency()) {
-				feedUploader.flush(session);
 				LOG.info("Threshold value reached... crawler will hung up for next scheduled time.");
 				return;
 			}
-			if(count >= contentHandler.getFlushFrequency()) {
-				feedUploader.flush(session);
+			/*if(count >= contentHandler.getFlushFrequency()) {
 				count = 0;
-			}
+			}*/
 			WebSpiderTracker info = null;
 			
 			
@@ -176,7 +174,7 @@ public class WebSiteSpider implements Spider {
 				} catch (Exception e) {
 					LOG.error(e.getMessage(), e);
 				}
-				count++;
+				//count++;
 				max++;
 			}
 		}

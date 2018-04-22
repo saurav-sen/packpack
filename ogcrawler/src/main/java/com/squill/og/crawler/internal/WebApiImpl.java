@@ -55,6 +55,16 @@ public class WebApiImpl implements IWebApi {
 	}
 	
 	@Override
+	public boolean isUploadIndependently() {
+		return crawlerDef.isUploadIndependently();
+	}
+	
+	@Override
+	public String getDomainUrl() {
+		return crawlerDef.getDomainUrl();
+	}
+	
+	@Override
 	public IApiRequestExecutor getApiExecutor() {
 		if(apiRequestExecutor == null) {
 			ApiRequestExecutor apiRequestExecutorDef = crawlerDef.getApiRequestExecutor();

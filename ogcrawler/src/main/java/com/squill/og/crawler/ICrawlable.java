@@ -5,6 +5,8 @@ import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 public interface ICrawlable {
 
 	public String getUniqueId();
+	
+	public boolean isUploadIndependently();
 
 	public ICrawlSchedule getSchedule();
 
