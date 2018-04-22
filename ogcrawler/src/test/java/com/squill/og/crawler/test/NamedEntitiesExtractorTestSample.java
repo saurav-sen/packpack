@@ -1,6 +1,6 @@
 package com.squill.og.crawler.test;
 
-import com.squill.og.crawler.app.Startup;
+import com.squill.og.crawler.app.SystemPropertyKeys;
 import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.og.crawler.named.entities.NamedEntities;
 import com.squill.og.crawler.named.entities.NamedEntitiesExtractor;
@@ -8,7 +8,7 @@ import com.squill.og.crawler.named.entities.NamedEntitiesExtractor;
 public class NamedEntitiesExtractorTestSample {
 
 	public static void main(String[] args) throws Exception {
-		System.setProperty(Startup.WEB_CRAWLERS_CONFIG_DIR,
+		System.setProperty(SystemPropertyKeys.WEB_CRAWLERS_CONFIG_DIR,
 				"D:\\Saurav\\packpack\\ogcrawler\\src\\conf");
 //		NamedEntities extractNamedEntities = NamedEntitiesExtractor
 //				.init()

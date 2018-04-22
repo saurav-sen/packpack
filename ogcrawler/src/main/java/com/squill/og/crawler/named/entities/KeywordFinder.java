@@ -5,11 +5,11 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Set;
 
-import com.squill.og.crawler.app.Startup;
-
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTagger;
 import opennlp.tools.postag.POSTaggerME;
+
+import com.squill.og.crawler.app.SystemPropertyKeys;
 
 public class KeywordFinder {
 
@@ -27,7 +27,7 @@ public class KeywordFinder {
 		InputStream posModelIn = null;
 		try {
 			posModelIn = new FileInputStream(new File(
-					System.getProperty(Startup.WEB_CRAWLERS_CONFIG_DIR)
+					System.getProperty(SystemPropertyKeys.WEB_CRAWLERS_CONFIG_DIR)
 							+ File.separator + "en-pos-maxent.bin"));
 			POSModel posModel = new POSModel(posModelIn);
 			posTagger = new POSTaggerME(posModel);

@@ -52,9 +52,6 @@ public class Startup {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Startup.class);
 	
-	public static final String WEB_CRAWLERS_CONFIG_DIR = "web.crawlers.config.dir";
-	private static final String WEB_CRAWLERS_CONFIG_FILE = "web.crawlers.config.file";
-	
 	private String[] args;
 	private Options options = new Options();
 	
@@ -91,9 +88,9 @@ public class Startup {
 				help();
 			} else if(command.hasOption("f")) {
 				String optionValue = command.getOptionValue("f");
-				System.setProperty(WEB_CRAWLERS_CONFIG_FILE, optionValue);
+				System.setProperty(SystemPropertyKeys.WEB_CRAWLERS_CONFIG_FILE, optionValue);
 				File file = new File(optionValue);
-				System.setProperty(WEB_CRAWLERS_CONFIG_DIR, file.getParent());
+				System.setProperty(SystemPropertyKeys.WEB_CRAWLERS_CONFIG_DIR, file.getParent());
 				AppContext appContext = AppContext.INSTANCE.init();
 				WebCrawlers crawlersDef = readCrawlerDefinition();
 				IFeedUploader feedUploader = loadFeedUploader(crawlersDef);
@@ -137,7 +134,7 @@ public class Startup {
 	}
 	
 	private WebCrawlers readCrawlerDefinition() throws JAXBException {
-		String loc = System.getProperty(WEB_CRAWLERS_CONFIG_FILE);
+		String loc = System.getProperty(SystemPropertyKeys.WEB_CRAWLERS_CONFIG_FILE);
 		File file = new File(loc);
 		JAXBContext jaxbInstance = JAXBContext.newInstance(WebCrawlers.class,
 				WebCrawler.class, Scheduler.class, LinkFilter.class,

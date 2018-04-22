@@ -8,7 +8,7 @@ import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.tokenize.SimpleTokenizer;
 
-import com.squill.og.crawler.app.Startup;
+import com.squill.og.crawler.app.SystemPropertyKeys;
 
 public class SentenceDetector {
 
@@ -24,7 +24,7 @@ public class SentenceDetector {
 		// InputStream posModelIn = null;
 		try {
 			sentenceModelIn = new FileInputStream(new File(
-					System.getProperty(Startup.WEB_CRAWLERS_CONFIG_DIR)
+					System.getProperty(SystemPropertyKeys.WEB_CRAWLERS_CONFIG_DIR)
 							+ File.separator + "en-sent.bin"));
 			/*
 			 * sentenceModelIn = SentenceDetector.class

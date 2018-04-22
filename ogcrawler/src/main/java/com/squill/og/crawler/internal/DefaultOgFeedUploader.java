@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.squill.og.crawler.IWebCrawlable;
+import com.squill.og.crawler.app.SystemPropertyKeys;
 import com.squill.og.crawler.app.Startup;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.ISpiderSession;
@@ -106,7 +107,7 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 	}
 	
 	private String resolveArchiveFolder() {
-		return System.getProperty(Startup.WEB_CRAWLERS_CONFIG_DIR) + "/../"
+		return System.getProperty(SystemPropertyKeys.WEB_CRAWLERS_CONFIG_DIR) + "/../"
 				+ DEFAULT_ARCHIVE_FOLDER;
 	}
 	

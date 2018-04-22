@@ -14,7 +14,7 @@ import opennlp.tools.util.Span;
 
 import org.jsoup.Jsoup;
 
-import com.squill.og.crawler.app.Startup;
+import com.squill.og.crawler.app.SystemPropertyKeys;
 
 public abstract class NamedEntityFinder {
 
@@ -32,12 +32,12 @@ public abstract class NamedEntityFinder {
 		InputStream inputStream = null;
 		InputStream posModelIn = null;
 		try {
-			inputStream = new FileInputStream(new File(System.getProperty(Startup.WEB_CRAWLERS_CONFIG_DIR) + File.separator + modelFilePath));
+			inputStream = new FileInputStream(new File(System.getProperty(SystemPropertyKeys.WEB_CRAWLERS_CONFIG_DIR) + File.separator + modelFilePath));
 			TokenNameFinderModel model = new TokenNameFinderModel(inputStream);
 			nameFinder = new NameFinderME(model);
 			
 			posModelIn = new FileInputStream(new File(
-					System.getProperty(Startup.WEB_CRAWLERS_CONFIG_DIR)
+					System.getProperty(SystemPropertyKeys.WEB_CRAWLERS_CONFIG_DIR)
 							+ File.separator + "en-pos-maxent.bin"));
 			POSModel posModel = new POSModel(posModelIn);
 			posTagger = new POSTaggerME(posModel);
