@@ -10,17 +10,13 @@
     </Properties>
     
     <!-- Articles -->
-    <WebCrawler id="qz.com" domainUrl="https://qz.com/" flushFrequency="50" thresholdFrequency="10" robotRulesExists="false" uploadIndependently="true">
+    <!--WebCrawler id="qz.com" domainUrl="https://qz.com/" flushFrequency="50" thresholdFrequency="10" robotRulesExists="false" uploadIndependently="true">
         <name>Quartz</name>
         <description>Quartz India</description>
         <contentHandler preClassifiedType="ARTICLE">
             <handler>defaultOgHtmlContentHandler</handler>
         </contentHandler>
-        <linkFilter>
-            <!--condition>$_link.contains("collections/")</condition-->
-        </linkFilter>
         <webLinkTracker>
-	        <!--serviceId>redisWebLinkTrackerService</serviceId-->
 	        <serviceId>defaultWebLinkTrackerService</serviceId>
 	    </webLinkTracker>
 	    <geoTagResolver>
@@ -33,9 +29,30 @@
 	        <resolver>defaultArticleTextSummarizer</resolver>
 	    </articleSummarizer>
         <scheduler initialDelay="0" periodicDelay="1" timeUnit="DAYS"/>
-    </WebCrawler>
-    <ApiReader id="newsapi.org" uploadIndependently="true">
-        
+    </WebCrawler-->
+    
+    <ApiReader id="newsapi.org" uploadIndependently="true" checkDuplicate="false">
+        <name>NewsApi.Org</name>
+        <description>News API Org</description>
+        <!--linkFilter>
+            <condition>$_link.contains("collections/")</condition>
+        </linkFilter-->
+        <webLinkTracker>
+	        <serviceId>defaultWebLinkTrackerService</serviceId>
+	    </webLinkTracker>
+	    <apiRequestExecutor>
+	        <executor>newsApiRequestExecutor</executor>
+	    </apiRequestExecutor>
+	    <geoTagResolver>
+	        <resolver>defaultGeoLocationResolver</resolver>
+	    </geoTagResolver>
+	    <taxonomyClassifier>
+	        <resolver>defaultTaxonomyResolver</resolver>
+	    </taxonomyClassifier>
+	    <articleSummarizer>
+	        <resolver>defaultArticleTextSummarizer</resolver>
+	    </articleSummarizer>
+	    <scheduler initialDelay="0" periodicDelay="2" timeUnit="HOURS"/>
     </ApiReader>
     
     <feedUploader>

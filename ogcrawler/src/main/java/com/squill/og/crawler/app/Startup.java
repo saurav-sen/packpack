@@ -95,15 +95,15 @@ public class Startup {
 				System.setProperty(SystemPropertyKeys.WEB_CRAWLERS_BASE_DIR, parentFile.getParent());
 				WebCrawlers crawlersDef = readCrawlerDefinition();
 				readSystemPropertiesConfigured(crawlersDef);
+				AppContext appContext = AppContext.INSTANCE.init();
 				IFeedUploader feedUploader = loadFeedUploader(crawlersDef);
 				List<IWebSite> websites = readCrawlableWebSites(crawlersDef);
 				List<IWebCrawlable> webApis = readRegisteredWebApis(crawlersDef);
 				List<ICrawlable> allCrawlables = new ArrayList<ICrawlable>();
 				allCrawlables.addAll(websites);
 				allCrawlables.addAll(webApis);
-				if(websites == null || websites.isEmpty())
+				if(allCrawlables.isEmpty())
 					return;
-				AppContext appContext = AppContext.INSTANCE.init();
 				WebSpiderService webSpiderService = appContext
 						.findService(WebSpiderService.class);
 				webSpiderService.startCrawling(allCrawlables, feedUploader);

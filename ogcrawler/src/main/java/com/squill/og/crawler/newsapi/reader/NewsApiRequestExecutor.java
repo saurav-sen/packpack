@@ -52,15 +52,15 @@ public class NewsApiRequestExecutor implements IApiRequestExecutor {
 				baseDirPath = baseDirPath + File.separator;
 			}
 			String configFilePath = baseDirPath + configFileRelativePath;
-
+			File configFile = new File(configFilePath);
 			Properties properties = new Properties();
-			properties.load(new FileReader(new File(configFilePath)));
+			properties.load(new FileReader(configFile));
 			this.newsAPIKey = properties
 					.getProperty(SystemPropertyKeys.NEWS_API_KEY);
 			String newsApiSourceRelativePath = properties
 					.getProperty(SystemPropertyKeys.NEWS_SOURCES);
 
-			this.newsSources = readNewsSources(baseDirPath
+			this.newsSources = readNewsSources(configFile.getParent() + File.separator
 					+ newsApiSourceRelativePath);
 		} catch (Exception e) {
 			LOG.error(

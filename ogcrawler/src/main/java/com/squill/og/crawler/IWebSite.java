@@ -8,6 +8,8 @@ import com.squill.og.crawler.hooks.IHtmlContentHandler;
  *
  */
 public interface IWebSite extends IWebCrawlable {
+	
+	public String getDomainUrl();
 
 	public IRobotScope getRobotScope();
 

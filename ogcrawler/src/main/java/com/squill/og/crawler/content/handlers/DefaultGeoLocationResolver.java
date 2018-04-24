@@ -19,7 +19,7 @@ public class DefaultGeoLocationResolver implements IGeoLocationResolver {
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(DefaultGeoLocationResolver.class);
-
+	
 	@Override
 	public GeoLocation[] resolveGeoLocations(String linkUrl, String domainUrl,
 			JRssFeed feed) {

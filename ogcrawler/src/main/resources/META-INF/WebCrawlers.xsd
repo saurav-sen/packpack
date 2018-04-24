@@ -2,22 +2,22 @@
 <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.squilla.co.in/WebCrawlers"
 	xmlns:tns="http://www.squilla.co.in/WebCrawlers" elementFormDefault="qualified">
 
-	<element name="WebCrawlers" type="tns:WebCrawlers"></element>
-
-	<complexType name="WebCrawlers">
-		<sequence>
-			<element name="Properties" type="tns:Properties" maxOccurs="1"
-				minOccurs="0"></element>
-			<element name="WebCrawler" type="tns:WebCrawler" maxOccurs="unbounded"
-				minOccurs="0">
-			</element>
-			<element name="ApiReader" type="tns:ApiReader" maxOccurs="unbounded"
-				minOccurs="0">
-			</element>
-			<element name="feedUploader" type="tns:FeedUploader"
-				maxOccurs="1" minOccurs="1" />
-		</sequence>
-	</complexType>
+	<element name="webCrawlers">
+		<complexType>
+			<sequence>
+				<element name="Properties" type="tns:Properties" maxOccurs="1"
+					minOccurs="0"></element>
+				<element name="WebCrawler" type="tns:WebCrawler" maxOccurs="unbounded"
+					minOccurs="0">
+				</element>
+				<element name="ApiReader" type="tns:ApiReader" maxOccurs="unbounded"
+					minOccurs="0">
+				</element>
+				<element name="feedUploader" type="tns:FeedUploader"
+					maxOccurs="1" minOccurs="1" />
+			</sequence>
+		</complexType>
+	</element>
 
 	<complexType name="Properties">
 		<sequence>
@@ -72,7 +72,6 @@
 			<element name="name" type="string" maxOccurs="1" minOccurs="1" />
 			<element name="description" type="string" maxOccurs="1"
 				minOccurs="1" />
-			<element name="domainUrl" type="string" maxOccurs="1" minOccurs="1" />
 			<element name="webLinkTracker" type="tns:WebTracker"
 				maxOccurs="1" minOccurs="0"></element>
 			<element name="apiRequestExecutor" type="tns:ApiRequestExecutor"

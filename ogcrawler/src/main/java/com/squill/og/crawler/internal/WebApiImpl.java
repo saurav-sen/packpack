@@ -60,11 +60,6 @@ public class WebApiImpl implements IWebApi {
 	}
 	
 	@Override
-	public String getDomainUrl() {
-		return crawlerDef.getDomainUrl();
-	}
-	
-	@Override
 	public IApiRequestExecutor getApiExecutor() {
 		if(apiRequestExecutor == null) {
 			ApiRequestExecutor apiRequestExecutorDef = crawlerDef.getApiRequestExecutor();

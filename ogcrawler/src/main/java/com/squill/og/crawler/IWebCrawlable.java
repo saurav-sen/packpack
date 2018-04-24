@@ -6,8 +6,6 @@ import com.squill.og.crawler.hooks.ITaxonomyResolver;
 
 public interface IWebCrawlable extends ICrawlable {
 	
-	public String getDomainUrl();
-
 	public IGeoLocationResolver getTargetLocationResolver();
 
 	public ITaxonomyResolver getTaxonomyResolver();

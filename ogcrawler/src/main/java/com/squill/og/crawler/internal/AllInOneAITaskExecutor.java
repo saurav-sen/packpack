@@ -1,5 +1,7 @@
 package com.squill.og.crawler.internal;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.squill.og.crawler.IWebCrawlable;
+import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.hooks.GeoLocation;
 import com.squill.og.crawler.hooks.IArticleTextSummarizer;
 import com.squill.og.crawler.hooks.IFeedClassificationResolver;
@@ -69,9 +72,18 @@ public class AllInOneAITaskExecutor {
 	private Map<String, List<JRssFeed>> deDuplicateFeeds(Map<String, List<JRssFeed>> feedsMap) {
 		return feedsMap;
 	}
-
+	
+	private String resolveDomainUrl(String linkUrl) {
+		try {
+			URL url = new URL(linkUrl);
+			return url.getProtocol() + "://" + url.getHost();
+		} catch (MalformedURLException e) {
+			LOG.error(e.getMessage(), e);
+			return null;
+		}
+	}
+	
 	private Map<String, List<JRssFeed>> executeAITasks(Map<String, List<JRssFeed>> feedsMap, ISpiderSession session, IWebCrawlable webCrawlable) {
-		String domainUrl = webCrawlable.getDomainUrl();
 		IGeoLocationResolver geoLocationResolver = webCrawlable.getTargetLocationResolver();
 		ITaxonomyResolver taxonomyResolver = webCrawlable.getTaxonomyResolver();
 		try {
@@ -99,6 +111,12 @@ public class AllInOneAITaskExecutor {
 						}
 					}
 					if(geoLocationResolver != null) {
+						String domainUrl = null;
+						if(webCrawlable instanceof IWebSite) {
+							domainUrl = ((IWebSite)webCrawlable).getDomainUrl();
+						} else {
+							domainUrl = resolveDomainUrl(feed.getOgUrl());
+						}
 						GeoLocation[] geoLocations = geoLocationResolver.resolveGeoLocations(feed.getOgUrl(), domainUrl, feed);
 						if(geoLocations != null && geoLocations.length > 0) {
 							for(GeoLocation geoLocation : geoLocations) {
