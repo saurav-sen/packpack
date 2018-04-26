@@ -51,6 +51,7 @@ public class DefaultGeoLocationResolver implements IGeoLocationResolver {
 							}
 						}
 					}
+					dbpediaBasedLocationResolver.dispose();
 					return geoLocationTags != null ? geoLocationTags
 							.toArray(new GeoLocation[geoLocationTags.size()])
 							: new GeoLocation[0];

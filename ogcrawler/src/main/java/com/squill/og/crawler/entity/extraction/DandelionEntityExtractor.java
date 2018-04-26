@@ -37,8 +37,25 @@ public class DandelionEntityExtractor {
 		return url.toString();
 	}
 	
-	private Concept convert(EntityAnnotation annotation) {
-		return null;
+	private Concept convert(EntityAnnotation annotation, String parentContent) {
+		Concept concept = new Concept();
+		concept.setId(String.valueOf(annotation.getId()));
+		concept.setSpot(annotation.getSpot());
+		String confidence = annotation.getConfidence();
+		if(confidence != null) {
+			concept.setConfidence(Double.parseDouble(confidence.trim()));
+		}
+		concept.setStartIndex(annotation.getStart());
+		concept.setEndIndex(annotation.getEnd());
+		concept.setOntologyTypes(annotation.getTypes());
+		Lod lod = annotation.getLod();
+		if(lod != null) {
+			String dbpediaRef = lod.getDbpedia();
+			concept.setDbpediaRef(dbpediaRef);
+		}
+		concept.setContent(annotation.getTitle());
+		concept.setParentContent(parentContent);
+		return concept;
 	}
 	
 	public List<Concept> extractConcepts(String text) throws Exception {
@@ -64,7 +81,7 @@ public class DandelionEntityExtractor {
 				EntityAnnotation annotation = annotationsMap.remove(id);
 				if(annotation == null)
 					continue;
-				Concept concept = convert(annotation);
+				Concept concept = convert(annotation, text);
 				concepts.add(concept);
 			}
 			topEntities.clear();

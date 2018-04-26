@@ -14,6 +14,14 @@ public class Concept {
 	private List<String> ontologyTypes;
 	
 	private String dbpediaRef;
+	
+	private int startIndex;
+	
+	private int endIndex;
+	
+	private String content;
+	
+	private double confidence;
 
 	public String getId() {
 		return id;
@@ -56,5 +64,37 @@ public class Concept {
 
 	public void setDbpediaRef(String dbpediaRef) {
 		this.dbpediaRef = dbpediaRef;
+	}
+
+	public int getStartIndex() {
+		return startIndex;
+	}
+
+	public void setStartIndex(int startIndex) {
+		this.startIndex = startIndex;
+	}
+
+	public int getEndIndex() {
+		return endIndex;
+	}
+
+	public void setEndIndex(int endIndex) {
+		this.endIndex = endIndex;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public double getConfidence() {
+		return confidence;
+	}
+
+	public void setConfidence(double confidence) {
+		this.confidence = confidence;
 	}
 }

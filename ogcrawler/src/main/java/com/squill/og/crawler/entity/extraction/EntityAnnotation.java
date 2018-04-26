@@ -1,5 +1,6 @@
 package com.squill.og.crawler.entity.extraction;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -104,7 +105,7 @@ public class EntityAnnotation {
 
 	public List<String> getTypes() {
 		if(types == null) {
-			types = new LinkedList<String>();
+			types = new ArrayList<String>();
 		}
 		return types;
 	}

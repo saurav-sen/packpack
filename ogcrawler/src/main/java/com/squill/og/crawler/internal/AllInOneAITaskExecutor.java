@@ -17,7 +17,9 @@ import com.squill.og.crawler.hooks.IFeedClassificationResolver;
 import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.hooks.ITaxonomyResolver;
+import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.FeedClassifierUtil;
+import com.squill.og.crawler.model.WebSpiderTracker;
 import com.squill.og.crawler.model.web.JGeoTag;
 import com.squill.og.crawler.model.web.JRssFeed;
 import com.squill.og.crawler.model.web.JTaxonomy;
@@ -84,6 +86,7 @@ public class AllInOneAITaskExecutor {
 	}
 	
 	private Map<String, List<JRssFeed>> executeAITasks(Map<String, List<JRssFeed>> feedsMap, ISpiderSession session, IWebCrawlable webCrawlable) {
+		IWebLinkTrackerService webLinkTrackerService = webCrawlable.getTrackerService();
 		IGeoLocationResolver geoLocationResolver = webCrawlable.getTargetLocationResolver();
 		ITaxonomyResolver taxonomyResolver = webCrawlable.getTaxonomyResolver();
 		try {
@@ -94,6 +97,16 @@ public class AllInOneAITaskExecutor {
 				if(feeds == null)
 					continue;
 				for (JRssFeed feed : feeds) {
+					String link = feed.getOgUrl();
+					WebSpiderTracker info = webLinkTrackerService.getTrackedInfo(link);
+					if(info != null)
+						continue;
+					
+					info = new WebSpiderTracker();
+					info.setLastCrawled(System.currentTimeMillis());
+					info.setLink(link);
+					webLinkTrackerService.addCrawledInfo(link, info, 24 * 60 * 60);
+					
 					String classifier = classifyFeedType(feed);
 					if(classifier != null) {
 						feed.setOgType(classifier);
@@ -129,7 +142,7 @@ public class AllInOneAITaskExecutor {
 					}
 					
 					if(taxonomyResolver != null) {
-						JTaxonomy[] taxonomies = taxonomyResolver.resolveTaxonomies(feed.getOgUrl(), feed.getOgTitle());
+						JTaxonomy[] taxonomies = taxonomyResolver.resolveTaxonomies(feed.getOgTitle(), feed.getOgUrl());
 						if(taxonomies != null && taxonomies.length > 0) {
 							for(JTaxonomy taxonomy : taxonomies) {
 								feed.getTaxonomies().add(taxonomy);

@@ -1,6 +1,5 @@
 package com.squill.og.crawler.internal;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -37,12 +36,10 @@ public class WebApiSpider implements Spider {
 		try {
 			feedUploader.beginEach(session, webApi);
 			IApiRequestExecutor apiExecutor = webApi.getApiExecutor();
-			JRssFeeds rssFeeds = apiExecutor.execute(webApi.getUniqueId());
-			Map<String, List<JRssFeed>> feedsMap = new HashMap<String, List<JRssFeed>>();
-			feedsMap.put(webApi.getUniqueId(), rssFeeds.getFeeds());
+			Map<String, List<JRssFeed>> feedsMap = apiExecutor.execute(webApi.getUniqueId());
 			AllInOneAITaskExecutor allInOneAITaskExecutor = new AllInOneAITaskExecutor(session);
 			feedsMap = allInOneAITaskExecutor.executeTasks(feedsMap, webApi);
-			rssFeeds = uniteAll(feedsMap);
+			JRssFeeds rssFeeds = uniteAll(feedsMap);
 			session.addAttr(webApi, ISpiderSession.RSS_FEEDS_KEY, rssFeeds);
 			feedUploader.endEach(session, webApi);
 		} catch (Throwable e) {

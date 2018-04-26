@@ -1,8 +1,11 @@
 package com.squill.og.crawler.hooks;
 
-import com.squill.og.crawler.model.web.JRssFeeds;
+import java.util.List;
+import java.util.Map;
+
+import com.squill.og.crawler.model.web.JRssFeed;
 
 public interface IApiRequestExecutor {
 
-	public JRssFeeds execute(String webApiUniqueID);
+	public Map<String, List<JRssFeed>> execute(String webApiUniqueID);
 }

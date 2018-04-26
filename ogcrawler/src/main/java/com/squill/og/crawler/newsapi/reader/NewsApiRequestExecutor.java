@@ -6,8 +6,10 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.annotation.PostConstruct;
@@ -26,6 +28,7 @@ import org.springframework.stereotype.Component;
 import com.squill.og.crawler.app.SystemPropertyKeys;
 import com.squill.og.crawler.hooks.IApiRequestExecutor;
 import com.squill.og.crawler.internal.utils.JSONUtil;
+import com.squill.og.crawler.model.web.JRssFeed;
 import com.squill.og.crawler.model.web.JRssFeeds;
 import com.squill.services.exception.OgCrawlException;
 
@@ -80,8 +83,8 @@ public class NewsApiRequestExecutor implements IApiRequestExecutor {
 	}
 
 	@Override
-	public JRssFeeds execute(String webApiUniqueID) {
-		JRssFeeds result = new JRssFeeds();
+	public Map<String, List<JRssFeed>> execute(String webApiUniqueID) {
+		Map<String, List<JRssFeed>> result = new HashMap<String, List<JRssFeed>>();
 		try {
 			LOG.info("Reading News from Sources");
 			if (newsSources == null) {
@@ -107,7 +110,7 @@ public class NewsApiRequestExecutor implements IApiRequestExecutor {
 
 					JRssFeeds r = NewsFeedConverter.convert(newsFeeds);
 					if(r != null) {
-						result.getFeeds().addAll(r.getFeeds());
+						result.put(newsSource.getId(), r.getFeeds());
 					}
 					//newsFeedGroups.add(newsFeedGroup);
 				} catch (Exception e) {
@@ -119,7 +122,7 @@ public class NewsApiRequestExecutor implements IApiRequestExecutor {
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 		}
-		return null;
+		return result;
 	}
 
 	private NewsFeeds readFromSource(String newsSource)

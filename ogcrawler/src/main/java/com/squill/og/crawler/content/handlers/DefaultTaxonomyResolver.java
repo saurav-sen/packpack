@@ -20,7 +20,7 @@ public class DefaultTaxonomyResolver implements ITaxonomyResolver {
 	@Override
 	public JTaxonomy[] resolveTaxonomies(String text, String linkUrl) throws Exception {
 		List<JTaxonomy> taxonomies = new ArrayList<JTaxonomy>();
-		AylienTaxonomyResponse taxonomyResponse = new AylienTaxonomyClassifier().classifyText(text);
+		AylienTaxonomyResponse taxonomyResponse = new AylienTaxonomyClassifier().classifyUrl(linkUrl);//.classifyText(text);
 		if(taxonomyResponse != null) {
 			List<AylienTaxonomyType> categories = taxonomyResponse.getCategories();
 			for(AylienTaxonomyType category : categories) {

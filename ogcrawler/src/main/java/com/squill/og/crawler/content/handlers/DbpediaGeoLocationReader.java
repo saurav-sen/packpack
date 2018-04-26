@@ -1,8 +1,10 @@
 package com.squill.og.crawler.content.handlers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -21,7 +23,7 @@ public class DbpediaGeoLocationReader {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(DbpediaGeoLocationReader.class);
 	
-	private static final String PREFIX = "http://dbpedia.org/resource/";
+	private static final String PREFIX = "dbpedia.org/resource/";
 	
 	private static final String[] ONTOLOGY_PLACE_TYPES = new String[] {
 			"http://dbpedia.org/ontology/City",
@@ -38,10 +40,25 @@ public class DbpediaGeoLocationReader {
 		 "http://dbpedia.org/ontology/Person",
 		 "http://schema.org/Person" };
 	
+	private Map<String, Model> linkVsModelMap = new HashMap<String, Model>();
+	
+	private Model createModel(String dppediaLink) {
+		Model model = linkVsModelMap.get(dppediaLink);
+		if(model == null) {
+			model = ModelFactory.createDefaultModel().read(dppediaLink);
+			linkVsModelMap.put(dppediaLink, model);
+		}
+		return model;
+	}
+	
+	public void dispose() {
+		linkVsModelMap.clear();
+	}
+	
 	private List<GeoLocation> resolveGeoLocationForOrganization_Query(String orgName) {
 		List<GeoLocation> geoLocations = new ArrayList<GeoLocation>();
 		String dppediaLink = "http://dbpedia.org/data/" + orgName + ".rdf";
-		Model model = ModelFactory.createDefaultModel().read(dppediaLink);
+		Model model = createModel(dppediaLink);
 		if(model == null) {
 			LOG.error("Could Not find dbpedia link @ " + dppediaLink);
 		}
@@ -149,7 +166,7 @@ public class DbpediaGeoLocationReader {
 	private List<GeoLocation> resolveGeoLocationForPerson_Query(String personName) {
 		List<GeoLocation> geoLocations = new ArrayList<GeoLocation>();
 		String dppediaLink = "http://dbpedia.org/data/" + personName + ".rdf";
-		Model model = ModelFactory.createDefaultModel().read(dppediaLink);
+		Model model = createModel(dppediaLink);
 		if(model == null) {
 			LOG.error("Could Not find dbpedia link @ " + dppediaLink);
 		}
@@ -166,7 +183,7 @@ public class DbpediaGeoLocationReader {
 	private List<GeoLocation> resolveGeoLocationForPlace_Query(String placeName) {
 		List<GeoLocation> geoLocations = new ArrayList<GeoLocation>();
 		String dppediaLink = "http://dbpedia.org/data/" + placeName + ".rdf";
-		Model model = ModelFactory.createDefaultModel().read(dppediaLink);
+		Model model = createModel(dppediaLink);
 		if(model == null) {
 			LOG.error("Could Not find dbpedia link @ " + dppediaLink);
 			return geoLocations;
@@ -270,7 +287,11 @@ public class DbpediaGeoLocationReader {
 			}
 			return null;
 		}
-		String originalName = dbpediaRef.trim().substring(PREFIX.length());
+		String originalName = concept.getContent();
+		int index = dbpediaRef.trim().lastIndexOf(PREFIX);
+		if(index >= 0) {
+			originalName = dbpediaRef.trim().substring(index + PREFIX.length());
+		}
 		String resolvedName = originalName.replaceAll("\\/", "").replaceAll("\\s{1,}", "_");
 		return new String[] {originalName, resolvedName};
 	}
@@ -280,8 +301,15 @@ public class DbpediaGeoLocationReader {
 			LOG.error("Dbpedia Link is not resolved for concept");
 			return null;
 		}
-		String originalName = dbpediaRef.trim().substring(PREFIX.length());
-		String resolvedName = originalName.replaceAll("\\/", "").replaceAll("\\s{1,}", "_");
+		String originalName = null;
+		int index = dbpediaRef.trim().lastIndexOf(PREFIX);
+		if(index >= 0) {
+			originalName = dbpediaRef.trim().substring(index + PREFIX.length());
+		}
+		String resolvedName = null;
+		if(originalName != null) {
+			resolvedName = originalName.replaceAll("\\/", "").replaceAll("\\s{1,}", "_");
+		}
 		return new String[] {originalName, resolvedName};
 	}
 	
@@ -289,7 +317,11 @@ public class DbpediaGeoLocationReader {
 		if(name == null || name.trim().isEmpty()) {
 			return null;
 		}
-		return name.trim().substring(PREFIX.length()).replaceAll("\\/", "").replaceAll("\\s{1,}", "_");
+		int index = name.trim().lastIndexOf(PREFIX);
+		if(index >= 0) {
+			return name.trim().substring(index + PREFIX.length()).replaceAll("\\/", "").replaceAll("\\s{1,}", "_");
+		}
+		return name.trim().replaceAll("\\/", "").replaceAll("\\s{1,}", "_");
 	}
 	
 	private List<GeoLocation> resolveGeoLocationTag(Concept concept) {
@@ -301,13 +333,13 @@ public class DbpediaGeoLocationReader {
 				String originalPlaceName = names[0];
 				if(originalPlaceName != null) {
 					List<GeoLocation> list = GeoLocationDataHolder.INSTANCE.getGeoLocationByEntityName(originalPlaceName);
-					if(list != null) {
+					if(list != null && !list.isEmpty()) {
 						return list;
 					}
 				}
 				if (placeName != null) {
 					List<GeoLocation> list = GeoLocationDataHolder.INSTANCE.getGeoLocationByEntityName(placeName);
-					if(list != null) {
+					if(list != null && !list.isEmpty()) {
 						return list;
 					}
 					geoLocations.addAll(resolveGeoLocationsForPlace(placeName));
@@ -317,20 +349,20 @@ public class DbpediaGeoLocationReader {
 				GeoLocationDataHolder.INSTANCE.addInfoOfGeoLocations(placeName,
 						geoLocations);
 			}
-		} else if (isOrganization(concept)) {
+		} if (isOrganization(concept)) {
 			String[] names = resolveNames(concept);
 			if (names != null && names.length > 1) {
 				String orgName = names[1];
 				String originalOrgName = names[0];
 				if(originalOrgName != null) {
 					List<GeoLocation> list = GeoLocationDataHolder.INSTANCE.getGeoLocationByEntityName(originalOrgName);
-					if(list != null) {
+					if(list != null && !list.isEmpty()) {
 						return list;
 					}
 				}
 				if (orgName != null) {
 					List<GeoLocation> list = GeoLocationDataHolder.INSTANCE.getGeoLocationByEntityName(orgName);
-					if(list != null) {
+					if(list != null && !list.isEmpty()) {
 						return list;
 					}
 					geoLocations
@@ -341,20 +373,20 @@ public class DbpediaGeoLocationReader {
 				GeoLocationDataHolder.INSTANCE.addInfoOfGeoLocations(orgName,
 						geoLocations);
 			}
-		} else if (isPerson(concept)) {
+		} if (isPerson(concept)) {
 			String[] names = resolveNames(concept);
 			if (names != null && names.length > 1) {
 				String personName = names[1];
 				String originalPersonName = names[0];
 				if(originalPersonName != null) {
 					List<GeoLocation> list = GeoLocationDataHolder.INSTANCE.getGeoLocationByEntityName(originalPersonName);
-					if(list != null) {
+					if(list != null && !list.isEmpty()) {
 						return list;
 					}
 				}
 				if (personName != null) {
 					List<GeoLocation> list = GeoLocationDataHolder.INSTANCE.getGeoLocationByEntityName(personName);
-					if(list != null) {
+					if(list != null && !list.isEmpty()) {
 						return list;
 					}
 					geoLocations
