@@ -1,4 +1,4 @@
-package com.squill.og.crawler.model.web;
+package com.squill.feed.web.model;
 
 public enum JRssFeedType {
 

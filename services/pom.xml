@@ -7,7 +7,7 @@
   <parent>
 		<groupId>com.pack.pack</groupId>
 		<artifactId>com.pack.pack</artifactId>
-		<version>1.0-DEV</version>
+		<version>3.0</version>
   </parent>
   <dependencies>		
 		<dependency>
@@ -18,6 +18,11 @@
 		<dependency>
 			<groupId>com.pack.pack</groupId>
 			<artifactId>common</artifactId>
+			<version>${packpack.release}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.pack.pack</groupId>
+			<artifactId>feed-model</artifactId>
 			<version>${packpack.release}</version>
 		</dependency>
 		<!--dependency>

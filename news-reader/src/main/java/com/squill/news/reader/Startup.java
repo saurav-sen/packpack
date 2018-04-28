@@ -29,14 +29,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pack.pack.common.util.JSONUtil;
-import com.pack.pack.model.web.JRssFeedType;
-import com.pack.pack.model.web.JRssFeeds;
-import com.pack.pack.model.web.TTL;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.services.registry.ServiceRegistryModes;
 import com.pack.pack.util.RssFeedUtil;
 import com.pack.pack.util.SystemPropertyUtil;
+import com.squill.feed.web.model.JRssFeedType;
+import com.squill.feed.web.model.JRssFeeds;
+import com.squill.feed.web.model.TTL;
 
 public class Startup {
 

@@ -9,14 +9,14 @@ import org.slf4j.LoggerFactory;
 
 import com.pack.pack.model.RSSFeed;
 import com.pack.pack.model.RssFeedType;
-import com.pack.pack.model.web.JRssFeed;
-import com.pack.pack.model.web.JRssFeedType;
-import com.pack.pack.model.web.JRssFeeds;
-import com.pack.pack.model.web.TTL;
 import com.pack.pack.rss.IRssFeedService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.rabbitmq.MessagePublisher;
 import com.pack.pack.services.registry.ServiceRegistry;
+import com.squill.feed.web.model.JRssFeed;
+import com.squill.feed.web.model.JRssFeedType;
+import com.squill.feed.web.model.JRssFeeds;
+import com.squill.feed.web.model.TTL;
 
 /**
  * 

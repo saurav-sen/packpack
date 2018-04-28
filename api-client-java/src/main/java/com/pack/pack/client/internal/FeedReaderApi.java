@@ -15,7 +15,7 @@ import org.jsoup.select.Elements;
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.client.api.MultipartRequestProgressListener;
-import com.pack.pack.model.web.JRssFeed;
+import com.squill.feed.web.model.JRssFeed;
 
 class FeedReaderApi extends BaseAPI {
 	

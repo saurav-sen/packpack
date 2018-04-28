@@ -3,7 +3,7 @@ package com.squill.og.crawler.hooks;
 import java.util.List;
 import java.util.Map;
 
-import com.squill.og.crawler.model.web.JRssFeed;
+import com.squill.feed.web.model.JRssFeed;
 
 public interface IApiRequestExecutor {
 

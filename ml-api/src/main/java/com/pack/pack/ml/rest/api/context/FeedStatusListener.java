@@ -1,6 +1,6 @@
 package com.pack.pack.ml.rest.api.context;
 
-import com.pack.pack.model.web.JRssFeeds;
+import com.squill.feed.web.model.JRssFeeds;
 
 /**
  * 

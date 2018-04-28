@@ -1,4 +1,4 @@
-package com.pack.pack.model.web;
+package com.squill.feed.web.model;
 
 /**
  * 

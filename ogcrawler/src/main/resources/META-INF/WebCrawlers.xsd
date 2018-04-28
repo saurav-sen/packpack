@@ -13,6 +13,8 @@
 				<element name="ApiReader" type="tns:ApiReader" maxOccurs="unbounded"
 					minOccurs="0">
 				</element>
+				<element name="webLinkTracker" type="tns:WebTracker"
+					maxOccurs="1" minOccurs="0"></element>
 				<element name="feedUploader" type="tns:FeedUploader"
 					maxOccurs="1" minOccurs="1" />
 			</sequence>

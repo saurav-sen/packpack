@@ -14,10 +14,10 @@ import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.client.api.MultipartRequestProgressListener;
 import com.pack.pack.common.util.JSONUtil;
-import com.pack.pack.model.web.JRssFeed;
-import com.pack.pack.model.web.JRssFeedType;
-import com.pack.pack.model.web.JRssFeeds;
 import com.pack.pack.model.web.Pagination;
+import com.squill.feed.web.model.JRssFeed;
+import com.squill.feed.web.model.JRssFeedType;
+import com.squill.feed.web.model.JRssFeeds;
 
 /**
  * 

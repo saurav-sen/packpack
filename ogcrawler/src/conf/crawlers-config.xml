@@ -5,7 +5,6 @@
         <Property key="base.url" value="${ML_API_BASE_URL}"/>
         <Property key="url.part" value="/feeds/train"/>
         <Property key="API_KEY" value="11a1bc16d14d-1521ee187121-1161ed1dd1c6-1861fc1b718c"/>
-        <Property key="enable.upload" value="false"/>
         <Property key="newsapi.org_sources.file" value="conf/news-sources.cfg"/>
     </Properties>
     
@@ -16,9 +15,6 @@
         <contentHandler preClassifiedType="ARTICLE">
             <handler>defaultOgHtmlContentHandler</handler>
         </contentHandler>
-        <webLinkTracker>
-	        <serviceId>defaultWebLinkTrackerService</serviceId>
-	    </webLinkTracker>
 	    <geoTagResolver>
 	        <resolver>defaultGeoLocationResolver</resolver>
 	    </geoTagResolver>
@@ -37,9 +33,6 @@
         <!--linkFilter>
             <condition>$_link.contains("collections/")</condition>
         </linkFilter-->
-        <webLinkTracker>
-	        <serviceId>defaultWebLinkTrackerService</serviceId>
-	    </webLinkTracker>
 	    <apiRequestExecutor>
 	        <executor>newsApiRequestExecutor</executor>
 	    </apiRequestExecutor>
@@ -55,6 +48,10 @@
 	    <scheduler initialDelay="0" periodicDelay="2" timeUnit="HOURS"/>
     </ApiReader>
     
+    <webLinkTracker>
+        <serviceId>defaultWebLinkTrackerService</serviceId>
+    </webLinkTracker>
+	    
     <feedUploader>
         <uploader>defaultOgFeedUploader</uploader>
     </feedUploader>

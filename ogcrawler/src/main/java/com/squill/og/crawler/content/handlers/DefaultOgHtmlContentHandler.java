@@ -13,11 +13,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.squill.feed.web.model.JRssFeed;
 import com.squill.og.crawler.ILink;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
 import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.internal.utils.CoreConstants;
-import com.squill.og.crawler.model.web.JRssFeed;
 
 /**
  * 
@@ -110,7 +110,7 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 		
 		String preClassifiedFeedType = (String) getMetaInfo(CoreConstants.PRE_CLASSIFIED_FEED_TYPE);
 		if (preClassifiedFeedType != null) {
-			feed.setPreClassifiedType(preClassifiedFeedType);
+			feed.setFeedType(preClassifiedFeedType);
 		}
 		
 		String domainUrl = link.getRoot().getDomainUrl();

@@ -8,7 +8,7 @@
   <parent>
 		<groupId>com.pack.pack</groupId>
 		<artifactId>com.pack.pack</artifactId>
-		<version>1.0-DEV</version>
+		<version>3.0</version>
 	</parent>
   <dependencies>				
 		<dependency>

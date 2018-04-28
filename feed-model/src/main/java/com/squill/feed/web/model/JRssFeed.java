@@ -1,11 +1,10 @@
-package com.squill.og.crawler.model.web;
+package com.squill.feed.web.model;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.squill.og.crawler.entity.extraction.Concept;
 
 /**
  * 
@@ -29,7 +28,7 @@ public class JRssFeed {
 	private String id;
 	
 	@JsonIgnore
-	private String preClassifiedType;
+	private String feedType;
 	
 	private String articleSummaryText;
 	
@@ -40,7 +39,21 @@ public class JRssFeed {
 	private List<Concept> concepts;
 	
 	private List<JTaxonomy> taxonomies;
-
+	
+	private long uploadTime;
+	
+	private String createdBy;
+	
+	private String createdByLogoUrl;
+	
+	private String createdByUserId;
+	
+	private String shareableUrl;
+	
+	private String videoUrl;
+	
+	private List<JRssSubFeed> siblings;
+	
 	public String getOgTitle() {
 		return ogTitle;
 	}
@@ -97,12 +110,12 @@ public class JRssFeed {
 		this.id = id;
 	}
 
-	public String getPreClassifiedType() {
-		return preClassifiedType;
+	public String getFeedType() {
+		return feedType;
 	}
 
-	public void setPreClassifiedType(String preClassifiedType) {
-		this.preClassifiedType = preClassifiedType;
+	public void setFeedType(String feedType) {
+		this.feedType = feedType;
 	}
 
 	public String getArticleSummaryText() {
@@ -152,5 +165,64 @@ public class JRssFeed {
 
 	public void setTaxonomies(List<JTaxonomy> taxonomies) {
 		this.taxonomies = taxonomies;
+	}
+
+	public long getUploadTime() {
+		return uploadTime;
+	}
+
+	public void setUploadTime(long uploadTime) {
+		this.uploadTime = uploadTime;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public String getCreatedByLogoUrl() {
+		return createdByLogoUrl;
+	}
+
+	public void setCreatedByLogoUrl(String createdByLogoUrl) {
+		this.createdByLogoUrl = createdByLogoUrl;
+	}
+
+	public String getCreatedByUserId() {
+		return createdByUserId;
+	}
+
+	public void setCreatedByUserId(String createdByUserId) {
+		this.createdByUserId = createdByUserId;
+	}
+
+	public String getShareableUrl() {
+		return shareableUrl;
+	}
+
+	public void setShareableUrl(String shareableUrl) {
+		this.shareableUrl = shareableUrl;
+	}
+
+	public String getVideoUrl() {
+		return videoUrl;
+	}
+
+	public void setVideoUrl(String videoUrl) {
+		this.videoUrl = videoUrl;
+	}
+
+	public List<JRssSubFeed> getSiblings() {
+		if(siblings == null) {
+			siblings = new LinkedList<JRssSubFeed>();
+		}
+		return siblings;
+	}
+
+	public void setSiblings(List<JRssSubFeed> siblings) {
+		this.siblings = siblings;
 	}
 }

@@ -9,6 +9,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.squill.feed.web.model.JGeoTag;
+import com.squill.feed.web.model.JRssFeed;
+import com.squill.feed.web.model.JTaxonomy;
 import com.squill.og.crawler.IWebCrawlable;
 import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.hooks.GeoLocation;
@@ -19,9 +22,6 @@ import com.squill.og.crawler.hooks.ITaxonomyResolver;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.FeedClassifierUtil;
 import com.squill.og.crawler.model.WebSpiderTracker;
-import com.squill.og.crawler.model.web.JGeoTag;
-import com.squill.og.crawler.model.web.JRssFeed;
-import com.squill.og.crawler.model.web.JTaxonomy;
 import com.squill.og.crawler.text.summarizer.TextSummarization;
 
 public class AllInOneAITaskExecutor {
@@ -38,34 +38,8 @@ public class AllInOneAITaskExecutor {
 		return executeAITasks(feedsMap, session, webCrawlable);
 	}
 
-	/*private IFeedClassificationResolver getClassificationResolver() {
-		return new IFeedClassificationResolver() {
-
-			@Override
-			public String resolvePrimaryClassifierType(String feedTitle,
-					String feedDescription, String url) {
-				return null;
-			}
-			
-			@Override
-			public List<String> resolveIPTCTypes(String feedTitle,
-					String feedDescription, String url) {
-				return null;
-			}
-		};
-	}*/
-
 	private String classifyFeedType(JRssFeed feed) {
-		String classifier = FeedClassifierUtil.classify(feed);
-		/*if (classifier == null) {
-			IFeedClassificationResolver classificationResolver = getClassificationResolver();
-			if (classificationResolver != null) {
-				return classificationResolver.resolvePrimaryClassifierType(
-						feed.getOgTitle(), feed.getOgDescription(),
-						feed.getOgUrl());
-			}
-		}*/
-		return classifier;
+		return FeedClassifierUtil.classify(feed);
 	}
 	
 	private Map<String, List<JRssFeed>> deDuplicateFeeds(Map<String, List<JRssFeed>> feedsMap) {
@@ -93,11 +67,15 @@ public class AllInOneAITaskExecutor {
 				List<JRssFeed> feeds = feedsMap.get(key);
 				if(feeds == null)
 					continue;
-				for (JRssFeed feed : feeds) {
+				Iterator<JRssFeed> feedsItr = feeds.iterator();
+				while(feedsItr.hasNext()) {
+					JRssFeed feed = feedsItr.next();
 					String link = feed.getOgUrl();
 					WebSpiderTracker info = webLinkTrackerService.getTrackedInfo(link);
-					if(info != null)
+					if(info != null) {
+						feedsItr.remove();
 						continue;
+					}
 					
 					info = new WebSpiderTracker();
 					info.setLastCrawled(System.currentTimeMillis());

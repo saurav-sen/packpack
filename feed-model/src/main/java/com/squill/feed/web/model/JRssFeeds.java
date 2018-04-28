@@ -1,4 +1,4 @@
-package com.squill.og.crawler.model.web;
+package com.squill.feed.web.model;
 
 import java.util.LinkedList;
 import java.util.List;

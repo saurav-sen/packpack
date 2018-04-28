@@ -17,13 +17,13 @@ import com.pack.pack.model.RssSubFeed;
 import com.pack.pack.model.User;
 import com.pack.pack.model.UserInfo;
 import com.pack.pack.model.es.UserDetail;
-import com.pack.pack.model.web.JGeoTag;
-import com.pack.pack.model.web.JRssFeed;
-import com.pack.pack.model.web.JRssSubFeed;
 import com.pack.pack.model.web.JSharedFeed;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
+import com.squill.feed.web.model.JGeoTag;
+import com.squill.feed.web.model.JRssFeed;
+import com.squill.feed.web.model.JRssSubFeed;
 
 /**
  * 

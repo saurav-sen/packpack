@@ -1,4 +1,4 @@
-package com.squill.og.crawler.entity.extraction;
+package com.squill.feed.web.model;
 
 import java.util.ArrayList;
 import java.util.List;

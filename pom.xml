@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.pack.pack</groupId>
 	<artifactId>com.pack.pack</artifactId>
-	<version>1.0-DEV</version>
+	<version>3.0</version>
 	<name>PackPack</name>
 	<description>PackPack</description>
 	<packaging>pom</packaging>
@@ -20,7 +20,7 @@
 		<spring.version>4.1.6.RELEASE</spring.version>
 		<encoding>UTF-8</encoding>
 		<ektorp.version>1.4.2</ektorp.version>
-		<packpack.release>1.0-DEV</packpack.release>
+		<packpack.release>3.0</packpack.release>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<artifacts.directory>${project.build.directory}/artifacts</artifacts.directory>
 		<finalName>${project.artifactId}-${project.version}</finalName>
@@ -69,9 +69,11 @@
 
 	<modules>
 		<module>model</module>
+		<module>feed-model</module>
 		<module>common</module>
 		<module>elastic-search</module>
 		<module>services</module>
+		<module>services-ext</module>
 		<module>oauth</module>
 		<module>markup-gen</module>
 		<module>api</module>

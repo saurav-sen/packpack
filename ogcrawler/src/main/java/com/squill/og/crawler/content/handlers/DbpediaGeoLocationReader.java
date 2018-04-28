@@ -14,7 +14,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.squill.og.crawler.entity.extraction.Concept;
+import com.squill.feed.web.model.Concept;
 import com.squill.og.crawler.hooks.GeoLocation;
 import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.services.exception.OgCrawlException;

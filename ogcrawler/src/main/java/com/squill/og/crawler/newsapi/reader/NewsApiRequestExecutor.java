@@ -25,11 +25,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.squill.feed.web.model.JRssFeed;
+import com.squill.feed.web.model.JRssFeeds;
 import com.squill.og.crawler.app.SystemPropertyKeys;
 import com.squill.og.crawler.hooks.IApiRequestExecutor;
 import com.squill.og.crawler.internal.utils.JSONUtil;
-import com.squill.og.crawler.model.web.JRssFeed;
-import com.squill.og.crawler.model.web.JRssFeeds;
 import com.squill.services.exception.OgCrawlException;
 
 @Component("newsApiRequestExecutor")

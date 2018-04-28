@@ -1,7 +1,7 @@
 package com.squill.og.crawler.hooks;
 
+import com.squill.feed.web.model.JRssFeeds;
 import com.squill.og.crawler.IWebCrawlable;
-import com.squill.og.crawler.model.web.JRssFeeds;
 
 public interface ISpiderSession {
 	

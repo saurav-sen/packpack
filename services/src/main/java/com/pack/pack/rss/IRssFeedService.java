@@ -1,9 +1,9 @@
 package com.pack.pack.rss;
 
-import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.Pagination;
-import com.pack.pack.model.web.TTL;
 import com.pack.pack.services.exception.PackPackException;
+import com.squill.feed.web.model.JRssFeed;
+import com.squill.feed.web.model.TTL;
 
 /**
  * 

@@ -19,11 +19,10 @@ import org.slf4j.LoggerFactory;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.feed.selection.strategy.FeedSelectionStrategy;
 import com.pack.pack.feed.selection.strategy.FeedSelector;
-import com.pack.pack.model.web.JRssFeed;
-import com.pack.pack.model.web.JRssFeeds;
 import com.pack.pack.services.exception.PackPackException;
-import com.pack.pack.util.RssFeedUtil;
 import com.pack.pack.util.SystemPropertyUtil;
+import com.squill.feed.web.model.JRssFeed;
+import com.squill.feed.web.model.JRssFeeds;
 
 /**
  * 

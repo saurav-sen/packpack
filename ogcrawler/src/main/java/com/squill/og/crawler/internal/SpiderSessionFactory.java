@@ -3,11 +3,11 @@ package com.squill.og.crawler.internal;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.squill.feed.web.model.JRssFeeds;
 import com.squill.og.crawler.IWebCrawlable;
 import com.squill.og.crawler.SpiderSession;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.ISpiderSession;
-import com.squill.og.crawler.model.web.JRssFeeds;
 
 public class SpiderSessionFactory {
 	

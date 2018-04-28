@@ -5,13 +5,13 @@ import java.net.URLEncoder;
 import java.util.Base64;
 
 import com.pack.pack.common.util.JSONUtil;
-import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.JSharedFeed;
 import com.pack.pack.model.web.ShortenUrlInfo;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.ModelConverter;
 import com.pack.pack.util.SystemPropertyUtil;
+import com.squill.feed.web.model.JRssFeed;
 
 /**
  * 

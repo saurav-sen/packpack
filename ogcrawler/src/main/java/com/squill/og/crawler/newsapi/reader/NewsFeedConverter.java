@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.joda.time.DateTime;
 
-import com.squill.og.crawler.model.web.JRssFeed;
-import com.squill.og.crawler.model.web.JRssFeeds;
+import com.squill.feed.web.model.JRssFeed;
+import com.squill.feed.web.model.JRssFeeds;
 
 /**
  * 

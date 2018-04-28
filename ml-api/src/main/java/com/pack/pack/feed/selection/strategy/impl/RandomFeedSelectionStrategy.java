@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Random;
 
 import com.pack.pack.feed.selection.strategy.FeedSelectionStrategy;
-import com.pack.pack.model.web.JRssFeed;
+import com.squill.feed.web.model.JRssFeed;
 
 /**
  * 

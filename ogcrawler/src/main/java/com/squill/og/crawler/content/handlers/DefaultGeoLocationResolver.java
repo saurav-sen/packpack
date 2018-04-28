@@ -7,11 +7,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.squill.og.crawler.entity.extraction.Concept;
+import com.squill.feed.web.model.Concept;
+import com.squill.feed.web.model.JRssFeed;
 import com.squill.og.crawler.entity.extraction.DandelionEntityExtractor;
 import com.squill.og.crawler.hooks.GeoLocation;
 import com.squill.og.crawler.hooks.IGeoLocationResolver;
-import com.squill.og.crawler.model.web.JRssFeed;
 
 @Component("defaultGeoLocationResolver")
 @Scope("prototype")

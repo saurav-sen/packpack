@@ -1,6 +1,6 @@
 package com.pack.pack.data.upload;
 
-import com.pack.pack.model.web.JRssFeed;
+import com.squill.feed.web.model.JRssFeed;
 
 /**
  * 

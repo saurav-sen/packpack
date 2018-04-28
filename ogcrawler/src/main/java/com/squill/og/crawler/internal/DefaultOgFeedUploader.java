@@ -8,25 +8,23 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.pack.pack.util.RssFeedUtil;
+import com.squill.feed.web.model.JRssFeed;
+import com.squill.feed.web.model.JRssFeeds;
+import com.squill.feed.web.model.TTL;
 import com.squill.og.crawler.IWebCrawlable;
 import com.squill.og.crawler.app.SystemPropertyKeys;
-import com.squill.og.crawler.app.Startup;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.ISpiderSession;
-import com.squill.og.crawler.internal.utils.CoreConstants;
 import com.squill.og.crawler.internal.utils.JSONUtil;
-import com.squill.og.crawler.model.web.JRssFeed;
-import com.squill.og.crawler.model.web.JRssFeeds;
 
 /**
  * 
@@ -37,21 +35,18 @@ import com.squill.og.crawler.model.web.JRssFeeds;
 @Scope("prototype")
 public class DefaultOgFeedUploader implements IFeedUploader {
 
-	private static final String BASE_URL_CONFIG = "BASE_URL";
+	/*private static final String BASE_URL_CONFIG = "BASE_URL";
 	private static final String URL_PART_CONFIG = "URL_PART";
 	private static final String API_KEY_CONFIG = "API_KEY";
 	
-	private static final String ENABLE_UPLOAD_CONFIG = "ENABLE_UPLOAD";
-	
 	private static final String CONTENT_TYPE_HEADER = "Content-Type";
-	private static final String APPLICATION_JSON = "application/json";
+	private static final String APPLICATION_JSON = "application/json";*/
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(DefaultOgFeedUploader.class);
 	
 	private static final String DEFAULT_ARCHIVE_FOLDER = "archive/";
 	
-	private Map<String, List<JRssFeed>> aggregatedFeedsMap = new HashMap<String, List<JRssFeed>>();
 	private int count = 0;
 	
 	@Override
@@ -66,7 +61,6 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		Map<String, List<JRssFeed>> map = new HashMap<String, List<JRssFeed>>();
 		if(!webCrawlable.isUploadIndependently()) {
 			count--;
-			map = aggregatedFeedsMap;
 		}
 		JRssFeeds feeds = session.getFeeds(webCrawlable);
 		if(feeds == null) {
@@ -94,7 +88,7 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		}
 	}
 	
-	protected JRssFeeds deDuplicate(Map<String, List<JRssFeed>> map) {
+	protected JRssFeeds adapt(Map<String, List<JRssFeed>> map) {
 		JRssFeeds allFeeds = new JRssFeeds();
 		Iterator<List<JRssFeed>> itr = map.values().iterator();
 		while(itr.hasNext()) {
@@ -169,8 +163,8 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		}
 	}
 
-	private void uploadBulk(Map<String, List<JRssFeed>> map) throws Exception {
-		if(!uploadEnabled())
+	/*private void uploadBulk(Map<String, List<JRssFeed>> map) throws Exception {
+		if(!ServiceIdResolver.isUploadMode())
 			return;
 		storeInArchive(map);
 		try {
@@ -195,12 +189,17 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		} finally {
 			aggregatedFeedsMap.clear();
 		}
-	}
+	}*/
 	
-	private boolean uploadEnabled() {
-		String value = System.getProperty(ENABLE_UPLOAD_CONFIG);
-		if(value == null)
-			return true;
-		return Boolean.parseBoolean(value.trim());
+	private void uploadBulk(Map<String, List<JRssFeed>> map) throws Exception {
+		if(!ServiceIdResolver.isUploadMode())
+			return;
+		storeInArchive(map);
+		JRssFeeds rssFeeds = adapt(map);
+		LOG.info("Uploading news feeds: Total = " + rssFeeds.getFeeds().size());
+		TTL ttl = new TTL();
+		ttl.setTime((short) 1);
+		ttl.setUnit(TimeUnit.DAYS);
+		RssFeedUtil.uploadNewFeeds(rssFeeds, ttl, true);
 	}
 }

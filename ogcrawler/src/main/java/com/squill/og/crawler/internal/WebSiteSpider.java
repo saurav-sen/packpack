@@ -9,6 +9,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.squill.feed.web.model.JRssFeed;
+import com.squill.feed.web.model.JRssFeeds;
 import com.squill.og.crawler.ILink;
 import com.squill.og.crawler.IRobotScope;
 import com.squill.og.crawler.IWebSite;
@@ -24,8 +26,6 @@ import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
 import com.squill.og.crawler.internal.utils.ResponseUtil;
 import com.squill.og.crawler.internal.utils.WebSpiderUtils;
 import com.squill.og.crawler.model.WebSpiderTracker;
-import com.squill.og.crawler.model.web.JRssFeed;
-import com.squill.og.crawler.model.web.JRssFeeds;
 
 /**
  * 

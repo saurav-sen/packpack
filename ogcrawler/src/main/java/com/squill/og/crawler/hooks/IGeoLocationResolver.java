@@ -1,6 +1,6 @@
 package com.squill.og.crawler.hooks;
 
-import com.squill.og.crawler.model.web.JRssFeed;
+import com.squill.feed.web.model.JRssFeed;
 
 public interface IGeoLocationResolver {
 

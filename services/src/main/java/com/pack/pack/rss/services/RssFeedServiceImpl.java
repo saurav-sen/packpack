@@ -18,11 +18,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.pack.pack.model.RSSFeed;
-import com.pack.pack.model.web.JRssFeed;
-import com.pack.pack.model.web.JRssFeedType;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.ShortenUrlInfo;
-import com.pack.pack.model.web.TTL;
 import com.pack.pack.model.web.dto.RssFeedSourceType;
 import com.pack.pack.rss.IRssFeedService;
 import com.pack.pack.services.exception.PackPackException;
@@ -30,6 +27,9 @@ import com.pack.pack.services.redis.RssFeedRepositoryService;
 import com.pack.pack.services.redis.UrlShortener;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.ModelConverter;
+import com.squill.feed.web.model.JRssFeed;
+import com.squill.feed.web.model.JRssFeedType;
+import com.squill.feed.web.model.TTL;
 
 /**
  * 

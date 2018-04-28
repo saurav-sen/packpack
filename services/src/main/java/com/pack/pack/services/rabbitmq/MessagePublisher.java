@@ -16,9 +16,9 @@ import org.springframework.stereotype.Component;
 import com.amazonaws.util.json.JSONObject;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.RssFeedType;
-import com.pack.pack.model.web.JRssFeed;
 import com.pack.pack.model.web.notification.FeedMsgType;
 import com.pack.pack.services.exception.PackPackException;
+import com.squill.feed.web.model.JRssFeed;
 
 /**
  * 

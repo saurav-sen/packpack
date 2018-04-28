@@ -17,11 +17,11 @@ import com.lambdaworks.redis.api.StatefulRedisConnection;
 import com.lambdaworks.redis.api.sync.RedisCommands;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.RSSFeed;
-import com.pack.pack.model.web.JRssFeed;
-import com.pack.pack.model.web.TTL;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.util.RssFeedUtil;
 import com.pack.pack.util.SystemPropertyUtil;
+import com.squill.feed.web.model.JRssFeed;
+import com.squill.feed.web.model.TTL;
 
 /**
  * 

@@ -7,6 +7,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.squill.feed.web.model.JRssFeed;
+import com.squill.feed.web.model.JRssFeeds;
 import com.squill.og.crawler.IWebApi;
 import com.squill.og.crawler.Spider;
 import com.squill.og.crawler.SpiderSession;
@@ -14,8 +16,6 @@ import com.squill.og.crawler.hooks.IApiRequestExecutor;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
-import com.squill.og.crawler.model.web.JRssFeed;
-import com.squill.og.crawler.model.web.JRssFeeds;
 
 public class WebApiSpider implements Spider {
 

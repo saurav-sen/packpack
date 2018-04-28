@@ -7,9 +7,9 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.pack.pack.model.web.JRssFeeds;
-import com.pack.pack.model.web.TTL;
 import com.pack.pack.util.RssFeedUtil;
+import com.squill.feed.web.model.JRssFeeds;
+import com.squill.feed.web.model.TTL;
 
 /**
  * 
