@@ -13,7 +13,6 @@ import com.squill.og.crawler.IWebCrawlable;
 import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.hooks.GeoLocation;
 import com.squill.og.crawler.hooks.IArticleTextSummarizer;
-import com.squill.og.crawler.hooks.IFeedClassificationResolver;
 import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.hooks.ITaxonomyResolver;
@@ -39,36 +38,34 @@ public class AllInOneAITaskExecutor {
 		return executeAITasks(feedsMap, session, webCrawlable);
 	}
 
-	private IFeedClassificationResolver getClassificationResolver() {
+	/*private IFeedClassificationResolver getClassificationResolver() {
 		return new IFeedClassificationResolver() {
 
 			@Override
 			public String resolvePrimaryClassifierType(String feedTitle,
 					String feedDescription, String url) {
-				// TODO Need to integrate AI based classifier engine here
 				return null;
 			}
 			
 			@Override
 			public List<String> resolveIPTCTypes(String feedTitle,
 					String feedDescription, String url) {
-				// TODO Auto-generated method stub
 				return null;
 			}
 		};
-	}
+	}*/
 
 	private String classifyFeedType(JRssFeed feed) {
 		String classifier = FeedClassifierUtil.classify(feed);
-		if (classifier == null) {
+		/*if (classifier == null) {
 			IFeedClassificationResolver classificationResolver = getClassificationResolver();
 			if (classificationResolver != null) {
 				return classificationResolver.resolvePrimaryClassifierType(
 						feed.getOgTitle(), feed.getOgDescription(),
 						feed.getOgUrl());
 			}
-		}
-		return null;
+		}*/
+		return classifier;
 	}
 	
 	private Map<String, List<JRssFeed>> deDuplicateFeeds(Map<String, List<JRssFeed>> feedsMap) {
