@@ -20,10 +20,8 @@ public class SignUpUserTest {
 					.addApiParam(APIConstants.User.Register.NAME, TestDataSet.getInstance().getUserFullName(session.getSeqNo()))
 					.addApiParam(APIConstants.User.Register.EMAIL, TestDataSet.getInstance().getUserEmail(session.getSeqNo()))
 					.addApiParam(APIConstants.User.Register.PASSWORD, TestDataSet.getInstance().getUserPassword(session.getSeqNo()))
-					.addApiParam(APIConstants.User.Register.LOCALITY, TestDataSet.getInstance().getUserLocality(session.getSeqNo()))
-					.addApiParam(APIConstants.User.Register.CITY, TestDataSet.getInstance().getUserCity(session.getSeqNo()))
-					.addApiParam(APIConstants.User.Register.COUNTRY, TestDataSet.getInstance().getUserCountry(session.getSeqNo()))
-					.addApiParam(APIConstants.User.Register.DOB, TestDataSet.getInstance().getUserDOB(session.getSeqNo()))
+					.addApiParam(APIConstants.User.Register.LONGITUDE, TestDataSet.getInstance().getUserLongitude(session.getSeqNo()))
+					.addApiParam(APIConstants.User.Register.LATITUDE, TestDataSet.getInstance().getUserLatitude(session.getSeqNo()))
 					.addApiParam(APIConstants.User.Register.VERIFIER, TestDataSet.getInstance().getSpecialSignUpVerifierCode())
 					.build();
 			api.execute();

@@ -166,7 +166,7 @@ public class UserResource {
 	}
 
 	private JUser doRegisterUser(String name, String email, String password,
-			String city, String country, String dob, String verificationCode)
+			double longitude, double latitude, String verificationCode)
 			throws PackPackException {
 		if (validateOTP(SIGNUP_VERIFIER, email, verificationCode)) {
 			IUserService service = ServiceRegistry.INSTANCE
@@ -181,7 +181,7 @@ public class UserResource {
 			}
 			password = EncryptionUtil.encryptPassword(password);
 			JUser newUser = service.registerNewUser(name, email, password,
-					city, country, dob, null, null);
+					longitude, latitude, null, null);
 			return newUser;
 		}
 		throw new PackPackException(ErrorCodes.PACK_ERR_95, "Invalid Verification Code");
@@ -211,11 +211,10 @@ public class UserResource {
 		String name = dto.getName();
 		String email = dto.getEmail();
 		String password = dto.getPassword();
-		String dob = dto.getDob();
-		String city = dto.getCity();
-		String country = dto.getCountry();
+		double longitude = dto.getLongitude();
+		double latitude = dto.getLatitude();
 		String verificationCode = dto.getVerificationCode();
-		return doRegisterUser(name, email, password, city, country, dob,
+		return doRegisterUser(name, email, password, longitude, latitude,
 				verificationCode);
 	}
 

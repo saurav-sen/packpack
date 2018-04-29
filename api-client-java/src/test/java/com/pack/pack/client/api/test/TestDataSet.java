@@ -12,9 +12,8 @@ import com.pack.pack.common.util.CommonConstants;
 public class TestDataSet {
 	
 	//private static final String NAME = "Saurav Sen";
-	private static final String LOCALITY = "Sanath Nagar";
-	private static final String CITY = "Hyderabad";
-	private static final String COUNTRY = "India";
+	private static final double LONGITUDE = 78.491684;
+	private static final double LATITUDE = 17.387140;
 	//private static final String PROFILE_PICTURE = "D:/Saurav/myphoto.jpg";
 	
 	//public static final String USERNAME = "sourabhnits@gmail.com";
@@ -62,23 +61,12 @@ public class TestDataSet {
 		return "sourabhnits@gmail.com";
 	}
 	
-	public String getUserLocality(int seqNo) {
-		return LOCALITY;
+	public double getUserLongitude(int seqNo) {
+		return LONGITUDE;
 	}
 	
-	public String getUserCity(int seqNo) {
-		return CITY;
-	}
-	
-	public String getUserCountry(int seqNo) {
-		return COUNTRY;
-	}
-	
-	public String getUserDOB(int seqNo) {
-		int date = Math.abs(new Random().nextInt() % 32);
-		int month = Math.abs(new Random().nextInt() % 13);
-		int year = 1940 + (int)Math.round(Math.random() * (2003 - 1940));
-		return date + "/" + month + "/" + year;
+	public double getUserLatitude(int seqNo) {
+		return LATITUDE;
 	}
 	
 	public String getUserPassword(int seqNo) {

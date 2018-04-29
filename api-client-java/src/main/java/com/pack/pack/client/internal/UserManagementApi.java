@@ -306,13 +306,11 @@ class UserManagementApi extends BaseAPI {
 			String name = (String) params.get(APIConstants.User.Register.NAME);
 			String email = (String) params.get(APIConstants.User.Register.EMAIL);
 			String password = (String) params.get(APIConstants.User.Register.PASSWORD);
-			String city = (String) params.get(APIConstants.User.Register.CITY);
-			String country = (String) params.get(APIConstants.User.Register.COUNTRY);
-			String dob = (String) params.get(APIConstants.User.Register.DOB);
 			String verificationCode = (String) params.get(APIConstants.User.Register.VERIFIER);
-			dto.setCity(city);
-			dto.setCountry(country);
-			dto.setDob(dob);
+			double longitude = (double) params.get(APIConstants.User.Register.LONGITUDE);
+			double latitude = (double) params.get(APIConstants.User.Register.LATITUDE);
+			dto.setLongitude(longitude);
+			dto.setLatitude(latitude);
 			dto.setEmail(email);
 			dto.setName(name);
 			dto.setPassword(password);

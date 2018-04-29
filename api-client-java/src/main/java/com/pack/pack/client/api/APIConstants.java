@@ -35,11 +35,8 @@ public interface APIConstants {
 			public static final String NAME = "name";
 			public static final String EMAIL = "email";
 			public static final String PASSWORD = "password";
-			public static final String CITY = "city";
-			public static final String COUNTRY = "country";
-			public static final String STATE = "state";
-			public static final String LOCALITY = "locality";
-			public static final String DOB = "dob";
+			public static final String LONGITUDE = "longitude";
+			public static final String LATITUDE = "latitude";
 			public static final String VERIFIER = "verifier";
 		}
 		

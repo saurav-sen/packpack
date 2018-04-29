@@ -13,11 +13,9 @@ public class SignupDTO {
 	
 	private String password;
 	
-	private String city;
+	private double longitude;
 	
-	private String dob;
-	
-	private String country;
+	private double latitude;
 	
 	private String verificationCode;
 
@@ -45,35 +43,27 @@ public class SignupDTO {
 		this.password = password;
 	}
 
-	public String getCity() {
-		return city;
-	}
-
-	public void setCity(String city) {
-		this.city = city;
-	}
-
-	public String getDob() {
-		return dob;
-	}
-
-	public void setDob(String dob) {
-		this.dob = dob;
-	}
-
-	public String getCountry() {
-		return country;
-	}
-
-	public void setCountry(String country) {
-		this.country = country;
-	}
-
 	public String getVerificationCode() {
 		return verificationCode;
 	}
 
 	public void setVerificationCode(String verificationCode) {
 		this.verificationCode = verificationCode;
+	}
+
+	public double getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(double longitude) {
+		this.longitude = longitude;
+	}
+
+	public double getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(double latitude) {
+		this.latitude = latitude;
 	}
 }

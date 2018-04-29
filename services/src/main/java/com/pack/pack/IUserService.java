@@ -29,6 +29,22 @@ public interface IUserService {
 			String city, String country, String dob,
 			InputStream profilePicture, String profilePictureFileName)
 			throws PackPackException;
+	
+	/**
+	 * 
+	 * @param name
+	 * @param email
+	 * @param password
+	 * @param longitude
+	 * @param latitude
+	 * @param profilePicture
+	 * @param profilePictureFileName
+	 * @return
+	 * @throws PackPackException
+	 */
+	public JUser registerNewUser(String name, String email, String password,
+			double longitude, double latitude, InputStream profilePicture,
+			String profilePictureFileName) throws PackPackException;
 
 	/**
 	 * 

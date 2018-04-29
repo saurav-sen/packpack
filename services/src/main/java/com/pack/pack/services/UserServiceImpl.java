@@ -36,6 +36,49 @@ import com.pack.pack.util.SystemPropertyUtil;
 @Component
 @Scope("singleton")
 public class UserServiceImpl implements IUserService {
+	
+	@Override
+	public JUser registerNewUser(String name, String email, String password,
+			double longitude, double latitude, InputStream profilePicture,
+			String profilePictureFileName) throws PackPackException {
+		UserRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(UserRepositoryService.class);
+		User user = new User();
+		user.setName(name);
+		user.setUsername(email);
+		user.setPassword(password);
+		service.add(user);
+		JStatus status = new JStatus();
+		List<User> users = service.getBasedOnUsername(email);
+		if (users == null || users.isEmpty()) {
+			throw new PackPackException("", "Internal Server Error. Failed to register user: "
+					+ email);
+		}
+		user = users.get(0);
+		if (profilePicture != null) {
+			String profilePictureUrl = storeProfilePicture(user.getId(),
+					profilePicture, profilePictureFileName);
+			user.setProfilePicture(profilePictureUrl);
+		}
+		service.update(user);
+		status.setStatus(StatusType.OK);
+		status.setInfo("Successfully registered the user " + email);
+
+		if (longitude > 0 && latitude > 0) {
+			UserLocation userLocation = new UserLocation();
+			userLocation.setUserId(user.getId());
+			userLocation.setLongitude(String.valueOf(longitude));
+			userLocation.setLatitude(String.valueOf(latitude));
+			UserLocationRepositoryService service2 = ServiceRegistry.INSTANCE
+					.findService(UserLocationRepositoryService.class);
+			service2.add(userLocation);
+		}
+
+		ESUploadService esService = ServiceRegistry.INSTANCE
+				.findService(ESUploadService.class);
+		esService.uploadNewUserDetails(user);
+		return ModelConverter.convert(user);
+	}
 
 	@Override
 	public JUser registerNewUser(String name, String email, String password,
