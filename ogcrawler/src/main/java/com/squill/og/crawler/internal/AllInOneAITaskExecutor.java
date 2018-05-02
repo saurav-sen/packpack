@@ -82,10 +82,6 @@ public class AllInOneAITaskExecutor {
 					info.setLink(link);
 					webLinkTrackerService.addCrawledInfo(link, info, 24 * 60 * 60);
 					
-					String classifier = classifyFeedType(feed);
-					if(classifier != null) {
-						feed.setOgType(classifier);
-					}
 					IArticleTextSummarizer articleTextSummarizer = webCrawlable
 							.getArticleTextSummarizer();
 					if (articleTextSummarizer != null) {
@@ -125,6 +121,10 @@ public class AllInOneAITaskExecutor {
 						}
 					}
 					
+					String classifier = classifyFeedType(feed);
+					if(classifier != null) {
+						feed.setFeedType(classifier);
+					}					
 				}
 			}
 			/*IFeedUploader feedUploader = currentWebSite.getFeedUploader();

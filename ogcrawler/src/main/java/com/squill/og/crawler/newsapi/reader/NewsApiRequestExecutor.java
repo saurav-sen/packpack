@@ -91,34 +91,22 @@ public class NewsApiRequestExecutor implements IApiRequestExecutor {
 				return result;
 			}
 
-			//List<NewsFeedGroup> newsFeedGroups = new LinkedList<NewsFeedGroup>();
 			for (NewsSource newsSource : newsSources) {
 				try {
-					//NewsFeedGroup newsFeedGroup = new NewsFeedGroup();
 					List<NewsFeed> newsFeedsList = new LinkedList<NewsFeed>();
-					//String feedType = JRssFeedType.NEWS.name();
-//					if (newsSource.getFeedType() != null) {
-//						feedType = newsSource.getFeedType().toUpperCase();
-//					}
 					NewsFeeds newsFeeds = readFromSource(newsSource.getId());
 					if (newsFeeds == null)
 						continue;
 					newsFeedsList.addAll(newsFeeds.getArticles());
 
-					//newsFeedGroup.setFeedType(feedType);
-					//newsFeedGroup.getNewsFeeds().addAll(newsFeedsList);
-
 					JRssFeeds r = NewsFeedConverter.convert(newsFeeds);
 					if(r != null) {
 						result.put(newsSource.getId(), r.getFeeds());
 					}
-					//newsFeedGroups.add(newsFeedGroup);
 				} catch (Exception e) {
 					LOG.error(e.getMessage(), e);
 				}
 			}
-			
-			// uploadNewsFeeds(newsFeedGroups);
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 		}

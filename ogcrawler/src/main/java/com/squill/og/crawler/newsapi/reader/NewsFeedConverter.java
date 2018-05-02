@@ -5,6 +5,7 @@ import java.util.List;
 import org.joda.time.DateTime;
 
 import com.squill.feed.web.model.JRssFeed;
+import com.squill.feed.web.model.JRssFeedType;
 import com.squill.feed.web.model.JRssFeeds;
 
 /**
@@ -28,13 +29,16 @@ public class NewsFeedConverter {
 		JRssFeed result = new JRssFeed();
 		DateTime dateTime = new DateTime();
 		result.setId(String.valueOf(dateTime.getMillis()));
-		//result.setUploadTime(dateTime.getMillis());
+		result.setUploadTime(dateTime.getMillis());
 		result.setOgTitle(article.getTitle());
 		result.setOgDescription(article.getDescription());
 		result.setOgImage(article.getUrlToImage());
 		result.setOgUrl(article.getUrl());
 		result.setHrefSource(article.getUrl());
-		//result.setCreatedBy(article.getAuthor());
+		result.setCreatedBy(article.getAuthor());
+		
+		result.setFeedType(JRssFeedType.NEWS.name());
+		
 		return result;
 	}
 }

@@ -1,10 +1,14 @@
 package com.squill.og.crawler.internal.utils;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JRssFeedType;
+import com.squill.feed.web.model.JTaxonomy;
+import com.squill.og.crawler.iptc.subjectcodes.SubjectCodeRegistry;
 
 /**
  * 
@@ -20,11 +24,21 @@ public class FeedClassifierUtil {
 	}
 
 	public static String classify(JRssFeed feed) {
+		List<JTaxonomy> taxonomies = feed.getTaxonomies();
+		if (taxonomies != null && !taxonomies.isEmpty()) {
+			for (JTaxonomy taxonomy : taxonomies) {
+				JRssFeedType feedType = SubjectCodeRegistry.INSTANCE
+						.resolveSquillFeedType(taxonomy);
+				if (feedType == null)
+					continue;
+				return feedType.name();
+			}
+		}
 		String classifiedType = feed.getFeedType();
 		if (classifiedType != null) {
 			try {
-				JRssFeedType classifier = JRssFeedType
-						.valueOf(classifiedType.toUpperCase());
+				JRssFeedType classifier = JRssFeedType.valueOf(classifiedType
+						.toUpperCase());
 				if (classifier != null) {
 					return classifier.name();
 				}

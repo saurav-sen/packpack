@@ -39,6 +39,8 @@
 			<outputDirectory>conf</outputDirectory>
 			<includes>
 				<include>*.xml</include>
+				<include>*.json</include>
+				<include>*.bin</include>
 			</includes>
 		</fileSet>
 		<fileSet>
