@@ -11,7 +11,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.squill.feed.web.model.Concept;
+import com.squill.feed.web.model.JConcept;
 import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
 import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.og.crawler.internal.utils.ResponseUtil;
@@ -38,8 +38,8 @@ public class DandelionEntityExtractor {
 		return url.toString();
 	}
 	
-	private Concept convert(EntityAnnotation annotation, String parentContent) {
-		Concept concept = new Concept();
+	private JConcept convert(EntityAnnotation annotation, String parentContent) {
+		JConcept concept = new JConcept();
 		concept.setId(String.valueOf(annotation.getId()));
 		concept.setSpot(annotation.getSpot());
 		String confidence = annotation.getConfidence();
@@ -59,8 +59,8 @@ public class DandelionEntityExtractor {
 		return concept;
 	}
 	
-	public List<Concept> extractConcepts(String text) throws Exception {
-		List<Concept> concepts = new ArrayList<Concept>();
+	public List<JConcept> extractConcepts(String text) throws Exception {
+		List<JConcept> concepts = new ArrayList<JConcept>();
 		String GET_URL = resolveDandelionRequestUrl_GET(text);
 		HttpGet GET = new HttpGet(GET_URL);
 		HttpResponse response = new HttpRequestExecutor().GET(GET);
@@ -82,7 +82,7 @@ public class DandelionEntityExtractor {
 				EntityAnnotation annotation = annotationsMap.remove(id);
 				if(annotation == null)
 					continue;
-				Concept concept = convert(annotation, text);
+				JConcept concept = convert(annotation, text);
 				concepts.add(concept);
 			}
 			topEntities.clear();

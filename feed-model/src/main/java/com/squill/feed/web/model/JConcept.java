@@ -3,7 +3,7 @@ package com.squill.feed.web.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Concept {
+public class JConcept {
 
 	private String id;
 	

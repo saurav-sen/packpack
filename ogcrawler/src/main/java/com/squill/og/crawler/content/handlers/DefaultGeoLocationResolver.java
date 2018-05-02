@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.squill.feed.web.model.Concept;
+import com.squill.feed.web.model.JConcept;
 import com.squill.feed.web.model.JRssFeed;
 import com.squill.og.crawler.entity.extraction.DandelionEntityExtractor;
 import com.squill.og.crawler.hooks.GeoLocation;
@@ -26,7 +26,7 @@ public class DefaultGeoLocationResolver implements IGeoLocationResolver {
 		String ogTitle = feed.getOgTitle();
 		try {
 			if (ogTitle != null && !ogTitle.trim().isEmpty()) {
-				List<Concept> concepts = new DandelionEntityExtractor()
+				List<JConcept> concepts = new DandelionEntityExtractor()
 						.extractConcepts(feed.getOgTitle());
 
 				DbpediaGeoLocationReader dbpediaBasedLocationResolver = new DbpediaGeoLocationReader();

@@ -36,7 +36,7 @@ public class JRssFeed {
 	
 	private List<JGeoTag> geoTags;
 	
-	private List<Concept> concepts;
+	private List<JConcept> concepts;
 	
 	private List<JTaxonomy> taxonomies;
 	
@@ -145,14 +145,14 @@ public class JRssFeed {
 		this.geoTags = geoTags;
 	}
 
-	public List<Concept> getConcepts() {
+	public List<JConcept> getConcepts() {
 		if(concepts == null) {
-			concepts = new ArrayList<Concept>();
+			concepts = new ArrayList<JConcept>();
 		}
 		return concepts;
 	}
 
-	public void setConcepts(List<Concept> concepts) {
+	public void setConcepts(List<JConcept> concepts) {
 		this.concepts = concepts;
 	}
 

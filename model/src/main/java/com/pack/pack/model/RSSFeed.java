@@ -53,6 +53,16 @@ public class RSSFeed /*extends CouchDbDocument*/{
 	private String fullArticleText;
 	
 	private List<GeoTag> geoTags;
+	
+	private List<Concept> concepts;
+	
+	private List<Taxonomy> taxonomies;
+	
+	private String createdBy;
+	
+	private String createdByLogoUrl;
+	
+	private String createdByUserId;
 
 	public String getOgTitle() {
 		return ogTitle;
@@ -210,5 +220,51 @@ public class RSSFeed /*extends CouchDbDocument*/{
 
 	public void setGeoTags(List<GeoTag> geoTags) {
 		this.geoTags = geoTags;
+	}
+
+	public List<Concept> getConcepts() {
+		if(concepts == null) {
+			concepts = new LinkedList<Concept>();
+		}
+		return concepts;
+	}
+
+	public void setConcepts(List<Concept> concepts) {
+		this.concepts = concepts;
+	}
+
+	public List<Taxonomy> getTaxonomies() {
+		if(taxonomies == null) {
+			taxonomies = new LinkedList<Taxonomy>();
+		}
+		return taxonomies;
+	}
+
+	public void setTaxonomies(List<Taxonomy> taxonomies) {
+		this.taxonomies = taxonomies;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public String getCreatedByLogoUrl() {
+		return createdByLogoUrl;
+	}
+
+	public void setCreatedByLogoUrl(String createdByLogoUrl) {
+		this.createdByLogoUrl = createdByLogoUrl;
+	}
+
+	public String getCreatedByUserId() {
+		return createdByUserId;
+	}
+
+	public void setCreatedByUserId(String createdByUserId) {
+		this.createdByUserId = createdByUserId;
 	}
 }

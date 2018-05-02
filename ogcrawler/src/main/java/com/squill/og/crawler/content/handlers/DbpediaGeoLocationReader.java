@@ -14,7 +14,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.squill.feed.web.model.Concept;
+import com.squill.feed.web.model.JConcept;
 import com.squill.og.crawler.hooks.GeoLocation;
 import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.services.exception.OgCrawlException;
@@ -243,19 +243,19 @@ public class DbpediaGeoLocationReader {
 		return resolveGeoLocationForPerson_Query(resolvedPersonName);
 	}
 	
-	private boolean isPlace(Concept concept) {
+	private boolean isPlace(JConcept concept) {
 		return checkType(concept, ONTOLOGY_PLACE_TYPES);
 	}
 	
-	private boolean isOrganization(Concept concept) {
+	private boolean isOrganization(JConcept concept) {
 		return checkType(concept, ONTOLOGY_ORG_TYPES);
 	}
 	
-	private boolean isPerson(Concept concept) {
+	private boolean isPerson(JConcept concept) {
 		return checkType(concept, ONTOLOGY_PERSON_TYPES);
 	}
 	
-	private boolean checkType(Concept concept, String[] expectedTypes) {
+	private boolean checkType(JConcept concept, String[] expectedTypes) {
 		List<String> ontologyTypes = concept.getOntologyTypes();
 		if(ontologyTypes == null) {
 			LOG.error("Ontology types not resolved for concept");
@@ -276,7 +276,7 @@ public class DbpediaGeoLocationReader {
 		return false;
 	}
 	
-	private String[] resolveNames(Concept concept) {
+	private String[] resolveNames(JConcept concept) {
 		String dbpediaRef = concept.getDbpediaRef();
 		if(dbpediaRef == null || dbpediaRef.trim().isEmpty()) {
 			LOG.error("Dbpedia Link is not resolved for concept");
@@ -324,7 +324,7 @@ public class DbpediaGeoLocationReader {
 		return name.trim().replaceAll("\\/", "").replaceAll("\\s{1,}", "_");
 	}
 	
-	private List<GeoLocation> resolveGeoLocationTag(Concept concept) {
+	private List<GeoLocation> resolveGeoLocationTag(JConcept concept) {
 		List<GeoLocation> geoLocations = new ArrayList<GeoLocation>();
 		if (isPlace(concept)) {
 			String[] names = resolveNames(concept);
@@ -401,9 +401,9 @@ public class DbpediaGeoLocationReader {
 		return geoLocations;
 	}
 	
-	public List<GeoLocation> resolveGeoLocationTags(List<Concept> concepts) {
+	public List<GeoLocation> resolveGeoLocationTags(List<JConcept> concepts) {
 		List<GeoLocation> geoLocations = new ArrayList<GeoLocation>();
-		for(Concept concept : concepts) {
+		for(JConcept concept : concepts) {
 			geoLocations.addAll(resolveGeoLocationTag(concept));
 		}
 		return geoLocations;

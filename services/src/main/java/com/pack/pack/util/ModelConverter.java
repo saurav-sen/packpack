@@ -11,9 +11,11 @@ import org.slf4j.LoggerFactory;
 
 import com.pack.pack.IUserService;
 import com.pack.pack.common.util.CommonConstants;
+import com.pack.pack.model.Concept;
 import com.pack.pack.model.GeoTag;
 import com.pack.pack.model.RSSFeed;
 import com.pack.pack.model.RssSubFeed;
+import com.pack.pack.model.Taxonomy;
 import com.pack.pack.model.User;
 import com.pack.pack.model.UserInfo;
 import com.pack.pack.model.es.UserDetail;
@@ -21,9 +23,11 @@ import com.pack.pack.model.web.JSharedFeed;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
+import com.squill.feed.web.model.JConcept;
 import com.squill.feed.web.model.JGeoTag;
 import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JRssSubFeed;
+import com.squill.feed.web.model.JTaxonomy;
 
 /**
  * 
@@ -152,7 +156,42 @@ public class ModelConverter {
 				feed.getGeoTags().add(convert(rGeoTag));
 			}
 		}
+		List<JConcept> rConcepts = rFeed.getConcepts();
+		if(rConcepts != null && !rConcepts.isEmpty()) {
+			for(JConcept rConcept : rConcepts) {
+				feed.getConcepts().add(convert(rConcept));
+			}
+		}
+		List<JTaxonomy> rTaxonomies = rFeed.getTaxonomies();
+		if(rTaxonomies != null && !rTaxonomies.isEmpty()) {
+			for(JTaxonomy rTaxonomy : rTaxonomies) {
+				feed.getTaxonomies().add(convert(rTaxonomy));
+			}
+		}
 		return feed;
+	}
+	
+	private static Taxonomy convert(JTaxonomy rTaxonomy) {
+		Taxonomy taxonomy = new Taxonomy();
+		taxonomy.setId(rTaxonomy.getId());
+		taxonomy.setName(rTaxonomy.getName());
+		taxonomy.setParentRefUrl(rTaxonomy.getParentRefUrl());
+		taxonomy.setRefUri(rTaxonomy.getRefUri());
+		return taxonomy;
+	}
+	
+	private static Concept convert(JConcept rConcept) {
+		Concept concept = new Concept();
+		concept.setConfidence(rConcept.getConfidence());
+		concept.setContent(rConcept.getContent());
+		concept.setDbpediaRef(rConcept.getDbpediaRef());
+		concept.setStartIndex(rConcept.getStartIndex());
+		concept.setEndIndex(rConcept.getEndIndex());
+		concept.setId(rConcept.getId());
+		concept.setOntologyTypes(rConcept.getOntologyTypes());
+		concept.setParentContent(rConcept.getParentContent());
+		concept.setSpot(rConcept.getSpot());
+		return concept;
 	}
 	
 	private static RssSubFeed convert(JRssSubFeed sibling) {
