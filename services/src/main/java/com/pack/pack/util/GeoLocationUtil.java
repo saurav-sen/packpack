@@ -123,7 +123,7 @@ public class GeoLocationUtil {
 	 * 
 	 * lat1, lon1 Start point lat2, lon2 End point el1 Start altitude in meters
 	 * el2 End altitude in meters
-	 * @returns Distance in Kilometers.
+	 * @return Distance in Kilometers.
 	 */
 	public static int distance(double lat1, double lat2, double lon1,
 	        double lon2, double el1, double el2) {
