@@ -207,12 +207,13 @@ public class Startup {
 		}
 
 		private void uploadNewsFeeds(List<Startup.NewsFeedGroup> newsFeedGroups) {
+			long batchId = System.currentTimeMillis();
 			for (NewsFeedGroup newsFeedGroup : newsFeedGroups) {
-				uploadNewsFeeds(newsFeedGroup);
+				uploadNewsFeeds(newsFeedGroup, batchId);
 			}
 		}
 
-		private void uploadNewsFeeds(Startup.NewsFeedGroup newsFeedGroup) {
+		private void uploadNewsFeeds(Startup.NewsFeedGroup newsFeedGroup, long batchId) {
 			List<NewsFeed> newsFeeds = newsFeedGroup.getNewsFeeds();
 			NewsFeeds nfc = new NewsFeeds();
 			nfc.getArticles().addAll(newsFeeds);
@@ -222,7 +223,7 @@ public class Startup {
 			TTL ttl = new TTL();
 			ttl.setTime((short) 1);
 			ttl.setUnit(TimeUnit.DAYS);
-			RssFeedUtil.uploadNewFeeds(feeds, ttl, true);
+			RssFeedUtil.uploadNewFeeds(feeds, ttl, batchId, true);
 		}
 	}
 

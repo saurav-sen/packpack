@@ -23,7 +23,7 @@ public class SpiderSessionFactory {
 	private class SpiderSessionImpl extends SpiderSession {
 
 		private Map<String, Map<String, Object>> attrMap = new HashMap<String, Map<String, Object>>();
-
+		
 		private SpiderSessionImpl(IFeedUploader feedUploader) {
 			super(feedUploader);
 		}
@@ -50,13 +50,13 @@ public class SpiderSessionFactory {
 		public JRssFeeds getFeeds(IWebCrawlable webCrawlable) {
 			return (JRssFeeds) getAttr(webCrawlable, RSS_FEEDS_KEY);
 		}
-
+		
 		@Override
-		public void done(IWebCrawlable webCrawlable) {
+		public void end(IWebCrawlable webCrawlable) {
 			if(webCrawlable == null)
 				return;
 			attrMap.remove(webCrawlable.getUniqueId());
-			super.done(webCrawlable);
+			super.end(webCrawlable);
 		}
 	}
 }

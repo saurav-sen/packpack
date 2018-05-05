@@ -38,6 +38,8 @@ public class RSSFeed /*extends CouchDbDocument*/{
 	
 	private String id;
 	
+	private long batchId;
+	
 	private String videoUrl;
 	
 	private List<RssSubFeed> siblings;
@@ -266,5 +268,13 @@ public class RSSFeed /*extends CouchDbDocument*/{
 
 	public void setCreatedByUserId(String createdByUserId) {
 		this.createdByUserId = createdByUserId;
+	}
+
+	public long getBatchId() {
+		return batchId;
+	}
+
+	public void setBatchId(long batchId) {
+		this.batchId = batchId;
 	}
 }

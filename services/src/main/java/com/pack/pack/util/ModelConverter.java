@@ -76,6 +76,7 @@ public class ModelConverter {
 		rFeed.setOgType(feed.getOgType());
 		rFeed.setOgUrl(feed.getOgUrl());
 		rFeed.setId(feed.getId());
+		rFeed.setBatchId(feed.getBatchId());
 		rFeed.setVideoUrl(feed.getVideoUrl());
 		rFeed.setUploadTime(feed.getUploadTime());
 		rFeed.setShareableUrl(feed.getShareableUrl());
@@ -139,6 +140,7 @@ public class ModelConverter {
 			id = rFeed.getId();
 		}
 		feed.setId(id);
+		feed.setBatchId(rFeed.getBatchId());
 		feed.setVideoUrl(rFeed.getVideoUrl());
 		feed.setUploadTime(System.currentTimeMillis());
 		List<JRssSubFeed> siblings = rFeed.getSiblings();

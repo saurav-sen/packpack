@@ -58,6 +58,7 @@ public class WebSiteSpider implements Spider {
 		IGeoLocationResolver geoLocationResolver = webSite.getTargetLocationResolver();
 		IFeedUploader feedUploader = session.getFeedUploader();
 		try {
+			session.begin(webSite);
 			feedUploader.beginEach(session, webSite);
 			if (links.isEmpty()) {
 				List<? extends ILink> parseCrawlableURLs = WebSpiderUtils.parseCrawlableURLs(webSite);
@@ -81,7 +82,7 @@ public class WebSiteSpider implements Spider {
 		} catch (Throwable e) {
 			LOG.error(e.getMessage(), e);
 		} finally {
-			session.done(webSite);
+			session.end(webSite);
 		}
 	}
 	

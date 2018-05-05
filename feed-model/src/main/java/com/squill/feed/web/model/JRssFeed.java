@@ -27,6 +27,8 @@ public class JRssFeed {
 	
 	private String id;
 	
+	private long batchId;
+	
 	@JsonIgnore
 	private String feedType;
 	
@@ -224,5 +226,13 @@ public class JRssFeed {
 
 	public void setSiblings(List<JRssSubFeed> siblings) {
 		this.siblings = siblings;
+	}
+
+	public long getBatchId() {
+		return batchId;
+	}
+
+	public void setBatchId(long batchId) {
+		this.batchId = batchId;
 	}
 }

@@ -28,10 +28,11 @@ public interface IRssFeedService {
 	 * 
 	 * @param feed
 	 * @param ttl
-	 * @return -- non existent true else false
+	 * @param batchId
+	 * @return
 	 * @throws PackPackException
 	 */
-	public boolean upload(JRssFeed feed, TTL ttl) throws PackPackException;
+	public boolean upload(JRssFeed feed, TTL ttl, long batchId) throws PackPackException;
 
 	/**
 	 * 

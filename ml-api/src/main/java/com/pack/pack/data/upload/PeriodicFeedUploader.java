@@ -52,7 +52,8 @@ public class PeriodicFeedUploader {
 				TTL ttl = new TTL();
 				ttl.setTime((short)2);
 				ttl.setUnit(TimeUnit.DAYS);
-				RssFeedUtil.uploadNewFeeds(jRssFeeds, ttl, false);
+				long batchId = System.currentTimeMillis();
+				RssFeedUtil.uploadNewFeeds(jRssFeeds, ttl, batchId, false);
 				LOG.info("Uploaded" + jRssFeeds.getFeeds().size()
 						+ " Feeds (*** Periodic Feed Uploader ***)");
 			} catch (Throwable e) {

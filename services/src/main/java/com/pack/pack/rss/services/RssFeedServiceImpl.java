@@ -52,9 +52,6 @@ public class RssFeedServiceImpl implements IRssFeedService {
 			page.setResult(Collections.emptyList());
 			return page;
 		}
-		/*UserLocationRepositoryService locationService = ServiceRegistry.INSTANCE
-				.findService(UserLocationRepositoryService.class);
-		UserLocation location = locationService.findUserLocationById(userId);*/
 
 		/* **************************************************************************************************************************** */
 		// Here we need to load from different place if it is already loaded for
@@ -63,6 +60,7 @@ public class RssFeedServiceImpl implements IRssFeedService {
 		// comparison (with user-location retrieved as above) to make it
 		// as much responsive as possible.
 		boolean paginationRequired = false;
+		boolean promotionalFeeds = false;
 		RssFeedRepositoryService repositoryService = ServiceRegistry.INSTANCE
 				.findService(RssFeedRepositoryService.class);
 		List<RSSFeed> feeds = Collections.emptyList();
@@ -73,6 +71,7 @@ public class RssFeedServiceImpl implements IRssFeedService {
 				|| JRssFeedType.REFRESHMENT.name().equals(source)) {
 			feeds = repositoryService.getAllPromotionalFeeds();
 			LOG.debug("Promotional Feeds Count = " + feeds.size());
+			promotionalFeeds = true;
 		} else if (RssFeedSourceType.NEWS_API.equals(source)
 				|| JRssFeedType.NEWS.name().equals(source)) {
 			feeds = repositoryService.getAllNewsFeeds(JRssFeedType.NEWS.name());
@@ -106,25 +105,16 @@ public class RssFeedServiceImpl implements IRssFeedService {
 			result = page.getResult();
 		}
 		List<JRssFeed> rows = ModelConverter.convertAllRssFeeds(result, ignoreVideoFeeds, ignoreSlideShows);
-		Collections.sort(rows, new Comparator<JRssFeed>() {
-			@Override
-			public int compare(JRssFeed o1, JRssFeed o2) {
-				try {
-					//long l = Long.parseLong(o2.getId().trim()) - Long.parseLong(o1.getId().trim());
-					long l = Long.parseLong(o2.getId().trim()) - Long.parseLong(o1.getId().trim());
-					if(l == 0) {
-						return 0;
-					}
-					if(l > 0) {
-						return 1;
-					}
-					return -1;
-				} catch (Exception e) {
-					LOG.error(e.getMessage(), e);
-					return 0;
+		if(!promotionalFeeds) {
+			Collections.sort(rows, new RssFeedComparator(userId));
+		} else {
+			Collections.sort(rows, new Comparator<JRssFeed>() {
+				@Override
+				public int compare(JRssFeed o1, JRssFeed o2) {
+					return (int) (o2.getUploadTime() - o1.getUploadTime());
 				}
-			}
-		});
+			});
+		}
 		Pagination<JRssFeed> pageResult = new Pagination<JRssFeed>();
 		if(paginationRequired) {
 			pageResult.setNextLink(page.getNextLink());
@@ -277,14 +267,14 @@ public class RssFeedServiceImpl implements IRssFeedService {
 	}
 	
 	@Override
-	public boolean upload(JRssFeed feed, TTL ttl) throws PackPackException {
+	public boolean upload(JRssFeed feed, TTL ttl, long batchId) throws PackPackException {
 		RssFeedRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(RssFeedRepositoryService.class);
 		boolean checkFeedExists = service.checkFeedExists(feed);
 		if(!checkFeedExists) {
 			ShortenUrlInfo shortenUrlInfo = UrlShortener.calculateShortenShareableUrl(feed);
 			feed.setShareableUrl(shortenUrlInfo.getUrl());
-			
+			feed.setBatchId(batchId);
 			RSSFeed rssFeed = ModelConverter.convert(feed);
 			service.uploadPromotionalFeed(rssFeed, ttl);
 		}

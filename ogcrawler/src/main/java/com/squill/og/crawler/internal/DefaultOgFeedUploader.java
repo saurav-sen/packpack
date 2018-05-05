@@ -75,13 +75,13 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		map.put(webCrawlable.getUniqueId(), list);
 		if (webCrawlable.isUploadIndependently()) {
 			try {
-				uploadBulk(map);
+				uploadBulk(map, session.getBatchId());
 			} catch (Exception e) {
 				LOG.error(e.getMessage(), e);
 			}
 		} else if (count == 0) {
 			try {
-				uploadBulk(map);
+				uploadBulk(map, session.getBatchId());
 			} catch (Exception e) {
 				LOG.error(e.getMessage(), e);
 			}
@@ -191,7 +191,7 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		}
 	}*/
 	
-	private void uploadBulk(Map<String, List<JRssFeed>> map) throws Exception {
+	private void uploadBulk(Map<String, List<JRssFeed>> map, long batchId) throws Exception {
 		if(!ServiceIdResolver.isUploadMode())
 			return;
 		storeInArchive(map);
@@ -200,6 +200,6 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		TTL ttl = new TTL();
 		ttl.setTime((short) 1);
 		ttl.setUnit(TimeUnit.DAYS);
-		RssFeedUtil.uploadNewFeeds(rssFeeds, ttl, true);
+		RssFeedUtil.uploadNewFeeds(rssFeeds, ttl, batchId, true);
 	}
 }

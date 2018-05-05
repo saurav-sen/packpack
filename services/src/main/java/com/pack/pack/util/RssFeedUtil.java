@@ -27,7 +27,7 @@ public class RssFeedUtil {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(RssFeedUtil.class);
 
-	public static void uploadNewFeeds(JRssFeeds feeds, TTL ttl, boolean sendNotification) {
+	public static void uploadNewFeeds(JRssFeeds feeds, TTL ttl, long batchId, boolean sendNotification) {
 		LOG.info("Classification done. Uploading feeds to DB");
 		try {
 			List<JRssFeed> list = new LinkedList<JRssFeed>();
@@ -39,7 +39,7 @@ public class RssFeedUtil {
 				IRssFeedService service = ServiceRegistry.INSTANCE
 						.findCompositeService(IRssFeedService.class);
 				for (JRssFeed feed : newFeeds) {
-					boolean f = service.upload(feed, ttl);
+					boolean f = service.upload(feed, ttl, batchId);
 					LOG.info("Upleaded News Feed = " + f);
 					if(f) {
 						list.add(feed);

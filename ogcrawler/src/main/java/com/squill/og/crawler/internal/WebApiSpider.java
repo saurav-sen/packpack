@@ -34,6 +34,7 @@ public class WebApiSpider implements Spider {
 	public void run() {
 		IFeedUploader feedUploader = session.getFeedUploader();
 		try {
+			session.begin(webApi);
 			feedUploader.beginEach(session, webApi);
 			IApiRequestExecutor apiExecutor = webApi.getApiExecutor();
 			Map<String, List<JRssFeed>> feedsMap = apiExecutor.execute(webApi.getUniqueId());
@@ -45,7 +46,7 @@ public class WebApiSpider implements Spider {
 		} catch (Throwable e) {
 			LOG.error(e.getMessage(), e);
 		} finally {
-			session.done(webApi);
+			session.end(webApi);
 		}
 	}
 	
