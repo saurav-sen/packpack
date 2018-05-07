@@ -72,7 +72,7 @@ public class AllInOneAITaskExecutor {
 					JRssFeed feed = feedsItr.next();
 					String link = feed.getOgUrl();
 					WebSpiderTracker info = webLinkTrackerService.getTrackedInfo(link);
-					if(info != null) {
+					if(info != null || session.isThresholdReached()) {
 						feedsItr.remove();
 						continue;
 					}
@@ -85,6 +85,11 @@ public class AllInOneAITaskExecutor {
 					IArticleTextSummarizer articleTextSummarizer = webCrawlable
 							.getArticleTextSummarizer();
 					if (articleTextSummarizer != null) {
+						session.incrementCrawledCount(1);
+						if(session.isThresholdReached()) {
+							feedsItr.remove();
+							continue;
+						}
 						TextSummarization response = articleTextSummarizer
 								.summarize(feed.getOgUrl(), feed.getOgTitle(),
 										feed.getOgDescription());
@@ -101,6 +106,11 @@ public class AllInOneAITaskExecutor {
 						} else {
 							domainUrl = resolveDomainUrl(feed.getOgUrl());
 						}
+						session.incrementCrawledCount(1);
+						if(session.isThresholdReached()) {
+							feedsItr.remove();
+							continue;
+						}
 						GeoLocation[] geoLocations = geoLocationResolver.resolveGeoLocations(feed.getOgUrl(), domainUrl, feed);
 						if(geoLocations != null && geoLocations.length > 0) {
 							for(GeoLocation geoLocation : geoLocations) {
@@ -113,6 +123,11 @@ public class AllInOneAITaskExecutor {
 					}
 					
 					if(taxonomyResolver != null) {
+						session.incrementCrawledCount(1);
+						if(session.isThresholdReached()) {
+							feedsItr.remove();
+							continue;
+						}
 						JTaxonomy[] taxonomies = taxonomyResolver.resolveTaxonomies(feed.getOgTitle(), feed.getOgUrl());
 						if(taxonomies != null && taxonomies.length > 0) {
 							for(JTaxonomy taxonomy : taxonomies) {

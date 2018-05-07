@@ -54,6 +54,8 @@ public class WebSiteSpider implements Spider {
 
 	@Override
 	public void run() {
+		if(session.isThresholdReached())
+			return;
 		IHtmlContentHandler contentHandler = webSite.getContentHandler();
 		IGeoLocationResolver geoLocationResolver = webSite.getTargetLocationResolver();
 		IFeedUploader feedUploader = session.getFeedUploader();

@@ -24,4 +24,8 @@ public interface ISpiderSession {
 	public Object getSessionAttr(String key);
 	
 	public long getBatchId();
+	
+	public boolean isThresholdReached();
+	
+	public void incrementCrawledCount(int incCountBy);
 }

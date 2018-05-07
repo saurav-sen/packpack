@@ -488,7 +488,7 @@ public class ClassificationEngine {
 		try {
 			Calendar calendar = Calendar.getInstance();
 			String jsonFileName = new StringBuilder()
-					.append(FeedUploadUtil.PRE_CLASSIFIED_FILE_PREFIX)
+					//.append(FeedUploadUtil.PRE_CLASSIFIED_FILE_PREFIX)
 					.append(calendar.get(Calendar.DAY_OF_MONTH))
 					.append(UNDERSCORE).append(calendar.get(Calendar.MONTH) + 1)
 					.append(UNDERSCORE).append(calendar.get(Calendar.YEAR))
@@ -520,7 +520,7 @@ public class ClassificationEngine {
 		}
 	}
  
-	private class PreClassifiedFeedUploadTask implements Callable<JRssFeeds> {
+	/*private class PreClassifiedFeedUploadTask implements Callable<JRssFeeds> {
 
 		private JRssFeeds feeds;
 
@@ -537,5 +537,5 @@ public class ClassificationEngine {
 			}
 			return feeds;
 		}
-	}
+	}*/
 }

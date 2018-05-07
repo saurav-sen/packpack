@@ -32,6 +32,8 @@ public class WebApiSpider implements Spider {
 
 	@Override
 	public void run() {
+		if(session.isThresholdReached())
+			return;
 		IFeedUploader feedUploader = session.getFeedUploader();
 		try {
 			session.begin(webApi);

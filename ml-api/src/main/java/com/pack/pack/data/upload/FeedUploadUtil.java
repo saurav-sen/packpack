@@ -42,30 +42,28 @@ public class FeedUploadUtil {
 				+ c.get(Calendar.DAY_OF_MONTH) + "_" + c.get(Calendar.MONTH)
 				+ "_" + c.get(Calendar.YEAR) + ".json");
 	}
-	
+
 	public static void main(String[] args) throws Exception {
-		Map<String, List<JRssFeed>> map = readJsonFile(new File("D:/Saurav/PreClass_17_06_2017.json"));
-		Iterator<List<JRssFeed>> itr = map.values().iterator();
-		while(itr.hasNext()) {
-			List<JRssFeed> list = itr.next();
-			for(JRssFeed l : list) {
-				System.out.println(JSONUtil.serialize(l));
-			}
-		}
+		Calendar c = Calendar.getInstance();
+		//c.add(Calendar.DATE, -1);
+		int hour = c.get(Calendar.HOUR_OF_DAY);
+		System.out.println(hour);
+		int day = c.get(Calendar.DAY_OF_MONTH);
+		int month = c.get(Calendar.MONTH);
+		int year = c.get(Calendar.YEAR);
+		System.out.println(String.valueOf(day) + "_" + String.valueOf(month)
+				+ "_" + String.valueOf(year));
+		System.out.println((day < 10 ? "0" + String.valueOf(day) : String
+				.valueOf(day))
+				+ "_"
+				+ (month < 10 ? "0" + String.valueOf(month) : String
+						.valueOf(month)) + "_" + String.valueOf(year));
 	}
 
 	private FeedUploadUtil() {
 	}
-	
-	/*public static void reloadFeeds() {
-		ERROR.info("Uploading Selective Feeds (*** FeedUploadUtil#reloadFeeds() ***)");
-		JRssFeeds jRssFeeds = FeedUploadUtil.reloadSelectiveFeeds();
-		RssFeedUtil.uploadNewFeeds(jRssFeeds);
-		ERROR.info("Uploaded" + jRssFeeds.getFeeds().size()
-				+ " Feeds (*** FeedUploadUtil#reloadFeeds() ***)");
-	}*/
 
-	public static JRssFeeds reloadSelectiveFeeds() {
+	public static JRssFeeds reloadSelectiveFeeds(boolean ignoreOlder) {
 		String mlWC = SystemPropertyUtil.getMlWorkingDirectory();
 		if (mlWC == null) {
 			return null;
@@ -77,46 +75,101 @@ public class FeedUploadUtil {
 		if (!mlWCDir.isDirectory()) {
 			return null;
 		}
-		File[] files = mlWCDir.listFiles(new FileFilter() {
+		File[] files =  mlWCDir.listFiles(new FileFilter() {
 
 			@Override
 			public boolean accept(File pathname) {
-				Calendar c = Calendar.getInstance();
-//				return pathname.getName().startsWith(
-//						PRE_CLASSIFIED_FILE_PREFIX
-//								+ c.get(Calendar.DAY_OF_MONTH) + "_"
-//								+ c.get(Calendar.MONTH) + "_"
-//								+ c.get(Calendar.YEAR));
-				return pathname.getName()
-						.startsWith(PRE_CLASSIFIED_FILE_PREFIX);
-				 
+				return pathname.getName().endsWith(".json");
 			}
 		});
-		if (files == null) {
+		
+		if (files == null || files.length == 0) {
 			return null;
 		}
-		FeedSelectionStrategy strategy = FeedSelector.INSTANCE
-				.createNewStrategy(SystemPropertyUtil
-						.getFeedSelectionStrategyName());
-		for (File file : files) {
-			try {
-				Map<String, List<JRssFeed>> map = readFile(file);
-				strategy.applyStrategy(map);
-			} catch (IOException e) {
-				ERROR.error(e.getMessage(), e);
+		
+		FeedSelectionStrategy strategy = null;
+		Map<String, List<JRssFeed>> finalFeeds = null;
+		try {
+			for (File file : files) {
+				if (isLatestFileAvailable(file)) {
+					finalFeeds = readFile(file);
+				}
 			}
+			if(!ignoreOlder) {
+				if(finalFeeds != null && !finalFeeds.isEmpty()) {
+					strategy = FeedSelector.INSTANCE
+							.createNewStrategy(SystemPropertyUtil
+									.getFeedSelectionStrategyName());
+					if (strategy != null) {
+						for (File file : files) {
+							Map<String, List<JRssFeed>> map = readFile(file);
+							strategy.applyStrategy(map);
+						}
+					} else {
+						ERROR.error("Failed to load feed selection strategy identified/configured as <"
+								+ SystemPropertyUtil.getFeedSelectionStrategyName()
+								+ ">");
+					}
+				}
+			}
+		} catch (IOException e) {
+			ERROR.error(e.getMessage(), e);
 		}
-		Map<String, List<JRssFeed>> map = strategy.getFinalSelection();
-		Iterator<List<JRssFeed>> itr = map.values().iterator();
+
+		if (strategy != null) {
+			finalFeeds = strategy.getFinalSelection();
+		}
+		if(finalFeeds == null)
+			return null;
+		Iterator<List<JRssFeed>> itr = finalFeeds.values().iterator();
 		List<JRssFeed> arrayList = new ArrayList<JRssFeed>();
 		while (itr.hasNext()) {
 			arrayList.addAll(itr.next());
 		}
 		strategy = null;
-		map = null;
+		finalFeeds = null;
 		JRssFeeds result = new JRssFeeds();
 		result.setFeeds(arrayList);
 		return result;
+	}
+
+	private static boolean isLatestFileAvailable(File file) {
+		Calendar c = Calendar.getInstance();
+		int day = c.get(Calendar.DAY_OF_MONTH);
+		int month = c.get(Calendar.MONTH);
+		int year = c.get(Calendar.YEAR);
+		// TODAY
+		if(file.getName().endsWith(
+				(day < 10 ? "0" + String.valueOf(day) : String.valueOf(day))
+						+ "_"
+						+ (month < 10 ? "0" + String.valueOf(month) : String
+								.valueOf(month)) + "_" + String.valueOf(year)
+						+ ".json")
+				|| file.getName().endsWith(
+						String.valueOf(day) + "_" + String.valueOf(month) + "_"
+								+ String.valueOf(year) + ".json")) {
+			return true;
+		}
+		// YESTERDAY
+		c.add(Calendar.DATE, -1);
+		day = c.get(Calendar.DAY_OF_MONTH);
+		month = c.get(Calendar.MONTH);
+		year = c.get(Calendar.YEAR);
+		if(file.getName().endsWith(
+				(day < 10 ? "0" + String.valueOf(day) : String.valueOf(day))
+						+ "_"
+						+ (month < 10 ? "0" + String.valueOf(month) : String
+								.valueOf(month)) + "_" + String.valueOf(year)
+						+ ".json")
+				|| file.getName().endsWith(
+						String.valueOf(day) + "_" + String.valueOf(month) + "_"
+								+ String.valueOf(year) + ".json")) {
+			int hour = c.get(Calendar.HOUR_OF_DAY);
+			if(hour < 12) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private static Map<String, List<JRssFeed>> readFile(File file)
@@ -127,7 +180,7 @@ public class FeedUploadUtil {
 			return readCsvFile(file);
 		}
 	}
-
+	
 	private static Map<String, List<JRssFeed>> readJsonFile(File file)
 			throws IOException {
 		Map<String, List<JRssFeed>> map = new HashMap<String, List<JRssFeed>>();

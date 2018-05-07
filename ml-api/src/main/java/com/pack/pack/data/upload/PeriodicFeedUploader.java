@@ -31,8 +31,8 @@ public class PeriodicFeedUploader {
 	public void start() {
 		LOG.info("**********  Starting Periodic Feed Uploader  **********");
 		pool = Executors.newSingleThreadScheduledExecutor();
-		pool.scheduleAtFixedRate(new PeriodicFeedSelectionTask(), 0, 6,
-				TimeUnit.HOURS);
+		pool.scheduleAtFixedRate(new PeriodicFeedSelectionTask(), 0, 1,
+				TimeUnit.DAYS);
 		LOG.info("**********  Successfully Started Periodic Feed Uploader  **********");
 	}
 
@@ -48,7 +48,9 @@ public class PeriodicFeedUploader {
 		public void run() {
 			try {
 				LOG.info("Uploading Selective Feeds (*** Periodic Feed Uploader ***)");
-				JRssFeeds jRssFeeds = FeedUploadUtil.reloadSelectiveFeeds();
+				JRssFeeds jRssFeeds = FeedUploadUtil.reloadSelectiveFeeds(false);
+				if(jRssFeeds == null)
+					return;
 				TTL ttl = new TTL();
 				ttl.setTime((short)2);
 				ttl.setUnit(TimeUnit.DAYS);
