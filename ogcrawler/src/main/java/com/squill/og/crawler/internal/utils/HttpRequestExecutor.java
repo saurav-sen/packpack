@@ -8,11 +8,13 @@ import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.DecompressingHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.params.CoreProtocolPNames;
@@ -41,11 +43,36 @@ public class HttpRequestExecutor {
 				.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
 		return client;
 	}
+	
+	@SuppressWarnings("deprecation")
+	private DecompressingHttpClient newDecompressingHttpClient() {
+		DecompressingHttpClient client = new DecompressingHttpClient(new DefaultHttpClient());
+		SSLSocketFactory socketFactory = (SSLSocketFactory) client
+				.getConnectionManager().getSchemeRegistry().get("https")
+				.getSchemeSocketFactory();
+		socketFactory
+				.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+		return client;
+	}
+	
+	public HttpResponse GET(HttpGet GET, boolean needDecompression)
+			throws ClientProtocolException, IOException {
+		HttpClient client = newClient();
+		if(needDecompression) {
+			client = newDecompressingHttpClient();
+		}
+		return client.execute(GET);
+	}
 
 	public HttpResponse GET(HttpGet GET)
 			throws ClientProtocolException, IOException {
+		return GET(GET, false);
+	}
+	
+	public HttpResponse GET(HttpGet GET, HttpContext HTTP_CONTEXT)
+			throws ClientProtocolException, IOException {
 		DefaultHttpClient client = newClient();
-		return client.execute(GET);
+		return client.execute(GET, HTTP_CONTEXT);
 	}
 
 	public String GET(String link, String domainName) throws ParseException,

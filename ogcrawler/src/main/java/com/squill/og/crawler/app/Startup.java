@@ -205,7 +205,7 @@ public class Startup {
 		List<IWebSite> webSites = new ArrayList<IWebSite>();
 		List<WebCrawler> crawlers = crawlersDef.getWebCrawler();
 		for (WebCrawler crawler : crawlers) {
-			IWebSite webSite = new WebsiteImpl(crawler);
+			IWebSite webSite = new WebsiteImpl(crawler, crawlersDef.getWebLinkTracker());
 			webSites.add(webSite);
 		}
 		return webSites;
@@ -215,7 +215,7 @@ public class Startup {
 		List<IWebCrawlable> webApis = new ArrayList<IWebCrawlable>();
 		List<ApiReader> apiReaders = crawlersDef.getApiReader();
 		for (ApiReader apiReader : apiReaders) {
-			IWebCrawlable webApi = new WebApiImpl(apiReader);
+			IWebCrawlable webApi = new WebApiImpl(apiReader, crawlersDef.getWebLinkTracker());
 			webApis.add(webApi);
 		}
 		return webApis;

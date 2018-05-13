@@ -40,12 +40,15 @@ public class WebApiImpl implements IWebApi {
 	private boolean isTextSummarizerResolverLoadTried = false;
 
 	private IWebLinkTrackerService historyTracker;
+	
+	private String historyTrackerServiceID;
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(WebApiImpl.class);
 
-	public WebApiImpl(ApiReader crawlerDef) {
+	public WebApiImpl(ApiReader crawlerDef, WebTracker webTracker) {
 		this.crawlerDef = crawlerDef;
+		this.historyTrackerServiceID = webTracker != null ? webTracker.getServiceId() : null;
 	}
 
 	@Override
@@ -260,9 +263,12 @@ public class WebApiImpl implements IWebApi {
 		if (historyTracker != null)
 			return historyTracker;
 		WebTracker webTracker = crawlerDef.getWebLinkTracker();
-		if (webTracker == null)
+		if (webTracker != null) {
+			historyTrackerServiceID = webTracker.getServiceId();
+		}
+		if(historyTrackerServiceID == null)
 			return null;
-		String serviceId = webTracker.getServiceId();
+		String serviceId = historyTrackerServiceID;
 		try {
 			historyTracker = AppContext.INSTANCE.findService(serviceId,
 					IWebLinkTrackerService.class);

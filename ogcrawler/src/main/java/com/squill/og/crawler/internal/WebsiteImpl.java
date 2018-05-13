@@ -18,6 +18,7 @@ import com.squill.og.crawler.content.handlers.ExpressionContext.EvalContext;
 import com.squill.og.crawler.hooks.IArticleTextSummarizer;
 import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
+import com.squill.og.crawler.hooks.ILinkFilter;
 import com.squill.og.crawler.hooks.ITaxonomyResolver;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.CoreConstants;
@@ -54,11 +55,16 @@ public class WebsiteImpl implements IWebSite {
 
 	private IWebLinkTrackerService historyTracker;
 	
+	private IRobotScope robotScope;
+	
+	private String historyTrackerServiceID;
+	
 	private static final Logger LOG = LoggerFactory
 			.getLogger(WebsiteImpl.class);
 
-	public WebsiteImpl(WebCrawler crawlerDef) {
+	public WebsiteImpl(WebCrawler crawlerDef, WebTracker webTracker) {
 		this.crawlerDef = crawlerDef;
+		this.historyTrackerServiceID = webTracker != null ? webTracker.getServiceId() : null;
 	}
 
 	@Override
@@ -79,29 +85,82 @@ public class WebsiteImpl implements IWebSite {
 
 	@Override
 	public IRobotScope getRobotScope() {
-		return new AbstractRobotScope() {
-
-			@Override
-			public boolean ifScoped(String link) {
-				LinkFilter linkFilter = crawlerDef.getLinkFilter();
-				if (linkFilter == null)
-					return true;
-				EvalContext ctx = new EvalContext(link);
-				ExpressionContext.set(ctx);
-				return new LinkFilterConditionEvaluator().evalExp(linkFilter
-						.getCondition());
+		if(robotScope == null) {
+			robotScope = new RobotScopeImpl();
+		}
+		return robotScope;
+	}
+	
+	private class RobotScopeImpl extends AbstractRobotScope {
+		
+		private ILinkFilter linkFilterHandler = null;
+		
+		RobotScopeImpl() {
+			initLinkFilterHandler();
+		}
+		
+		@Override
+		public boolean ifScoped(String link) {
+			LinkFilter linkFilter = crawlerDef.getLinkFilter();
+			if (linkFilter == null)
+				return true;
+			if(linkFilterHandler != null) {
+				return linkFilterHandler.isScoped(link);
 			}
-
-			@Override
-			public int getDefaultCrawlDelay() {
-				return 2;
+			String expression = linkFilter.getExpression();
+			if(expression == null)
+				return true;
+			EvalContext ctx = new EvalContext(link);
+			ExpressionContext.set(ctx);
+			return new LinkFilterConditionEvaluator().evalExp(expression);
+		}
+		
+		private void initLinkFilterHandler() {
+			LinkFilter linkFilter = crawlerDef.getLinkFilter();
+			String handler = linkFilter.getHandler();
+			if(handler != null) {
+				try {
+					linkFilterHandler = AppContext.INSTANCE.findService(handler,
+							ILinkFilter.class);
+				} catch (NoSuchBeanDefinitionException e) {
+					LOG.error(e.getMessage(), e);
+				}
+				if(linkFilterHandler == null) {
+					try {
+						Class<?> clazz = Class.forName(handler);
+						linkFilterHandler = (ILinkFilter) clazz.newInstance();
+					} catch (Exception e) {
+						LOG.error(e.getMessage(), e);
+					}
+				}
 			}
+		}
 
-			@Override
-			public List<? extends ILink> getAnyLeftOverLinks() {
-				return Collections.emptyList();
+		@Override
+		public int getDefaultCrawlDelay() {
+			return 2;
+		}
+
+		@Override
+		public List<? extends ILink> getAnyLeftOverLinks() {
+			return Collections.emptyList();
+		}
+
+		@Override
+		public boolean isScopedSiteMapUrl(String sitemapUrl) {
+			if(linkFilterHandler != null) {
+				return linkFilterHandler.isScopedSitemapUrl(sitemapUrl);
 			}
-		};
+			return true;
+		}
+		
+		@Override
+		public boolean isScrapHtmlPageLinks() {
+			if(linkFilterHandler != null) {
+				return linkFilterHandler.isScrapHtmlPageLinks();
+			}
+			return true;
+		}
 	}
 
 	@Override
@@ -317,9 +376,12 @@ public class WebsiteImpl implements IWebSite {
 		if (historyTracker != null)
 			return historyTracker;
 		WebTracker webTracker = crawlerDef.getWebLinkTracker();
-		if (webTracker == null)
+		if (webTracker != null) {
+			historyTrackerServiceID = webTracker.getServiceId();
+		}
+		if(historyTrackerServiceID == null)
 			return null;
-		String serviceId = webTracker.getServiceId();
+		String serviceId = historyTrackerServiceID;
 		try {
 			historyTracker = AppContext.INSTANCE.findService(serviceId,
 					IWebLinkTrackerService.class);

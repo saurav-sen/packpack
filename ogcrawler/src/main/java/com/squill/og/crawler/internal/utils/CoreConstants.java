@@ -51,7 +51,7 @@ public interface CoreConstants {
 	public static final UserAgent SQUILL_ROBOT = new UserAgent("SquillBot", //$NON-NLS-1$
 			"squill@gmail.com", "http://www.squill.co.in"); //$NON-NLS-1$ //$NON-NLS-2$
 	
-	public static final String SQUILL_ROBOT_USER_AGENT_STRING = "SquillBot; +http://www.squill.co.in; email: squill@gmail.com"; //$NON-NLS-1$
+	public static final String SQUILL_ROBOT_USER_AGENT_STRING = "SquillBot; +http://www.squill.co.in; email: support@squill.co.in, ssen@squill.co.in"; //$NON-NLS-1$
 	
 	public static final String SKIP = "SKIP";
 	

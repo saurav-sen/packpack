@@ -140,8 +140,10 @@
 
 	<complexType name="LinkFilter">
 		<sequence>
-			<element name="condition" type="string" maxOccurs="1"
-				minOccurs="1" />
+			<element name="expression" type="string" maxOccurs="1"
+				minOccurs="0" />
+			<element name="handler" type="string" maxOccurs="1"
+				minOccurs="0" />
 		</sequence>
 	</complexType>
 

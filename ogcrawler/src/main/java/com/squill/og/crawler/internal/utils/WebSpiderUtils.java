@@ -8,18 +8,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DecompressingHttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.squill.og.crawler.ILink;
 import com.squill.og.crawler.IRobotScope;
@@ -43,6 +43,8 @@ import crawlercommons.sitemaps.SiteMapURL;
  *
  */
 public class WebSpiderUtils {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(WebSpiderUtils.class);
 
 	public static List<? extends ILink> parseCrawlableURLs(IWebSite webSite) throws Exception {
 		String domainUrl = webSite.getDomainUrl();
@@ -58,7 +60,7 @@ public class WebSpiderUtils {
 			}
 			if(!sitemaps.isEmpty()) {
 				//System.out.println();
-				return parseSiteMap(sitemaps, new URL(domainUrl + "/"), webSite);
+				return parseSiteMaps(sitemaps, new URL(domainUrl + "/"), webSite);
 			}
 			if(rules.isAllowNone()) {
 				return Collections.emptyList();
@@ -85,15 +87,30 @@ public class WebSpiderUtils {
 		return Collections.emptyList();*/
 	}
 	
-	private static List<ILink> parseSiteMap(List<String> sitemaps, URL domainUrl, IWebSite webSite) throws Exception {
-		String siteMap = sitemaps.get(0);
+	private static List<ILink> parseSiteMaps(List<String> sitemaps,
+			URL domainUrl, IWebSite webSite) throws Exception {
+		List<ILink> result = new LinkedList<ILink>();
+		Iterator<String> itr = sitemaps.iterator();
+		while (itr.hasNext()) {
+			String siteMap = itr.next();
+			result.addAll(parseSiteMap(siteMap, domainUrl, webSite));
+		}
+		return result;
+	}
+	
+	private static List<ILink> parseSiteMap(String siteMap, URL domainUrl, IWebSite webSite) throws Exception {
+		List<ILink> result = new LinkedList<ILink>();
+		IRobotScope robotScope = webSite.getRobotScope();
+		if(!robotScope.isScopedSiteMapUrl(siteMap))
+			return result;
 		URL url = new URL(siteMap);
-		DefaultHttpClient client = new DefaultHttpClient();
+		//DefaultHttpClient client = new DefaultHttpClient();
 		HttpGet GET = new HttpGet(siteMap);
 		HttpContext HTTP_CONTEXT = new BasicHttpContext();
 		HTTP_CONTEXT.setAttribute(CoreProtocolPNames.USER_AGENT, 
 				CoreConstants.SQUILL_ROBOT_USER_AGENT_STRING);
-		HttpResponse response = client.execute(GET, HTTP_CONTEXT);
+		//HttpResponse response = client.execute(GET, HTTP_CONTEXT);
+		HttpResponse response = new HttpRequestExecutor().GET(GET, HTTP_CONTEXT);
 		if(response.getStatusLine().getStatusCode() == 200) {
 			String content = EntityUtils.toString(response.getEntity());
 			String contentType = "text/xml";
@@ -106,20 +123,31 @@ public class WebSpiderUtils {
 					Iterator<AbstractSiteMap> itr = siteMaps.iterator();
 					while(itr.hasNext()) {
 						AbstractSiteMap asm2 = itr.next();
-						IRobotScope robotScope = webSite.getRobotScope();
 						//if(asm2.getUrl().getPath().contains("hospital-directory")) {
-						if(robotScope != null && robotScope.isScoped(asm2.getUrl().getPath())) {
+						//if(robotScope != null && robotScope.isScoped(asm2.getUrl().getPath())) {
+						LOG.debug(asm2.getUrl().toString());
+						if(robotScope != null && robotScope.isScopedSiteMapUrl(asm2.getUrl().toString())) {
 							URL url2 = asm2.getUrl();
-							HttpClient client2 = new DecompressingHttpClient(new DefaultHttpClient());
+							/*HttpClient client2 = new DecompressingHttpClient(new DefaultHttpClient());
 							GET = new HttpGet(url2.toURI());
-							response = client2.execute(GET);
+							response = client2.execute(GET);*/
+							GET = new HttpGet(url2.toURI());
+							response = new HttpRequestExecutor().GET(GET, true);
 							if(response.getStatusLine().getStatusCode() == 200) {
 								InputStream inStream = null;
-								if(response.getEntity().getContentType().getValue().contains("text/xml")) {
+								String contentTypeValue = response.getEntity().getContentType().getValue();
+								if (contentTypeValue.contains("text/xml")
+										|| contentTypeValue
+												.contains("application/xml")
+										|| contentTypeValue
+												.contains("application/x-xml")
+										|| contentTypeValue
+												.contains("application/atom+xml")
+										|| contentTypeValue
+												.contains("application/rss+xml")) {
 									inStream = response.getEntity().getContent();
 								} else {
-									GZIPInputStream gzipStream = new GZIPInputStream(response.getEntity().getContent());
-									inStream = gzipStream;
+									inStream = new GZIPInputStream(response.getEntity().getContent());
 								}
 								BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
 								StringBuilder gzipContent = new StringBuilder();
@@ -130,20 +158,30 @@ public class WebSpiderUtils {
 								}
 								reader.close();
 								//System.out.println(asm2.getUrl());
-								return parseSiteMapText(gzipContent.toString(), domainUrl, webSite);
+								result.addAll(parseSiteMapContent(gzipContent.toString(), contentTypeValue, domainUrl, webSite));
 							}
 						}						
 					}
 				}
+			} else if(asm.isProcessed()) {
+				SiteMap asm2 = (SiteMap)asm;
+				Iterator<SiteMapURL> itr = asm2.getSiteMapUrls().iterator();
+				while(itr.hasNext()) {
+					SiteMapURL siteMapURL = itr.next();
+					String urlPath = siteMapURL.getUrl().toString().trim();
+					if(robotScope.isScoped(urlPath)) {
+						ILink link = new HyperLink(urlPath, webSite);
+						result.add(link);
+					}
+				}
 			}
 		}
-		return Collections.emptyList();
+		return result;
 	}
 	
-	private static List<ILink> parseSiteMapText(String content, URL domainUrl, IWebSite root) throws Exception {
-		List<ILink> result = new ArrayList<ILink>();
-		SiteMapParser parser = new SiteMapParser();
-		String contentType = "text/xml";
+	private static List<ILink> parseSiteMapContent(String content, String contentType, URL domainUrl, IWebSite root) throws Exception {
+		List<ILink> result = new LinkedList<ILink>();
+		SiteMapParser parser = new SiteMapParser(false);
 		AbstractSiteMap siteMap = parser.parseSiteMap(contentType, content.getBytes(), domainUrl);
 		if(!siteMap.isIndex()) {
 			SiteMap sm = (SiteMap)siteMap;

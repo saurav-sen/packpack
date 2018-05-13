@@ -1,6 +1,7 @@
 package com.squill.og.crawler.internal;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -148,8 +149,8 @@ public class WebSiteSpider implements Spider {
 				}
 				
 				HtmlPage htmlPage = ResponseUtil.getParseableHtml(html, link.getUrl());
-				List<PageLink> extractAllPageLinks = new PageLinkExtractor(
-						robotScope, null).extractAllPageLinks(htmlPage, webSite);
+				List<PageLink> extractAllPageLinks = robotScope.isScrapHtmlPageLinks() ? new PageLinkExtractor(
+						robotScope, null).extractAllPageLinks(htmlPage, webSite) : new LinkedList<PageLink>();
 				LOG.info("*** Extracted Page Links ***");
 				if(extractAllPageLinks != null && !extractAllPageLinks.isEmpty()) {
 					links.addAll(extractAllPageLinks);

@@ -16,9 +16,7 @@ import javax.annotation.PostConstruct;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +27,7 @@ import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JRssFeeds;
 import com.squill.og.crawler.app.SystemPropertyKeys;
 import com.squill.og.crawler.hooks.IApiRequestExecutor;
+import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
 import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.services.exception.OgCrawlException;
 
@@ -115,12 +114,13 @@ public class NewsApiRequestExecutor implements IApiRequestExecutor {
 
 	private NewsFeeds readFromSource(String newsSource)
 			throws ClientProtocolException, IOException, OgCrawlException {
-		HttpClient client = new DefaultHttpClient();
+		//HttpClient client = new DefaultHttpClient();
 		String get_URL = "https://newsapi.org/v1/articles?source=" + newsSource
 				+ "&apiKey=" + newsAPIKey;
 		HttpGet GET = new HttpGet(get_URL);
 		LOG.debug(get_URL);
-		HttpResponse response = client.execute(GET);
+		//HttpResponse response = client.execute(GET);
+		HttpResponse response = new HttpRequestExecutor().GET(GET);
 		if (response.getStatusLine().getStatusCode() == 200) {
 			String json = EntityUtils.toString(response.getEntity());
 			LOG.debug(json);
