@@ -72,7 +72,13 @@ public class AllInOneAITaskExecutor {
 					JRssFeed feed = feedsItr.next();
 					String link = feed.getOgUrl();
 					WebSpiderTracker info = webLinkTrackerService.getTrackedInfo(link);
+					if(session.isThresholdReached()) {
+						LOG.debug("Threshold Reached for the day, will skip all remaining");
+					}
 					if(info != null || session.isThresholdReached()) {
+						if(info != null) {
+							LOG.debug("Already read earlier thereby skipping link @ " + link);
+						}
 						feedsItr.remove();
 						continue;
 					}

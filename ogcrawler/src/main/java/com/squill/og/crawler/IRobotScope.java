@@ -15,8 +15,6 @@ public interface IRobotScope {
 	
 	public boolean isScopedSiteMapUrl(String sitemapUrl);
 	
-	public boolean isScrapHtmlPageLinks();
-	
 	public List<? extends ILink> getAnyLeftOverLinks();
 	
 	public int getDefaultCrawlDelay();

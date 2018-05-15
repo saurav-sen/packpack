@@ -70,12 +70,12 @@ public class WebSiteSpider implements Spider {
 				}
 			}
 			IRobotScope robotScope = webSite.getRobotScope();
-			doCrawl(links, robotScope, contentHandler, geoLocationResolver, session);
+			doCrawl(links, robotScope, contentHandler, geoLocationResolver, session, webSite.isPageLinkExtractorEnabled());
 			List<? extends ILink> parseCrawlableURLs = robotScope.getAnyLeftOverLinks();
 			for(ILink parseCrawlableURL : parseCrawlableURLs) {
 				links.offer(parseCrawlableURL);
 			}
-			doCrawl(links, robotScope, contentHandler, geoLocationResolver, session);
+			doCrawl(links, robotScope, contentHandler, geoLocationResolver, session, webSite.isPageLinkExtractorEnabled());
 			Map<String, List<JRssFeed>> collectiveFeeds = contentHandler.getCollectiveFeeds(session);
 			AllInOneAITaskExecutor allInOneAITaskExecutor = new AllInOneAITaskExecutor(session);
 			collectiveFeeds = allInOneAITaskExecutor.executeTasks(collectiveFeeds, webSite);
@@ -104,7 +104,7 @@ public class WebSiteSpider implements Spider {
 	
 	private void doCrawl(Queue<ILink> links, IRobotScope robotScope,
 			IHtmlContentHandler contentHandler,
-			IGeoLocationResolver geoLocationResolver, ISpiderSession session) throws Exception {
+			IGeoLocationResolver geoLocationResolver, ISpiderSession session, boolean isPageLinkExtractorEnabled) throws Exception {
 		//int count = 0;
 		int max = 0;
 		while(links != null && !links.isEmpty()) {
@@ -149,7 +149,7 @@ public class WebSiteSpider implements Spider {
 				}
 				
 				HtmlPage htmlPage = ResponseUtil.getParseableHtml(html, link.getUrl());
-				List<PageLink> extractAllPageLinks = robotScope.isScrapHtmlPageLinks() ? new PageLinkExtractor(
+				List<PageLink> extractAllPageLinks = isPageLinkExtractorEnabled ? new PageLinkExtractor(
 						robotScope, null).extractAllPageLinks(htmlPage, webSite) : new LinkedList<PageLink>();
 				LOG.info("*** Extracted Page Links ***");
 				if(extractAllPageLinks != null && !extractAllPageLinks.isEmpty()) {

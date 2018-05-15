@@ -22,11 +22,6 @@ public class QZLinkFilterHandler implements ILinkFilter {
 	}
 	
 	@Override
-	public boolean isScrapHtmlPageLinks() {
-		return false;
-	}
-	
-	@Override
 	public boolean isScopedSitemapUrl(String sitemapUrl) {
 		try {
 			URL url = new URL(sitemapUrl);

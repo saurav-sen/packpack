@@ -59,6 +59,8 @@ public class WebsiteImpl implements IWebSite {
 	
 	private String historyTrackerServiceID;
 	
+	private boolean pageLinkExtractorEnabled = true;
+	
 	private static final Logger LOG = LoggerFactory
 			.getLogger(WebsiteImpl.class);
 
@@ -150,14 +152,6 @@ public class WebsiteImpl implements IWebSite {
 		public boolean isScopedSiteMapUrl(String sitemapUrl) {
 			if(linkFilterHandler != null) {
 				return linkFilterHandler.isScopedSitemapUrl(sitemapUrl);
-			}
-			return true;
-		}
-		
-		@Override
-		public boolean isScrapHtmlPageLinks() {
-			if(linkFilterHandler != null) {
-				return linkFilterHandler.isScrapHtmlPageLinks();
 			}
 			return true;
 		}
@@ -403,6 +397,21 @@ public class WebsiteImpl implements IWebSite {
 			}
 		}
 		return historyTracker;
+	}
+	
+	@Override
+	public boolean isPageLinkExtractorEnabled() {
+		return pageLinkExtractorEnabled;
+	}
+
+	@Override
+	public void enablePageLinkExtractor() {
+		pageLinkExtractorEnabled = true;
+	}
+
+	@Override
+	public void disablePageLinkExtractor() {
+		pageLinkExtractorEnabled = false;
 	}
 	
 	@Override

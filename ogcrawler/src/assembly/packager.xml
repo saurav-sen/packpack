@@ -41,6 +41,8 @@
 				<include>*.xml</include>
 				<include>*.json</include>
 				<include>*.bin</include>
+				<include>*.cfg</include>
+				<include>*.properties</include>
 			</includes>
 		</fileSet>
 		<fileSet>

@@ -30,7 +30,7 @@
         <scheduler initialDelay="0" periodicDelay="1" timeUnit="DAYS"/>
     </WebCrawler>
     
-    <!--ApiReader id="newsapi.org" uploadIndependently="true" checkDuplicate="false">
+    <ApiReader id="newsapi.org" uploadIndependently="true" checkDuplicate="false">
         <name>NewsApi.Org</name>
         <description>News API Org</description>
 	    <apiRequestExecutor>
@@ -46,7 +46,7 @@
 	        <resolver>defaultArticleTextSummarizer</resolver>
 	    </articleSummarizer>
 	    <scheduler initialDelay="0" periodicDelay="2" timeUnit="HOURS"/>
-    </ApiReader-->
+    </ApiReader>
     
     <webLinkTracker>
         <serviceId>defaultWebLinkTrackerService</serviceId>

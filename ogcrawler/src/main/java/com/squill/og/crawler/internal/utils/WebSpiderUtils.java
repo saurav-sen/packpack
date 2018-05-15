@@ -48,6 +48,7 @@ public class WebSpiderUtils {
 
 	public static List<? extends ILink> parseCrawlableURLs(IWebSite webSite) throws Exception {
 		String domainUrl = webSite.getDomainUrl();
+		webSite.enablePageLinkExtractor();
 		if(webSite.shouldCheckRobotRules()) {
 			BaseHttpFetcher fetcher = RobotUtils.createFetcher(CoreConstants.SQUILL_ROBOT, 1);
 			SimpleRobotRulesParser parser = new SimpleRobotRulesParser();
@@ -60,6 +61,7 @@ public class WebSpiderUtils {
 			}
 			if(!sitemaps.isEmpty()) {
 				//System.out.println();
+				webSite.disablePageLinkExtractor();
 				return parseSiteMaps(sitemaps, new URL(domainUrl + "/"), webSite);
 			}
 			if(rules.isAllowNone()) {

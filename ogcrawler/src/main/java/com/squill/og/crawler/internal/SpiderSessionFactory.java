@@ -1,18 +1,30 @@
 package com.squill.og.crawler.internal;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.ref.SoftReference;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.pack.pack.common.util.JSONUtil;
+import com.pack.pack.services.exception.PackPackException;
 import com.squill.feed.web.model.JRssFeeds;
 import com.squill.og.crawler.IWebCrawlable;
 import com.squill.og.crawler.SpiderSession;
+import com.squill.og.crawler.app.SystemPropertyKeys;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.ISpiderSession;
 
 public class SpiderSessionFactory {
 	
 	public static final SpiderSessionFactory INSTANCE = new SpiderSessionFactory();
+	
+	private static final Logger LOG = LoggerFactory.getLogger(SpiderSessionFactory.class);
 	
 	private SpiderSessionFactory() {
 	}
@@ -25,7 +37,7 @@ public class SpiderSessionFactory {
 
 		private Map<String, Map<String, Object>> attrMap = new HashMap<String, Map<String, Object>>();
 		
-		private SoftReference<Count> crawledCount = new SoftReference<Count>(new Count(0));
+		private SoftReference<Count> crawledCount = new SoftReference<Count>(new Count());
 		
 		private long startTime = 0;
 		
@@ -113,8 +125,41 @@ public class SpiderSessionFactory {
 			
 			private int count;
 			
-			private Count(int count) {
-				this.count = count;
+			private String countFilePath;
+			
+			private TmpJson tmpJson;
+			
+			private Count() {
+				init0();
+			}
+			
+			private void init0() {
+				try {
+					countFilePath = System.getProperty(SystemPropertyKeys.WEB_CRAWLERS_BASE_DIR);
+					if(!countFilePath.endsWith(File.separator) && !countFilePath.endsWith("/") && !countFilePath.endsWith("\\")) {
+						countFilePath = countFilePath + File.separator + "tmpCount.json";
+					}
+					File file = new File(countFilePath);
+					if(file.exists()) {
+						String content = new String(Files.readAllBytes(Paths.get(countFilePath)));
+						tmpJson = JSONUtil.deserialize(content, TmpJson.class, true);
+						if(System.currentTimeMillis() >= tmpJson.getExpiryTime()) {
+							tmpJson.setCount(0);
+							tmpJson.setExpiryTime(System.currentTimeMillis() + 24 * 60 * 60 * 1000); // Plus 24 hours
+							save();
+						}
+						this.count = tmpJson.getCount();
+					} else {
+						tmpJson = new TmpJson();
+						tmpJson.setCount(0);
+						tmpJson.setExpiryTime(System.currentTimeMillis() + 24 * 60 * 60 * 1000); // Plus 24 hours
+						save();
+					}
+				} catch (IOException e) {
+					LOG.error(e.getMessage(), e);
+				} catch (PackPackException e) {
+					LOG.error(e.getMessage(), e);
+				}
 			}
 
 			private int getCount() {
@@ -123,6 +168,23 @@ public class SpiderSessionFactory {
 
 			private void setCount(int count) {
 				this.count = count;
+				if(tmpJson.getCount() != count) {
+					tmpJson.setCount(count);
+					save();
+				}
+			}
+			
+			private void save() {
+				try {
+					if(tmpJson != null) {
+						String json = JSONUtil.serialize(tmpJson);
+						Files.write(Paths.get(countFilePath), json.getBytes());
+					}
+				} catch (PackPackException e) {
+					LOG.error(e.getMessage(), e);
+				} catch (IOException e) {
+					LOG.error(e.getMessage(), e);
+				}
 			}
 		}
 	}

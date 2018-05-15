@@ -16,4 +16,10 @@ public interface IWebSite extends IWebCrawlable {
 	public IHtmlContentHandler getContentHandler();
 
 	public boolean shouldCheckRobotRules();
+	
+	public boolean isPageLinkExtractorEnabled();
+	
+	public void enablePageLinkExtractor();
+	
+	public void disablePageLinkExtractor();
 }
