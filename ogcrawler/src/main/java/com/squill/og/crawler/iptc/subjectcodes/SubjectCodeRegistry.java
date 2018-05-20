@@ -25,13 +25,6 @@ public final class SubjectCodeRegistry {
 	
 	private Map<String, SubjectCode> registry = new HashMap<String, SubjectCode>();
 	
-	private static Map<String, JRssFeedType> subjectCodeVsSquillType = new HashMap<String, JRssFeedType>();
-	static {
-		subjectCodeVsSquillType.put("13000000", JRssFeedType.NEWS_SCIENCE_TECHNOLOGY);
-		subjectCodeVsSquillType.put("15000000", JRssFeedType.NEWS_SPORTS);
-		//subjectCodeVsSquillType.put("12000000", value); // religion and belief (Spirituality)
-	}
-	
 	private SubjectCodeRegistry() {
 		try {
 			init();
@@ -50,18 +43,18 @@ public final class SubjectCodeRegistry {
 		SubjectCodes subjectCodes = JSONUtil.deserialize(json, SubjectCodes.class, false);
 		List<SubjectCode> codes = subjectCodes.getCodes();
 		for(SubjectCode code : codes) {
-			List<SubjectCodeLink> links = code.getLinks();
-			SubjectCodeLink selfLink = null;
-			for(SubjectCodeLink link : links) {
-				if("self".equals(link.getRel())) {
-					selfLink = link;
-				} else if("parent".equals(link.getLink())) {
-					code.setParentLink(link.getLink());
+			List<SubjectCodeRelationship> relationships = code.getRelationships();
+			SubjectCodeRelationship selfRelationship = null;
+			for(SubjectCodeRelationship relationship : relationships) {
+				if(SubjectCodeRelationship.SELF.equals(relationship.getRelationship())) {
+					selfRelationship = relationship;
+				} else if(SubjectCodeRelationship.PARENT.equals(relationship.getRelationship())) {
+					code.setParentId(relationship.getId());
 				}
 			}
-			if(selfLink == null)
+			if(selfRelationship == null)
 				continue;
-			registry.put(selfLink.getLink(), code);
+			registry.put(selfRelationship.getId(), code);
 		}
 	}
 	
@@ -70,21 +63,21 @@ public final class SubjectCodeRegistry {
 		if(!property.endsWith(File.separator)) {
 			property = property + File.separator;
 		}
-		return property + "iptc-subject-codes.json";
+		return property + "iptc_subject_codes.json";
 	}
 	
-	private SubjectCode resolveRootSubjectCode(String link) {
-		SubjectCode subjectCode = registry.get(link);
-		String parentLink = null;
-		while((parentLink = subjectCode.getParentLink()) != null) {
-			subjectCode = registry.get(parentLink);
+	private SubjectCode resolveRootSubjectCode(String id) {
+		SubjectCode subjectCode = registry.get(id);
+		String parentId = null;
+		while((parentId = subjectCode.getParentId()) != null) {
+			subjectCode = registry.get(parentId);
 		}
 		return subjectCode;
 	}
 	
 	public JRssFeedType resolveSquillFeedType(JTaxonomy taxonomy) {
-		String link = taxonomy.getParentRefUrl() != null ? taxonomy.getParentRefUrl() : taxonomy.getRefUri();
-		SubjectCode subjectCode = resolveRootSubjectCode(link);
-		return subjectCodeVsSquillType.get(subjectCode.getId());
+		String id = taxonomy.getId();
+		SubjectCode subjectCode = resolveRootSubjectCode(id);
+		return JRssFeedType.valueOf(subjectCode.getSquillType().toUpperCase());
 	}
 }

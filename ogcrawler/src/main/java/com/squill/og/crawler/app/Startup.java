@@ -19,6 +19,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
+import com.pack.pack.rss.IRssFeedService;
+import com.pack.pack.services.exception.PackPackException;
+import com.pack.pack.services.registry.ServiceRegistry;
+import com.pack.pack.services.registry.ServiceRegistryModes;
+import com.pack.pack.util.SystemPropertyUtil;
 import com.squill.og.crawler.ICrawlable;
 import com.squill.og.crawler.IWebCrawlable;
 import com.squill.og.crawler.IWebSite;
@@ -96,6 +101,10 @@ public class Startup {
 				WebCrawlers crawlersDef = readCrawlerDefinition();
 				readSystemPropertiesConfigured(crawlersDef);
 				AppContext appContext = AppContext.INSTANCE.init();
+				SystemPropertyUtil.init();
+				ServiceRegistry.INSTANCE
+						.init(ServiceRegistryModes.REDIS_ONLY_SERVICES);
+				//check();
 				IFeedUploader feedUploader = loadFeedUploader(crawlersDef);
 				List<IWebSite> websites = readCrawlableWebSites(crawlersDef);
 				List<IWebCrawlable> webApis = readRegisteredWebApis(crawlersDef);
@@ -117,6 +126,24 @@ public class Startup {
 			stopApp();
 		}
 	}
+	
+	/*private void check() {
+		try {
+			IRssFeedService service = ServiceRegistry.INSTANCE
+					.findCompositeService(IRssFeedService.class);
+			if(service != null) {
+				LOG.info("NOT NULL");
+				LOG.debug("NOT NULL");
+			}
+			LOG.info("NULL");
+			LOG.debug("NULL");
+		} catch (PackPackException e) {
+			LOG.error(e.getMessage(), e);
+			LOG.debug(e.getMessage(), e);
+		}
+		
+		System.exit(1);
+	}*/
 	
 	private void stopApp() {
 		try {

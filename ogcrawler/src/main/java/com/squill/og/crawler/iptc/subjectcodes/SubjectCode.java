@@ -11,10 +11,12 @@ public class SubjectCode {
 	
 	private String label;
 	
-	private List<SubjectCodeLink> links;
+	private List<SubjectCodeRelationship> relationships;
 	
 	@JsonIgnore
-	private String parentLink;
+	private String parentId;
+	
+	private String squillType;
 	
 	public String getId() {
 		return id;
@@ -32,22 +34,30 @@ public class SubjectCode {
 		this.label = label;
 	}
 
-	public List<SubjectCodeLink> getLinks() {
-		if(links == null) {
-			links = new ArrayList<SubjectCodeLink>(4);
+	public List<SubjectCodeRelationship> getRelationships() {
+		if(relationships == null) {
+			relationships = new ArrayList<SubjectCodeRelationship>(4);
 		}
-		return links;
+		return relationships;
 	}
 
-	public void setLinks(List<SubjectCodeLink> links) {
-		this.links = links;
+	public void setRelationships(List<SubjectCodeRelationship> relationships) {
+		this.relationships = relationships;
 	}
 
-	public String getParentLink() {
-		return parentLink;
+	public String getParentId() {
+		return parentId;
 	}
 
-	public void setParentLink(String parentLink) {
-		this.parentLink = parentLink;
+	public void setParentId(String parentId) {
+		this.parentId = parentId;
+	}
+
+	public String getSquillType() {
+		return squillType;
+	}
+
+	public void setSquillType(String squillType) {
+		this.squillType = squillType;
 	}
 }

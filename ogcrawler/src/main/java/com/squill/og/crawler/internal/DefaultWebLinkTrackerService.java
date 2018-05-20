@@ -1,5 +1,9 @@
 package com.squill.og.crawler.internal;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
@@ -98,8 +102,11 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 		return sync;
 	}
 
-	public void addCrawledInfo(String link, WebSpiderTracker value,
-			long ttlSeconds) {
+	public void upsertCrawledInfo(String link, WebSpiderTracker value,
+			long ttlSeconds, boolean updateLastModifiedTime) {
+		if(updateLastModifiedTime) {
+			updateLastModifedTime(value);
+		}
 		RedisCommands<String, String> sync = null;
 		try {
 			String key = EncryptionUtil.generateMD5HashKey(link, false, false);
@@ -116,6 +123,24 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 				sync.close();
 			}
 		}*/
+	}
+	
+	private void updateLastModifedTime(WebSpiderTracker value) {
+		if (value == null || value.getLink() == null
+				|| value.getLink().trim().isEmpty())
+			return;
+		try {
+			URL url = new URL(value.getLink());
+			URLConnection connection = url.openConnection();
+			String lastModified = connection.getHeaderField("Last-Modified");
+			if(lastModified != null) {
+				value.setLastModifiedSince(lastModified);
+			}
+		} catch (MalformedURLException e) {
+			LOG.debug(e.getMessage(), e);
+		} catch (IOException e) {
+			LOG.debug(e.getMessage(), e);
+		}
 	}
 
 	public WebSpiderTracker getTrackedInfo(String link) {

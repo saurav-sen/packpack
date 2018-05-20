@@ -1,36 +1,13 @@
 package com.squill.og.crawler.article.taxonomy;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class AylienTaxonomyType {
-	
-	private boolean confident;
-	
-	private double score;
 	
 	private String label;
 	
-	private List<AylienTaxonomyLink> links;
+	private String code;
 	
-	private String id;
-
-	public boolean isConfident() {
-		return confident;
-	}
-
-	public void setConfident(boolean confident) {
-		this.confident = confident;
-	}
-
-	public double getScore() {
-		return score;
-	}
-
-	public void setScore(double score) {
-		this.score = score;
-	}
-
+	private double confidence;
+	
 	public String getLabel() {
 		return label;
 	}
@@ -39,22 +16,23 @@ public class AylienTaxonomyType {
 		this.label = label;
 	}
 
-	public List<AylienTaxonomyLink> getLinks() {
-		if(links == null) {
-			links = new ArrayList<AylienTaxonomyLink>();
-		}
-		return links;
+	public String getCode() {
+		return code;
 	}
 
-	public void setLinks(List<AylienTaxonomyLink> links) {
-		this.links = links;
+	public void setCode(String code) {
+		this.code = code;
 	}
 
-	public String getId() {
-		return id;
+	public double getConfidence() {
+		return confidence;
 	}
 
-	public void setId(String id) {
-		this.id = id;
+	public void setConfidence(double confidence) {
+		this.confidence = confidence;
+	}
+	
+	public boolean isConfident() {
+		return confidence > 0.6f;
 	}
 }

@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import com.squill.feed.web.model.JTaxonomy;
 import com.squill.og.crawler.article.taxonomy.AylienTaxonomyClassifier;
-import com.squill.og.crawler.article.taxonomy.AylienTaxonomyLink;
 import com.squill.og.crawler.article.taxonomy.AylienTaxonomyResponse;
 import com.squill.og.crawler.article.taxonomy.AylienTaxonomyType;
 import com.squill.og.crawler.hooks.ITaxonomyResolver;
@@ -27,21 +26,11 @@ public class DefaultTaxonomyResolver implements ITaxonomyResolver {
 				if(!category.isConfident())
 					continue;
 				JTaxonomy taxonoy = new JTaxonomy();
-				taxonoy.setId(category.getId());
+				taxonoy.setId(category.getCode());
 				taxonoy.setName(category.getLabel());
-				List<AylienTaxonomyLink> links = category.getLinks();
-				for(AylienTaxonomyLink link : links) {
-					String relationship = link.getRel();
-					if("self".equals(relationship)) {
-						taxonoy.setRefUri(link.getLink());
-					} else if("parent".equals(relationship)) {
-						taxonoy.setParentRefUrl(link.getLink());
-					}
-					taxonomies.add(taxonoy);
-				}
+				taxonomies.add(taxonoy);
 			}
 		}
 		return taxonomies.toArray(new JTaxonomy[taxonomies.size()]);
 	}
-
 }

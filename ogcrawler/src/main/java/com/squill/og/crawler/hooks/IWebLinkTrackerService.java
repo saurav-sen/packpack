@@ -14,8 +14,8 @@ public interface IWebLinkTrackerService {
 
 	public void dispose();
 	
-	public void addCrawledInfo(String link, WebSpiderTracker value,
-			long ttlSeconds);
+	public void upsertCrawledInfo(String link, WebSpiderTracker value,
+			long ttlSeconds, boolean updateLastModifiedTime);
 	
 	public WebSpiderTracker getTrackedInfo(String link);
 	

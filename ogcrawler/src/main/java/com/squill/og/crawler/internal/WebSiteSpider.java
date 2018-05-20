@@ -142,7 +142,7 @@ public class WebSiteSpider implements Spider {
 				String html = new HttpRequestExecutor().GET(url, info);
 				
 				long ttlSeconds = 10 * 24 * 60 * 60;
-				tracker.addCrawledInfo(link.getUrl(), info, ttlSeconds);
+				tracker.upsertCrawledInfo(link.getUrl(), info, ttlSeconds, false);
 				
 				if(CoreConstants.SKIP.equalsIgnoreCase(html)) {
 					continue;

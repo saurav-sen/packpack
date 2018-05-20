@@ -24,7 +24,9 @@ import com.squill.og.crawler.IWebCrawlable;
 import com.squill.og.crawler.app.SystemPropertyKeys;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.ISpiderSession;
+import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.JSONUtil;
+import com.squill.og.crawler.model.WebSpiderTracker;
 
 /**
  * 
@@ -75,13 +77,13 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		map.put(webCrawlable.getUniqueId(), list);
 		if (webCrawlable.isUploadIndependently()) {
 			try {
-				uploadBulk(map, session.getBatchId());
+				uploadBulk(map, session.getBatchId(), webCrawlable);
 			} catch (Exception e) {
 				LOG.error(e.getMessage(), e);
 			}
 		} else if (count == 0) {
 			try {
-				uploadBulk(map, session.getBatchId());
+				uploadBulk(map, session.getBatchId(), webCrawlable);
 			} catch (Exception e) {
 				LOG.error(e.getMessage(), e);
 			}
@@ -101,8 +103,13 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 	}
 	
 	private String resolveArchiveFolder() {
-		return System.getProperty(SystemPropertyKeys.WEB_CRAWLERS_CONFIG_DIR) + "/../"
-				+ DEFAULT_ARCHIVE_FOLDER;
+		/*return System.getProperty(SystemPropertyKeys.WEB_CRAWLERS_CONFIG_DIR) + "/../"
+				+ DEFAULT_ARCHIVE_FOLDER;*/
+		String userHome = System.getProperty("user.home");
+		if(!userHome.endsWith(File.separator)) {
+			userHome = userHome + File.separator;
+		}
+		return userHome + DEFAULT_ARCHIVE_FOLDER;
 	}
 	
 	private void storeInArchive(String id, List<JRssFeed> list) {
@@ -191,7 +198,7 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		}
 	}*/
 	
-	private void uploadBulk(Map<String, List<JRssFeed>> map, long batchId) throws Exception {
+	private void uploadBulk(Map<String, List<JRssFeed>> map, long batchId, IWebCrawlable webCrawlable) throws Exception {
 		if(!ServiceIdResolver.isUploadMode())
 			return;
 		storeInArchive(map);
@@ -201,5 +208,18 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		ttl.setTime((short) 1);
 		ttl.setUnit(TimeUnit.DAYS);
 		RssFeedUtil.uploadNewFeeds(rssFeeds, ttl, batchId, true);
+		IWebLinkTrackerService webLinkTrackerService = webCrawlable.getTrackerService();
+		List<JRssFeed> feeds = rssFeeds.getFeeds();
+		for(JRssFeed feed : feeds) {
+			String link = feed.getOgUrl();
+			WebSpiderTracker info = webLinkTrackerService.getTrackedInfo(link);
+			if(info == null) {
+				info = new WebSpiderTracker();
+			}
+			info.setLastCrawled(System.currentTimeMillis());
+			info.setLink(link);
+			info.setUploadCompleted(true);
+			webLinkTrackerService.upsertCrawledInfo(link, info, 30 * 60 * 60, false);
+		}
 	}
 }

@@ -75,71 +75,104 @@ public class AllInOneAITaskExecutor {
 					if(session.isThresholdReached()) {
 						LOG.debug("Threshold Reached for the day, will skip all remaining");
 					}
-					if(info != null || session.isThresholdReached()) {
-						if(info != null) {
+					if((info != null && info.isUploadCompleted()) || session.isThresholdReached()) {
+						if(info != null && info.isUploadCompleted()) {
 							LOG.debug("Already read earlier thereby skipping link @ " + link);
 						}
 						feedsItr.remove();
 						continue;
 					}
 					
-					info = new WebSpiderTracker();
+					if(info == null) {
+						info = new WebSpiderTracker();
+					}
 					info.setLastCrawled(System.currentTimeMillis());
 					info.setLink(link);
-					webLinkTrackerService.addCrawledInfo(link, info, 24 * 60 * 60);
+					long linkInfoTtlSeconds = 30 * 60 * 60;
+					webLinkTrackerService.upsertCrawledInfo(link, info, linkInfoTtlSeconds, false);
 					
-					IArticleTextSummarizer articleTextSummarizer = webCrawlable
-							.getArticleTextSummarizer();
-					if (articleTextSummarizer != null) {
-						session.incrementCrawledCount(1);
-						if(session.isThresholdReached()) {
-							feedsItr.remove();
-							continue;
-						}
-						TextSummarization response = articleTextSummarizer
-								.summarize(feed.getOgUrl(), feed.getOgTitle(),
-										feed.getOgDescription());
-						if (response != null) {
-							feed.setArticleSummaryText(response
-									.extractedAllSummary(false));
-							feed.setFullArticleText(response.getText());
-						}
-					}
-					if(geoLocationResolver != null) {
-						String domainUrl = null;
-						if(webCrawlable instanceof IWebSite) {
-							domainUrl = ((IWebSite)webCrawlable).getDomainUrl();
-						} else {
-							domainUrl = resolveDomainUrl(feed.getOgUrl());
-						}
-						session.incrementCrawledCount(1);
-						if(session.isThresholdReached()) {
-							feedsItr.remove();
-							continue;
-						}
-						GeoLocation[] geoLocations = geoLocationResolver.resolveGeoLocations(feed.getOgUrl(), domainUrl, feed);
-						if(geoLocations != null && geoLocations.length > 0) {
-							for(GeoLocation geoLocation : geoLocations) {
-								JGeoTag geoTag = new JGeoTag();
-								geoTag.setLatitude(geoLocation.getLatitude());
-								geoTag.setLongitude(geoLocation.getLongitude());
-								feed.getGeoTags().add(geoTag);
+					boolean needToUpsertLinkInfo = false;
+					
+					if(info.getArticleSummaryText() == null) {
+						IArticleTextSummarizer articleTextSummarizer = webCrawlable
+								.getArticleTextSummarizer();
+						if (articleTextSummarizer != null) {
+							session.incrementCrawledCount(1);
+							if(session.isThresholdReached()) {
+								feedsItr.remove();
+								continue;
+							}
+							TextSummarization response = articleTextSummarizer
+									.summarize(feed.getOgUrl(), feed.getOgTitle(),
+											feed.getOgDescription());
+							if (response != null) {
+								feed.setArticleSummaryText(response
+										.extractedAllSummary(false));
+								feed.setFullArticleText(response.getText());
+								
+								info.setArticleSummaryText(response
+										.extractedAllSummary(false));
+								info.setFullArticleText(response.getText());
 							}
 						}
+						needToUpsertLinkInfo = true;
+					} else {
+						feed.setArticleSummaryText(info.getArticleSummaryText());
+						feed.setFullArticleText(info.getFullArticleText());
 					}
 					
-					if(taxonomyResolver != null) {
-						session.incrementCrawledCount(1);
-						if(session.isThresholdReached()) {
-							feedsItr.remove();
-							continue;
+					if(!info.isGeoTagsResolved()) {
+						needToUpsertLinkInfo = true;
+						if(geoLocationResolver != null) {
+							String domainUrl = null;
+							if(webCrawlable instanceof IWebSite) {
+								domainUrl = ((IWebSite)webCrawlable).getDomainUrl();
+							} else {
+								domainUrl = resolveDomainUrl(feed.getOgUrl());
+							}
+							session.incrementCrawledCount(1);
+							if(session.isThresholdReached()) {
+								feedsItr.remove();
+								continue;
+							}
+							GeoLocation[] geoLocations = geoLocationResolver.resolveGeoLocations(feed.getOgUrl(), domainUrl, feed);
+							if(geoLocations != null && geoLocations.length > 0) {
+								for(GeoLocation geoLocation : geoLocations) {
+									JGeoTag geoTag = new JGeoTag();
+									geoTag.setLatitude(geoLocation.getLatitude());
+									geoTag.setLongitude(geoLocation.getLongitude());
+									feed.getGeoTags().add(geoTag);
+									info.getGeoTags().add(geoTag);
+								}
+							}
+							info.setGeoTagsResolved(true);
 						}
-						JTaxonomy[] taxonomies = taxonomyResolver.resolveTaxonomies(feed.getOgTitle(), feed.getOgUrl());
-						if(taxonomies != null && taxonomies.length > 0) {
-							for(JTaxonomy taxonomy : taxonomies) {
-								feed.getTaxonomies().add(taxonomy);
+					} else {
+						feed.getGeoTags().addAll(info.getGeoTags());
+					}
+					
+					if(info.getTaxonomies().isEmpty()) {
+						needToUpsertLinkInfo = true;
+						if(taxonomyResolver != null) {
+							session.incrementCrawledCount(1);
+							if(session.isThresholdReached()) {
+								feedsItr.remove();
+								continue;
+							}
+							JTaxonomy[] taxonomies = taxonomyResolver.resolveTaxonomies(feed.getOgTitle(), feed.getOgUrl());
+							if(taxonomies != null && taxonomies.length > 0) {
+								for(JTaxonomy taxonomy : taxonomies) {
+									feed.getTaxonomies().add(taxonomy);
+									info.getTaxonomies().add(taxonomy);
+								}
 							}
 						}
+					} else {
+						feed.getTaxonomies().addAll(info.getTaxonomies());
+					}
+					
+					if(needToUpsertLinkInfo) {
+						webLinkTrackerService.upsertCrawledInfo(link, info, linkInfoTtlSeconds, false);
 					}
 					
 					String classifier = classifyFeedType(feed);

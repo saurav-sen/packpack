@@ -177,8 +177,6 @@ public class ModelConverter {
 		Taxonomy taxonomy = new Taxonomy();
 		taxonomy.setId(rTaxonomy.getId());
 		taxonomy.setName(rTaxonomy.getName());
-		taxonomy.setParentRefUrl(rTaxonomy.getParentRefUrl());
-		taxonomy.setRefUri(rTaxonomy.getRefUri());
 		return taxonomy;
 	}
 	

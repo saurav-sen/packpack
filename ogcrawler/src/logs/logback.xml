@@ -5,7 +5,7 @@
   		<resetJUL>true</resetJUL> 
   	</contextListener>
 
-    <property scope="system" name="defaultLevel" value="debug" />
+    <property scope="system" name="defaultLevel" value="info" />
     <property scope="system" name="defaultAppender" value="FILE_APPENDER" />
     <property scope="system" name="defaultPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n" />
     
@@ -35,7 +35,7 @@
 		
 				<triggeringPolicy
 					class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-					<MaxFileSize>2GB</MaxFileSize>
+					<MaxFileSize>1GB</MaxFileSize>
 				</triggeringPolicy>
 			</appender>
 		</sift>
@@ -46,6 +46,10 @@
 	      <pattern>${defaultPattern}</pattern>
 	    </encoder>
 	</appender>
+	
+	 <logger name="com.squill.og.crawler" level="debug" additivity="false">
+            <appender-ref ref="${defaultAppender}" />
+     </logger>
 
 	<logger name="ogCrawler" level="${defaultLevel}"
 		additivity="false">
