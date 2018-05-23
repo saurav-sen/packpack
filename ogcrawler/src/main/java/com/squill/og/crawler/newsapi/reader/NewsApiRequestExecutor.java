@@ -37,6 +37,8 @@ public class NewsApiRequestExecutor implements IApiRequestExecutor {
 
 	private String newsAPIKey;
 	private List<NewsSource> newsSources;
+	
+	private DefaultFeedTypeResolver typeResolver;
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(NewsApiRequestExecutor.class);
@@ -64,6 +66,7 @@ public class NewsApiRequestExecutor implements IApiRequestExecutor {
 
 			this.newsSources = readNewsSources(configFile.getParent() + File.separator
 					+ newsApiSourceRelativePath);
+			typeResolver = new DefaultFeedTypeResolver(this.newsSources);
 		} catch (Exception e) {
 			LOG.error(
 					"Failed to load news-sources configuration for newsapi.org :: "
@@ -98,7 +101,7 @@ public class NewsApiRequestExecutor implements IApiRequestExecutor {
 						continue;
 					newsFeedsList.addAll(newsFeeds.getArticles());
 
-					JRssFeeds r = NewsFeedConverter.convert(newsFeeds);
+					JRssFeeds r = NewsFeedConverter.convert(newsFeeds, typeResolver);
 					if(r != null) {
 						result.put(newsSource.getId(), r.getFeeds());
 					}

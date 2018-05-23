@@ -7,6 +7,7 @@ import static com.pack.pack.common.util.CommonConstants.PREV_PAGE_LINK_PREFIX;
 import static com.pack.pack.common.util.CommonConstants.STANDARD_NEWS_PAGE_SIZE;
 import static com.pack.pack.common.util.CommonConstants.STANDARD_PAGE_SIZE;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -21,11 +22,13 @@ import com.pack.pack.model.RSSFeed;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.ShortenUrlInfo;
 import com.pack.pack.model.web.dto.RssFeedSourceType;
-import com.pack.pack.rss.IRssFeedService;
+import com.pack.pack.rss.IRefreshmentFeedService;
+import com.pack.pack.services.exception.ErrorCodes;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.redis.RssFeedRepositoryService;
 import com.pack.pack.services.redis.UrlShortener;
 import com.pack.pack.services.registry.ServiceRegistry;
+import com.pack.pack.util.EncryptionUtil;
 import com.pack.pack.util.ModelConverter;
 import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JRssFeedType;
@@ -38,13 +41,12 @@ import com.squill.feed.web.model.TTL;
  */
 @Component
 @Scope("singleton")
-public class RssFeedServiceImpl implements IRssFeedService {
+public class RefreshmentFeedServiceImpl implements IRefreshmentFeedService {
 	
-	private static final Logger LOG = LoggerFactory.getLogger(RssFeedServiceImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(RefreshmentFeedServiceImpl.class);
 	
 	@Override
-	public Pagination<JRssFeed> getAllRssFeeds(String userId, String pageLink,
-			String source, String apiVersion) throws PackPackException {
+	public Pagination<JRssFeed> getAllRssFeeds(String userId, String pageLink) throws PackPackException {
 		if (pageLink == null || END_OF_PAGE.equals(pageLink.trim())) {
 			Pagination<JRssFeed> page = new Pagination<JRssFeed>();
 			page.setNextLink(END_OF_PAGE);
@@ -64,7 +66,13 @@ public class RssFeedServiceImpl implements IRssFeedService {
 		RssFeedRepositoryService repositoryService = ServiceRegistry.INSTANCE
 				.findService(RssFeedRepositoryService.class);
 		List<RSSFeed> feeds = Collections.emptyList();
-		LOG.debug("source = " + source);
+		String source = JRssFeedType.REFRESHMENT.name();
+		
+		feeds = repositoryService.getAllRefrehmentFeeds();
+		LOG.debug("Promotional Feeds Count = " + feeds.size());
+		promotionalFeeds = true;
+		
+		/*LOG.debug("source = " + source);
 		if (source == null || source.trim().isEmpty()
 				|| "default".equals(source)
 				|| RssFeedSourceType.SQUILL_TEAM.equals(source)
@@ -88,15 +96,17 @@ public class RssFeedServiceImpl implements IRssFeedService {
 					.name());
 			paginationRequired = true;
 			LOG.debug("News Feeds Count = " + feeds.size());
-		}
+		}*/
 		/* **************************************************************************************************************************** */
 
-		boolean ignoreVideoFeeds = true;
+		boolean ignoreVideoFeeds = false;
+		boolean ignoreSlideShows = false;
+		/*boolean ignoreVideoFeeds = true;
 		boolean ignoreSlideShows = true;
 		if(apiVersion != null && apiVersion.equalsIgnoreCase("v2")) {
 			ignoreVideoFeeds = false;
 			ignoreSlideShows = false;
-		}
+		}*/
 		// For now (for demo purpose lets just return all the feeds).
 		Pagination<RSSFeed> page = null;
 		List<RSSFeed> result = feeds;
@@ -268,22 +278,31 @@ public class RssFeedServiceImpl implements IRssFeedService {
 	
 	@Override
 	public boolean upload(JRssFeed feed, TTL ttl, long batchId) throws PackPackException {
-		RssFeedRepositoryService service = ServiceRegistry.INSTANCE
-				.findService(RssFeedRepositoryService.class);
-		boolean checkFeedExists = service.checkFeedExists(feed);
-		if(!checkFeedExists) {
-			ShortenUrlInfo shortenUrlInfo = UrlShortener.calculateShortenShareableUrl(feed);
-			feed.setShareableUrl(shortenUrlInfo.getUrl());
-			feed.setBatchId(batchId);
-			RSSFeed rssFeed = ModelConverter.convert(feed);
-			service.uploadPromotionalFeed(rssFeed, ttl);
+		try {
+			RssFeedRepositoryService service = ServiceRegistry.INSTANCE
+					.findService(RssFeedRepositoryService.class);
+			boolean checkFeedExists = service.checkFeedExists(feed);
+			if(!checkFeedExists) {
+				ShortenUrlInfo shortenUrlInfo = UrlShortener.calculateShortenShareableUrl(feed);
+				feed.setShareableUrl(shortenUrlInfo.getUrl());
+				feed.setBatchId(batchId);
+				RSSFeed rssFeed = ModelConverter.convert(feed);
+				service.uploadRefreshmentFeed(rssFeed, ttl);
+			}
+			return !checkFeedExists;
+		} catch (NoSuchAlgorithmException e) {
+			LOG.error(e.getMessage(), e);
+			throw new PackPackException(ErrorCodes.PACK_ERR_61, e.getMessage());
 		}
-		return !checkFeedExists;
 		//return ModelConverter.convert(rssFeed);
 	}
 	
-	public static void main(String[] args) {
-		System.out.println("http://www.photodestination.co.za/images/peter_blog_post/Great%20Seascapes%20Tips/8_Tsitsikamma%20sea%20and%20rocks%20by%20wildlife%20and%20conservation%20photographer%20peter%20chadwick.jpg".hashCode());
+	public static void main(String[] args) throws NoSuchAlgorithmException {
+		System.out
+				.println(EncryptionUtil
+						.generateSH1HashKey(
+								"http://www.photodestination.co.za/images/peter_blog_post/Great%20Seascapes%20Tips/8_Tsitsikamma%20sea%20and%20rocks%20by%20wildlife%20and%20conservation%20photographer%20peter%20chadwick.jpg",
+								false, true));
 	}
 	
 	/*@Override
@@ -362,10 +381,4 @@ public class RssFeedServiceImpl implements IRssFeedService {
 		service.add(rssFeed);
 		return ModelConverter.convert(rssFeed);
 	}*/
-
-	@Override
-	public JRssFeed generateRssFeedForTopic(String topicId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }

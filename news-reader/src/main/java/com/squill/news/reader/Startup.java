@@ -223,7 +223,7 @@ public class Startup {
 			TTL ttl = new TTL();
 			ttl.setTime((short) 1);
 			ttl.setUnit(TimeUnit.DAYS);
-			RssFeedUtil.uploadNewFeeds(feeds, ttl, batchId, true);
+			RssFeedUtil.uploadRefreshmentFeeds(feeds, ttl, batchId, true);
 		}
 	}
 

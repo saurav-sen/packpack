@@ -1,5 +1,6 @@
 package com.pack.pack.services.redis;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,6 +22,7 @@ import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.util.RssFeedUtil;
 import com.pack.pack.util.SystemPropertyUtil;
 import com.squill.feed.web.model.JRssFeed;
+import com.squill.feed.web.model.JRssFeedType;
 import com.squill.feed.web.model.TTL;
 
 /**
@@ -30,28 +32,8 @@ import com.squill.feed.web.model.TTL;
  */
 @Component
 @Scope("singleton")
-//@Views({ @View(name = "findFeedPromotions", map = "function(doc) { if(doc.promoStartTimestamp && doc.promoExpiryTimestamp) { emit(doc.promoStartTimestamp + doc.promoExpiryTimestamp); } }") })
-//public class RssFeedRepositoryService extends CouchDbRepositorySupport<RSSFeed> {
 public class RssFeedRepositoryService {
 
-	/*@Autowired
-	public RssFeedRepositoryService(@Qualifier("packDB") CouchDbConnector db) {
-		super(RSSFeed.class, db);
-	}
-	
-	@PostConstruct
-	public void doInit() {
-		initStandardDesignDocument();
-	}
-
-	public List<RSSFeed> getAllPromotionalFeeds(long startTime, long expiryTime)
-			throws PackPackException {
-		//String startKey = String.valueOf(startTime);
-		//String endKey = startKey + String.valueOf(expiryTime);
-		ViewQuery query = createQuery("findFeedPromotions").includeDocs(true);//.startKey(startKey).endKey(endKey);
-		return db.queryView(query, RSSFeed.class);
-	}*/
-	
 	private RedisClient client;
 	private StatefulRedisConnection<String, String> connection;
 
@@ -59,6 +41,10 @@ public class RssFeedRepositoryService {
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(RssFeedRepositoryService.class);
+	
+	private static final String SET_KEY_PREFIX = "SET_";
+	
+	private static final String LATEST_SCORE = "LATEST_SCORE";
 
 	@PostConstruct
 	private void init() {
@@ -91,7 +77,7 @@ public class RssFeedRepositoryService {
 		return sync;
 	}
 	
-	public boolean checkFeedExists(JRssFeed feed) {
+	public boolean checkFeedExists(JRssFeed feed) throws NoSuchAlgorithmException {
 		RedisCommands<String, String> sync = getSyncRedisCommands();
 		//String key = "Feeds_" + String.valueOf(feed.getOgUrl().hashCode());
 		String key = RssFeedUtil.generateUploadKey(feed);
@@ -101,12 +87,54 @@ public class RssFeedRepositoryService {
 		return true;
 	}
 	
-	public void uploadPromotionalFeed(RSSFeed feed, TTL ttl)
-			throws PackPackException {
+	public void uploadRefreshmentFeed(RSSFeed feed, TTL ttl)
+			throws PackPackException, NoSuchAlgorithmException {
+		LOG.info("Uploading Feed for Refreshment");
 		LOG.info("Uploading " + feed.getOgType() + " Feed @ " + feed.getOgUrl());
 		LOG.info("Uploading Feed Titled :: " + feed.getOgTitle());
 		String json = JSONUtil.serialize(feed);
 		RedisCommands<String, String> sync = getSyncRedisCommands();
+		long ttlSeconds = resolveTTL_InSeconds(ttl);
+		String key = RssFeedUtil.generateUploadKey(feed);
+		sync.setex(key, ttlSeconds, json);
+		LOG.info("Successfully uploaded Refreshment Feed");
+		// sync.close();
+	}
+	
+	private void updateLatestScoreForNewsFeed(
+			RedisCommands<String, String> sync, RSSFeed feed, long batchId)
+			throws PackPackException, NoSuchAlgorithmException {
+		String setKey = SET_KEY_PREFIX + RssFeedUtil.resolvePrefix(feed)
+				+ LATEST_SCORE;
+		String value = sync.get(setKey);
+		if(value == null) {
+			value = "";
+		}
+		String nValue = String.valueOf(batchId);
+		if(!value.contains(nValue)) {
+			value = nValue + ";" + value;
+			sync.set(setKey, value);
+		}
+	}
+
+	public void uploadNewsFeed(RSSFeed feed, TTL ttl, long batchId)
+			throws PackPackException, NoSuchAlgorithmException {
+		String feedType = feed.getFeedType().toUpperCase();
+		LOG.info("Uploading Feed for " + feedType);
+		LOG.info("Uploading " + feedType + " Feed @ " + feed.getOgUrl());
+		LOG.info("Uploading Feed Titled :: " + feed.getOgTitle());
+		String json = JSONUtil.serialize(feed);
+		RedisCommands<String, String> sync = getSyncRedisCommands();
+		long ttlSeconds = resolveTTL_InSeconds(ttl);
+		String key = RssFeedUtil.generateUploadKey(feed);
+		String setKey = SET_KEY_PREFIX + RssFeedUtil.resolvePrefix(feed);
+		sync.zadd(setKey, batchId, key);
+		sync.setex(key, ttlSeconds, json);
+		updateLatestScoreForNewsFeed(sync, feed, batchId);
+		LOG.info("Successfully uploaded " + feedType + " Feed");
+	}
+	
+	private long resolveTTL_InSeconds(TTL ttl) {
 		long ttlSeconds = ttl.getTime();
 		TimeUnit unit = ttl.getUnit();
 		switch (unit) {
@@ -131,36 +159,12 @@ public class RssFeedRepositoryService {
 			ttlSeconds = ttlSeconds * 24 * 60 * 60;
 			break;
 		}
-		String key = RssFeedUtil.generateUploadKey(feed);
-		sync.setex(key, ttlSeconds, json);
-		LOG.info("Successfully uploaded Feed");
-		// sync.close();
+		return ttlSeconds;
 	}
 	
-	public List<RSSFeed> getAllPromotionalFeeds() throws PackPackException {
-		/*RedisCommands<String, String> sync = getSyncRedisCommands();
-		List<String> keys = sync.keys("Feeds_*");
-		if (keys == null || keys.isEmpty())
-			return Collections.emptyList();
-		List<RSSFeed> feeds = new LinkedList<RSSFeed>();
-		for (String key : keys) {
-			String json = sync.get(key);
-			RSSFeed feed = JSONUtil.deserialize(json, RSSFeed.class, true);
-			feeds.add(feed);
-		}
-		// sync.close();
-		return feeds;*/
-		return getAllFeeds("Feeds_*");
+	public List<RSSFeed> getAllRefrehmentFeeds() throws PackPackException {
+		return getAllFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.REFRESHMENT.name()) + "*");
 	}
-	
-	public List<RSSFeed> getAllNewsFeeds(String newsType) throws PackPackException {
-		//return getAllFeeds("NEWS_*");
-		return getAllFeeds(RssFeedUtil.resolvePrefix(newsType) + "*");
-	}
-	
-	/*public List<RSSFeed> getAllUserCustomFeeds(String city, String country) throws PackPackException {
-		return getAllFeeds("User_broadcast_*");
-	}*/
 	
 	private List<RSSFeed> getAllFeeds(String keyPattern) throws PackPackException {
 		RedisCommands<String, String> sync = getSyncRedisCommands();

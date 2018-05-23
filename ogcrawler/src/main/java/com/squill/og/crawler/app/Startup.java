@@ -19,8 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
-import com.pack.pack.rss.IRssFeedService;
-import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.services.registry.ServiceRegistryModes;
 import com.pack.pack.util.SystemPropertyUtil;

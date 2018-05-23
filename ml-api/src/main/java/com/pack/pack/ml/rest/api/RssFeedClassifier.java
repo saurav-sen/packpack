@@ -143,7 +143,7 @@ public class RssFeedClassifier {
 			ttl.setTime((short)2);
 			ttl.setUnit(TimeUnit.DAYS);
 			long batchId = System.currentTimeMillis();
-			RssFeedUtil.uploadNewFeeds(jRssFeeds, ttl, batchId, sendNotification);
+			RssFeedUtil.uploadRefreshmentFeeds(jRssFeeds, ttl, batchId, sendNotification);
 		}
 
 		@Override

@@ -39,11 +39,11 @@ public class MessagePublisher {
 	
 	public static void main(String[] args) throws Exception {
 		JRssFeed feed = new JRssFeed();
-		feed.setOgTitle("\"Test Java 123\"");
+		feed.setOgTitle("\"Received News Items\"");
 		System.out.println(JSONUtil.serialize(feed, false));
 		feed = JSONUtil.deserialize(JSONUtil.serialize(feed, false), JRssFeed.class);
 		System.out.println(feed.getOgTitle());
-		new MessagePublisher().broadcastNewRSSFeedUploadSummary("Test Java 123");
+		new MessagePublisher().broadcastNewRSSFeedUploadSummary("Received News Items");
 		
 	}
 	

@@ -1,5 +1,6 @@
 package com.pack.pack.util;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -9,7 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import com.pack.pack.model.RSSFeed;
 import com.pack.pack.model.RssFeedType;
-import com.pack.pack.rss.IRssFeedService;
+import com.pack.pack.rss.INewsFeedService;
+import com.pack.pack.rss.IRefreshmentFeedService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.rabbitmq.MessagePublisher;
 import com.pack.pack.services.registry.ServiceRegistry;
@@ -27,7 +29,7 @@ public class RssFeedUtil {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(RssFeedUtil.class);
 
-	public static void uploadNewFeeds(JRssFeeds feeds, TTL ttl, long batchId, boolean sendNotification) {
+	public static void uploadRefreshmentFeeds(JRssFeeds feeds, TTL ttl, long batchId, boolean sendNotification) {
 		LOG.info("Classification done. Uploading feeds to DB");
 		try {
 			List<JRssFeed> list = new LinkedList<JRssFeed>();
@@ -36,8 +38,8 @@ public class RssFeedUtil {
 				//TTL ttl = new TTL();
 				ttl.setTime((short) 2);
 				ttl.setUnit(TimeUnit.DAYS);
-				IRssFeedService service = ServiceRegistry.INSTANCE
-						.findCompositeService(IRssFeedService.class);
+				IRefreshmentFeedService service = ServiceRegistry.INSTANCE
+						.findCompositeService(IRefreshmentFeedService.class);
 				for (JRssFeed feed : newFeeds) {
 					boolean f = service.upload(feed, ttl, batchId);
 					LOG.info("Upleaded News Feed = " + f);
@@ -59,7 +61,7 @@ public class RssFeedUtil {
 						@Override
 						public void run() {
 							try {
-								messagePublisher.broadcastNewRSSFeedUploadSummary("You have " + size + " news and recent happenings");
+								messagePublisher.broadcastNewRSSFeedUploadSummary("You have " + size + " Squill Posts");
 							} catch (Exception e) {
 								LOG.error(e.getMessage(), e);
 							}
@@ -74,11 +76,56 @@ public class RssFeedUtil {
 		}
 	}
 	
-	private static final String resolvePrefix(RSSFeed feed) {
+	public static void uploadNewsFeeds(JRssFeeds feeds, TTL ttl, long batchId, boolean sendNotification) {
+		LOG.info("Classification done. Uploading feeds to DB");
+		try {
+			List<JRssFeed> list = new LinkedList<JRssFeed>();
+			List<JRssFeed> newFeeds = feeds.getFeeds();
+			if (newFeeds != null && !newFeeds.isEmpty()) {
+				//TTL ttl = new TTL();
+				ttl.setTime((short) 2);
+				ttl.setUnit(TimeUnit.DAYS);
+				INewsFeedService service = ServiceRegistry.INSTANCE
+						.findCompositeService(INewsFeedService.class);
+				boolean f = service.upload(feeds.getFeeds(), ttl, batchId);
+				LOG.info("Upleaded News Feed = " + f);
+				if(f) {
+					list.addAll(feeds.getFeeds());
+				}
+				/*JRssFeeds result = new JRssFeeds();
+				result.setFeeds(list);*/
+				MessagePublisher messagePublisher = ServiceRegistry.INSTANCE
+						.findService(MessagePublisher.class);
+				if(!sendNotification)
+					return;
+				final int size = list.size();
+				LOG.info("Sending Notifications = " + list.size());
+				if(size > 0) {
+					Thread t0 = new Thread(new Runnable() {
+						
+						@Override
+						public void run() {
+							try {
+								messagePublisher.broadcastNewRSSFeedUploadSummary("You have " + size + " News Items");
+							} catch (Exception e) {
+								LOG.error(e.getMessage(), e);
+							}
+						}
+					});
+					t0.start();
+				}
+			}
+			LOG.info("Successfully uploaded feeds in DB");
+		} catch (PackPackException e) {
+			LOG.error(e.getErrorCode() + "::" + e.getMessage(), e);
+		}
+	}
+	
+	public static final String resolvePrefix(RSSFeed feed) {
 		return resolvePrefix(feed.getFeedType());
 	}
 	
-	private static final String resolvePrefix(JRssFeed feed) {
+	public static final String resolvePrefix(JRssFeed feed) {
 		return resolvePrefix(feed.getFeedType());
 	}
 	
@@ -99,20 +146,20 @@ public class RssFeedUtil {
 		return "Feeds_";
 	}
 	
-	public static final String generateUploadKey(RSSFeed feed) {
+	public static final String generateUploadKey(RSSFeed feed) throws NoSuchAlgorithmException {
 		//return "Feeds_" + String.valueOf(feed.getOgUrl().hashCode());
 		String key = feed.getOgImage();
 		if(key == null) {
 			key = feed.getOgUrl() != null ? feed.getOgUrl() : (feed.getHrefSource() != null ? feed.getHrefSource() : feed.getOgTitle());
 		}
-		return resolvePrefix(feed) + String.valueOf(key.hashCode());
+		return resolvePrefix(feed) + EncryptionUtil.generateSH1HashKey(key, false, true);
 	}
 	
-	public static final String generateUploadKey(JRssFeed feed) {
+	public static final String generateUploadKey(JRssFeed feed) throws NoSuchAlgorithmException {
 		String key = feed.getOgImage();
 		if(key == null) {
 			key = feed.getOgUrl() != null ? feed.getOgUrl() : (feed.getHrefSource() != null ? feed.getHrefSource() : feed.getOgTitle());
 		}
-		return resolvePrefix(feed) + String.valueOf(key.hashCode());
+		return resolvePrefix(feed) + EncryptionUtil.generateSH1HashKey(key, false, true);
 	}
 }

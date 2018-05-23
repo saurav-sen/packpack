@@ -21,7 +21,6 @@ import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JRssFeeds;
 import com.squill.feed.web.model.TTL;
 import com.squill.og.crawler.IWebCrawlable;
-import com.squill.og.crawler.app.SystemPropertyKeys;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
@@ -170,34 +169,6 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		}
 	}
 
-	/*private void uploadBulk(Map<String, List<JRssFeed>> map) throws Exception {
-		if(!ServiceIdResolver.isUploadMode())
-			return;
-		storeInArchive(map);
-		try {
-			DefaultHttpClient client = new DefaultHttpClient();
-			String url = System.getProperty(BASE_URL_CONFIG);
-			if(url != null && !url.isEmpty() && url.startsWith("${") && url.endsWith("}")) {
-				url = url.substring(0, url.length()-1);
-				url = url.replaceFirst("\\$\\{", "");
-				url = System.getProperty(url);
-			}
-			url = url + System.getProperty(URL_PART_CONFIG);
-			HttpPut PUT = new HttpPut(url);
-			PUT.addHeader(CoreConstants.AUTHORIZATION_HEADER,
-					System.getProperty(API_KEY_CONFIG));
-			PUT.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
-			JRssFeeds rssFeeds = deDuplicate(map);
-			String json = JSONUtil.serialize(rssFeeds);
-			PUT.setEntity(new StringEntity(json));
-			LOG.info("Invoking 'PUT " + url
-					+ "' (ML Api) for classification and bulk upload of feeds");
-			client.execute(PUT);
-		} finally {
-			aggregatedFeedsMap.clear();
-		}
-	}*/
-	
 	private void uploadBulk(Map<String, List<JRssFeed>> map, long batchId, IWebCrawlable webCrawlable) throws Exception {
 		if(!ServiceIdResolver.isUploadMode())
 			return;
@@ -207,7 +178,7 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		TTL ttl = new TTL();
 		ttl.setTime((short) 1);
 		ttl.setUnit(TimeUnit.DAYS);
-		RssFeedUtil.uploadNewFeeds(rssFeeds, ttl, batchId, true);
+		RssFeedUtil.uploadNewsFeeds(rssFeeds, ttl, batchId, true);
 		IWebLinkTrackerService webLinkTrackerService = webCrawlable.getTrackerService();
 		List<JRssFeed> feeds = rssFeeds.getFeeds();
 		for(JRssFeed feed : feeds) {

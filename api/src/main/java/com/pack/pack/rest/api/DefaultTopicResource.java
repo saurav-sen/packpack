@@ -10,11 +10,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
 import com.pack.pack.model.web.Pagination;
+import com.pack.pack.model.web.dto.RssFeedSourceType;
 import com.pack.pack.rest.api.security.interceptors.CompressWrite;
-import com.pack.pack.rss.IRssFeedService;
+import com.pack.pack.rss.IRefreshmentFeedService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.squill.feed.web.model.JRssFeed;
+import com.squill.feed.web.model.JRssFeedType;
 
 /**
  * 
@@ -31,24 +33,17 @@ public class DefaultTopicResource {
 	@Path("usr/{userId}/page/{pageLink}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Pagination<JRssFeed> getRssFeeds(@PathParam("userId") String userId,
-			@PathParam("pageLink") String pageLink)
-			throws PackPackException {
-		IRssFeedService service = ServiceRegistry.INSTANCE
-				.findCompositeService(IRssFeedService.class);
-		return service.getAllRssFeeds(userId, pageLink, null, null);
-	}
-	
-	@GET
-	@CompressWrite
-	@Path("usr/{userId}/page/{pageLink}/version/{version}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Pagination<JRssFeed> getRssFeeds(@PathParam("userId") String userId,
 			@PathParam("pageLink") String pageLink,
-			@PathParam("version") String apiVersion,
 			@QueryParam("source") String source)
 			throws PackPackException {
-		IRssFeedService service = ServiceRegistry.INSTANCE
-				.findCompositeService(IRssFeedService.class);
-		return service.getAllRssFeeds(userId, pageLink, source, apiVersion);
+		if(source == null || source.trim().isEmpty()
+				|| "default".equals(source)
+				|| RssFeedSourceType.SQUILL_TEAM.equals(source)
+				|| JRssFeedType.REFRESHMENT.name().equals(source)) {
+			IRefreshmentFeedService service = ServiceRegistry.INSTANCE
+					.findCompositeService(IRefreshmentFeedService.class);
+			return service.getAllRssFeeds(userId, pageLink);
+		}
+		return null;
 	}
 }

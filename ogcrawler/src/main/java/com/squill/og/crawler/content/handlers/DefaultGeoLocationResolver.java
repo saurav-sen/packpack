@@ -1,5 +1,7 @@
 package com.squill.og.crawler.content.handlers;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -29,37 +31,52 @@ public class DefaultGeoLocationResolver implements IGeoLocationResolver {
 				List<JConcept> concepts = new DandelionEntityExtractor()
 						.extractConcepts(feed.getOgTitle());
 
+				List<GeoLocation> geoLocationTags = new ArrayList<GeoLocation>();
 				DbpediaGeoLocationReader dbpediaBasedLocationResolver = new DbpediaGeoLocationReader();
 				if (concepts != null && !concepts.isEmpty()) {
 					feed.setConcepts(concepts);
-					List<GeoLocation> geoLocationTags = dbpediaBasedLocationResolver
+					geoLocationTags = dbpediaBasedLocationResolver
 							.resolveGeoLocationTags(concepts);
 					if (geoLocationTags == null || geoLocationTags.isEmpty()) {
 						String urlId = domainUrl;
 						if(urlId == null || urlId.trim().isEmpty()) {
 							urlId = linkUrl;
 						}
-						String[] places = GeoLocationDataHolder.INSTANCE
-								.getTargetDefaultPlacesByDomainUrl(urlId);
-						if (places != null) {
-							for (String place : places) {
-								List<GeoLocation> list = dbpediaBasedLocationResolver
-										.resolveGeoLocationsForPlaceByName(place);
-								if(list != null) {
-									geoLocationTags.addAll(list);
-								}
-							}
-						}
+						geoLocationTags.addAll(resolveBasedUponServerUrl(urlId, dbpediaBasedLocationResolver));
 					}
-					dbpediaBasedLocationResolver.dispose();
-					return geoLocationTags != null ? geoLocationTags
-							.toArray(new GeoLocation[geoLocationTags.size()])
-							: new GeoLocation[0];
+				} else {
+					String urlId = domainUrl;
+					if(urlId == null || urlId.trim().isEmpty()) {
+						urlId = linkUrl;
+					}
+					geoLocationTags.addAll(resolveBasedUponServerUrl(urlId, dbpediaBasedLocationResolver));
 				}
+				
+				dbpediaBasedLocationResolver.dispose();
+				return geoLocationTags != null ? geoLocationTags
+						.toArray(new GeoLocation[geoLocationTags.size()])
+						: new GeoLocation[0];
 			}
 		} catch (Exception e) {
 			LOG.error(e.getMessage(), e);
 		}
 		return new GeoLocation[0];
+	}
+	
+	private List<GeoLocation> resolveBasedUponServerUrl(String serverUrl, DbpediaGeoLocationReader dbpediaBasedLocationResolver) {
+		List<GeoLocation> geoLocationTags = new LinkedList<GeoLocation>();
+		String urlId = serverUrl;
+		String[] places = GeoLocationDataHolder.INSTANCE
+				.getTargetDefaultPlacesByDomainUrl(urlId);
+		if (places != null) {
+			for (String place : places) {
+				List<GeoLocation> list = dbpediaBasedLocationResolver
+						.resolveGeoLocationsForPlaceByName(place);
+				if(list != null) {
+					geoLocationTags.addAll(list);
+				}
+			}
+		}
+		return geoLocationTags;
 	}
 }

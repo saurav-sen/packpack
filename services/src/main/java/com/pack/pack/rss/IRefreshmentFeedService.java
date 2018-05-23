@@ -10,19 +10,16 @@ import com.squill.feed.web.model.TTL;
  * @author Saurav
  *
  */
-public interface IRssFeedService {
+public interface IRefreshmentFeedService {
 
 	/**
 	 * 
 	 * @param userId
 	 * @param pageLink
-	 * @param source
-	 * @param apiVersion
 	 * @return
 	 * @throws PackPackException
 	 */
-	public Pagination<JRssFeed> getAllRssFeeds(String userId, String pageLink,
-			String source, String apiVersion) throws PackPackException;
+	public Pagination<JRssFeed> getAllRssFeeds(String userId, String pageLink) throws PackPackException;
 
 	/**
 	 * 
@@ -33,11 +30,4 @@ public interface IRssFeedService {
 	 * @throws PackPackException
 	 */
 	public boolean upload(JRssFeed feed, TTL ttl, long batchId) throws PackPackException;
-
-	/**
-	 * 
-	 * @param topicId
-	 * @return
-	 */
-	public JRssFeed generateRssFeedForTopic(String topicId);
 }

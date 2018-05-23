@@ -1,8 +1,11 @@
 package com.pack.pack.services.redis;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -11,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.lambdaworks.redis.GeoArgs.Unit;
 import com.lambdaworks.redis.RedisClient;
 import com.lambdaworks.redis.api.StatefulRedisConnection;
 import com.lambdaworks.redis.api.sync.RedisCommands;
@@ -104,6 +108,51 @@ public class RedisCacheService {
 		RedisCommands<String, String> sync = getSyncRedisCommands();
 		sync.setex(key, ttlSeconds, json);
 		//sync.close();
+	}
+	
+	public void addGeoTaggedItemsToCache(String key, String member, Object value, double longitude, double latitude, long ttlSeconds)
+			throws PackPackException {
+		if (value == null)
+			return;
+		String json = null;
+		if (value instanceof String) {
+			json = (String) value;
+		} else {
+			json = JSONUtil.serialize(value);
+		}
+		RedisCommands<String, String> sync = getSyncRedisCommands();
+		sync.geoadd(key, longitude, latitude, member);
+		sync.setex(member, ttlSeconds, json);
+		//sync.close();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <T> List<T> getGeoTaggedItemsFromCache(String key, double longitude, double latitude, double distanceInKm, Class<T> targetType)
+			throws PackPackException {
+		RedisCommands<String, String> sync = getSyncRedisCommands();
+		Set<String> members = sync.georadius(key, longitude, latitude, distanceInKm, Unit.km);
+		Set<String> expiredMembers = new HashSet<String>();
+		List<T> result = new ArrayList<T>();
+		for(String member : members) {
+			String json = sync.get(member);
+			//sync.close();
+			T object = null;
+			if (json == null) {
+				expiredMembers.add(member);
+				continue;
+			}
+			if (targetType.isAssignableFrom(String.class)) {
+				object = (T) json;
+			}
+			object = JSONUtil.deserialize(json, targetType, true);
+			if(object == null)
+				continue;
+			result.add(object);
+		}
+		if(!expiredMembers.isEmpty()) {
+			sync.zrem(key, expiredMembers.toArray(new String[expiredMembers.size()]));
+		}
+		return result;
 	}
 
 	public boolean isKeyExists(String key) {
