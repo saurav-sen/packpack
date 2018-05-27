@@ -1,6 +1,9 @@
 package com.pack.pack.services.redis;
 
+import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
+
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,6 +21,7 @@ import com.lambdaworks.redis.api.StatefulRedisConnection;
 import com.lambdaworks.redis.api.sync.RedisCommands;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.RSSFeed;
+import com.pack.pack.model.web.Pagination;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.util.RssFeedUtil;
 import com.pack.pack.util.SystemPropertyUtil;
@@ -101,39 +105,6 @@ public class RssFeedRepositoryService {
 		// sync.close();
 	}
 	
-	private void updateLatestScoreForNewsFeed(
-			RedisCommands<String, String> sync, RSSFeed feed, long batchId)
-			throws PackPackException, NoSuchAlgorithmException {
-		String setKey = SET_KEY_PREFIX + RssFeedUtil.resolvePrefix(feed)
-				+ LATEST_SCORE;
-		String value = sync.get(setKey);
-		if(value == null) {
-			value = "";
-		}
-		String nValue = String.valueOf(batchId);
-		if(!value.contains(nValue)) {
-			value = nValue + ";" + value;
-			sync.set(setKey, value);
-		}
-	}
-
-	public void uploadNewsFeed(RSSFeed feed, TTL ttl, long batchId)
-			throws PackPackException, NoSuchAlgorithmException {
-		String feedType = feed.getFeedType().toUpperCase();
-		LOG.info("Uploading Feed for " + feedType);
-		LOG.info("Uploading " + feedType + " Feed @ " + feed.getOgUrl());
-		LOG.info("Uploading Feed Titled :: " + feed.getOgTitle());
-		String json = JSONUtil.serialize(feed);
-		RedisCommands<String, String> sync = getSyncRedisCommands();
-		long ttlSeconds = resolveTTL_InSeconds(ttl);
-		String key = RssFeedUtil.generateUploadKey(feed);
-		String setKey = SET_KEY_PREFIX + RssFeedUtil.resolvePrefix(feed);
-		sync.zadd(setKey, batchId, key);
-		sync.setex(key, ttlSeconds, json);
-		updateLatestScoreForNewsFeed(sync, feed, batchId);
-		LOG.info("Successfully uploaded " + feedType + " Feed");
-	}
-	
 	private long resolveTTL_InSeconds(TTL ttl) {
 		long ttlSeconds = ttl.getTime();
 		TimeUnit unit = ttl.getUnit();
@@ -162,6 +133,71 @@ public class RssFeedRepositoryService {
 		return ttlSeconds;
 	}
 	
+	private long[] resolveRangeScores(String[] scores, long timestamp) {
+		if(scores == null || scores.length == 0)
+			return new long[0];
+		long[] result = new long[2];
+		if(timestamp == 0) {
+			if(scores.length > 1) {
+				result[0] = Long.parseLong(scores[1]);
+				result[1] = Long.parseLong(scores[0]);
+			} else {
+				result[0] = Long.parseLong(scores[0]);
+				result[1] = result[0];
+			}
+			return result;
+		}
+		boolean found = false;
+		for(int i=0; i<scores.length-1; i++) {
+			if(timestamp == Long.parseLong(scores[i])) {
+				i++;
+				result[0] = Long.parseLong(scores[i]);
+				result[1] = timestamp;
+				found = true;
+			}
+		}
+		if(!found)
+			result = new long[0];
+		return result;
+	}
+	
+	private void updateLatestScoreForNewsFeed(
+			RedisCommands<String, String> sync, RSSFeed feed, long batchId)
+			throws PackPackException, NoSuchAlgorithmException {
+		String setKey = SET_KEY_PREFIX + RssFeedUtil.resolvePrefix(feed)
+				+ LATEST_SCORE;
+		String value = sync.get(setKey);
+		if(value == null) {
+			value = "";
+		}
+		String nValue = String.valueOf(batchId);
+		if(!value.contains(nValue)) {
+			value = nValue + ";" + value;
+			sync.set(setKey, value);
+		}
+	}
+
+	public void uploadNewsFeed(RSSFeed feed, TTL ttl, long batchId, boolean updatePaginationInfo)
+			throws PackPackException, NoSuchAlgorithmException {
+		String feedType = feed.getFeedType().toUpperCase();
+		LOG.info("Uploading Feed for " + feedType);
+		LOG.info("Uploading " + feedType + " Feed @ " + feed.getOgUrl());
+		LOG.info("Uploading Feed Titled :: " + feed.getOgTitle());
+		String json = JSONUtil.serialize(feed);
+		RedisCommands<String, String> sync = getSyncRedisCommands();
+		long ttlSeconds = resolveTTL_InSeconds(ttl);
+		String key = RssFeedUtil.generateUploadKey(feed);
+		if(updatePaginationInfo) {
+			String setKey = SET_KEY_PREFIX + RssFeedUtil.resolvePrefix(feed);
+			sync.zadd(setKey, batchId, key);
+		}
+		sync.setex(key, ttlSeconds, json);
+		if(updatePaginationInfo) {
+			updateLatestScoreForNewsFeed(sync, feed, batchId);
+		}
+		LOG.info("Successfully uploaded " + feedType + " Feed");
+	}
+	
 	public List<RSSFeed> getAllRefrehmentFeeds() throws PackPackException {
 		return getAllFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.REFRESHMENT.name()) + "*");
 	}
@@ -180,4 +216,114 @@ public class RssFeedRepositoryService {
 		// sync.close();
 		return feeds;
 	}
+	
+	public Pagination<RSSFeed> getNewsFeeds(long timestamp) throws PackPackException {
+		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.NEWS.name()) + "*", timestamp);
+	}
+	
+	public Pagination<RSSFeed> getSportsNewsFeeds(long timestamp) throws PackPackException {
+		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.NEWS_SPORTS.name()) + "*", timestamp);
+	}
+	
+	public Pagination<RSSFeed> getScienceAndTechnologyNewsFeeds(long timestamp) throws PackPackException {
+		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.NEWS_SCIENCE_TECHNOLOGY.name()) + "*", timestamp);
+	}
+	
+	public Pagination<RSSFeed> getArticleNewsFeeds(long timestamp) throws PackPackException {
+		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.ARTICLE.name()) + "*", timestamp);
+	}
+	
+	private Pagination<RSSFeed> getAllUpdatedFeeds(String keyPattern, long timestamp) throws PackPackException {
+		Pagination<RSSFeed> page = new Pagination<RSSFeed>();
+		List<RSSFeed> feeds = new ArrayList<RSSFeed>();
+		if(timestamp < 0) {
+			feeds = getAllFeeds(keyPattern);
+			page.setResult(feeds);
+			page.setNextLink(END_OF_PAGE);
+			page.setPreviousLink(END_OF_PAGE);
+			return page;
+		}
+		
+		RedisCommands<String, String> sync = getSyncRedisCommands();
+		String setKey = SET_KEY_PREFIX + keyPattern.toUpperCase();
+		String rangeKey = setKey + LATEST_SCORE;
+		String ranges = sync.get(rangeKey);
+		String[] split = ranges.split(";");
+		
+		List<String> keys = null;
+		long[] scores = resolveRangeScores(split, timestamp);
+		if(scores.length == 0)
+			return endOfPageResponse(timestamp);
+		long r1 = scores[0];
+		long r2 = scores[1];
+		keys = sync.zrange(setKey, r1, r2);
+		
+		if (keys == null || keys.isEmpty()) { // This means all the keys got expired due to TTL (And have been removed earlier or during auto sync, but ranges/scores NOT updated accordingly)
+			removeAllExpiredRanges(rangeKey, split, timestamp);
+			return endOfPageResponse(timestamp);
+		} else {
+			for (String key : keys) {
+				String json = sync.get(key);
+				if(json == null) {
+					sync.zrem(setKey, key);
+					continue;
+				}
+				RSSFeed feed = JSONUtil.deserialize(json, RSSFeed.class, true);
+				feeds.add(feed);
+			}
+			if(feeds.isEmpty()) { // This means all the keys got expired due to TTL
+				removeAllExpiredRanges(rangeKey, split, timestamp);
+				return endOfPageResponse(timestamp);
+			} else {
+				page.setNextLink(String.valueOf(r1));
+				/*while(feeds.size() < 10) {
+					Pagination<RSSFeed> nextPage = getAllUpdatedFeeds(keyPattern, r1);
+					feeds.addAll(nextPage.getResult());
+					page.setNextLink(nextPage.getNextLink());
+				}*/
+			}
+		}
+		
+		if(timestamp == 0) {
+			page.setPreviousLink(END_OF_PAGE);
+		} else if(timestamp == Long.MAX_VALUE) {
+			page.setPreviousLink(END_OF_PAGE);
+		} else {
+			page.setPreviousLink(String.valueOf(timestamp));
+		}
+		
+		page.setResult(feeds);
+		
+		return page;
+	}
+	
+	private Pagination<RSSFeed> endOfPageResponse(long previousTimestamp) {
+		Pagination<RSSFeed> page = new Pagination<RSSFeed>();
+		page.setNextLink(END_OF_PAGE);
+		page.setPreviousLink(String.valueOf(previousTimestamp));
+		page.setResult(Collections.emptyList());
+		return page;
+	}
+	
+	private void removeAllExpiredRanges(String rangeKey, String[] rangesArr, long timestamp) {
+		int i = 0;
+		RedisCommands<String, String> sync = getSyncRedisCommands();
+		StringBuilder updatedRanges = new StringBuilder();
+		while(Long.parseLong(rangesArr[i]) != timestamp) {
+			updatedRanges.append(rangesArr[i]);
+			updatedRanges.append(";");
+			i++;
+		}
+		updatedRanges.append(String.valueOf(timestamp));
+		String ranges = updatedRanges.toString();
+		sync.set(rangeKey, ranges);
+	}
+	
+	/*private void removeAllExpiredRanges(String keyPattern, long timestamp) {
+		String setKey = SET_KEY_PREFIX + keyPattern.toUpperCase();
+		String rangeKey = setKey + LATEST_SCORE;
+		String ranges = sync.get(rangeKey);
+		String[] rangesArr = ranges.split(";");
+		removeAllExpiredRanges(rangeKey, rangesArr, timestamp);
+	}*/
 }
