@@ -1,6 +1,8 @@
 package com.pack.pack.services.redis;
 
 import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
+import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_POSITIVE;
+import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_NEGATIVE;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -133,7 +135,7 @@ public class RssFeedRepositoryService {
 		return ttlSeconds;
 	}
 	
-	private long[] resolveRangeScores(String[] scores, long timestamp) {
+	private long[] resolveRangeScores(String[] scores, long timestamp, int direction) {
 		if(scores == null || scores.length == 0)
 			return new long[0];
 		long[] result = new long[2];
@@ -148,13 +150,18 @@ public class RssFeedRepositoryService {
 			return result;
 		}
 		boolean found = false;
-		for(int i=0; i<scores.length-1; i++) {
-			if(timestamp == Long.parseLong(scores[i])) {
-				i++;
-				result[0] = Long.parseLong(scores[i]);
-				result[1] = timestamp;
-				found = true;
+		if(direction < 0) {
+			for(int i=0; i<scores.length-1; i++) {
+				if(timestamp == Long.parseLong(scores[i])) {
+					i++;
+					result[0] = Long.parseLong(scores[i]);
+					result[1] = timestamp;
+					found = true;
+				}
 			}
+		} else {
+			result[0] = timestamp;
+			result[1] = Long.parseLong(scores[0]);
 		}
 		if(!found)
 			result = new long[0];
@@ -217,30 +224,30 @@ public class RssFeedRepositoryService {
 		return feeds;
 	}
 	
-	public Pagination<RSSFeed> getNewsFeeds(long timestamp) throws PackPackException {
-		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.NEWS.name()) + "*", timestamp);
+	public Pagination<RSSFeed> getNewsFeeds(long timestamp, int direction) throws PackPackException {
+		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.NEWS.name()) + "*", timestamp, direction);
 	}
 	
-	public Pagination<RSSFeed> getSportsNewsFeeds(long timestamp) throws PackPackException {
-		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.NEWS_SPORTS.name()) + "*", timestamp);
+	public Pagination<RSSFeed> getSportsNewsFeeds(long timestamp, int direction) throws PackPackException {
+		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.NEWS_SPORTS.name()) + "*", timestamp, direction);
 	}
 	
-	public Pagination<RSSFeed> getScienceAndTechnologyNewsFeeds(long timestamp) throws PackPackException {
-		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.NEWS_SCIENCE_TECHNOLOGY.name()) + "*", timestamp);
+	public Pagination<RSSFeed> getScienceAndTechnologyNewsFeeds(long timestamp, int direction) throws PackPackException {
+		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.NEWS_SCIENCE_TECHNOLOGY.name()) + "*", timestamp, direction);
 	}
 	
-	public Pagination<RSSFeed> getArticleNewsFeeds(long timestamp) throws PackPackException {
-		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.ARTICLE.name()) + "*", timestamp);
+	public Pagination<RSSFeed> getArticleNewsFeeds(long timestamp, int direction) throws PackPackException {
+		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.ARTICLE.name()) + "*", timestamp, direction);
 	}
 	
-	private Pagination<RSSFeed> getAllUpdatedFeeds(String keyPattern, long timestamp) throws PackPackException {
+	private Pagination<RSSFeed> getAllUpdatedFeeds(String keyPattern, long timestamp, int direction) throws PackPackException {
 		Pagination<RSSFeed> page = new Pagination<RSSFeed>();
 		List<RSSFeed> feeds = new ArrayList<RSSFeed>();
 		if(timestamp < 0) {
 			feeds = getAllFeeds(keyPattern);
 			page.setResult(feeds);
-			page.setNextLink(END_OF_PAGE);
-			page.setPreviousLink(END_OF_PAGE);
+			page.setNextLink(END_OF_PAGE + PAGELINK_DIRECTION_POSITIVE);
+			page.setPreviousLink(END_OF_PAGE + PAGELINK_DIRECTION_NEGATIVE);
 			return page;
 		}
 		
@@ -251,7 +258,7 @@ public class RssFeedRepositoryService {
 		String[] split = ranges.split(";");
 		
 		List<String> keys = null;
-		long[] scores = resolveRangeScores(split, timestamp);
+		long[] scores = resolveRangeScores(split, timestamp, direction);
 		if(scores.length == 0)
 			return endOfPageResponse(timestamp);
 		long r1 = scores[0];
@@ -275,7 +282,7 @@ public class RssFeedRepositoryService {
 				removeAllExpiredRanges(rangeKey, split, timestamp);
 				return endOfPageResponse(timestamp);
 			} else {
-				page.setNextLink(String.valueOf(r1));
+				page.setNextLink(String.valueOf(r2) + PAGELINK_DIRECTION_POSITIVE);
 				/*while(feeds.size() < 10) {
 					Pagination<RSSFeed> nextPage = getAllUpdatedFeeds(keyPattern, r1);
 					feeds.addAll(nextPage.getResult());
@@ -285,11 +292,11 @@ public class RssFeedRepositoryService {
 		}
 		
 		if(timestamp == 0) {
-			page.setPreviousLink(END_OF_PAGE);
+			page.setPreviousLink(END_OF_PAGE + PAGELINK_DIRECTION_NEGATIVE);
 		} else if(timestamp == Long.MAX_VALUE) {
-			page.setPreviousLink(END_OF_PAGE);
+			page.setPreviousLink(END_OF_PAGE + PAGELINK_DIRECTION_NEGATIVE);
 		} else {
-			page.setPreviousLink(String.valueOf(timestamp));
+			page.setPreviousLink(String.valueOf(timestamp) + PAGELINK_DIRECTION_NEGATIVE);
 		}
 		
 		page.setResult(feeds);
@@ -299,8 +306,8 @@ public class RssFeedRepositoryService {
 	
 	private Pagination<RSSFeed> endOfPageResponse(long previousTimestamp) {
 		Pagination<RSSFeed> page = new Pagination<RSSFeed>();
-		page.setNextLink(END_OF_PAGE);
-		page.setPreviousLink(String.valueOf(previousTimestamp));
+		page.setNextLink(END_OF_PAGE + PAGELINK_DIRECTION_POSITIVE);
+		page.setPreviousLink(String.valueOf(previousTimestamp) + PAGELINK_DIRECTION_NEGATIVE);
 		page.setResult(Collections.emptyList());
 		return page;
 	}

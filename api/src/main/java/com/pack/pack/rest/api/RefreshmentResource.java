@@ -16,7 +16,6 @@ import javax.ws.rs.ext.Provider;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.dto.RssFeedSourceType;
 import com.pack.pack.rest.api.security.interceptors.CompressWrite;
-import com.pack.pack.rss.INewsFeedService;
 import com.pack.pack.rss.IRefreshmentFeedService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
@@ -30,8 +29,8 @@ import com.squill.feed.web.model.JRssFeedType;
  */
 @Singleton
 @Provider
-@Path("/home")
-public class DefaultTopicResource {
+@Path("/refreshment")
+public class RefreshmentResource {
 
 	@GET
 	@CompressWrite
@@ -48,22 +47,6 @@ public class DefaultTopicResource {
 			IRefreshmentFeedService service = ServiceRegistry.INSTANCE
 					.findCompositeService(IRefreshmentFeedService.class);
 			return service.getAllRssFeeds(userId, pageLink);
-		} else if(JRssFeedType.NEWS.name().equals(source)) {
-			INewsFeedService service = ServiceRegistry.INSTANCE
-					.findCompositeService(INewsFeedService.class);
-			return service.getAllNewsRssFeeds(userId, pageLink);
-		} else if(JRssFeedType.NEWS_SPORTS.name().equals(source)) {
-			INewsFeedService service = ServiceRegistry.INSTANCE
-					.findCompositeService(INewsFeedService.class);
-			return service.getAllSportsNewsRssFeeds(userId, pageLink);
-		} else if(JRssFeedType.NEWS_SCIENCE_TECHNOLOGY.name().equals(source)) {
-			INewsFeedService service = ServiceRegistry.INSTANCE
-					.findCompositeService(INewsFeedService.class);
-			return service.getAllScienceAndTechnologyNewsRssFeeds(userId, pageLink);
-		} else if(JRssFeedType.ARTICLE.name().equals(source)) {
-			INewsFeedService service = ServiceRegistry.INSTANCE
-					.findCompositeService(INewsFeedService.class);
-			return service.getArticleNewsRssFeeds(userId, pageLink);
 		}
 		return emptyResponse();
 	}

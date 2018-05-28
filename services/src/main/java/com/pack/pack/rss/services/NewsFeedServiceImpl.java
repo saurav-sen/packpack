@@ -2,6 +2,9 @@ package com.pack.pack.rss.services;
 
 import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
 import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
+import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_SEPERATOR;
+import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_POSITIVE;
+import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_NEGATIVE;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
@@ -61,12 +64,21 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 
 	private Pagination<JRssFeed> getAllRssFeeds(JRssFeedType type, String userId, String pageLink)
 			throws PackPackException {
-		if (END_OF_PAGE.equals(pageLink.trim())) {
+		if (END_OF_PAGE.equals(pageLink.trim())
+				|| (END_OF_PAGE + PAGELINK_DIRECTION_POSITIVE).equals(pageLink.trim())
+				|| (END_OF_PAGE + PAGELINK_DIRECTION_NEGATIVE).equals(pageLink.trim())) {
 			return endOfPageResponse();
 		}
+		int direction = 1;
 		long timestamp = 0;
-		if(pageLink != null && !NULL_PAGE_LINK.equals(pageLink)) {
-			timestamp = Long.parseLong(pageLink);
+		if (pageLink != null && !NULL_PAGE_LINK.equals(pageLink)
+				&& !(NULL_PAGE_LINK + PAGELINK_DIRECTION_POSITIVE).equals(pageLink)
+				&& !(NULL_PAGE_LINK + PAGELINK_DIRECTION_NEGATIVE).equals(pageLink)) {
+			String[] split = pageLink.split(PAGELINK_DIRECTION_SEPERATOR);
+			timestamp = Long.parseLong(split[0]);
+			if(split.length > 1) {
+				direction = Integer.parseInt(split[1]);
+			}
 		}		
 		Pagination<RSSFeed> page = null;
 		List<RSSFeed> feeds = Collections.emptyList();
@@ -75,16 +87,16 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 				.findService(RssFeedRepositoryService.class);
 		switch(type) {
 		case NEWS:
-			page = repositoryService.getNewsFeeds(timestamp);
+			page = repositoryService.getNewsFeeds(timestamp, direction);
 			break;
 		case NEWS_SPORTS:
-			page = repositoryService.getScienceAndTechnologyNewsFeeds(timestamp);
+			page = repositoryService.getScienceAndTechnologyNewsFeeds(timestamp, direction);
 			break;
 		case NEWS_SCIENCE_TECHNOLOGY:
-			page = repositoryService.getScienceAndTechnologyNewsFeeds(timestamp);
+			page = repositoryService.getScienceAndTechnologyNewsFeeds(timestamp, direction);
 			break;
 		case ARTICLE:
-			page = repositoryService.getArticleNewsFeeds(timestamp);
+			page = repositoryService.getArticleNewsFeeds(timestamp, direction);
 			break;
 		default:
 			break;
@@ -103,8 +115,8 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 	
 	private Pagination<JRssFeed> endOfPageResponse() {
 		Pagination<JRssFeed> page = new Pagination<JRssFeed>();
-		page.setNextLink(END_OF_PAGE);
-		page.setPreviousLink(END_OF_PAGE);
+		page.setNextLink(END_OF_PAGE + PAGELINK_DIRECTION_POSITIVE);
+		page.setPreviousLink(END_OF_PAGE + PAGELINK_DIRECTION_NEGATIVE);
 		page.setResult(Collections.emptyList());
 		return page;
 	}

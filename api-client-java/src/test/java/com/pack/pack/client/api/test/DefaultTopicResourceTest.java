@@ -13,7 +13,7 @@ public class DefaultTopicResourceTest extends BaseTest {
 
 	public void test(TestSession session) {
 		try {
-			API api = APIBuilder.create(session.getBaseUrl()).setAction(COMMAND.GET_ALL_PROMOTIONAL_FEEDS)
+			API api = APIBuilder.create(session.getBaseUrl()).setAction(COMMAND.GET_ALL_REFRESHMENT_FEEDS)
 					.setOauthToken(session.getOauthToken())
 					.addApiParam(APIConstants.User.ID, session.getUserId())
 					.addApiParam(APIConstants.PageInfo.PAGE_LINK, "FIRST_PAGE")
