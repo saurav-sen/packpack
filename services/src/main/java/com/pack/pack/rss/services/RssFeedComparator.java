@@ -18,16 +18,18 @@ public class RssFeedComparator implements Comparator<JRssFeed> {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(RssFeedComparator.class);
 	
-	//private String userId;
-	
 	private UserLocation location;
 	
 	RssFeedComparator(String userId) {
-		//this.userId = userId;
 		try {
 			UserLocationRepositoryService locationService = ServiceRegistry.INSTANCE
 					.findService(UserLocationRepositoryService.class);
 			location = locationService.findUserLocationById(userId);
+			if(location == null) { // Temporary solution for now to treat default user location (if NULL) as India/Bhopal
+				location = new UserLocation();
+				location.setLatitude("23.2599");
+				location.setLongitude("77.4126");
+			}
 		} catch (PackPackException e) {
 			LOG.error(e.getMessage(), e);
 			throw new RuntimeException(e);

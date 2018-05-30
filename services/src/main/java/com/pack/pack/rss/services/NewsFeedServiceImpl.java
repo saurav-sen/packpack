@@ -2,9 +2,9 @@ package com.pack.pack.rss.services;
 
 import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
 import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
-import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_SEPERATOR;
-import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_POSITIVE;
 import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_NEGATIVE;
+import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_POSITIVE;
+import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_SEPERATOR;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
@@ -109,6 +109,7 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 		Pagination<JRssFeed> pageResult = new Pagination<JRssFeed>();
 		pageResult.setNextLink(page.getNextLink());
 		pageResult.setPreviousLink(page.getPreviousLink());
+		Collections.sort(rows, new RssFeedComparator(userId));
 		pageResult.setResult(rows);
 		return pageResult;
 	}
