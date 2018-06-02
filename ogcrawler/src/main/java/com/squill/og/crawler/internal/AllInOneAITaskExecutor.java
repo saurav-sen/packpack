@@ -22,6 +22,7 @@ import com.squill.og.crawler.hooks.ITaxonomyResolver;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.FeedClassifierUtil;
 import com.squill.og.crawler.model.WebSpiderTracker;
+import com.squill.og.crawler.rss.RSSConstants;
 import com.squill.og.crawler.text.summarizer.TextSummarization;
 
 public class AllInOneAITaskExecutor {
@@ -88,8 +89,7 @@ public class AllInOneAITaskExecutor {
 					}
 					info.setLastCrawled(System.currentTimeMillis());
 					info.setLink(link);
-					long linkInfoTtlSeconds = 30 * 60 * 60;
-					webLinkTrackerService.upsertCrawledInfo(link, info, linkInfoTtlSeconds, false);
+					webLinkTrackerService.upsertCrawledInfo(link, info, RSSConstants.DEFAULT_TTL_WEB_TRACKING_INFO, false);
 					
 					boolean needToUpsertLinkInfo = false;
 					
@@ -172,7 +172,7 @@ public class AllInOneAITaskExecutor {
 					}
 					
 					if(needToUpsertLinkInfo) {
-						webLinkTrackerService.upsertCrawledInfo(link, info, linkInfoTtlSeconds, false);
+						webLinkTrackerService.upsertCrawledInfo(link, info, RSSConstants.DEFAULT_TTL_WEB_TRACKING_INFO, false);
 					}
 					
 					String classifier = classifyFeedType(feed);

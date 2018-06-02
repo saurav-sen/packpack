@@ -14,6 +14,7 @@ import com.squill.feed.web.model.JRssFeed;
 import com.squill.og.crawler.entity.extraction.DandelionEntityExtractor;
 import com.squill.og.crawler.hooks.GeoLocation;
 import com.squill.og.crawler.hooks.IGeoLocationResolver;
+import com.squill.og.crawler.rss.LogTags;
 
 @Component("defaultGeoLocationResolver")
 @Scope("prototype")
@@ -38,28 +39,48 @@ public class DefaultGeoLocationResolver implements IGeoLocationResolver {
 					geoLocationTags = dbpediaBasedLocationResolver
 							.resolveGeoLocationTags(concepts);
 					if (geoLocationTags == null || geoLocationTags.isEmpty()) {
+						LOG.debug(LogTags.GEO_LOC_RESOLUTION_ERROR + " Resolving Geo Location based upon Domain");
 						String urlId = domainUrl;
 						if(urlId == null || urlId.trim().isEmpty()) {
 							urlId = linkUrl;
 						}
 						geoLocationTags.addAll(resolveBasedUponServerUrl(urlId, dbpediaBasedLocationResolver));
+						LOG.info(LogTags.GEO_LOC_RESOLUTION_ERROR + " Resolved Geo Location based upon Domain");
+					} else {
+						LOG.info(LogTags.GEO_LOC_RESOLUTION_SUCCESS + " Successfully resolved Geo Location");
 					}
 				} else {
+					LOG.debug(LogTags.GEO_LOC_RESOLUTION_ERROR + " Resolving Geo Location based upon Domain");
 					String urlId = domainUrl;
 					if(urlId == null || urlId.trim().isEmpty()) {
 						urlId = linkUrl;
 					}
 					geoLocationTags.addAll(resolveBasedUponServerUrl(urlId, dbpediaBasedLocationResolver));
+					LOG.info(LogTags.GEO_LOC_RESOLUTION_ERROR + " Resolved Geo Location based upon Domain");
 				}
 				
 				dbpediaBasedLocationResolver.dispose();
+				if(geoLocationTags.isEmpty()) {
+					LOG.debug(LogTags.GEO_LOC_RESOLUTION_ERROR + " Resolving Geo Location based upon Domain");
+					String urlId = domainUrl;
+					if(urlId == null || urlId.trim().isEmpty()) {
+						urlId = linkUrl;
+					}
+					geoLocationTags.addAll(resolveBasedUponServerUrl(urlId, dbpediaBasedLocationResolver));
+					LOG.info(LogTags.GEO_LOC_RESOLUTION_ERROR + " Resolved Geo Location based upon Domain");
+				}
+				
+				if(geoLocationTags.isEmpty()) {
+					LOG.error(LogTags.GEO_LOC_RESOLUTION_ERROR + " Failed to resolve GeoTag by all means");
+				}
 				return geoLocationTags != null ? geoLocationTags
 						.toArray(new GeoLocation[geoLocationTags.size()])
 						: new GeoLocation[0];
 			}
 		} catch (Exception e) {
-			LOG.error(e.getMessage(), e);
+			LOG.error(LogTags.GEO_LOC_RESOLUTION_ERROR + " " + e.getMessage(), e);
 		}
+		LOG.info(LogTags.GEO_LOC_RESOLUTION_ERROR + " No Geo Location reference found");
 		return new GeoLocation[0];
 	}
 	

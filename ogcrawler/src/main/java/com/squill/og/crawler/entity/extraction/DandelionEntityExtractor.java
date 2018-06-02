@@ -15,6 +15,7 @@ import com.squill.feed.web.model.JConcept;
 import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
 import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.og.crawler.internal.utils.ResponseUtil;
+import com.squill.og.crawler.rss.LogTags;
 import com.squill.og.crawler.text.summarizer.NLPApiConstants;
 
 public class DandelionEntityExtractor {
@@ -66,7 +67,7 @@ public class DandelionEntityExtractor {
 		HttpResponse response = new HttpRequestExecutor().GET(GET);
 		int responseCode = response.getStatusLine().getStatusCode();
 		if (responseCode == 200) { // HTTP OK
-			LOG.debug("SUCCESS");
+			LOG.info(LogTags.CONCEPT_EXTRACTION_SUCCESS + " Successfully extracted concepts for \"" + text + "\"");
 			String dandelionResponseText = ResponseUtil.getResponseBodyContent(response);
 			LOG.debug(dandelionResponseText);
 			ExtractedEntityResponse extractedEntityResponseModel = JSONUtil.deserialize(dandelionResponseText,
@@ -88,7 +89,8 @@ public class DandelionEntityExtractor {
 			topEntities.clear();
 			annotationsMap.clear();
 		} else {
-			LOG.debug("FAILED");
+			LOG.info(LogTags.CONCEPT_EXTRACTION_ERROR + " failed to extract concepts for \"" + text + "\"");
+			LOG.error(LogTags.CONCEPT_EXTRACTION_ERROR + " HTTP Response Code = " + responseCode);
 		}
 		return concepts;
 	}

@@ -26,6 +26,7 @@ import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.og.crawler.model.WebSpiderTracker;
+import com.squill.og.crawler.rss.RSSConstants;
 
 /**
  * 
@@ -112,6 +113,7 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 	}
 	
 	private void storeInArchive(String id, List<JRssFeed> list) {
+		LOG.debug("storeInArchive(String id, List<JRssFeed> list)");
 		try {
 			String filePath = resolveArchiveFilePath(id);
 			File file = new File(filePath);
@@ -119,12 +121,14 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 				JRssFeeds c = new JRssFeeds();
 				c.getFeeds().addAll(list);
 				String json = JSONUtil.serialize(c);
+				LOG.debug("Writing to file @ " + filePath);
 				Files.write(Paths.get(filePath), json.getBytes(), StandardOpenOption.CREATE);
 			} else {
 				String json = new String(Files.readAllBytes(Paths.get(filePath)), "UTF-8");
 				JRssFeeds c = JSONUtil.deserialize(json, JRssFeeds.class, true);
 				c.getFeeds().addAll(list);
 				json = JSONUtil.serialize(c);
+				LOG.debug("Writing to file @ " + filePath);
 				Files.write(Paths.get(filePath), json.getBytes(), StandardOpenOption.WRITE);
 			}
 		} catch (Exception e) {
@@ -142,7 +146,7 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		if(!file.exists()) {
 			file.mkdir();
 		}
-		StringBuilder fileName = new StringBuilder(dirPath);
+		StringBuilder fileName = new StringBuilder(dirPath).append("-");
 		if(day < 10) {
 			fileName.append("0");
 		}
@@ -159,6 +163,7 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 	}
 	
 	private void storeInArchive(Map<String, List<JRssFeed>> map) {
+		LOG.debug("Storing in archive");
 		Iterator<String> itr = map.keySet().iterator();
 		while(itr.hasNext()) {
 			String id = itr.next();
@@ -170,8 +175,10 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 	}
 
 	private void uploadBulk(Map<String, List<JRssFeed>> map, long batchId, IWebCrawlable webCrawlable) throws Exception {
-		if(!ServiceIdResolver.isUploadMode())
+		if(!ServiceIdResolver.isUploadMode()) {
+			LOG.debug("Not running in Upload Mode, ignoring upload");
 			return;
+		}
 		storeInArchive(map);
 		JRssFeeds rssFeeds = adapt(map);
 		LOG.info("Uploading news feeds: Total = " + rssFeeds.getFeeds().size());
@@ -190,7 +197,7 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 			info.setLastCrawled(System.currentTimeMillis());
 			info.setLink(link);
 			info.setUploadCompleted(true);
-			webLinkTrackerService.upsertCrawledInfo(link, info, 30 * 60 * 60, false);
+			webLinkTrackerService.upsertCrawledInfo(link, info, RSSConstants.DEFAULT_TTL_WEB_TRACKING_INFO, false);
 		}
 	}
 }

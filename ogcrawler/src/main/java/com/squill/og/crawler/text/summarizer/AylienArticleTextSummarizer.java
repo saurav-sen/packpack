@@ -11,12 +11,10 @@ import org.slf4j.LoggerFactory;
 import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
 import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.og.crawler.internal.utils.ResponseUtil;
+import com.squill.og.crawler.rss.LogTags;
 import com.squill.services.exception.OgCrawlException;
 
 public final class AylienArticleTextSummarizer {
-
-	// private static final String DEEP_API_KEY =
-	// "d0eb5617-e7f2-4422-b1a3-e16794709086";
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(AylienArticleTextSummarizer.class);
@@ -36,13 +34,14 @@ public final class AylienArticleTextSummarizer {
 		HttpResponse response = new HttpRequestExecutor().GET(GET);
 		int responseCode = response.getStatusLine().getStatusCode();
 		if (responseCode == 200) { // HTTP OK
-			LOG.debug("SUCCESS");
+			LOG.info(LogTags.TEXT_SUMMARIZATION_SUCCESS + "Successfully executed text summarization for content @ " + url);
 			String textSummary = ResponseUtil.getResponseBodyContent(response);
 			LOG.debug(textSummary);
 			aylienResponse = JSONUtil.deserialize(textSummary,
 					TextSummarization.class);
 		} else {
-			LOG.debug("FAILED");
+			LOG.info(LogTags.TEXT_SUMMARIZATION_ERROR + "Failed to summarize for content @ " + url);
+			LOG.error(LogTags.TEXT_SUMMARIZATION_ERROR + "HTTP Response Code = " + responseCode);
 		}
 		return aylienResponse;
 	}

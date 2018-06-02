@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
 import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.og.crawler.internal.utils.ResponseUtil;
+import com.squill.og.crawler.rss.LogTags;
 import com.squill.og.crawler.text.summarizer.NLPApiConstants;
 
 public class AylienTaxonomyClassifier {
@@ -26,13 +27,14 @@ public class AylienTaxonomyClassifier {
 		HttpResponse response = new HttpRequestExecutor().GET(GET);
 		int responseCode = response.getStatusLine().getStatusCode();
 		if (responseCode == 200) { // HTTP OK
-			LOG.debug("SUCCESS");
+			LOG.info(LogTags.TAXONOMY_RESOLUTION_SUCCESS + " Successfully classified IPTC category for news header \"" + text + "\"");
 			String textSummary = ResponseUtil.getResponseBodyContent(response);
 			LOG.debug(textSummary);
 			aylienResponse = JSONUtil.deserialize(textSummary,
 					AylienTaxonomyResponse.class);
 		} else {
-			LOG.debug("FAILED");
+			LOG.info(LogTags.TAXONOMY_RESOLUTION_ERROR + " Failed to classify IPTC category for news header \"" + text + "\"");
+			LOG.error(LogTags.TAXONOMY_RESOLUTION_ERROR + "Response Code = " + responseCode);
 		}
 		return aylienResponse;
 	}
@@ -46,13 +48,14 @@ public class AylienTaxonomyClassifier {
 		HttpResponse response = new HttpRequestExecutor().GET(GET);
 		int responseCode = response.getStatusLine().getStatusCode();
 		if (responseCode == 200) { // HTTP OK
-			LOG.debug("SUCCESS");
+			LOG.info(LogTags.TAXONOMY_RESOLUTION_SUCCESS + " Successfully classified IPTC category for link @ " + linkUrl);
 			String textSummary = ResponseUtil.getResponseBodyContent(response);
 			LOG.debug(textSummary);
 			aylienResponse = JSONUtil.deserialize(textSummary,
 					AylienTaxonomyResponse.class);
 		} else {
-			LOG.debug("FAILED");
+			LOG.info(LogTags.TAXONOMY_RESOLUTION_ERROR + " Failed to classify IPTC category for link @ " + linkUrl);
+			LOG.error(LogTags.TAXONOMY_RESOLUTION_ERROR + "Response Code = " + responseCode);
 		}
 		return aylienResponse;
 	}
