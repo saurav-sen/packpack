@@ -1,4 +1,4 @@
-package com.pack.pack.rss;
+package com.pack.pack.services.redis;
 
 import java.util.List;
 

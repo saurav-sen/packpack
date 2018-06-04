@@ -127,7 +127,9 @@ public class NewsApiRequestExecutor implements IApiRequestExecutor {
 		if (response.getStatusLine().getStatusCode() == 200) {
 			String json = EntityUtils.toString(response.getEntity());
 			LOG.debug(json);
-			return JSONUtil.deserialize(json, NewsFeeds.class);
+			NewsFeeds newsFeeds = JSONUtil.deserialize(json, NewsFeeds.class);
+			LOG.debug(get_URL + " Total Count = " + newsFeeds.getArticles().size());
+			return newsFeeds;
 		}
 		return null;
 	}

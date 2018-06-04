@@ -68,6 +68,7 @@ public class AllInOneAITaskExecutor {
 				List<JRssFeed> feeds = feedsMap.get(key);
 				if(feeds == null)
 					continue;
+				LOG.debug("Total Feeds from " + key + " is = " + feeds.size());
 				Iterator<JRssFeed> feedsItr = feeds.iterator();
 				while(feedsItr.hasNext()) {
 					JRssFeed feed = feedsItr.next();
@@ -84,8 +85,10 @@ public class AllInOneAITaskExecutor {
 						continue;
 					}
 					
+					boolean isNew = false;
 					if(info == null) {
 						info = new WebSpiderTracker();
+						isNew = true;
 					}
 					info.setLastCrawled(System.currentTimeMillis());
 					info.setLink(link);
@@ -94,6 +97,9 @@ public class AllInOneAITaskExecutor {
 					boolean needToUpsertLinkInfo = false;
 					
 					if(info.getArticleSummaryText() == null) {
+						if(!isNew) {
+							LOG.debug("Article Summary Text is NULL @ " + link);
+						}
 						IArticleTextSummarizer articleTextSummarizer = webCrawlable
 								.getArticleTextSummarizer();
 						if (articleTextSummarizer != null) {
@@ -148,10 +154,16 @@ public class AllInOneAITaskExecutor {
 							info.setGeoTagsResolved(true);
 						}
 					} else {
+						if(!isNew) {
+							LOG.debug("Geo Tag NOT resolved @ " + link);
+						}
 						feed.getGeoTags().addAll(info.getGeoTags());
 					}
 					
 					if(info.getTaxonomies().isEmpty()) {
+						if(!isNew) {
+							LOG.debug("Taxonomies NOT resolved @ " + link);
+						}
 						needToUpsertLinkInfo = true;
 						if(taxonomyResolver != null) {
 							session.incrementCrawledCount(1);
@@ -168,6 +180,9 @@ public class AllInOneAITaskExecutor {
 							}
 						}
 					} else {
+						if(!isNew) {
+							LOG.debug("Taxonomies NOT resolved @ " + link);
+						}
 						feed.getTaxonomies().addAll(info.getTaxonomies());
 					}
 					

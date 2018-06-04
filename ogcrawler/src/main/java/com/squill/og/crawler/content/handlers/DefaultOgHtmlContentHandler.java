@@ -128,11 +128,11 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 	
 	@Override
 	public Map<String, List<JRssFeed>> getCollectiveFeeds(ISpiderSession session) {
+		Map<String, List<JRssFeed>> feedsMap = new HashMap<String, List<JRssFeed>>();
 		if(feeds == null || feeds.isEmpty()) {
 			LOG.warn("Skipping Uploading empty list of feeds recceived from og-crawler");
-			return null;
+			return feedsMap;
 		}
-		Map<String, List<JRssFeed>> feedsMap = new HashMap<String, List<JRssFeed>>();
 		feedsMap.putAll(feeds);
 		feeds.clear();
 		return feedsMap;

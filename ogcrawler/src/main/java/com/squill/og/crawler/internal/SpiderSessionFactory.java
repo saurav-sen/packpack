@@ -16,7 +16,6 @@ import com.pack.pack.services.exception.PackPackException;
 import com.squill.feed.web.model.JRssFeeds;
 import com.squill.og.crawler.IWebCrawlable;
 import com.squill.og.crawler.SpiderSession;
-import com.squill.og.crawler.app.SystemPropertyKeys;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.ISpiderSession;
 
@@ -64,7 +63,7 @@ public class SpiderSessionFactory {
 		}
 
 		@Override
-		public JRssFeeds getFeeds(IWebCrawlable webCrawlable) {
+		public JRssFeeds getFeeds(IWebCrawlable webCrawlable) {			
 			return (JRssFeeds) getAttr(webCrawlable, RSS_FEEDS_KEY);
 		}
 		
@@ -146,12 +145,14 @@ public class SpiderSessionFactory {
 						String content = new String(Files.readAllBytes(Paths.get(countFilePath)));
 						tmpJson = JSONUtil.deserialize(content, TmpJson.class, true);
 						if(System.currentTimeMillis() >= tmpJson.getExpiryTime()) {
+							LOG.debug("Re-setting TmpJson Count to 0");
 							tmpJson.setCount(0);
 							tmpJson.setExpiryTime(System.currentTimeMillis() + 24 * 60 * 60 * 1000); // Plus 24 hours
 							save();
 						}
 						this.count = tmpJson.getCount();
 					} else {
+						LOG.debug("Creating new TmpJson Count file");
 						tmpJson = new TmpJson();
 						tmpJson.setCount(0);
 						tmpJson.setExpiryTime(System.currentTimeMillis() + 24 * 60 * 60 * 1000); // Plus 24 hours
@@ -171,6 +172,7 @@ public class SpiderSessionFactory {
 			private void setCount(int count) {
 				this.count = count;
 				if(tmpJson.getCount() != count) {
+					LOG.debug("Setting TmpJson Count = " + count);
 					tmpJson.setCount(count);
 					save();
 				}
@@ -178,9 +180,13 @@ public class SpiderSessionFactory {
 			
 			private void save() {
 				try {
+					LOG.debug("Trying to save TmpJson file");
 					if(tmpJson != null) {
 						String json = JSONUtil.serialize(tmpJson);
+						LOG.debug("Saving TmpJson = " + json);
 						Files.write(Paths.get(countFilePath), json.getBytes());
+					} else {
+						LOG.debug("Failed saving TmpJson as it is NULL");
 					}
 				} catch (PackPackException e) {
 					LOG.error(e.getMessage(), e);

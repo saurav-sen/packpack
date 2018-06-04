@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -45,6 +46,8 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 	private boolean errored = false;
 	
 	private RedisCommands<String, String> sync;
+	
+	private static final String KEY_PREFIX = "TRACK_";
 	
 	@Override
 	public void init(IWebSite webSite) {
@@ -109,7 +112,7 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 		}
 		RedisCommands<String, String> sync = null;
 		try {
-			String key = EncryptionUtil.generateMD5HashKey(link, false, false);
+			String key = KEY_PREFIX + EncryptionUtil.generateMD5HashKey(link, false, false);
 			sync = sync();
 			String json = JSONUtil.serialize(value);
 			sync.setex(key, ttlSeconds, json);
@@ -142,22 +145,45 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 			LOG.debug(e.getMessage(), e);
 		}
 	}
+	
+	@Override
+	public List<WebSpiderTracker> getAllTackedInfo() {
+		List<WebSpiderTracker> result = new ArrayList<WebSpiderTracker>();
+		try {
+			sync = sync();
+			List<String> keys = sync.keys(KEY_PREFIX);
+			if(keys == null || keys.isEmpty())
+				return result;
+			for(String key : keys) {
+				String json = sync.get(key);
+				WebSpiderTracker info = JSONUtil.deserialize(json, WebSpiderTracker.class);
+				if(!info.isUploadCompleted()) {
+					result.add(info);
+				}
+			}
+		} catch (OgCrawlException e) {
+			LOG.error(e.getMessage(), e);
+		}
+		return result;
+	}
 
 	public WebSpiderTracker getTrackedInfo(String link) {
 		RedisCommands<String, String> sync = null;
 		try {
-			String key = EncryptionUtil.generateMD5HashKey(link, false, false);
+			String key = KEY_PREFIX + EncryptionUtil.generateMD5HashKey(link, false, false);
 			if (!isKeyExists(key)) {
+				LOG.debug("Key doesn't exist for link = " + link);
 				return null;
 			}
 			sync = sync();
 			String json = sync.get(key);
-			return JSONUtil.deserialize(json, WebSpiderTracker.class);
+			return JSONUtil.deserialize(json, WebSpiderTracker.class, true);
 		} catch (NoSuchAlgorithmException e) {
 			LOG.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		} catch (OgCrawlException e) {
 			LOG.error(e.getMessage(), e);
+			LOG.debug("Deserialization of previously stored info failed for link = " + link);
 			return null;
 		} /*finally {
 			if (sync != null) {
@@ -165,7 +191,18 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 			}
 		}*/
 	}
-
+	
+	public static void main(String[] args) throws Exception {
+		String key = KEY_PREFIX + EncryptionUtil.generateMD5HashKey("https://www.nytimes.com/interactive/2018/06/02/us/politics/trump-legal-documents.html", false, false);
+		RedisClient client2 = RedisClient.create("redis://13.127.38.35");
+		StatefulRedisConnection<String,String> connection2 = client2.connect();
+		RedisCommands<String,String> sync2 = connection2.sync();
+		String json = sync2.get(key);
+		System.out.println(json);
+		WebSpiderTracker tracker = JSONUtil.deserialize(json, WebSpiderTracker.class);
+		System.out.println(tracker.getArticleSummaryText());
+	}
+	
 	private boolean isKeyExists(String key) {
 		RedisCommands<String, String> sync = sync();
 		if(sync == null) {

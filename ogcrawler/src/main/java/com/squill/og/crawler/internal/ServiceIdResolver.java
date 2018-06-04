@@ -12,6 +12,15 @@ public final class ServiceIdResolver {
 	private ServiceIdResolver() {
 	}
 	
+	public static void main(String[] args) {
+		System.out.println(System.currentTimeMillis());
+		System.out.println(1528011252738L);
+		System.out.println( (System.currentTimeMillis() + 24 * 60 * 60 * 1000 - System.currentTimeMillis()) / (1000 * 60 * 60));
+		long l = System.currentTimeMillis() - 1528011252738L;
+		System.out.println(l);
+		System.out.println(l / (1000 * 60 * 60));
+	}
+	
 	public static boolean isUploadMode() {
 		String op_mode = System.getProperty("operation.mode");
 		return !"test".equals(op_mode);

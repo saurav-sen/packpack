@@ -1,4 +1,4 @@
-package com.pack.pack.rss.services;
+package com.pack.pack.services.redis.services;
 
 import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
 import static com.pack.pack.common.util.CommonConstants.NEXT_PAGE_LINK_PREFIX;
@@ -22,9 +22,9 @@ import com.pack.pack.model.RSSFeed;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.ShortenUrlInfo;
 import com.pack.pack.model.web.dto.RssFeedSourceType;
-import com.pack.pack.rss.IRefreshmentFeedService;
 import com.pack.pack.services.exception.ErrorCodes;
 import com.pack.pack.services.exception.PackPackException;
+import com.pack.pack.services.redis.IRefreshmentFeedService;
 import com.pack.pack.services.redis.RssFeedRepositoryService;
 import com.pack.pack.services.redis.UrlShortener;
 import com.pack.pack.services.registry.ServiceRegistry;

@@ -112,20 +112,20 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		return userHome + DEFAULT_ARCHIVE_FOLDER;
 	}
 	
-	private void storeInArchive(String id, List<JRssFeed> list) {
+	private JRssFeeds storeInArchive(String id, List<JRssFeed> list) {
+		JRssFeeds c = new JRssFeeds();
 		LOG.debug("storeInArchive(String id, List<JRssFeed> list)");
 		try {
 			String filePath = resolveArchiveFilePath(id);
 			File file = new File(filePath);
 			if(!file.exists()) {
-				JRssFeeds c = new JRssFeeds();
 				c.getFeeds().addAll(list);
 				String json = JSONUtil.serialize(c);
 				LOG.debug("Writing to file @ " + filePath);
 				Files.write(Paths.get(filePath), json.getBytes(), StandardOpenOption.CREATE);
 			} else {
 				String json = new String(Files.readAllBytes(Paths.get(filePath)), "UTF-8");
-				JRssFeeds c = JSONUtil.deserialize(json, JRssFeeds.class, true);
+				c = JSONUtil.deserialize(json, JRssFeeds.class, true);
 				c.getFeeds().addAll(list);
 				json = JSONUtil.serialize(c);
 				LOG.debug("Writing to file @ " + filePath);
@@ -134,6 +134,7 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		} catch (Exception e) {
 			LOG.error("Failed storing in archive :: " + e.getMessage(), e);
 		}
+		return c;
 	}
 	
 	private String resolveArchiveFilePath(String id) {
@@ -141,11 +142,12 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		int day = dateTime.getDayOfMonth();
 		int month = dateTime.getMonthOfYear();
 		int year = dateTime.getYear();
-		String dirPath = resolveArchiveFolder() + id;
+		String dirPath = resolveArchiveFolder();
 		File file = new File(dirPath);
 		if(!file.exists()) {
 			file.mkdir();
 		}
+		dirPath = dirPath + id;
 		StringBuilder fileName = new StringBuilder(dirPath).append("-");
 		if(day < 10) {
 			fileName.append("0");
@@ -162,7 +164,8 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		return fileName.toString();
 	}
 	
-	private void storeInArchive(Map<String, List<JRssFeed>> map) {
+	private Map<String, List<JRssFeed>> storeInArchive(Map<String, List<JRssFeed>> map) {
+		Map<String, List<JRssFeed>> result = new HashMap<String, List<JRssFeed>>();
 		LOG.debug("Storing in archive");
 		Iterator<String> itr = map.keySet().iterator();
 		while(itr.hasNext()) {
@@ -170,8 +173,12 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 			List<JRssFeed> list = map.get(id);
 			if(list.isEmpty())
 				continue;
-			storeInArchive(id, list);
+			JRssFeeds c = storeInArchive(id, list);
+			if(c != null) {
+				result.put(id, c.getFeeds());
+			}
 		}
+		return result;
 	}
 
 	private void uploadBulk(Map<String, List<JRssFeed>> map, long batchId, IWebCrawlable webCrawlable) throws Exception {
@@ -179,7 +186,11 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 			LOG.debug("Not running in Upload Mode, ignoring upload");
 			return;
 		}
-		storeInArchive(map);
+		if(LOG.isDebugEnabled()) {
+			JRssFeeds rssFeeds = adapt(map);
+			LOG.debug("Total feeds to be uploaded without backlog = " + rssFeeds.getFeeds().size());
+		}
+		map = storeInArchive(map);
 		JRssFeeds rssFeeds = adapt(map);
 		LOG.info("Uploading news feeds: Total = " + rssFeeds.getFeeds().size());
 		TTL ttl = new TTL();

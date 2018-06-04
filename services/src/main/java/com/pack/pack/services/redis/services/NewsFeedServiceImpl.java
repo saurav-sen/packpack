@@ -1,4 +1,4 @@
-package com.pack.pack.rss.services;
+package com.pack.pack.services.redis.services;
 
 import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
 import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
@@ -12,13 +12,15 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import com.pack.pack.model.RSSFeed;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.ShortenUrlInfo;
-import com.pack.pack.rss.INewsFeedService;
 import com.pack.pack.services.exception.ErrorCodes;
 import com.pack.pack.services.exception.PackPackException;
+import com.pack.pack.services.redis.INewsFeedService;
 import com.pack.pack.services.redis.RssFeedRepositoryService;
 import com.pack.pack.services.redis.UrlShortener;
 import com.pack.pack.services.registry.ServiceRegistry;
@@ -32,7 +34,8 @@ import com.squill.feed.web.model.TTL;
  * @author Saurav
  *
  */
-
+@Component
+@Scope("singleton")
 public class NewsFeedServiceImpl implements INewsFeedService {
 
 	private static final Logger LOG = LoggerFactory

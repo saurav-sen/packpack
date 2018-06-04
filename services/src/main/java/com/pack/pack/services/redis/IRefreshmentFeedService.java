@@ -1,4 +1,4 @@
-package com.pack.pack.rss;
+package com.pack.pack.services.redis;
 
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.services.exception.PackPackException;

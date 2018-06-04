@@ -10,10 +10,10 @@ import org.slf4j.LoggerFactory;
 
 import com.pack.pack.model.RSSFeed;
 import com.pack.pack.model.RssFeedType;
-import com.pack.pack.rss.INewsFeedService;
-import com.pack.pack.rss.IRefreshmentFeedService;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.rabbitmq.MessagePublisher;
+import com.pack.pack.services.redis.INewsFeedService;
+import com.pack.pack.services.redis.IRefreshmentFeedService;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JRssFeedType;

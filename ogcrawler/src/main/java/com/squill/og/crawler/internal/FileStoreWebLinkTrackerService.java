@@ -8,7 +8,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -111,6 +113,11 @@ public class FileStoreWebLinkTrackerService implements IWebLinkTrackerService {
 		} catch (IOException e) {
 			LOG.debug(e.getMessage(), e);
 		}
+	}
+	
+	@Override
+	public List<WebSpiderTracker> getAllTackedInfo() {
+		return new ArrayList<WebSpiderTracker>();
 	}
 
 	@Override

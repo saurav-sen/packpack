@@ -17,8 +17,8 @@ import javax.ws.rs.ext.Provider;
 
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.rest.api.security.interceptors.CompressWrite;
-import com.pack.pack.rss.INewsFeedService;
 import com.pack.pack.services.exception.PackPackException;
+import com.pack.pack.services.redis.INewsFeedService;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JRssFeedType;

@@ -1,4 +1,4 @@
-package com.pack.pack.rss.services;
+package com.pack.pack.services.redis.services;
 
 import java.util.Comparator;
 import java.util.List;

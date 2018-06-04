@@ -1,5 +1,7 @@
 package com.squill.og.crawler.hooks;
 
+import java.util.List;
+
 import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.model.WebSpiderTracker;
 
@@ -18,6 +20,8 @@ public interface IWebLinkTrackerService {
 			long ttlSeconds, boolean updateLastModifiedTime);
 	
 	public WebSpiderTracker getTrackedInfo(String link);
+	
+	public List<WebSpiderTracker> getAllTackedInfo();
 	
 	public void clearAll();
 }
