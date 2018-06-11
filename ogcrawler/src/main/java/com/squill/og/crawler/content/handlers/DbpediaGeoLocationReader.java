@@ -213,12 +213,12 @@ public class DbpediaGeoLocationReader {
 	}
 	
 	public List<GeoLocation> resolveGeoLocationsForPlaceByName(String originalPlaceName) {
-		List<GeoLocation> list = GeoLocationDataHolder.INSTANCE.getGeoLocationByEntityName(originalPlaceName);
+		List<GeoLocation> list = DomainSpecificInfoHolder.INSTANCE.getGeoLocationByEntityName(originalPlaceName);
 		if(list != null) {
 			return list;
 		}
 		String placeName = filterName(originalPlaceName);
-		list = GeoLocationDataHolder.INSTANCE.getGeoLocationByEntityName(placeName);
+		list = DomainSpecificInfoHolder.INSTANCE.getGeoLocationByEntityName(placeName);
 		if(list != null) {
 			return list;
 		}
@@ -226,8 +226,8 @@ public class DbpediaGeoLocationReader {
 		if(list == null) {
 			list = new LinkedList<GeoLocation>();
 		}
-		GeoLocationDataHolder.INSTANCE.addInfoOfGeoLocations(originalPlaceName, list);
-		GeoLocationDataHolder.INSTANCE.addInfoOfGeoLocations(placeName, list);
+		DomainSpecificInfoHolder.INSTANCE.addInfoOfGeoLocations(originalPlaceName, list);
+		DomainSpecificInfoHolder.INSTANCE.addInfoOfGeoLocations(placeName, list);
 		return list;
 	}
 	
@@ -332,21 +332,21 @@ public class DbpediaGeoLocationReader {
 				String placeName = names[1];
 				String originalPlaceName = names[0];
 				if(originalPlaceName != null) {
-					List<GeoLocation> list = GeoLocationDataHolder.INSTANCE.getGeoLocationByEntityName(originalPlaceName);
+					List<GeoLocation> list = DomainSpecificInfoHolder.INSTANCE.getGeoLocationByEntityName(originalPlaceName);
 					if(list != null && !list.isEmpty()) {
 						return list;
 					}
 				}
 				if (placeName != null) {
-					List<GeoLocation> list = GeoLocationDataHolder.INSTANCE.getGeoLocationByEntityName(placeName);
+					List<GeoLocation> list = DomainSpecificInfoHolder.INSTANCE.getGeoLocationByEntityName(placeName);
 					if(list != null && !list.isEmpty()) {
 						return list;
 					}
 					geoLocations.addAll(resolveGeoLocationsForPlace(placeName));
 				}
-				GeoLocationDataHolder.INSTANCE.addInfoOfGeoLocations(
+				DomainSpecificInfoHolder.INSTANCE.addInfoOfGeoLocations(
 						originalPlaceName, geoLocations);
-				GeoLocationDataHolder.INSTANCE.addInfoOfGeoLocations(placeName,
+				DomainSpecificInfoHolder.INSTANCE.addInfoOfGeoLocations(placeName,
 						geoLocations);
 			}
 		} if (isOrganization(concept)) {
@@ -355,22 +355,22 @@ public class DbpediaGeoLocationReader {
 				String orgName = names[1];
 				String originalOrgName = names[0];
 				if(originalOrgName != null) {
-					List<GeoLocation> list = GeoLocationDataHolder.INSTANCE.getGeoLocationByEntityName(originalOrgName);
+					List<GeoLocation> list = DomainSpecificInfoHolder.INSTANCE.getGeoLocationByEntityName(originalOrgName);
 					if(list != null && !list.isEmpty()) {
 						return list;
 					}
 				}
 				if (orgName != null) {
-					List<GeoLocation> list = GeoLocationDataHolder.INSTANCE.getGeoLocationByEntityName(orgName);
+					List<GeoLocation> list = DomainSpecificInfoHolder.INSTANCE.getGeoLocationByEntityName(orgName);
 					if(list != null && !list.isEmpty()) {
 						return list;
 					}
 					geoLocations
 							.addAll(resolveGeoLocationsForOrganization(orgName));
 				}
-				GeoLocationDataHolder.INSTANCE.addInfoOfGeoLocations(
+				DomainSpecificInfoHolder.INSTANCE.addInfoOfGeoLocations(
 						originalOrgName, geoLocations);
-				GeoLocationDataHolder.INSTANCE.addInfoOfGeoLocations(orgName,
+				DomainSpecificInfoHolder.INSTANCE.addInfoOfGeoLocations(orgName,
 						geoLocations);
 			}
 		} if (isPerson(concept)) {
@@ -379,22 +379,22 @@ public class DbpediaGeoLocationReader {
 				String personName = names[1];
 				String originalPersonName = names[0];
 				if(originalPersonName != null) {
-					List<GeoLocation> list = GeoLocationDataHolder.INSTANCE.getGeoLocationByEntityName(originalPersonName);
+					List<GeoLocation> list = DomainSpecificInfoHolder.INSTANCE.getGeoLocationByEntityName(originalPersonName);
 					if(list != null && !list.isEmpty()) {
 						return list;
 					}
 				}
 				if (personName != null) {
-					List<GeoLocation> list = GeoLocationDataHolder.INSTANCE.getGeoLocationByEntityName(personName);
+					List<GeoLocation> list = DomainSpecificInfoHolder.INSTANCE.getGeoLocationByEntityName(personName);
 					if(list != null && !list.isEmpty()) {
 						return list;
 					}
 					geoLocations
 							.addAll(resolveGeoLocationsForPerson(personName));
 				}
-				GeoLocationDataHolder.INSTANCE.addInfoOfGeoLocations(
+				DomainSpecificInfoHolder.INSTANCE.addInfoOfGeoLocations(
 						originalPersonName, geoLocations);
-				GeoLocationDataHolder.INSTANCE.addInfoOfGeoLocations(
+				DomainSpecificInfoHolder.INSTANCE.addInfoOfGeoLocations(
 						personName, geoLocations);
 			}
 		}

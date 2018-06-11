@@ -1,6 +1,5 @@
 package com.squill.og.crawler.internal;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -8,13 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.squill.feed.web.model.JRssFeed;
-import com.squill.feed.web.model.JRssFeeds;
 import com.squill.og.crawler.IWebApi;
 import com.squill.og.crawler.Spider;
 import com.squill.og.crawler.SpiderSession;
 import com.squill.og.crawler.hooks.IApiRequestExecutor;
 import com.squill.og.crawler.hooks.IFeedUploader;
-import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 
 public class WebApiSpider implements Spider {
@@ -40,10 +37,11 @@ public class WebApiSpider implements Spider {
 			feedUploader.beginEach(session, webApi);
 			IApiRequestExecutor apiExecutor = webApi.getApiExecutor();
 			Map<String, List<JRssFeed>> feedsMap = apiExecutor.execute(webApi.getUniqueId());
-			AllInOneAITaskExecutor allInOneAITaskExecutor = new AllInOneAITaskExecutor(session);
-			feedsMap = allInOneAITaskExecutor.executeTasks(feedsMap, webApi);
-			JRssFeeds rssFeeds = uniteAll(feedsMap);
-			session.addAttr(webApi, ISpiderSession.RSS_FEEDS_KEY, rssFeeds);
+			new AllInOneAITaskExecutor(session).executeTasks(feedsMap, webApi);
+			//AllInOneAITaskExecutor allInOneAITaskExecutor = new AllInOneAITaskExecutor(session);
+			//feedsMap = allInOneAITaskExecutor.executeTasks(feedsMap, webApi);
+			//JRssFeeds rssFeeds = uniteAll(feedsMap);
+			//session.addAttr(webApi, ISpiderSession.RSS_FEEDS_KEY, rssFeeds);
 			feedUploader.endEach(session, webApi);
 		} catch (Throwable e) {
 			LOG.error(e.getMessage(), e);
@@ -52,7 +50,7 @@ public class WebApiSpider implements Spider {
 		}
 	}
 	
-	private JRssFeeds uniteAll(Map<String, List<JRssFeed>> feedsMap) {
+	/*private JRssFeeds uniteAll(Map<String, List<JRssFeed>> feedsMap) {
 		JRssFeeds rssFeeds = new JRssFeeds();
 		Iterator<String> itr = feedsMap.keySet().iterator();
 		while(itr.hasNext()) {
@@ -63,5 +61,5 @@ public class WebApiSpider implements Spider {
 			rssFeeds.getFeeds().addAll(values);
 		}
 		return rssFeeds;
-	}
+	}*/
 }

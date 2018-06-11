@@ -17,7 +17,8 @@ public class DefaultTaxonomyResolverTest {
 		JTaxonomy[] resolveTaxonomies = new DefaultTaxonomyResolver()
 				.resolveTaxonomies(
 						null,
-						"https://www.newscientist.com/article/2169382-an-ai-can-now-tell-how-malnourished-a-child-is-just-from-a-photo/");
+						"https://www.newscientist.com/article/2169382-an-ai-can-now-tell-how-malnourished-a-child-is-just-from-a-photo/",
+						"https://www.newscientist.com");
 		if (resolveTaxonomies == null || resolveTaxonomies.length == 0) {
 			System.err.println("Failed");
 		} else {
@@ -28,7 +29,8 @@ public class DefaultTaxonomyResolverTest {
 				JRssFeedType feedType = SubjectCodeRegistry.INSTANCE
 						.resolveSquillFeedType(taxonomy);
 				if (feedType == null) {
-					System.err.println("Failed for " + taxonomy.getId() + " Name: " + taxonomy.getName());
+					System.err.println("Failed for " + taxonomy.getId()
+							+ " Name: " + taxonomy.getName());
 					continue;
 				}
 				System.out.println(feedType.name());

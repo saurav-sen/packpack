@@ -1,6 +1,5 @@
 package com.squill.og.crawler.internal;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.squill.feed.web.model.JRssFeed;
-import com.squill.feed.web.model.JRssFeeds;
 import com.squill.og.crawler.ILink;
 import com.squill.og.crawler.IRobotScope;
 import com.squill.og.crawler.IWebSite;
@@ -70,17 +68,18 @@ public class WebSiteSpider implements Spider {
 				}
 			}
 			IRobotScope robotScope = webSite.getRobotScope();
-			doCrawl(links, robotScope, contentHandler, geoLocationResolver, session, webSite.isPageLinkExtractorEnabled());
+			doCrawl(links, robotScope, contentHandler, geoLocationResolver, session, webSite.isPageLinkExtractorEnabled(), webSite.getUniqueId());
 			List<? extends ILink> parseCrawlableURLs = robotScope.getAnyLeftOverLinks();
 			for(ILink parseCrawlableURL : parseCrawlableURLs) {
 				links.offer(parseCrawlableURL);
 			}
-			doCrawl(links, robotScope, contentHandler, geoLocationResolver, session, webSite.isPageLinkExtractorEnabled());
+			doCrawl(links, robotScope, contentHandler, geoLocationResolver, session, webSite.isPageLinkExtractorEnabled(), webSite.getUniqueId());
 			Map<String, List<JRssFeed>> collectiveFeeds = contentHandler.getCollectiveFeeds(session);
-			AllInOneAITaskExecutor allInOneAITaskExecutor = new AllInOneAITaskExecutor(session);
-			collectiveFeeds = allInOneAITaskExecutor.executeTasks(collectiveFeeds, webSite);
-			JRssFeeds rssFeeds = uniteAll(collectiveFeeds);
-			session.addAttr(webSite, ISpiderSession.RSS_FEEDS_KEY, rssFeeds);
+			new AllInOneAITaskExecutor(session).executeTasks(collectiveFeeds, webSite);
+			//AllInOneAITaskExecutor allInOneAITaskExecutor = new AllInOneAITaskExecutor(session);
+			//collectiveFeeds = allInOneAITaskExecutor.executeTasks(collectiveFeeds, webSite);
+			//JRssFeeds rssFeeds = uniteAll(collectiveFeeds);
+			//session.addAttr(webSite, ISpiderSession.RSS_FEEDS_KEY, rssFeeds);
 			feedUploader.endEach(session, webSite);
 		} catch (Throwable e) {
 			LOG.error(e.getMessage(), e);
@@ -89,7 +88,7 @@ public class WebSiteSpider implements Spider {
 		}
 	}
 	
-	private JRssFeeds uniteAll(Map<String, List<JRssFeed>> collectiveFeeds) {
+	/*private JRssFeeds uniteAll(Map<String, List<JRssFeed>> collectiveFeeds) {
 		JRssFeeds rssFeeds = new JRssFeeds();
 		Iterator<String> itr = collectiveFeeds.keySet().iterator();
 		while(itr.hasNext()) {
@@ -100,11 +99,11 @@ public class WebSiteSpider implements Spider {
 			rssFeeds.getFeeds().addAll(values);
 		}
 		return rssFeeds;
-	}
+	}*/
 	
 	private void doCrawl(Queue<ILink> links, IRobotScope robotScope,
 			IHtmlContentHandler contentHandler,
-			IGeoLocationResolver geoLocationResolver, ISpiderSession session, boolean isPageLinkExtractorEnabled) throws Exception {
+			IGeoLocationResolver geoLocationResolver, ISpiderSession session, boolean isPageLinkExtractorEnabled, String webSiteId) throws Exception {
 		//int count = 0;
 		int max = 0;
 		while(links != null && !links.isEmpty()) {
@@ -128,6 +127,7 @@ public class WebSiteSpider implements Spider {
 				info = tracker.getTrackedInfo(link.getUrl());
 				if (info == null) {
 					info = new WebSpiderTracker();
+					info.setWebCrawlerId(webSiteId);
 				} else if (currentTimeMillis - info.getLastCrawled() >= crawlSchedulePeriodicTimeInMillis) {
 					LOG.info("Skip URL <" + url + ">, as it has already visited within periodic delay time. "
 							+ "Thereby could be crawler trap.");

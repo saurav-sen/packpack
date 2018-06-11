@@ -147,7 +147,7 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 	}
 	
 	@Override
-	public List<WebSpiderTracker> getAllTackedInfo() {
+	public List<WebSpiderTracker> getAllTrackedInfo() {
 		List<WebSpiderTracker> result = new ArrayList<WebSpiderTracker>();
 		try {
 			sync = sync();
@@ -190,17 +190,6 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 				sync.close();
 			}
 		}*/
-	}
-	
-	public static void main(String[] args) throws Exception {
-		String key = KEY_PREFIX + EncryptionUtil.generateMD5HashKey("https://www.nytimes.com/interactive/2018/06/02/us/politics/trump-legal-documents.html", false, false);
-		RedisClient client2 = RedisClient.create("redis://13.127.38.35");
-		StatefulRedisConnection<String,String> connection2 = client2.connect();
-		RedisCommands<String,String> sync2 = connection2.sync();
-		String json = sync2.get(key);
-		System.out.println(json);
-		WebSpiderTracker tracker = JSONUtil.deserialize(json, WebSpiderTracker.class);
-		System.out.println(tracker.getArticleSummaryText());
 	}
 	
 	private boolean isKeyExists(String key) {

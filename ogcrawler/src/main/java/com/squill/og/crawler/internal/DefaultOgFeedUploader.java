@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -58,18 +59,43 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		}
 	}
 	
+	private List<JRssFeed> getAllFeedsToBeUploaded(IWebCrawlable webCrawlable) {
+		List<JRssFeed> result = new LinkedList<JRssFeed>();
+		IWebLinkTrackerService webLinkTrackerService = webCrawlable.getTrackerService();
+		List<WebSpiderTracker> allTrackedInfo = webLinkTrackerService.getAllTrackedInfo();
+		if(allTrackedInfo == null || allTrackedInfo.isEmpty())
+			return result;
+		String webCrawlerId = webCrawlable.getUniqueId();
+		for(WebSpiderTracker trackedInfo : allTrackedInfo) {
+			if(trackedInfo.isUploadCompleted())
+				continue;
+			if(!webCrawlerId.equals(trackedInfo.getWebCrawlerId()))
+				continue;
+			JRssFeed feedToUpload = trackedInfo.getFeedToUpload();
+			if(feedToUpload == null)
+				continue;
+			result.add(feedToUpload);
+			
+			trackedInfo.setUploadCompleted(true);
+			webLinkTrackerService.upsertCrawledInfo(trackedInfo.getLink(), trackedInfo, RSSConstants.DEFAULT_TTL_WEB_TRACKING_INFO, false);
+		}
+		return result;
+	}
+	
 	@Override
 	public void endEach(ISpiderSession session, IWebCrawlable webCrawlable) {
 		Map<String, List<JRssFeed>> map = new HashMap<String, List<JRssFeed>>();
 		if(!webCrawlable.isUploadIndependently()) {
 			count--;
 		}
-		JRssFeeds feeds = session.getFeeds(webCrawlable);
+		
+		/*JRssFeeds feeds = session.getFeeds(webCrawlable);
 		if(feeds == null) {
 			LOG.debug("No feeds found for :: " + webCrawlable.getUniqueId());
 			return;
 		}
-		List<JRssFeed> list = feeds.getFeeds();
+		List<JRssFeed> list = feeds.getFeeds();*/
+		List<JRssFeed> list = getAllFeedsToBeUploaded(webCrawlable);
 		if(list == null || list.isEmpty()) {
 			LOG.debug("No feeds found for :: " + webCrawlable.getUniqueId());
 			return;
@@ -204,6 +230,7 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 			WebSpiderTracker info = webLinkTrackerService.getTrackedInfo(link);
 			if(info == null) {
 				info = new WebSpiderTracker();
+				info.setWebCrawlerId(webCrawlable.getUniqueId());
 			}
 			info.setLastCrawled(System.currentTimeMillis());
 			info.setLink(link);

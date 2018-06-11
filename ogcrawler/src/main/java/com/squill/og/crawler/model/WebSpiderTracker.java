@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.squill.feed.web.model.JGeoTag;
+import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JTaxonomy;
 
 /**
@@ -31,6 +32,14 @@ public class WebSpiderTracker {
 	private List<JTaxonomy> taxonomies;
 	
 	private boolean geoTagsResolved = false;
+	
+	private JRssFeed feedToUpload;
+	
+	private String webCrawlerId;
+	
+	public WebSpiderTracker() {
+		
+	}
 
 	public long getLastCrawled() {
 		return lastCrawled;
@@ -111,5 +120,21 @@ public class WebSpiderTracker {
 
 	public void setGeoTagsResolved(boolean geoTagsResolved) {
 		this.geoTagsResolved = geoTagsResolved;
+	}
+
+	public JRssFeed getFeedToUpload() {
+		return feedToUpload;
+	}
+
+	public void setFeedToUpload(JRssFeed feedToUpload) {
+		this.feedToUpload = feedToUpload;
+	}
+
+	public String getWebCrawlerId() {
+		return webCrawlerId;
+	}
+
+	public void setWebCrawlerId(String webCrawlerId) {
+		this.webCrawlerId = webCrawlerId;
 	}
 }

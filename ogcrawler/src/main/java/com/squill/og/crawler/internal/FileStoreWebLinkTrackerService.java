@@ -116,7 +116,7 @@ public class FileStoreWebLinkTrackerService implements IWebLinkTrackerService {
 	}
 	
 	@Override
-	public List<WebSpiderTracker> getAllTackedInfo() {
+	public List<WebSpiderTracker> getAllTrackedInfo() {
 		return new ArrayList<WebSpiderTracker>();
 	}
 

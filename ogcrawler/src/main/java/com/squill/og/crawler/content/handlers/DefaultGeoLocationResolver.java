@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import com.squill.feed.web.model.JConcept;
 import com.squill.feed.web.model.JRssFeed;
+import com.squill.feed.web.model.JRssFeedType;
 import com.squill.og.crawler.entity.extraction.DandelionEntityExtractor;
 import com.squill.og.crawler.hooks.GeoLocation;
 import com.squill.og.crawler.hooks.IGeoLocationResolver;
@@ -22,6 +23,12 @@ public class DefaultGeoLocationResolver implements IGeoLocationResolver {
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(DefaultGeoLocationResolver.class);
+	
+	@Override
+	public boolean canResolve(String linkUrl, String domainUrl, JRssFeed feed) {
+		String feedType = feed.getFeedType();
+		return JRssFeedType.NEWS.equals(feedType);
+	}
 	
 	@Override
 	public GeoLocation[] resolveGeoLocations(String linkUrl, String domainUrl,
@@ -87,7 +94,7 @@ public class DefaultGeoLocationResolver implements IGeoLocationResolver {
 	private List<GeoLocation> resolveBasedUponServerUrl(String serverUrl, DbpediaGeoLocationReader dbpediaBasedLocationResolver) {
 		List<GeoLocation> geoLocationTags = new LinkedList<GeoLocation>();
 		String urlId = serverUrl;
-		String[] places = GeoLocationDataHolder.INSTANCE
+		String[] places = DomainSpecificInfoHolder.INSTANCE
 				.getTargetDefaultPlacesByDomainUrl(urlId);
 		if (places != null) {
 			for (String place : places) {

@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JTaxonomy;
 import com.squill.og.crawler.article.taxonomy.AylienTaxonomyClassifier;
 import com.squill.og.crawler.article.taxonomy.AylienTaxonomyResponse;
@@ -20,9 +21,9 @@ import com.squill.og.crawler.rss.LogTags;
 public class DefaultTaxonomyResolver implements ITaxonomyResolver {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(DefaultTaxonomyResolver.class);
-
+	
 	@Override
-	public JTaxonomy[] resolveTaxonomies(String text, String linkUrl) throws Exception {
+	public JTaxonomy[] resolveTaxonomies(String text, String linkUrl, String domainUrl) throws Exception {
 		List<JTaxonomy> taxonomies = new ArrayList<JTaxonomy>();
 		AylienTaxonomyResponse taxonomyResponse = new AylienTaxonomyClassifier().classifyUrl(linkUrl);//.classifyText(text);
 		if(taxonomyResponse != null) {
@@ -40,5 +41,10 @@ public class DefaultTaxonomyResolver implements ITaxonomyResolver {
 			LOG.info(LogTags.TAXONOMY_RESOLUTION_ERROR + " Failed to resolve any valid IPTC category for news @ " + linkUrl);
 		}
 		return taxonomies.toArray(new JTaxonomy[taxonomies.size()]);
+	}
+
+	@Override
+	public boolean canResolve(String linkUrl, String domainUrl, JRssFeed feed) {
+		return true;
 	}
 }

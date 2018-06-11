@@ -37,7 +37,7 @@ public class NewsFeedsApi extends BaseAPI {
 			String oAuthToken, String source) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
 		String url = getBaseUrl() + "news/usr/" + userId + "/page/" + pageLink
-				+ "/version/v2?source=" + source;
+				+ "?source=" + source;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
 		HttpResponse response = client.execute(GET);

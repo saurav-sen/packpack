@@ -21,7 +21,7 @@ public interface IWebLinkTrackerService {
 	
 	public WebSpiderTracker getTrackedInfo(String link);
 	
-	public List<WebSpiderTracker> getAllTackedInfo();
+	public List<WebSpiderTracker> getAllTrackedInfo();
 	
 	public void clearAll();
 }
