@@ -235,4 +235,17 @@ public class JRssFeed {
 	public void setBatchId(long batchId) {
 		this.batchId = batchId;
 	}
+	
+	@Override
+	public int hashCode() {
+		return (getClass().getName() + "_" + id).hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof JRssFeed)) {
+			return false;
+		}
+		return this.id.equals(((JRssFeed) obj).getId());
+	}
 }
