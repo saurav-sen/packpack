@@ -93,6 +93,13 @@ public class WebSpiderService {
 				 * waitFor(list.subList(0, 20/2)); count = 0; }
 				 */
 			}
+			
+			Spider emailSpider = SpiderFactory.INSTANCE
+					.createSupportEmailSpider();
+			Future<?> future = pool.scheduleAtFixedRate(emailSpider, 0, 1,
+					TimeUnit.HOURS);
+			list.add(future);
+			
 			// Main thread should keep waiting forever.
 			waitFor(list);
 		} finally {

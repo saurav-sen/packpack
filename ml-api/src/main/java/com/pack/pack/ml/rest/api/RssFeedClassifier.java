@@ -110,7 +110,7 @@ public class RssFeedClassifier {
 	@Path("upload/{email}/{name}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public JStatus uploadFeedd(@PathParam("email") String email,
+	public JStatus uploadFeed(@PathParam("email") String email,
 			@PathParam("name") String name, String json)
 			throws PackPackException {
 		LOG.info("Bulk Upload of feeds to be trained");

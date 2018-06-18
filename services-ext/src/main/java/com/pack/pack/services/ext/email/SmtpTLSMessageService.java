@@ -24,13 +24,16 @@ public class SmtpTLSMessageService {
 	private static Logger LOG = LoggerFactory
 			.getLogger(SmtpTLSMessageService.class);
 
+	private static final String SMTP_HOST = "smtp.gmail.com";
+	private static final String SMTP_PORT = "587";
+	
 	private static final String USERNAME = "donot-reply@squill.co.in";
 	private static final String PASSWORD = "P@$$w0rd4SQui11";
 
 	private static final String DISPLAY_LABEL = "SQUILL";
 
 	private Properties smtpTLSProperties;
-
+	
 	private ExecutorService executors;
 	
 	public static final SmtpTLSMessageService INSTANCE = new SmtpTLSMessageService();
@@ -43,9 +46,9 @@ public class SmtpTLSMessageService {
 		smtpTLSProperties = new Properties();
 		smtpTLSProperties.put("mail.smtp.auth", "true");
 		smtpTLSProperties.put("mail.smtp.starttls.enable", "true");
-		smtpTLSProperties.put("mail.smtp.host", "smtp.gmail.com");
-		smtpTLSProperties.put("mail.smtp.port", "587");
-
+		smtpTLSProperties.put("mail.smtp.host", SMTP_HOST);
+		smtpTLSProperties.put("mail.smtp.port", SMTP_PORT);
+		
 		executors = Executors.newCachedThreadPool();
 	}
 
@@ -53,7 +56,7 @@ public class SmtpTLSMessageService {
 		executors.execute(new SendMessageTask(message));
 
 	}
-
+	
 	private void sendMail(String receipentEmailId, String subject,
 			String htmlContent, boolean isHtml) {
 		LOG.debug("Establishing SMTP session to GMail");

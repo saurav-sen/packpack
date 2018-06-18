@@ -75,7 +75,7 @@ public class HttpRequestExecutor {
 		return client.execute(GET, HTTP_CONTEXT);
 	}
 
-	public String GET(String link, String domainName) throws ParseException,
+	public String GET0(String link, String domainName) throws ParseException,
 			IOException {
 		DefaultHttpClient client = newClient();
 		HttpGet get = new HttpGet(link);
@@ -125,6 +125,10 @@ public class HttpRequestExecutor {
 			responseCode = response.getStatusLine().getStatusCode();
 		}
 		return ResponseUtil.getResponseBodyContent(response);
+	}
+	
+	public String GET(String link) throws Exception {
+		return GET(link, null);
 	}
 
 	public String GET(String link, WebSpiderTracker info) throws Exception {

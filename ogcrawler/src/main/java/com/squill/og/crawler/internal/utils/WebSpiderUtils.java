@@ -74,7 +74,7 @@ public class WebSpiderUtils {
 			}
 		}
 		HttpRequestExecutor executor = new HttpRequestExecutor();
-		String html = executor.GET(domainUrl, "");
+		String html = executor.GET0(domainUrl, "");
 		HtmlPage page = ResponseUtil.getParseableHtml(html, domainUrl);
 		PageLinkExtractor extractor = new PageLinkExtractor();
 		return extractor.extractAllPageLinks(page, webSite);

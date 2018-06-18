@@ -1,5 +1,6 @@
 package com.squill.og.crawler.internal;
 
+import com.pack.pack.og.crawler.email.SupportEmailSpider;
 import com.squill.og.crawler.ICrawlable;
 import com.squill.og.crawler.IWebApi;
 import com.squill.og.crawler.IWebSite;
@@ -7,6 +8,11 @@ import com.squill.og.crawler.Spider;
 import com.squill.og.crawler.SpiderSession;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 
+/**
+ * 
+ * @author Saurav
+ *
+ */
 public class SpiderFactory {
 
 	public static final SpiderFactory INSTANCE = new SpiderFactory();
@@ -28,5 +34,9 @@ public class SpiderFactory {
 					webApi.getTrackerService(), session);
 		}
 		return null;
+	}
+	
+	public Spider createSupportEmailSpider() {
+		return new SupportEmailSpider();
 	}
 }
