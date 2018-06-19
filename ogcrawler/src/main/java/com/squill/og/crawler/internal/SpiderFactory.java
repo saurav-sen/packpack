@@ -1,6 +1,6 @@
 package com.squill.og.crawler.internal;
 
-import com.pack.pack.og.crawler.email.SupportEmailSpider;
+import com.squill.crawler.email.SupportEmailSpider;
 import com.squill.og.crawler.ICrawlable;
 import com.squill.og.crawler.IWebApi;
 import com.squill.og.crawler.IWebSite;

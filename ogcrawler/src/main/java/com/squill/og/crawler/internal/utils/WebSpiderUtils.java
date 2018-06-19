@@ -3,6 +3,7 @@ package com.squill.og.crawler.internal.utils;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,21 +22,26 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.squill.crawlercommons.fetcher.http.BaseHttpFetcher;
+import com.squill.crawlercommons.robots.BaseRobotRules;
+import com.squill.crawlercommons.robots.RobotUtils;
+import com.squill.crawlercommons.robots.SimpleRobotRulesParser;
+import com.squill.crawlercommons.sitemaps.AbstractSiteMap;
+import com.squill.crawlercommons.sitemaps.SiteMap;
+import com.squill.crawlercommons.sitemaps.SiteMapIndex;
+import com.squill.crawlercommons.sitemaps.SiteMapParser;
+import com.squill.crawlercommons.sitemaps.SiteMapURL;
+import com.squill.og.crawler.ICrawlSchedule;
 import com.squill.og.crawler.ILink;
 import com.squill.og.crawler.IRobotScope;
 import com.squill.og.crawler.IWebSite;
+import com.squill.og.crawler.hooks.IArticleTextSummarizer;
+import com.squill.og.crawler.hooks.IGeoLocationResolver;
+import com.squill.og.crawler.hooks.IHtmlContentHandler;
+import com.squill.og.crawler.hooks.ITaxonomyResolver;
+import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.HtmlPage;
 import com.squill.og.crawler.internal.PageLinkExtractor;
-
-import crawlercommons.fetcher.http.BaseHttpFetcher;
-import crawlercommons.robots.BaseRobotRules;
-import crawlercommons.robots.RobotUtils;
-import crawlercommons.robots.SimpleRobotRulesParser;
-import crawlercommons.sitemaps.AbstractSiteMap;
-import crawlercommons.sitemaps.SiteMap;
-import crawlercommons.sitemaps.SiteMapIndex;
-import crawlercommons.sitemaps.SiteMapParser;
-import crawlercommons.sitemaps.SiteMapURL;
 
 /**
  * 
@@ -98,6 +104,128 @@ public class WebSpiderUtils {
 			result.addAll(parseSiteMap(siteMap, domainUrl, webSite));
 		}
 		return result;
+	}
+	
+	public static void main(String[] args) throws MalformedURLException, Exception {
+		System.out.println(CoreConstants.SQUILL_ROBOT.getUserAgentString());
+		IWebSite w = new IWebSite() {
+			
+			@Override
+			public boolean isUploadIndependently() {
+				// TODO Auto-generated method stub
+				return false;
+			}
+			
+			@Override
+			public String getUniqueId() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+			
+			@Override
+			public IWebLinkTrackerService getTrackerService() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+			
+			@Override
+			public ICrawlSchedule getSchedule() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+			
+			@Override
+			public ITaxonomyResolver getTaxonomyResolver() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+			
+			@Override
+			public IGeoLocationResolver getTargetLocationResolver() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+			
+			@Override
+			public IArticleTextSummarizer getArticleTextSummarizer() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+			
+			@Override
+			public boolean shouldCheckRobotRules() {
+				// TODO Auto-generated method stub
+				return false;
+			}
+			
+			@Override
+			public boolean isPageLinkExtractorEnabled() {
+				// TODO Auto-generated method stub
+				return false;
+			}
+			
+			@Override
+			public IRobotScope getRobotScope() {
+				// TODO Auto-generated method stub
+				return new IRobotScope() {
+					
+					@Override
+					public void setRobotRules(BaseRobotRules robotRules) {
+						// TODO Auto-generated method stub
+						
+					}
+					
+					@Override
+					public boolean isScopedSiteMapUrl(String sitemapUrl) {
+						// TODO Auto-generated method stub
+						return true;
+					}
+					
+					@Override
+					public boolean isScoped(String link) {
+						// TODO Auto-generated method stub
+						return true;
+					}
+					
+					@Override
+					public int getDefaultCrawlDelay() {
+						// TODO Auto-generated method stub
+						return 0;
+					}
+					
+					@Override
+					public List<? extends ILink> getAnyLeftOverLinks() {
+						// TODO Auto-generated method stub
+						return Collections.emptyList();
+					}
+				};
+			}
+			
+			@Override
+			public String getDomainUrl() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+			
+			@Override
+			public IHtmlContentHandler getContentHandler() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+			
+			@Override
+			public void enablePageLinkExtractor() {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void disablePageLinkExtractor() {
+				// TODO Auto-generated method stub
+				
+			}
+		};
+		parseSiteMap("https://www.siliconindia.com/sitemapnews.xml", new URL("https://www.siliconindia.com"), w);
 	}
 	
 	private static List<ILink> parseSiteMap(String siteMap, URL domainUrl, IWebSite webSite) throws Exception {
@@ -199,16 +327,6 @@ public class WebSpiderUtils {
 			}
 		}
 		return result;
-	}
-	
-	public static void main(String[] args) throws Exception {
-		System.out.println(CoreConstants.SQUILL_ROBOT.getUserAgentString());
-		/*List<String> urls = WebSpiderUtils.parseCrawlableURLs("http://www.medindia.net");
-		if(!urls.isEmpty()) {
-			for(String url : urls) {
-				System.out.println(url);
-			}
-		}*/
 	}
 	
 	private static class HyperLink implements ILink {

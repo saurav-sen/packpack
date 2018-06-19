@@ -1,6 +1,6 @@
 package com.squill.og.crawler;
 
-import crawlercommons.robots.BaseRobotRules;
+import com.squill.crawlercommons.robots.BaseRobotRules;
 
 public abstract class AbstractRobotScope implements IRobotScope {
 

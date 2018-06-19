@@ -1,4 +1,4 @@
-package com.pack.pack.og.crawler.email;
+package com.squill.crawler.email;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -123,7 +123,7 @@ public class SupportEmailSpider implements Spider {
 
 	private void uploadNewFeeds(List<JRssFeed> feeds) {
 		TTL ttl = new TTL();
-		ttl.setTime((short) 1);
+		ttl.setTime((short) 2);
 		ttl.setUnit(TimeUnit.DAYS);
 		long batchId = System.currentTimeMillis();
 		JRssFeeds jRssFeeds = new JRssFeeds();

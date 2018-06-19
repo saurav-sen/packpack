@@ -1,4 +1,4 @@
-package com.pack.pack.og.crawler.email;
+package com.squill.crawler.email;
 
 import java.io.IOException;
 import java.net.MalformedURLException;

@@ -1,6 +1,6 @@
 package com.squill.og.crawler.internal.utils;
 
-import crawlercommons.fetcher.http.UserAgent;
+import com.squill.crawlercommons.fetcher.http.UserAgent;
 
 /**
  *

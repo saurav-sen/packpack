@@ -15,7 +15,7 @@ import com.squill.og.crawler.hooks.ILinkFilter;
 public class QZLinkFilterHandler implements ILinkFilter {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(QZLinkFilterHandler.class);
-
+	
 	@Override
 	public boolean isScoped(String linkUrl) {
 		return true;

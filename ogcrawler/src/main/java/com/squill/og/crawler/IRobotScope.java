@@ -2,7 +2,7 @@ package com.squill.og.crawler;
 
 import java.util.List;
 
-import crawlercommons.robots.BaseRobotRules;
+import com.squill.crawlercommons.robots.BaseRobotRules;
 
 /**
  * 
