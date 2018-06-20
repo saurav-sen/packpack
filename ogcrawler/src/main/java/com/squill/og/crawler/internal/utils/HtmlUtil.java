@@ -15,6 +15,13 @@ public class HtmlUtil {
 	
 	private HtmlUtil() {
 	}
+	
+	public static String cleanIllegalCharacters4mUrl(String url) {
+		if(url == null) {
+			return url;
+		}
+		return url.replaceAll("\\\\", "/").replaceAll("//", "/");
+	}
 
 	public static JRssFeed parse4mHtml(String htmlContent) {
 		Document doc = Jsoup.parse(htmlContent);

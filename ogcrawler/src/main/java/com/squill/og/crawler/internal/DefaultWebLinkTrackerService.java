@@ -151,12 +151,12 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 		List<WebSpiderTracker> result = new ArrayList<WebSpiderTracker>();
 		try {
 			sync = sync();
-			List<String> keys = sync.keys(KEY_PREFIX);
+			List<String> keys = sync.keys(KEY_PREFIX + "*");
 			if(keys == null || keys.isEmpty())
 				return result;
 			for(String key : keys) {
 				String json = sync.get(key);
-				WebSpiderTracker info = JSONUtil.deserialize(json, WebSpiderTracker.class);
+				WebSpiderTracker info = JSONUtil.deserialize(json, WebSpiderTracker.class, true);
 				if(!info.isUploadCompleted()) {
 					result.add(info);
 				}
@@ -213,5 +213,36 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 			return;
 		sync.del(keys.toArray(new String[keys.size()]));
 		//sync.close();
+	}
+
+	@Override
+	public void addValue(String keyPrefix, String key, String value, long ttlSeconds) {
+		RedisCommands<String, String> sync = null;
+		try {
+			key = keyPrefix + "_" + key;
+			sync = sync();
+			sync.setex(key, ttlSeconds, value);
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+		}
+	}
+
+	@Override
+	public String getValue(String keyPrefix, String key) {
+		RedisCommands<String, String> sync = null;
+		String value = null;
+		try {
+			String k1 = keyPrefix + "_" + key;
+			if (!isKeyExists(k1)) {
+				LOG.debug("Key doesn't exist for key = " + key);
+				return null;
+			}
+			sync = sync();
+			value = sync.get(k1);
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+			throw new RuntimeException(e);
+		}
+		return value;
 	}
 }

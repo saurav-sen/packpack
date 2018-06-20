@@ -1,0 +1,13 @@
+{
+	"providerName": "SQUILL",
+	"providerDescription": "",
+	"providerUrl": "http://www.squill.co.in",
+	"sources": [
+	{
+		"id": "the-hindu",
+		"name": "The Hindu",
+		"description": "The Hindu. latest news, analysis, comment, in-depth coverage of politics, business, sport, environment, cinema and arts from India's national newspaper.",
+		"orgHomePage": "http://www.thehindu.com",
+		"feedType": "NEWS"
+	}]
+}

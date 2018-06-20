@@ -23,5 +23,9 @@ public interface IWebLinkTrackerService {
 	
 	public List<WebSpiderTracker> getAllTrackedInfo();
 	
+	public void addValue(String keyPrefix, String key, String value, long ttlSeconds);
+	
+	public String getValue(String keyPrefix, String key);
+	
 	public void clearAll();
 }

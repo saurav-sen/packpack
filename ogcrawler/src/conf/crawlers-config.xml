@@ -13,7 +13,28 @@
         <name>Quartz</name>
         <description>Quartz India</description>
         <linkFilter>
-            <handler>qzLinkFilterHandler</handler>
+            <handler>qzLinkFilter</handler>
+        </linkFilter>
+        <contentHandler preClassifiedType="ARTICLE">
+            <handler>defaultOgHtmlContentHandler</handler>
+        </contentHandler>
+	    <geoTagResolver>
+	        <resolver>defaultGeoLocationResolver</resolver>
+	    </geoTagResolver>
+	    <taxonomyClassifier>
+	        <resolver>defaultTaxonomyResolver</resolver>
+	    </taxonomyClassifier>
+	    <articleSummarizer>
+	        <resolver>defaultArticleTextSummarizer</resolver>
+	    </articleSummarizer>
+        <scheduler initialDelay="0" periodicDelay="1" timeUnit="DAYS"/>
+    </WebCrawler>
+    
+    <WebCrawler id="siliconindia.com" domainUrl="https://siliconindia.com" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true" uploadIndependently="true">
+        <name>SiliconIndia</name>
+        <description>Silicon India</description>
+        <linkFilter>
+            <handler>siliconIndiaLinkFilter</handler>
         </linkFilter>
         <contentHandler preClassifiedType="ARTICLE">
             <handler>defaultOgHtmlContentHandler</handler>

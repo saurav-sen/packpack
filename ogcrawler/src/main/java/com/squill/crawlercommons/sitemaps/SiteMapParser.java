@@ -211,6 +211,7 @@ public class SiteMapParser {
 
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setNamespaceAware(true);
             doc = dbf.newDocumentBuilder().parse(is);
         } catch (Exception e) {
             throw new UnknownFormatException("Error parsing XML for " + sitemapUrl);
@@ -270,6 +271,24 @@ public class SiteMapParser {
                     
                     if (valid || !strict) {
                         SiteMapURL sUrl = new SiteMapURL(url.toString(), lastMod, changeFreq, priority, valid);
+                        
+                        String newsNsURI = "*";//"http://www.google.com/schemas/sitemap-news/0.9";
+                        NodeList newsNodes = elem.getElementsByTagNameNS("*", "news");
+                    	if(newsNodes != null && newsNodes.getLength() > 0) {
+                    		Node newsNode = newsNodes.item(0);
+                    		Element el = (Element) newsNode;
+                    		String publication_date = getElementValueByTargetNsURI(el, "publication_date", newsNsURI);
+                    		String title = getElementValueByTargetNsURI(el, "title", newsNsURI);
+                    		String publication_name = "";
+                    		NodeList publicationNodes = el.getElementsByTagNameNS(newsNsURI, "publication");
+                    		if(publicationNodes != null && publicationNodes.getLength() > 0) {
+                    			Node publicationNode = publicationNodes.item(0);
+                    			publication_name = getElementValueByTargetNsURI((Element) publicationNode, "name", newsNsURI);
+                    		}
+                    		SiteMapNews siteMapNews = new SiteMapNews(publication_date, title, publication_name);
+                    		sUrl.setSiteMapNews(siteMapNews);
+                    	}
+                    	
                         sitemap.addSiteMapUrl(sUrl);
                         if (LOG.isDebugEnabled()){
                             StringBuffer sb = new StringBuffer("  ");
@@ -552,6 +571,20 @@ public class SiteMapParser {
     private String getElementValue(Element elem, String elementName) {
 
         NodeList list = elem.getElementsByTagName(elementName);
+        Element e = (Element) list.item(0);
+        if (e != null) {
+            NodeList children = e.getChildNodes();
+            if (children.item(0) != null) {
+                return ((Node) children.item(0)).getNodeValue().trim();
+            }
+        }
+
+        return null;
+    }
+    
+    private String getElementValueByTargetNsURI(Element elem, String elementName, String targetNsURI) {
+
+        NodeList list = elem.getElementsByTagNameNS(targetNsURI, elementName);
         Element e = (Element) list.item(0);
         if (e != null) {
             NodeList children = e.getChildNodes();

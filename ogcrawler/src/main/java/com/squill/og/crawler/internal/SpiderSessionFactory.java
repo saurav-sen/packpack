@@ -138,8 +138,9 @@ public class SpiderSessionFactory {
 					//countFilePath = System.getProperty("user.home");
 					countFilePath = System.getProperty("java.io.tmpdir");
 					if(!countFilePath.endsWith(File.separator) && !countFilePath.endsWith("/") && !countFilePath.endsWith("\\")) {
-						countFilePath = countFilePath + File.separator + "tmpCount.json";
+						countFilePath = countFilePath + File.separator;
 					}
+					countFilePath = countFilePath + "tmpCount.json";
 					File file = new File(countFilePath);
 					if(file.exists()) {
 						String content = new String(Files.readAllBytes(Paths.get(countFilePath)));

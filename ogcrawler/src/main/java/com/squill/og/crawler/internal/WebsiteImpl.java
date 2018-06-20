@@ -22,6 +22,7 @@ import com.squill.og.crawler.hooks.ILinkFilter;
 import com.squill.og.crawler.hooks.ITaxonomyResolver;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.CoreConstants;
+import com.squill.og.crawler.linkfilters.DailyFixedSizeLinkFilter;
 import com.squill.og.crawler.model.ArticleSummarizer;
 import com.squill.og.crawler.model.ContentHandler;
 import com.squill.og.crawler.model.GeoTagResolver;
@@ -87,8 +88,8 @@ public class WebsiteImpl implements IWebSite {
 
 	@Override
 	public IRobotScope getRobotScope() {
-		if(robotScope == null) {
-			robotScope = new RobotScopeImpl();
+		if (robotScope == null) {
+			robotScope = new RobotScopeImpl(getTrackerService());
 		}
 		return robotScope;
 	}
@@ -97,8 +98,9 @@ public class WebsiteImpl implements IWebSite {
 		
 		private ILinkFilter linkFilterHandler = null;
 		
-		RobotScopeImpl() {
-			initLinkFilterHandler();
+		
+		RobotScopeImpl(IWebLinkTrackerService trackerService) {
+			initLinkFilterHandler(trackerService);
 		}
 		
 		@Override
@@ -117,7 +119,7 @@ public class WebsiteImpl implements IWebSite {
 			return new LinkFilterConditionEvaluator().evalExp(expression);
 		}
 		
-		private void initLinkFilterHandler() {
+		private void initLinkFilterHandler(IWebLinkTrackerService trackerService) {
 			LinkFilter linkFilter = crawlerDef.getLinkFilter();
 			String handler = linkFilter.getHandler();
 			if(handler != null) {
@@ -131,6 +133,10 @@ public class WebsiteImpl implements IWebSite {
 					try {
 						Class<?> clazz = Class.forName(handler);
 						linkFilterHandler = (ILinkFilter) clazz.newInstance();
+						if (linkFilterHandler instanceof DailyFixedSizeLinkFilter) {
+							((DailyFixedSizeLinkFilter) linkFilterHandler)
+									.setTrackerService(trackerService);
+						}
 					} catch (Exception e) {
 						LOG.error(e.getMessage(), e);
 					}

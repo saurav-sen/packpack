@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -59,8 +60,8 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		}
 	}
 	
-	private List<JRssFeed> getAllFeedsToBeUploaded(IWebCrawlable webCrawlable) {
-		List<JRssFeed> result = new LinkedList<JRssFeed>();
+	private List<WebSpiderTracker> getAllFeedsToBeUploaded(IWebCrawlable webCrawlable) {
+		List<WebSpiderTracker> result = new LinkedList<WebSpiderTracker>();
 		IWebLinkTrackerService webLinkTrackerService = webCrawlable.getTrackerService();
 		List<WebSpiderTracker> allTrackedInfo = webLinkTrackerService.getAllTrackedInfo();
 		if(allTrackedInfo == null || allTrackedInfo.isEmpty())
@@ -74,10 +75,10 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 			JRssFeed feedToUpload = trackedInfo.getFeedToUpload();
 			if(feedToUpload == null)
 				continue;
-			result.add(feedToUpload);
+			result.add(trackedInfo);
 			
 			trackedInfo.setUploadCompleted(true);
-			webLinkTrackerService.upsertCrawledInfo(trackedInfo.getLink(), trackedInfo, RSSConstants.DEFAULT_TTL_WEB_TRACKING_INFO, false);
+			//webLinkTrackerService.upsertCrawledInfo(trackedInfo.getLink(), trackedInfo, RSSConstants.DEFAULT_TTL_WEB_TRACKING_INFO, false);
 		}
 		return result;
 	}
@@ -95,12 +96,12 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 			return;
 		}
 		List<JRssFeed> list = feeds.getFeeds();*/
-		List<JRssFeed> list = getAllFeedsToBeUploaded(webCrawlable);
+		List<WebSpiderTracker> list = getAllFeedsToBeUploaded(webCrawlable);
 		if(list == null || list.isEmpty()) {
 			LOG.debug("No feeds found for :: " + webCrawlable.getUniqueId());
 			return;
 		}
-		map.put(webCrawlable.getUniqueId(), list);
+		map.put(webCrawlable.getUniqueId(), readFeeds(list));
 		if (webCrawlable.isUploadIndependently()) {
 			try {
 				uploadBulk(map, session.getBatchId(), webCrawlable);
@@ -114,6 +115,19 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 				LOG.error(e.getMessage(), e);
 			}
 		}
+	}
+	
+	protected List<JRssFeed> readFeeds(List<WebSpiderTracker> list) {
+		List<JRssFeed> result = new ArrayList<JRssFeed>();
+		if(list == null)
+			return result;
+		for(WebSpiderTracker l : list) {
+			JRssFeed feedToUpload = l.getFeedToUpload();
+			if(feedToUpload == null)
+				continue;
+			result.add(feedToUpload);
+		}
+		return result;
 	}
 	
 	protected JRssFeeds adapt(Map<String, List<JRssFeed>> map) {
@@ -232,7 +246,6 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 				info = new WebSpiderTracker();
 				info.setWebCrawlerId(webCrawlable.getUniqueId());
 			}
-			info.setLastCrawled(System.currentTimeMillis());
 			info.setLink(link);
 			info.setUploadCompleted(true);
 			webLinkTrackerService.upsertCrawledInfo(link, info, RSSConstants.DEFAULT_TTL_WEB_TRACKING_INFO, false);

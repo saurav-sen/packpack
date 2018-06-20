@@ -113,6 +113,9 @@ public class JRssFeed {
 	}
 
 	public String getFeedType() {
+		if(feedType == null) {
+			return ogType;
+		}
 		return feedType;
 	}
 

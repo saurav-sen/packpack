@@ -51,6 +51,8 @@ public class SiteMapURL {
     /** could be false, if URL isn't found under base path **/
     private boolean valid;
     
+    private SiteMapNews siteMapNews;
+    
     public SiteMapURL(String url, boolean valid) {
         setUrl(url);
         setValid(valid);
@@ -199,6 +201,14 @@ public class SiteMapURL {
     public void setChangeFrequency(ChangeFrequency changeFreq) {
         this.changeFreq = changeFreq;
     }
+    
+    public SiteMapNews getSiteMapNews() {
+		return siteMapNews;
+	}
+
+	public void setSiteMapNews(SiteMapNews siteMapNews) {
+		this.siteMapNews = siteMapNews;
+	}
 
     /**
      * Set the URL's change frequency
@@ -246,5 +256,4 @@ public class SiteMapURL {
         sb.append(",priority=").append(priority);
         return sb.toString();
     }
-
 }

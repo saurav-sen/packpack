@@ -42,7 +42,7 @@ public class NewsApiRequestExecutor implements IApiRequestExecutor {
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(NewsApiRequestExecutor.class);
-
+	
 	@PostConstruct
 	private void init() {
 		try {

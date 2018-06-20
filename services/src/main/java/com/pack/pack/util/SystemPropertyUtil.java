@@ -116,7 +116,8 @@ public final class SystemPropertyUtil {
 	public static void init() {
 		try {
 			properties = new Properties();
-			properties.load(new FileInputStream(new File(CONFIG_FILE)));
+			properties.load(new FileInputStream(new File(
+					resolveConfigFilePath())));
 			// TODO -- call an check this once we add ES infrastructure
 			// String esBaseUrl = properties.getProperty(Constants.ES_BASE_URL);
 			// System.setProperty(Constants.ES_BASE_URL, esBaseUrl);
@@ -127,6 +128,17 @@ public final class SystemPropertyUtil {
 			logger.info(e.getMessage(), e);
 			throw new RuntimeException(e);
 		}
+	}
+	
+	private static String resolveConfigFilePath() {
+		String property = System.getProperty("operation.mode");
+		if (property != null
+				&& ("TRUE".equalsIgnoreCase(property.trim())
+						|| "ECLIPSE".equalsIgnoreCase(property.trim()) || "TEST"
+							.equalsIgnoreCase(property.trim()))) {
+			return "./src/conf/system_internal.properties";
+		}
+		return CONFIG_FILE;
 	}
 
 	private static String getPropertyValue(String key) {

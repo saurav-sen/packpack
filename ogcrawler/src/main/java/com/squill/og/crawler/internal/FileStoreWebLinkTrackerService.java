@@ -145,4 +145,18 @@ public class FileStoreWebLinkTrackerService implements IWebLinkTrackerService {
 		db.clear();
 		save();
 	}
+
+	@Override
+	public void addValue(String keyPrefix, String key, String value,
+			long ttlSeconds) {
+		// Not Supported
+		LOG.error("Operation addValue(...) is not Supported by " + this.getClass().getName());
+	}
+
+	@Override
+	public String getValue(String keyPrefix, String key) {
+		// Not Supported
+		LOG.error("Operation getValue(...) is not Supported by " + this.getClass().getName());
+		return null;
+	}
 }

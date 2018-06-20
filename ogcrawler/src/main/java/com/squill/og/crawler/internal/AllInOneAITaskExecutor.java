@@ -72,6 +72,7 @@ public class AllInOneAITaskExecutor {
 				Iterator<JRssFeed> feedsItr = feeds.iterator();
 				while(feedsItr.hasNext()) {
 					JRssFeed feed = feedsItr.next();
+					feed.setOgType(feed.getFeedType());
 					String link = feed.getOgUrl();
 					WebSpiderTracker info = webLinkTrackerService.getTrackedInfo(link);
 					if(session.isThresholdReached()) {
@@ -91,11 +92,22 @@ public class AllInOneAITaskExecutor {
 						info.setWebCrawlerId(webCrawlable.getUniqueId());
 						isNew = true;
 					}
+					
 					info.setLastCrawled(System.currentTimeMillis());
 					info.setLink(link);
-					info.setFeedToUpload(feed);
 					webLinkTrackerService.upsertCrawledInfo(link, info,
 							RSSConstants.DEFAULT_TTL_WEB_TRACKING_INFO, false);
+					
+					JRssFeed oldFeed = info.getFeedToUpload();
+					if(oldFeed != null) {
+						if(oldFeed.getFeedType() == null) {
+							oldFeed.setFeedType(feed.getFeedType());
+							oldFeed.setOgType(feed.getOgType());
+							webLinkTrackerService.upsertCrawledInfo(link, info,
+									RSSConstants.DEFAULT_TTL_WEB_TRACKING_INFO, false);
+						}
+						continue;
+					}
 					
 					String domainUrl = null;
 					if(webCrawlable instanceof IWebSite) {
@@ -104,19 +116,17 @@ public class AllInOneAITaskExecutor {
 						domainUrl = resolveDomainUrl(feed.getOgUrl());
 					}
 					
-					boolean needToUpsertLinkInfo = executeDocumentSummarization(
-							info, feed, webCrawlable, isNew)
-							| executeDocumentClassification(info, feed,
-									webCrawlable, domainUrl, isNew)
-							| executeDocumentGeoTagging(info, feed,
+					executeDocumentSummarization(
+							info, feed, webCrawlable, isNew);
+					executeDocumentClassification(info, feed,
+									webCrawlable, domainUrl, isNew);
+					executeDocumentGeoTagging(info, feed,
 									webCrawlable, domainUrl, isNew);
 					
-					if(needToUpsertLinkInfo) {
-						info.setFeedToUpload(feed);
-						webLinkTrackerService.upsertCrawledInfo(link, info,
-								RSSConstants.DEFAULT_TTL_WEB_TRACKING_INFO,
-								false);
-					}
+					info.setFeedToUpload(feed);
+					webLinkTrackerService.upsertCrawledInfo(link, info,
+							RSSConstants.DEFAULT_TTL_WEB_TRACKING_INFO,
+							false);
 				}
 			}
 			/*IFeedUploader feedUploader = currentWebSite.getFeedUploader();

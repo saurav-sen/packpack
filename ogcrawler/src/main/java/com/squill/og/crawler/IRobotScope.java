@@ -3,6 +3,7 @@ package com.squill.og.crawler;
 import java.util.List;
 
 import com.squill.crawlercommons.robots.BaseRobotRules;
+import com.squill.crawlercommons.sitemaps.SiteMapURL;
 
 /**
  * 
@@ -12,6 +13,8 @@ import com.squill.crawlercommons.robots.BaseRobotRules;
 public interface IRobotScope {
 	
 	public boolean isScoped(String link);
+	
+	public boolean isScopedSiteMap(SiteMapURL siteMapURL);
 	
 	public boolean isScopedSiteMapUrl(String sitemapUrl);
 	

@@ -124,7 +124,7 @@ public class WebSiteSpider implements Spider {
 			if(robotScope.isScoped(link.getUrl())) {
 				String url = link.getUrl();
 				long currentTimeMillis = System.currentTimeMillis();
-				info = tracker.getTrackedInfo(link.getUrl());
+				info = tracker.getTrackedInfo(url);
 				if (info == null) {
 					info = new WebSpiderTracker();
 					info.setWebCrawlerId(webSiteId);
@@ -142,7 +142,7 @@ public class WebSiteSpider implements Spider {
 				String html = new HttpRequestExecutor().GET(url, info);
 				
 				long ttlSeconds = 10 * 24 * 60 * 60;
-				tracker.upsertCrawledInfo(link.getUrl(), info, ttlSeconds, false);
+				tracker.upsertCrawledInfo(url, info, ttlSeconds, false);
 				
 				if(CoreConstants.SKIP.equalsIgnoreCase(html)) {
 					continue;

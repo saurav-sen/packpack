@@ -6,6 +6,7 @@ import java.util.List;
 import com.squill.og.crawler.ILink;
 import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.internal.utils.CoreConstants;
+import com.squill.og.crawler.internal.utils.HtmlUtil;
 
 
 
@@ -113,7 +114,7 @@ public class PageLink implements ILink {
 
 	@Override
 	public String getUrl() {
-		return getLink();
+		return HtmlUtil.cleanIllegalCharacters4mUrl(getLink());
 		//return link;
 	}
 
