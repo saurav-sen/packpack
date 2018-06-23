@@ -20,7 +20,9 @@ public class HtmlUtil {
 		if(url == null) {
 			return url;
 		}
-		return url.replaceAll("\\\\", "/").replaceAll("//", "/");
+		return url.replaceAll("\\\\", "/").replaceAll("//", "/")
+				.replaceFirst("http:/", "http://")
+				.replaceFirst("https:/", "https://");
 	}
 
 	public static JRssFeed parse4mHtml(String htmlContent) {

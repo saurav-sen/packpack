@@ -51,7 +51,12 @@ public class WebSpiderUtils {
 		if(webSite.shouldCheckRobotRules()) {
 			BaseHttpFetcher fetcher = RobotUtils.createFetcher(CoreConstants.SQUILL_ROBOT, 1);
 			SimpleRobotRulesParser parser = new SimpleRobotRulesParser();
-			URL robotsUrl = new URL(domainUrl + "/" + "robots.txt");
+			String url = domainUrl;
+			if(!url.endsWith("/")) {
+				url = url + "/";
+			}
+			url = url + "robots.txt";
+			URL robotsUrl = new URL(url);
 			BaseRobotRules rules = RobotUtils.getRobotRules(fetcher, parser, robotsUrl);
 			List<String> sitemaps = rules.getSitemaps();
 			IRobotScope robotScope = webSite.getRobotScope();

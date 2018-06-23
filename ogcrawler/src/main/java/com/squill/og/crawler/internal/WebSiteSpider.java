@@ -25,6 +25,7 @@ import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
 import com.squill.og.crawler.internal.utils.ResponseUtil;
 import com.squill.og.crawler.internal.utils.WebSpiderUtils;
 import com.squill.og.crawler.model.WebSpiderTracker;
+import com.squill.og.crawler.rss.RSSConstants;
 
 /**
  * 
@@ -141,8 +142,8 @@ public class WebSiteSpider implements Spider {
 				
 				String html = new HttpRequestExecutor().GET(url, info);
 				
-				long ttlSeconds = 10 * 24 * 60 * 60;
-				tracker.upsertCrawledInfo(url, info, ttlSeconds, false);
+				tracker.upsertCrawledInfo(url, info,
+						RSSConstants.DEFAULT_TTL_WEB_TRACKING_INFO, false);
 				
 				if(CoreConstants.SKIP.equalsIgnoreCase(html)) {
 					continue;

@@ -1,12 +1,18 @@
 package com.squill.og.crawler.linkfilters;
 
 import java.net.URL;
+import java.util.Calendar;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+/**
+ * 
+ * @author Saurav
+ *
+ */
 @Component("qzLinkFilter")
 @Scope("prototype")
 public class QZLinkFilter extends DailyFixedSizeLinkFilter {
@@ -60,5 +66,17 @@ public class QZLinkFilter extends DailyFixedSizeLinkFilter {
 			LOG.error(e.getMessage(), e);
 			return false;
 		}
+	}
+	
+	protected String yesterday() {
+		Calendar c = Calendar.getInstance();
+		c.add(Calendar.DATE, -1);
+		int day = c.get(Calendar.DAY_OF_MONTH);
+		int month = c.get(Calendar.MONTH) + 1;
+		int year = c.get(Calendar.YEAR);
+		String dd = day < 10 ? "0" + String.valueOf(day) : String.valueOf(day);
+		String mm = month < 10 ? "0" + String.valueOf(month) : String.valueOf(month);
+		String yyyy = String.valueOf(year);
+		return dd + "/" + mm + "/" + yyyy;
 	}
 }

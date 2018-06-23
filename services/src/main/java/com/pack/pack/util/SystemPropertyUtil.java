@@ -110,6 +110,9 @@ public final class SystemPropertyUtil {
 	
 	private static final String EXTERNAL_SHARED_LINK_BASE_URL_DEFAULT = "http://www.squill.co.in/RSS/public/ext";
 	
+	public final static String AUTH_KEY_FCM = "AAAApQZn_ZI:APA91bGidkJYWfz2JYHTPXWr5a0NrLwV6K2DE-z57eIoLpBmUgqaUQ239pGVbDA8Aw_KKZqBFfsxLYv3wp2bjH1XXN-uGeRuAQNpN7LrAsfWJBikVAedOzs0GvzNzPHK2eWdSKVmLXod";
+	public final static String API_URL_FCM = "https://fcm.googleapis.com/fcm/send";
+	
 	private SystemPropertyUtil() {
 	}
 

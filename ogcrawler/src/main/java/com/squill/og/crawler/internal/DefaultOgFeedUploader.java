@@ -27,6 +27,7 @@ import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.JSONUtil;
+import com.squill.og.crawler.internal.utils.NotificationUtil;
 import com.squill.og.crawler.model.WebSpiderTracker;
 import com.squill.og.crawler.rss.RSSConstants;
 
@@ -250,5 +251,7 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 			info.setUploadCompleted(true);
 			webLinkTrackerService.upsertCrawledInfo(link, info, RSSConstants.DEFAULT_TTL_WEB_TRACKING_INFO, false);
 		}
+		
+		NotificationUtil.broadcastNewRSSFeedUploadSummary("You have new Items");
 	}
 }

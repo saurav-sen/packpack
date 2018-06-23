@@ -133,13 +133,14 @@ public class WebsiteImpl implements IWebSite {
 					try {
 						Class<?> clazz = Class.forName(handler);
 						linkFilterHandler = (ILinkFilter) clazz.newInstance();
-						if (linkFilterHandler instanceof DailyFixedSizeLinkFilter) {
-							((DailyFixedSizeLinkFilter) linkFilterHandler)
-									.setTrackerService(trackerService);
-						}
 					} catch (Exception e) {
 						LOG.error(e.getMessage(), e);
 					}
+				}
+				
+				if (linkFilterHandler instanceof DailyFixedSizeLinkFilter) {
+					((DailyFixedSizeLinkFilter) linkFilterHandler)
+							.setTrackerService(trackerService);
 				}
 			}
 		}
