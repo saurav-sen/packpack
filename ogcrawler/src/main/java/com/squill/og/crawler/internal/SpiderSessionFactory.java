@@ -2,7 +2,6 @@ package com.squill.og.crawler.internal;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.ref.SoftReference;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -36,12 +35,17 @@ public class SpiderSessionFactory {
 
 		private Map<String, Map<String, Object>> attrMap = new HashMap<String, Map<String, Object>>();
 		
-		private SoftReference<Count> crawledCount = new SoftReference<Count>(new Count());
+		private Count crawledCount = new Count();
 		
 		private long startTime = 0;
 		
 		private SpiderSessionImpl(IFeedUploader feedUploader) {
 			super(feedUploader);
+		}
+		
+		@Override
+		public synchronized void refresh() {
+			crawledCount = new Count();
 		}
 
 		@Override
@@ -77,7 +81,7 @@ public class SpiderSessionFactory {
 
 		@Override
 		public synchronized boolean isThresholdReached() {
-			Count count = crawledCount.get();
+			Count count = crawledCount;
 			if(count.getCount() < 950) { // To be safe lets consider 950 instead of 1000 per day.
 				return false;
 			} else {
@@ -100,7 +104,7 @@ public class SpiderSessionFactory {
 
 		@Override
 		public synchronized void incrementCrawledCount(int incCountBy) {
-			Count count = crawledCount.get();
+			Count count = crawledCount;
 			int c = count.getCount();
 			if(c <= 0) {
 				c = 0;

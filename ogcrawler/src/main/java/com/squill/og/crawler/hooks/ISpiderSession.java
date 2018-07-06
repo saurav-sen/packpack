@@ -28,4 +28,6 @@ public interface ISpiderSession {
 	public boolean isThresholdReached();
 	
 	public void incrementCrawledCount(int incCountBy);
+	
+	public void refresh();
 }

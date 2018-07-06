@@ -4,6 +4,7 @@ import com.pack.pack.client.api.API;
 import com.pack.pack.client.api.APIBuilder;
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
+import com.pack.pack.common.util.CommonConstants;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.Pagination;
@@ -16,12 +17,13 @@ import com.squill.feed.web.model.JRssFeed;
  */
 public class GetNewsTest extends BaseTest {
 
+	@SuppressWarnings("unchecked")
 	public void test(TestSession session) {
 		try {
 			API api = APIBuilder.create(session.getBaseUrl()).setAction(COMMAND.GET_ALL_NEWS_FEEDS)
 					.setOauthToken(session.getOauthToken())
 					.addApiParam(APIConstants.User.ID, session.getUserId())
-					.addApiParam(APIConstants.PageInfo.PAGE_LINK, "FIRST_PAGE")
+					.addApiParam(APIConstants.PageInfo.PAGE_LINK, CommonConstants.NULL_PAGE_LINK)
 					.build();
 			Pagination<JRssFeed> page = (Pagination<JRssFeed>) api.execute();
 			/*List<JRssFeed> result = page.getResult();
@@ -37,9 +39,13 @@ public class GetNewsTest extends BaseTest {
 					return -1;
 				};
 			});*/
-			System.out.println(JSONUtil.serialize(page.getResult()));
-			System.out.println("*****************************************");
+			int count = 0;
 			while (!page.getResult().isEmpty()) {
+				count++;
+				System.out.println("Previous --> " + page.getPreviousLink());
+				System.out.println(JSONUtil.serialize(page.getResult()));
+				System.out.println("Next --> " + page.getNextLink());
+				System.out.println("*****************************************");
 				api = APIBuilder
 						.create(session.getBaseUrl())
 						.setAction(COMMAND.GET_ALL_NEWS_FEEDS)
@@ -48,8 +54,9 @@ public class GetNewsTest extends BaseTest {
 						.addApiParam(APIConstants.PageInfo.PAGE_LINK,
 								page.getNextLink()).build();
 				page = (Pagination<JRssFeed>) api.execute();
-				System.out.println(JSONUtil.serialize(page.getResult()));
 			}
+			
+			System.out.println("Total Number Of Pages = " + count);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -64,6 +71,7 @@ public class GetNewsTest extends BaseTest {
 	public static void main(String[] args) throws Exception {
 		GetNewsTest test = new GetNewsTest();
 		TestSession session = new TestSession(0, TestWorkflow.BASE_URL, TestWorkflow.BASE_URL_2);
+		//new SignUpUserTest().signUp(session);
 		String oauthToken = SignInUtil.signIn(session);
 		session.setOauthToken(oauthToken);
 		JUser user = new UserInfoTest().getUserInfo(session);

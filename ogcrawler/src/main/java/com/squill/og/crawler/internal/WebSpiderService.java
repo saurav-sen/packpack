@@ -100,6 +100,9 @@ public class WebSpiderService {
 					TimeUnit.HOURS);
 			list.add(future);
 			
+			Runnable command = SpiderFactory.INSTANCE.createSpiderSessionRefresher(session);
+			pool.scheduleAtFixedRate(command, 1, 1, TimeUnit.HOURS);
+			
 			// Main thread should keep waiting forever.
 			waitFor(list);
 		} finally {

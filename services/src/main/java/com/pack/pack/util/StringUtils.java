@@ -2,6 +2,7 @@ package com.pack.pack.util;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
+import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,5 +87,130 @@ public final class StringUtils {
 			return decodedContent;
 		}*/
 		return decodedContent;
+	}
+	
+	public static String stringify(Collection<?> args) {
+		if (args == null) {
+			StringBuilder str = new StringBuilder();
+			str.append("[");
+			str.append("]");
+			return str.toString();
+		}
+		return stringify(args.toArray());
+	}
+	
+	public static String stringify(long[] args) {
+		StringBuilder str = new StringBuilder();
+		str.append("[");
+		if (args == null || args.length == 0) {
+			str.append("]");
+			return str.toString();
+		}
+		int len = args.length - 1;
+		if (len == 0) {
+			Object arg = args[len];
+			str.append(arg.toString());
+		} else {
+			for (int i = 0; i < len; i++) {
+				long arg = args[i];
+				str.append(arg);
+				str.append(", ");
+			}
+			str.append(args[len]);
+		}
+		str.append("]");
+		return str.toString();
+	}
+	
+	public static String stringify(int[] args) {
+		StringBuilder str = new StringBuilder();
+		str.append("[");
+		if (args == null || args.length == 0) {
+			str.append("]");
+			return str.toString();
+		}
+		int len = args.length - 1;
+		if (len == 0) {
+			Object arg = args[len];
+			str.append(arg.toString());
+		} else {
+			for (int i = 0; i < len; i++) {
+				int arg = args[i];
+				str.append(arg);
+				str.append(", ");
+			}
+			str.append(args[len]);
+		}
+		str.append("]");
+		return str.toString();
+	}
+	
+	public static String stringify(double[] args) {
+		StringBuilder str = new StringBuilder();
+		str.append("[");
+		if (args == null || args.length == 0) {
+			str.append("]");
+			return str.toString();
+		}
+		int len = args.length - 1;
+		if (len == 0) {
+			Object arg = args[len];
+			str.append(arg.toString());
+		} else {
+			for (int i = 0; i < len; i++) {
+				double arg = args[i];
+				str.append(arg);
+				str.append(", ");
+			}
+			str.append(args[len]);
+		}
+		str.append("]");
+		return str.toString();
+	}
+	
+	public static String stringify(float[] args) {
+		StringBuilder str = new StringBuilder();
+		str.append("[");
+		if (args == null || args.length == 0) {
+			str.append("]");
+			return str.toString();
+		}
+		int len = args.length - 1;
+		if (len == 0) {
+			Object arg = args[len];
+			str.append(arg.toString());
+		} else {
+			for (int i = 0; i < len; i++) {
+				float arg = args[i];
+				str.append(arg);
+				str.append(", ");
+			}
+			str.append(args[len]);
+		}
+		str.append("]");
+		return str.toString();
+	}
+
+	public static String stringify(Object[] args) {
+		StringBuilder str = new StringBuilder();
+		str.append("[");
+		if (args == null || args.length == 0) {
+			str.append("]");
+			return str.toString();
+		}
+		int len = args.length - 1;
+		if (len == 0) {
+			Object arg = args[len];
+			str.append(arg.toString());
+		} else {
+			for (int i = 0; i < len; i++) {
+				Object arg = args[i];
+				str.append(arg.toString());
+				str.append(", ");
+			}
+			str.append(args[len].toString());
+		}
+		str.append("]");
+		return str.toString();
 	}
 }

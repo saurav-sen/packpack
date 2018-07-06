@@ -48,6 +48,7 @@ import com.pack.pack.services.ext.email.SmtpTLSMessageService;
 import com.pack.pack.services.redis.RedisCacheService;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.ModelConverter;
+import com.pack.pack.util.SystemPropertyUtil;
 
 import freemarker.template.TemplateException;
 
@@ -168,6 +169,7 @@ public class UserResource {
 	private JUser doRegisterUser(String name, String email, String password,
 			double longitude, double latitude, String verificationCode)
 			throws PackPackException {
+		LOG.debug("Verification CODE = " + verificationCode);
 		if (validateOTP(SIGNUP_VERIFIER, email, verificationCode)) {
 			IUserService service = ServiceRegistry.INSTANCE
 					.findCompositeService(IUserService.class);
@@ -362,6 +364,11 @@ public class UserResource {
 	}
 
 	private boolean validateOTP(String keyPrefix, String email, String verifier) {
+		LOG.debug("validateOTP(...)");
+		if(SystemPropertyUtil.isTestMode()) {
+			LOG.debug("Running in Test API Mode");
+			return SystemPropertyUtil.isValidTestOTPVerifier(verifier);
+		}
 		try {
 			String OTP = null;
 
@@ -374,7 +381,7 @@ public class UserResource {
 				service.removeFromCache(key);
 				return true;
 			}
-
+			
 			return false;
 		} catch (Exception e) {
 			LOG.error("Failed verifying OTP", e.getMessage(), e);

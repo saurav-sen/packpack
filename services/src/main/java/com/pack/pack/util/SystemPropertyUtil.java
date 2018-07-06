@@ -143,6 +143,19 @@ public final class SystemPropertyUtil {
 		}
 		return CONFIG_FILE;
 	}
+	
+	public static boolean isTestMode() {
+		String property = getPropertyValue("operation.mode");
+		if (property != null
+				&& ("test.api".equalsIgnoreCase(property.trim()))) {
+			return true;
+		}
+		return false;
+	}
+	
+	public static boolean isValidTestOTPVerifier(String verificationCode) {
+		return "TEST_VERIFIER".equals(verificationCode);
+	}
 
 	private static String getPropertyValue(String key) {
 		if(properties == null || properties.isEmpty()) {

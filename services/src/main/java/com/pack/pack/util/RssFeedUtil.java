@@ -31,7 +31,7 @@ public class RssFeedUtil {
 
 	public static void uploadRefreshmentFeeds(JRssFeeds feeds, TTL ttl,
 			long batchId, boolean sendNotification) {
-		LOG.info("Classification done. Uploading feeds to DB");
+		LOG.info("Classification done. Uploading Refreshment feeds to DB");
 		try {
 			List<JRssFeed> list = new LinkedList<JRssFeed>();
 			List<JRssFeed> newFeeds = feeds.getFeeds();
@@ -43,13 +43,13 @@ public class RssFeedUtil {
 						.findCompositeService(IRefreshmentFeedService.class);
 				for (JRssFeed feed : newFeeds) {
 					boolean f = service.upload(feed, ttl, batchId);
-					LOG.info("Upleaded News Feed = " + f);
+					LOG.info("Upleaded Refreshment Feed = " + f);
 					if (f) {
 						list.add(feed);
 					}
 				}
 			}
-			LOG.info("Successfully uploaded feeds in DB");
+			LOG.info("Successfully uploaded Refreshment feeds in DB");
 		} catch (PackPackException e) {
 			LOG.error(e.getErrorCode() + "::" + e.getMessage(), e);
 		}
@@ -57,7 +57,7 @@ public class RssFeedUtil {
 
 	public static void uploadNewsFeeds(JRssFeeds feeds, TTL ttl, long batchId,
 			boolean sendNotification) {
-		LOG.info("Classification done. Uploading feeds to DB");
+		LOG.info("Classification done. Uploading News feeds to DB");
 		try {
 			List<JRssFeed> list = new LinkedList<JRssFeed>();
 			List<JRssFeed> newFeeds = feeds.getFeeds();
@@ -73,7 +73,7 @@ public class RssFeedUtil {
 					list.addAll(feeds.getFeeds());
 				}
 			}
-			LOG.info("Successfully uploaded feeds in DB");
+			LOG.info("Successfully uploaded News feeds in DB");
 		} catch (PackPackException e) {
 			LOG.error(e.getErrorCode() + "::" + e.getMessage(), e);
 		}

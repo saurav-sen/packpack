@@ -1,8 +1,8 @@
 package com.pack.pack.services.redis;
 
 import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
-import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_POSITIVE;
 import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_NEGATIVE;
+import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_POSITIVE;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.lambdaworks.redis.RedisClient;
+import com.lambdaworks.redis.ScoredValue;
 import com.lambdaworks.redis.api.StatefulRedisConnection;
 import com.lambdaworks.redis.api.sync.RedisCommands;
 import com.pack.pack.common.util.JSONUtil;
@@ -26,6 +27,7 @@ import com.pack.pack.model.RSSFeed;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.util.RssFeedUtil;
+import com.pack.pack.util.StringUtils;
 import com.pack.pack.util.SystemPropertyUtil;
 import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JRssFeedType;
@@ -45,7 +47,7 @@ public class RssFeedRepositoryService {
 
 	private RedisCommands<String, String> sync;
 
-	private static final Logger LOG = LoggerFactory
+	private static final Logger $_LOG = LoggerFactory
 			.getLogger(RssFeedRepositoryService.class);
 	
 	private static final String SET_KEY_PREFIX = "SET_";
@@ -95,15 +97,15 @@ public class RssFeedRepositoryService {
 	
 	public void uploadRefreshmentFeed(RSSFeed feed, TTL ttl)
 			throws PackPackException, NoSuchAlgorithmException {
-		LOG.info("Uploading Feed for Refreshment");
-		LOG.info("Uploading " + feed.getOgType() + " Feed @ " + feed.getOgUrl());
-		LOG.info("Uploading Feed Titled :: " + feed.getOgTitle());
+		$_LOG.info("Uploading Feed for Refreshment");
+		$_LOG.info("Uploading " + feed.getOgType() + " Feed @ " + feed.getOgUrl());
+		$_LOG.info("Uploading Feed Titled :: " + feed.getOgTitle());
 		String json = JSONUtil.serialize(feed);
 		RedisCommands<String, String> sync = getSyncRedisCommands();
 		long ttlSeconds = resolveTTL_InSeconds(ttl);
 		String key = RssFeedUtil.generateUploadKey(feed);
 		sync.setex(key, ttlSeconds, json);
-		LOG.info("Successfully uploaded Refreshment Feed");
+		$_LOG.info("Successfully uploaded Refreshment Feed");
 		// sync.close();
 	}
 	
@@ -187,22 +189,24 @@ public class RssFeedRepositoryService {
 	public void uploadNewsFeed(RSSFeed feed, TTL ttl, long batchId, boolean updatePaginationInfo)
 			throws PackPackException, NoSuchAlgorithmException {
 		String feedType = feed.getFeedType().toUpperCase();
-		LOG.info("Uploading Feed for " + feedType);
-		LOG.info("Uploading " + feedType + " Feed @ " + feed.getOgUrl());
-		LOG.info("Uploading Feed Titled :: " + feed.getOgTitle());
+		$_LOG.info("Uploading Feed for " + feedType);
+		$_LOG.info("Uploading " + feedType + " Feed @ " + feed.getOgUrl());
+		$_LOG.info("Uploading Feed Titled :: " + feed.getOgTitle());
 		String json = JSONUtil.serialize(feed);
 		RedisCommands<String, String> sync = getSyncRedisCommands();
 		long ttlSeconds = resolveTTL_InSeconds(ttl);
 		String key = RssFeedUtil.generateUploadKey(feed);
 		if(updatePaginationInfo) {
+			$_LOG.info("Updating pagination infomation");
 			String setKey = SET_KEY_PREFIX + RssFeedUtil.resolvePrefix(feed);
 			sync.zadd(setKey, batchId, key);
 		}
 		sync.setex(key, ttlSeconds, json);
 		if(updatePaginationInfo) {
+			$_LOG.info("Updating latest score");
 			updateLatestScoreForNewsFeed(sync, feed, batchId);
 		}
-		LOG.info("Successfully uploaded " + feedType + " Feed");
+		$_LOG.info("Successfully uploaded " + feedType + " Feed");
 	}
 	
 	public List<RSSFeed> getAllRefrehmentFeeds() throws PackPackException {
@@ -225,46 +229,53 @@ public class RssFeedRepositoryService {
 	}
 	
 	public Pagination<RSSFeed> getNewsFeeds(long timestamp, int direction) throws PackPackException {
-		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.NEWS.name()) + "*", timestamp, direction);
+		$_LOG.trace("Getting News Feeds");
+		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.NEWS.name()), timestamp, direction);
 	}
 	
 	public Pagination<RSSFeed> getSportsNewsFeeds(long timestamp, int direction) throws PackPackException {
-		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.NEWS_SPORTS.name()) + "*", timestamp, direction);
+		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.NEWS_SPORTS.name()), timestamp, direction);
 	}
 	
 	public Pagination<RSSFeed> getScienceAndTechnologyNewsFeeds(long timestamp, int direction) throws PackPackException {
-		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.NEWS_SCIENCE_TECHNOLOGY.name()) + "*", timestamp, direction);
+		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.NEWS_SCIENCE_TECHNOLOGY.name()), timestamp, direction);
 	}
 	
 	public Pagination<RSSFeed> getArticleNewsFeeds(long timestamp, int direction) throws PackPackException {
-		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.ARTICLE.name()) + "*", timestamp, direction);
+		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.ARTICLE.name()), timestamp, direction);
 	}
 	
 	private Pagination<RSSFeed> getAllUpdatedFeeds(String keyPattern, long timestamp, int direction) throws PackPackException {
+		$_LOG.trace("timestamp = " + timestamp + " & direction = " + direction);
+		$_LOG.trace("Key Pattern = " + keyPattern);
 		Pagination<RSSFeed> page = new Pagination<RSSFeed>();
 		List<RSSFeed> feeds = new ArrayList<RSSFeed>();
 		if(timestamp < 0) {
 			feeds = getAllFeeds(keyPattern);
 			page.setResult(feeds);
-			page.setNextLink(END_OF_PAGE + PAGELINK_DIRECTION_POSITIVE);
-			page.setPreviousLink(END_OF_PAGE + PAGELINK_DIRECTION_NEGATIVE);
+			page.setNextLink(END_OF_PAGE + PAGELINK_DIRECTION_NEGATIVE);
+			page.setPreviousLink(END_OF_PAGE + PAGELINK_DIRECTION_POSITIVE);
 			return page;
 		}
 		
 		RedisCommands<String, String> sync = getSyncRedisCommands();
 		String setKey = SET_KEY_PREFIX + keyPattern.toUpperCase();
 		String rangeKey = setKey + LATEST_SCORE;
+		$_LOG.trace("Range Key = " + rangeKey);
 		String ranges = sync.get(rangeKey);
+		$_LOG.trace("ranges = " + ranges);
 		String[] split = ranges.split(";");
 		
 		List<String> keys = null;
 		long[] scores = resolveRangeScores(split, timestamp, direction);
+		$_LOG.debug("Scores = " + StringUtils.stringify(scores));
 		if(scores.length == 0)
 			return endOfPageResponse(timestamp);
 		long r1 = scores[0];
-		long r2 = scores[1];
-		keys = sync.zrange(setKey, r1, r2);
-		
+		long r2 = scores[1]; // r1 is expected to be <= r2
+		$_LOG.trace("setKey = " + setKey);
+		keys = resolveKeysForPagination(sync, r1, r2, setKey);
+		$_LOG.trace("Keys = " + StringUtils.stringify(keys));
 		if (keys == null || keys.isEmpty()) { // This means all the keys got expired due to TTL (And have been removed earlier or during auto sync, but ranges/scores NOT updated accordingly)
 			removeAllExpiredRanges(rangeKey, split, timestamp);
 			return endOfPageResponse(timestamp);
@@ -282,7 +293,10 @@ public class RssFeedRepositoryService {
 				removeAllExpiredRanges(rangeKey, split, timestamp);
 				return endOfPageResponse(timestamp);
 			} else {
-				page.setNextLink(String.valueOf(r2) + PAGELINK_DIRECTION_POSITIVE);
+				long min = r1 < r2 ? r1 : r2;
+				String nextLink = String.valueOf(min) + PAGELINK_DIRECTION_NEGATIVE;
+				$_LOG.debug("nextLink = " + nextLink);
+				page.setNextLink(nextLink);
 				/*while(feeds.size() < 10) {
 					Pagination<RSSFeed> nextPage = getAllUpdatedFeeds(keyPattern, r1);
 					feeds.addAll(nextPage.getResult());
@@ -292,16 +306,34 @@ public class RssFeedRepositoryService {
 		}
 		
 		if(timestamp == 0) {
-			page.setPreviousLink(END_OF_PAGE + PAGELINK_DIRECTION_NEGATIVE);
+			page.setPreviousLink(END_OF_PAGE + PAGELINK_DIRECTION_POSITIVE);
 		} else if(timestamp == Long.MAX_VALUE) {
-			page.setPreviousLink(END_OF_PAGE + PAGELINK_DIRECTION_NEGATIVE);
+			page.setPreviousLink(END_OF_PAGE + PAGELINK_DIRECTION_POSITIVE);
 		} else {
-			page.setPreviousLink(String.valueOf(timestamp) + PAGELINK_DIRECTION_NEGATIVE);
+			page.setPreviousLink(String.valueOf(timestamp) + PAGELINK_DIRECTION_POSITIVE);
 		}
-		
+		$_LOG.info("Size of Feeds = " + feeds.size());
 		page.setResult(feeds);
 		
 		return page;
+	}
+	
+	private List<String> resolveKeysForPagination(
+			RedisCommands<String, String> sync, long r1, long r2,
+			String rangeKey) {
+		long min = r1 < r2 ? r1 : r2;
+		long max = r1 > r2 ? r1 : r2;
+		List<String> keys = new LinkedList<String>();
+		List<ScoredValue<String>> zrangeWithScores = sync.zrangeWithScores(
+				rangeKey, 0, -1);
+		if (zrangeWithScores == null || zrangeWithScores.isEmpty())
+			return Collections.emptyList();
+		for (ScoredValue<String> zrangeWithScore : zrangeWithScores) {
+			if (zrangeWithScore.score >= min && zrangeWithScore.score <= max) {
+				keys.add(zrangeWithScore.value);
+			}
+		}
+		return keys;
 	}
 	
 	private Pagination<RSSFeed> endOfPageResponse(long previousTimestamp) {
@@ -323,14 +355,7 @@ public class RssFeedRepositoryService {
 		}
 		updatedRanges.append(String.valueOf(timestamp));
 		String ranges = updatedRanges.toString();
+		$_LOG.debug("After removing expired ranges = " + ranges);
 		sync.set(rangeKey, ranges);
 	}
-	
-	/*private void removeAllExpiredRanges(String keyPattern, long timestamp) {
-		String setKey = SET_KEY_PREFIX + keyPattern.toUpperCase();
-		String rangeKey = setKey + LATEST_SCORE;
-		String ranges = sync.get(rangeKey);
-		String[] rangesArr = ranges.split(";");
-		removeAllExpiredRanges(rangeKey, rangesArr, timestamp);
-	}*/
 }

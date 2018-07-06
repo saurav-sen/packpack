@@ -84,8 +84,8 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 			}
 		}		
 		Pagination<RSSFeed> page = null;
-		List<RSSFeed> feeds = Collections.emptyList();
-		List<JRssFeed> rows = ModelConverter.convertAllRssFeeds(feeds, true, true);
+		/*List<RSSFeed> feeds = Collections.emptyList();
+		List<JRssFeed> rows = ModelConverter.convertAllRssFeeds(feeds, true, true);*/
 		RssFeedRepositoryService repositoryService = ServiceRegistry.INSTANCE
 				.findService(RssFeedRepositoryService.class);
 		switch(type) {
@@ -112,8 +112,10 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 		Pagination<JRssFeed> pageResult = new Pagination<JRssFeed>();
 		pageResult.setNextLink(page.getNextLink());
 		pageResult.setPreviousLink(page.getPreviousLink());
-		Collections.sort(rows, new RssFeedComparator(userId));
-		pageResult.setResult(rows);
+		pageResult.setResult(ModelConverter.convertAllRssFeeds(
+				page.getResult(), true, true));
+		/*Collections.sort(rows, new RssFeedComparator(userId));
+		pageResult.setResult(rows);*/
 		return pageResult;
 	}
 	

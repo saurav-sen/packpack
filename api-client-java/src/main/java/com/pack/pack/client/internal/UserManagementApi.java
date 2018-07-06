@@ -324,6 +324,10 @@ class UserManagementApi extends BaseAPI {
 		/*POST.addHeader("Content-Type",
 				ContentType.MULTIPART_FORM_DATA.getMimeType());*/
 		HttpResponse response = client.execute(POST);
+		int statusCode = response.getStatusLine().getStatusCode();
+		if(statusCode != 200) {
+			throw new RuntimeException("Failed status code = " + statusCode);
+		}
 		return JSONUtil.deserialize(EntityUtils.toString(GZipUtil.decompress(response.getEntity())),
 				JUser.class);
 	}
