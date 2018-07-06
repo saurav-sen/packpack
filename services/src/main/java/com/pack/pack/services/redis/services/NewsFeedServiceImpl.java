@@ -7,6 +7,7 @@ import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_POSIT
 import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_SEPERATOR;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,9 +39,11 @@ import com.squill.feed.web.model.TTL;
 @Scope("singleton")
 public class NewsFeedServiceImpl implements INewsFeedService {
 
-	private static final Logger LOG = LoggerFactory
+	private static final Logger $_LOG = LoggerFactory
 			.getLogger(NewsFeedServiceImpl.class);
-	
+
+	private static final int MINIMUM_PAGE_SIZE = 10;
+
 	@Override
 	public Pagination<JRssFeed> getAllNewsRssFeeds(String userId,
 			String pageLink) throws PackPackException {
@@ -56,47 +59,97 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 	@Override
 	public Pagination<JRssFeed> getAllScienceAndTechnologyNewsRssFeeds(
 			String userId, String pageLink) throws PackPackException {
-		return getAllRssFeeds(JRssFeedType.NEWS_SCIENCE_TECHNOLOGY, userId, pageLink);
+		return getAllRssFeeds(JRssFeedType.NEWS_SCIENCE_TECHNOLOGY, userId,
+				pageLink);
 	}
-	
+
 	@Override
 	public Pagination<JRssFeed> getArticleNewsRssFeeds(String userId,
 			String pageLink) throws PackPackException {
 		return getAllRssFeeds(JRssFeedType.ARTICLE, userId, pageLink);
 	}
 
-	private Pagination<JRssFeed> getAllRssFeeds(JRssFeedType type, String userId, String pageLink)
-			throws PackPackException {
+	private Pagination<JRssFeed> getAllRssFeeds(JRssFeedType type,
+			String userId, String pageLink) throws PackPackException {
+		List<JRssFeed> result = new ArrayList<JRssFeed>();
+		Pagination<JRssFeed> page = getAllRssFeeds0(type, userId, pageLink);
+		String[] split = pageLink.split(PAGELINK_DIRECTION_SEPERATOR);
+		int direction = 1;
+		if (split.length > 1) {
+			direction = Integer.parseInt(split[1].trim());
+		}
+		boolean needToIterate = false;
+		String previousLink = page.getPreviousLink();
+		String nextLink = page.getNextLink();
+		List<JRssFeed> feeds = page.getResult();
+		result.addAll(feeds);
+		String link = direction > 0 ? nextLink : previousLink;
+		while (feeds != null && link != null && !feeds.isEmpty()
+				&& feeds.size() < MINIMUM_PAGE_SIZE
+				&& !link.startsWith(END_OF_PAGE)
+				&& !link.startsWith(NULL_PAGE_LINK)) {
+			Pagination<JRssFeed> page0 = getAllRssFeeds0(type, userId, nextLink);
+			feeds = page0.getResult();
+			link = direction > 0 ? page0.getNextLink() : page0
+					.getPreviousLink();
+			result.addAll(feeds);
+			needToIterate = true;
+		}
+		if (needToIterate) {
+			$_LOG.debug("Needed to iterate over multiple pages due to MINIMUM_PAGE_SIZE");
+			if (direction > 0) {
+				nextLink = link;
+			} else {
+				previousLink = link;
+			}
+			page.setPreviousLink(previousLink);
+			page.setResult(result);
+			page.setNextLink(nextLink);
+		}
+		return page;
+	}
+
+	private Pagination<JRssFeed> getAllRssFeeds0(JRssFeedType type,
+			String userId, String pageLink) throws PackPackException {
 		if (END_OF_PAGE.equals(pageLink.trim())
-				|| (END_OF_PAGE + PAGELINK_DIRECTION_POSITIVE).equals(pageLink.trim())
-				|| (END_OF_PAGE + PAGELINK_DIRECTION_NEGATIVE).equals(pageLink.trim())) {
+				|| (END_OF_PAGE + PAGELINK_DIRECTION_POSITIVE).equals(pageLink
+						.trim())
+				|| (END_OF_PAGE + PAGELINK_DIRECTION_NEGATIVE).equals(pageLink
+						.trim())) {
 			return endOfPageResponse();
 		}
 		int direction = 1;
 		long timestamp = 0;
-		if (pageLink != null && !NULL_PAGE_LINK.equals(pageLink)
-				&& !(NULL_PAGE_LINK + PAGELINK_DIRECTION_POSITIVE).equals(pageLink)
-				&& !(NULL_PAGE_LINK + PAGELINK_DIRECTION_NEGATIVE).equals(pageLink)) {
+		if (pageLink != null
+				&& !NULL_PAGE_LINK.equals(pageLink)
+				&& !(NULL_PAGE_LINK + PAGELINK_DIRECTION_POSITIVE)
+						.equals(pageLink)
+				&& !(NULL_PAGE_LINK + PAGELINK_DIRECTION_NEGATIVE)
+						.equals(pageLink)) {
 			String[] split = pageLink.split(PAGELINK_DIRECTION_SEPERATOR);
 			timestamp = Long.parseLong(split[0]);
-			if(split.length > 1) {
+			if (split.length > 1) {
 				direction = Integer.parseInt(split[1]);
 			}
-		}		
+		}
 		Pagination<RSSFeed> page = null;
-		/*List<RSSFeed> feeds = Collections.emptyList();
-		List<JRssFeed> rows = ModelConverter.convertAllRssFeeds(feeds, true, true);*/
+		/*
+		 * List<RSSFeed> feeds = Collections.emptyList(); List<JRssFeed> rows =
+		 * ModelConverter.convertAllRssFeeds(feeds, true, true);
+		 */
 		RssFeedRepositoryService repositoryService = ServiceRegistry.INSTANCE
 				.findService(RssFeedRepositoryService.class);
-		switch(type) {
+		switch (type) {
 		case NEWS:
 			page = repositoryService.getNewsFeeds(timestamp, direction);
 			break;
 		case NEWS_SPORTS:
-			page = repositoryService.getScienceAndTechnologyNewsFeeds(timestamp, direction);
+			page = repositoryService.getScienceAndTechnologyNewsFeeds(
+					timestamp, direction);
 			break;
 		case NEWS_SCIENCE_TECHNOLOGY:
-			page = repositoryService.getScienceAndTechnologyNewsFeeds(timestamp, direction);
+			page = repositoryService.getScienceAndTechnologyNewsFeeds(
+					timestamp, direction);
 			break;
 		case ARTICLE:
 			page = repositoryService.getArticleNewsFeeds(timestamp, direction);
@@ -104,21 +157,23 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 		default:
 			break;
 		}
-		
-		if(page == null) {
+
+		if (page == null) {
 			return endOfPageResponse();
 		}
-		
+
 		Pagination<JRssFeed> pageResult = new Pagination<JRssFeed>();
 		pageResult.setNextLink(page.getNextLink());
 		pageResult.setPreviousLink(page.getPreviousLink());
 		pageResult.setResult(ModelConverter.convertAllRssFeeds(
 				page.getResult(), true, true));
-		/*Collections.sort(rows, new RssFeedComparator(userId));
-		pageResult.setResult(rows);*/
+		/*
+		 * Collections.sort(rows, new RssFeedComparator(userId));
+		 * pageResult.setResult(rows);
+		 */
 		return pageResult;
 	}
-	
+
 	private Pagination<JRssFeed> endOfPageResponse() {
 		Pagination<JRssFeed> page = new Pagination<JRssFeed>();
 		page.setNextLink(END_OF_PAGE + PAGELINK_DIRECTION_POSITIVE);
@@ -140,7 +195,7 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 			}
 			return true;
 		} catch (NoSuchAlgorithmException e) {
-			LOG.error(e.getMessage(), e);
+			$_LOG.error(e.getMessage(), e);
 			throw new PackPackException(ErrorCodes.PACK_ERR_61, e.getMessage());
 		}
 	}

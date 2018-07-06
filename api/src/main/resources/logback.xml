@@ -33,7 +33,7 @@
 		</sift>
 	</appender>
 	
-	<logger name="com.pack.pack.services.redis" level="debug" />
+	<logger name="com.pack.pack.services" level="debug" />
 
 	<logger name="packpack">
 		<level value="info" />
