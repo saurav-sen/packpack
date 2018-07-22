@@ -14,13 +14,20 @@ public class Pagination<T> {
 
 	private List<T> result;
 	
+	private long timestamp;
+	
 	public Pagination() {
 	}
 	
-	public Pagination(String previousLink, String nextLink, List<T> result) {
+	public Pagination(long timestamp) {
+		this.timestamp = timestamp;
+	}
+	
+	public Pagination(String previousLink, String nextLink, List<T> result, long timestamp) {
 		this.previousLink = previousLink;
 		this.nextLink = nextLink;
 		this.result = result;
+		this.timestamp = timestamp;
 	}
 
 	public String getPreviousLink() {
@@ -45,5 +52,13 @@ public class Pagination<T> {
 
 	public void setResult(List<T> result) {
 		this.result = result;
+	}
+
+	public long getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(long timestamp) {
+		this.timestamp = timestamp;
 	}
 }

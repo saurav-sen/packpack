@@ -1,6 +1,7 @@
 package com.pack.pack.services.redis.services;
 
 import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
+import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE_TIMESTAMP;
 import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
 import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_NEGATIVE;
 import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_POSITIVE;
@@ -162,7 +163,7 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 			return endOfPageResponse();
 		}
 
-		Pagination<JRssFeed> pageResult = new Pagination<JRssFeed>();
+		Pagination<JRssFeed> pageResult = new Pagination<JRssFeed>(page.getTimestamp());
 		pageResult.setNextLink(page.getNextLink());
 		pageResult.setPreviousLink(page.getPreviousLink());
 		pageResult.setResult(ModelConverter.convertAllRssFeeds(
@@ -175,7 +176,7 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 	}
 
 	private Pagination<JRssFeed> endOfPageResponse() {
-		Pagination<JRssFeed> page = new Pagination<JRssFeed>();
+		Pagination<JRssFeed> page = new Pagination<JRssFeed>(END_OF_PAGE_TIMESTAMP);
 		page.setNextLink(END_OF_PAGE + PAGELINK_DIRECTION_POSITIVE);
 		page.setPreviousLink(END_OF_PAGE + PAGELINK_DIRECTION_NEGATIVE);
 		page.setResult(Collections.emptyList());

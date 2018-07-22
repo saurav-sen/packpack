@@ -1,6 +1,7 @@
 package com.pack.pack.services.redis;
 
 import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
+import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE_TIMESTAMP;
 import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_NEGATIVE;
 import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_POSITIVE;
 
@@ -248,10 +249,12 @@ public class RssFeedRepositoryService {
 	private Pagination<RSSFeed> getAllUpdatedFeeds(String keyPattern, long timestamp, int direction) throws PackPackException {
 		$_LOG.trace("timestamp = " + timestamp + " & direction = " + direction);
 		$_LOG.trace("Key Pattern = " + keyPattern);
-		Pagination<RSSFeed> page = new Pagination<RSSFeed>();
+		Pagination<RSSFeed> page = new Pagination<RSSFeed>(timestamp);
 		List<RSSFeed> feeds = new ArrayList<RSSFeed>();
 		if(timestamp < 0) {
-			feeds = getAllFeeds(keyPattern);
+			if(timestamp != END_OF_PAGE_TIMESTAMP) {
+				feeds = getAllFeeds(keyPattern);
+			}
 			page.setResult(feeds);
 			page.setNextLink(END_OF_PAGE + PAGELINK_DIRECTION_NEGATIVE);
 			page.setPreviousLink(END_OF_PAGE + PAGELINK_DIRECTION_POSITIVE);
@@ -270,15 +273,16 @@ public class RssFeedRepositoryService {
 		long[] scores = resolveRangeScores(split, timestamp, direction);
 		$_LOG.debug("Scores = " + StringUtils.stringify(scores));
 		if(scores.length == 0)
-			return endOfPageResponse(timestamp);
+			return endOfPageResponse(timestamp, timestamp);
 		long r1 = scores[0];
 		long r2 = scores[1]; // r1 is expected to be <= r2
+		long max = r1 > r2 ? r1 : r2;
 		$_LOG.trace("setKey = " + setKey);
 		keys = resolveKeysForPagination(sync, r1, r2, setKey);
 		$_LOG.trace("Keys = " + StringUtils.stringify(keys));
 		if (keys == null || keys.isEmpty()) { // This means all the keys got expired due to TTL (And have been removed earlier or during auto sync, but ranges/scores NOT updated accordingly)
 			removeAllExpiredRanges(rangeKey, split, timestamp);
-			return endOfPageResponse(timestamp);
+			return endOfPageResponse(timestamp, max);
 		} else {
 			for (String key : keys) {
 				String json = sync.get(key);
@@ -291,7 +295,7 @@ public class RssFeedRepositoryService {
 			}
 			if(feeds.isEmpty()) { // This means all the keys got expired due to TTL
 				removeAllExpiredRanges(rangeKey, split, timestamp);
-				return endOfPageResponse(timestamp);
+				return endOfPageResponse(timestamp, max);
 			} else {
 				long min = r1 < r2 ? r1 : r2;
 				String nextLink = String.valueOf(min) + PAGELINK_DIRECTION_NEGATIVE;
@@ -315,6 +319,8 @@ public class RssFeedRepositoryService {
 		$_LOG.info("Size of Feeds = " + feeds.size());
 		page.setResult(feeds);
 		
+		page.setTimestamp(max);
+		
 		return page;
 	}
 	
@@ -336,8 +342,8 @@ public class RssFeedRepositoryService {
 		return keys;
 	}
 	
-	private Pagination<RSSFeed> endOfPageResponse(long previousTimestamp) {
-		Pagination<RSSFeed> page = new Pagination<RSSFeed>();
+	private Pagination<RSSFeed> endOfPageResponse(long previousTimestamp, long currentTimestamp) {
+		Pagination<RSSFeed> page = new Pagination<RSSFeed>(currentTimestamp);
 		page.setNextLink(END_OF_PAGE + PAGELINK_DIRECTION_POSITIVE);
 		page.setPreviousLink(String.valueOf(previousTimestamp) + PAGELINK_DIRECTION_NEGATIVE);
 		page.setResult(Collections.emptyList());

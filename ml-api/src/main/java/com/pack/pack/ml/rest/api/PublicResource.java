@@ -31,7 +31,7 @@ public class PublicResource {
 			.getLogger(PublicResource.class);
 
 	@GET
-	@Path("ext/{id}")
+	@Path("{id}")
 	@Produces(MediaType.TEXT_HTML)
 	public String getExternallySharedProxyPage(@PathParam("id") String id)
 			throws PackPackException {

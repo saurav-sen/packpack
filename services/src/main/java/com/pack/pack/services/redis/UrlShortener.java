@@ -46,12 +46,23 @@ public class UrlShortener {
 		info.setSuffix(shortenUrl);
 		return info;
 	}
+	
+	/*public static void main(String[] args) {
+		String str = "https://blog.heitorsilva.com/en/nginx/diferenca-entre-root-e-alias-do-nginx/";
+		str = URLEncoder.encode(Base64.getEncoder().encodeToString(String.valueOf(str.hashCode()).getBytes()));
+		System.out.println(str);
+		str = new String(Base64.getDecoder().decode(URLDecoder.decode(str).getBytes()));
+		System.out.println(str);
+	}*/
 
 	public static ShortenUrlInfo calculateShortenShareableUrl(JRssFeed feed)
 			throws PackPackException {
-		ShortenUrlInfo info = shortenFeedUrl(feed);				
-		String url = SystemPropertyUtil.getExternalSharedLinkBaseUrl() + "/"
-				+ info.getSuffix();
+		ShortenUrlInfo info = shortenFeedUrl(feed);	
+		String url = SystemPropertyUtil.getExternalSharedLinkBaseUrl();
+		if(!url.endsWith("/")) {
+			url = url + "/";
+		}
+		url = url + info.getSuffix();
 		info.setUrl(url);
 		return info;
 	}
@@ -69,12 +80,12 @@ public class UrlShortener {
 		return JSONUtil.deserialize(json, JSharedFeed.class);
 	}
 	
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		String hash = URLDecoder.decode("OTc4NjkzMTE5");
 		hash = new String(Base64.getDecoder().decode(hash));
 		String redisKey = SHARED_LINK_KEY_PREFIX + hash;
 		System.out.println(redisKey);
-	}
+	}*/
 
 //	public static void main(String[] args) {
 //		Map<String, String> map = new HashMap<String, String>();

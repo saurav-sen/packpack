@@ -252,7 +252,7 @@
 		<profile>
 	      <id>development</id>
 	      <properties>
-	        <couchdb.url>http://13.127.38.35:5984/</couchdb.url>
+	        <couchdb.url>http://13.232.22.21:5984/</couchdb.url>
 	        <couchdb.username>sourabhnits</couchdb.username>
 	        <couchdb.password>P@$$w0rd4SQui11</couchdb.password>
 	        <couchdb.enableSSL>false</couchdb.enableSSL>

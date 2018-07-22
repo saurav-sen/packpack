@@ -1,6 +1,7 @@
 package com.pack.pack.services.redis.services;
 
 import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
+import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE_TIMESTAMP;
 import static com.pack.pack.common.util.CommonConstants.NEXT_PAGE_LINK_PREFIX;
 import static com.pack.pack.common.util.CommonConstants.NULL_PAGE_LINK;
 import static com.pack.pack.common.util.CommonConstants.PREV_PAGE_LINK_PREFIX;
@@ -48,7 +49,7 @@ public class RefreshmentFeedServiceImpl implements IRefreshmentFeedService {
 	@Override
 	public Pagination<JRssFeed> getAllRssFeeds(String userId, String pageLink) throws PackPackException {
 		if (pageLink == null || END_OF_PAGE.equals(pageLink.trim())) {
-			Pagination<JRssFeed> page = new Pagination<JRssFeed>();
+			Pagination<JRssFeed> page = new Pagination<JRssFeed>(END_OF_PAGE_TIMESTAMP);
 			page.setNextLink(END_OF_PAGE);
 			page.setPreviousLink(END_OF_PAGE);
 			page.setResult(Collections.emptyList());
@@ -125,7 +126,7 @@ public class RefreshmentFeedServiceImpl implements IRefreshmentFeedService {
 				}
 			});
 		}
-		Pagination<JRssFeed> pageResult = new Pagination<JRssFeed>();
+		Pagination<JRssFeed> pageResult = new Pagination<JRssFeed>(END_OF_PAGE_TIMESTAMP);
 		if(paginationRequired) {
 			pageResult.setNextLink(page.getNextLink());
 			pageResult.setPreviousLink(page.getPreviousLink());
@@ -138,7 +139,7 @@ public class RefreshmentFeedServiceImpl implements IRefreshmentFeedService {
 	}
 	
 	private Pagination<RSSFeed> paginate(List<RSSFeed> feeds, String pageLink, String source) {
-		Pagination<RSSFeed> page = new Pagination<RSSFeed>();
+		Pagination<RSSFeed> page = new Pagination<RSSFeed>(END_OF_PAGE_TIMESTAMP);
 		if (pageLink == null || pageLink.trim().isEmpty()) {
 			pageLink = NULL_PAGE_LINK;
 		}

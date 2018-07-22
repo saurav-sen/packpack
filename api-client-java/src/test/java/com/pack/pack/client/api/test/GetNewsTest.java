@@ -4,6 +4,7 @@ import com.pack.pack.client.api.API;
 import com.pack.pack.client.api.APIBuilder;
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
+import com.pack.pack.client.api.PageUtil;
 import com.pack.pack.common.util.CommonConstants;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JUser;
@@ -23,11 +24,12 @@ public class GetNewsTest extends BaseTest {
 			API api = APIBuilder.create(session.getBaseUrl()).setAction(COMMAND.GET_ALL_NEWS_FEEDS)
 					.setOauthToken(session.getOauthToken())
 					.addApiParam(APIConstants.User.ID, session.getUserId())
-					.addApiParam(APIConstants.PageInfo.PAGE_LINK, CommonConstants.NULL_PAGE_LINK)
+					/*.addApiParam(APIConstants.PageInfo.PAGE_LINK, CommonConstants.NULL_PAGE_LINK)*/
+					.addApiParam(APIConstants.PageInfo.PAGE_LINK, PageUtil.buildNextPageLink(0))
 					.build();
 			Pagination<JRssFeed> page = (Pagination<JRssFeed>) api.execute();
 			/*List<JRssFeed> result = page.getResult();
-			Collections.sort(result, new Comparator<JRssFeed>() {
+			Collections.sort(result, new Comparator<JRssFeed>() 
 				public int compare(JRssFeed o1, JRssFeed o2) {
 					long l = Long.parseLong(o2.getId()) - Long.parseLong(o1.getId());
 					if(l == 0) {
@@ -46,6 +48,13 @@ public class GetNewsTest extends BaseTest {
 				System.out.println(JSONUtil.serialize(page.getResult()));
 				System.out.println("Next --> " + page.getNextLink());
 				System.out.println("*****************************************");
+				/*api = APIBuilder
+						.create(session.getBaseUrl())
+						.setAction(COMMAND.GET_ALL_NEWS_FEEDS)
+						.setOauthToken(session.getOauthToken())
+						.addApiParam(APIConstants.User.ID, session.getUserId())
+						.addApiParam(APIConstants.PageInfo.PAGE_LINK,
+								PageUtil.buildNextPageLink(page.getTimestamp())).build();*/
 				api = APIBuilder
 						.create(session.getBaseUrl())
 						.setAction(COMMAND.GET_ALL_NEWS_FEEDS)

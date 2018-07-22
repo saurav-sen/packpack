@@ -11,6 +11,8 @@ public class JSharedFeed {
 	
 	private String description;
 	
+	private String summaryText;
+	
 	private String imageLink;
 	
 	private String actualUrl;
@@ -45,5 +47,13 @@ public class JSharedFeed {
 
 	public void setActualUrl(String actualUrl) {
 		this.actualUrl = actualUrl;
+	}
+
+	public String getSummaryText() {
+		return summaryText;
+	}
+
+	public void setSummaryText(String summaryText) {
+		this.summaryText = summaryText;
 	}
 }

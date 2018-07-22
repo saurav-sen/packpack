@@ -363,6 +363,7 @@ public class ModelConverter {
 		sharedFeed.setDescription(feed.getOgDescription());
 		sharedFeed.setTitle(feed.getOgTitle());
 		sharedFeed.setImageLink(feed.getOgImage());
+		sharedFeed.setSummaryText(feed.getArticleSummaryText());
 		return sharedFeed;
 	}
 }

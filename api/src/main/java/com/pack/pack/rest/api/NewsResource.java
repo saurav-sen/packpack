@@ -1,6 +1,7 @@
 package com.pack.pack.rest.api;
 
 import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
+import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE_TIMESTAMP;
 import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_NEGATIVE;
 import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_POSITIVE;
 
@@ -64,7 +65,7 @@ public class NewsResource {
 	}
 	
 	private Pagination<JRssFeed> emptyResponse() {
-		Pagination<JRssFeed> page = new Pagination<JRssFeed>();
+		Pagination<JRssFeed> page = new Pagination<JRssFeed>(END_OF_PAGE_TIMESTAMP);
 		page.setNextLink(END_OF_PAGE + PAGELINK_DIRECTION_POSITIVE);
 		page.setPreviousLink(END_OF_PAGE + PAGELINK_DIRECTION_NEGATIVE);
 		page.setResult(Collections.emptyList());
