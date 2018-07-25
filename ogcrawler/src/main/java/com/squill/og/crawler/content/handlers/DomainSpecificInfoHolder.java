@@ -14,6 +14,8 @@ public class DomainSpecificInfoHolder {
 	static {
 		domainVsDefaultTgtPlace.put("hindu.com", new DomainInfo(
 				"11000000", "politics", new String[] { "Bhopal" }));
+		domainVsDefaultTgtPlace.put("thehindu.com", new DomainInfo(
+				"11000000", "politics", new String[] { "Bhopal" }));
 		domainVsDefaultTgtPlace.put("timesofindia.com", new DomainInfo(
 				"11000000", "politics", new String[] { "Bhopal" }));
 		domainVsDefaultTgtPlace.put("timesofindia.indiatimes.com",

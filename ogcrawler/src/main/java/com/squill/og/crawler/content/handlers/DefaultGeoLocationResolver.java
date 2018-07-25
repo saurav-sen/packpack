@@ -27,7 +27,7 @@ public class DefaultGeoLocationResolver implements IGeoLocationResolver {
 	@Override
 	public boolean canResolve(String linkUrl, String domainUrl, JRssFeed feed) {
 		String feedType = feed.getFeedType();
-		return JRssFeedType.NEWS.equals(feedType);
+		return JRssFeedType.NEWS.name().equals(feedType);
 	}
 	
 	@Override

@@ -236,20 +236,21 @@ public class AllInOneAITaskExecutor {
 				IGeoLocationResolver basicGeoLocationResolver = AppContext.INSTANCE
 						.findService("basicGeoLocationResolver",
 								IGeoLocationResolver.class);
-				if (basicGeoLocationResolver.canResolve(
-						feed.getOgUrl(), domainUrl, feed)) {
-					geoLocations = basicGeoLocationResolver
-							.resolveGeoLocations(feed.getOgUrl(),
-									domainUrl, feed);
-				} else if (geoLocationResolver.canResolve(
-						feed.getOgUrl(), domainUrl, feed)) {
+				if (geoLocationResolver.canResolve(feed.getOgUrl(), domainUrl,
+						feed)) {
 					session.incrementCrawledCount(1);
 					if (session.isThresholdReached()) {
 						return false;
 					}
-					geoLocations = geoLocationResolver
-							.resolveGeoLocations(feed.getOgUrl(),
-									domainUrl, feed);
+					geoLocations = geoLocationResolver.resolveGeoLocations(
+							feed.getOgUrl(), domainUrl, feed);
+				}
+				if ((geoLocations == null || geoLocations.length == 0)
+						&& basicGeoLocationResolver.canResolve(feed.getOgUrl(),
+								domainUrl, feed)) {
+					geoLocations = basicGeoLocationResolver
+							.resolveGeoLocations(feed.getOgUrl(), domainUrl,
+									feed);
 				}
 				
 				if(geoLocations != null && geoLocations.length > 0) {

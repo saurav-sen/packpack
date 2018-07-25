@@ -1,5 +1,8 @@
 package com.squill.og.crawler.newsapi.reader;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class NewsSource {
 
 	private String id;
@@ -8,7 +11,7 @@ public class NewsSource {
 	
 	private String description;
 	
-	private String orgHomePage;
+	private List<String> orgHomePages;
 	
 	private String feedType;
 
@@ -36,12 +39,15 @@ public class NewsSource {
 		this.description = description;
 	}
 
-	public String getOrgHomePage() {
-		return orgHomePage;
+	public List<String> getOrgHomePages() {
+		if(orgHomePages == null) {
+			orgHomePages = new ArrayList<String>();
+		}
+		return orgHomePages;
 	}
 
-	public void setOrgHomePage(String orgHomePage) {
-		this.orgHomePage = orgHomePage;
+	public void setOrgHomePages(List<String> orgHomePages) {
+		this.orgHomePages = orgHomePages;
 	}
 	
 	public String getFeedType() {

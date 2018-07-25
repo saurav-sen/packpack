@@ -33,7 +33,9 @@
 		</sift>
 	</appender>
 	
-	<logger name="com.pack.pack.services" level="debug" />
+	<!--logger name="com.pack.pack.services" level="debug" /-->
+	
+	<logger name="com.pack.pack" level="info" />
 
 	<logger name="packpack">
 		<level value="info" />

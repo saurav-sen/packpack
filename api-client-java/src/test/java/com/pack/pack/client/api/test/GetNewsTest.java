@@ -19,9 +19,9 @@ import com.squill.feed.web.model.JRssFeed;
 public class GetNewsTest extends BaseTest {
 
 	@SuppressWarnings("unchecked")
-	public void test(TestSession session) {
+	public void test(TestSession session, COMMAND command) {
 		try {
-			API api = APIBuilder.create(session.getBaseUrl()).setAction(COMMAND.GET_ALL_NEWS_FEEDS)
+			API api = APIBuilder.create(session.getBaseUrl()).setAction(command)
 					.setOauthToken(session.getOauthToken())
 					.addApiParam(APIConstants.User.ID, session.getUserId())
 					/*.addApiParam(APIConstants.PageInfo.PAGE_LINK, CommonConstants.NULL_PAGE_LINK)*/
@@ -48,20 +48,20 @@ public class GetNewsTest extends BaseTest {
 				System.out.println(JSONUtil.serialize(page.getResult()));
 				System.out.println("Next --> " + page.getNextLink());
 				System.out.println("*****************************************");
-				/*api = APIBuilder
-						.create(session.getBaseUrl())
-						.setAction(COMMAND.GET_ALL_NEWS_FEEDS)
-						.setOauthToken(session.getOauthToken())
-						.addApiParam(APIConstants.User.ID, session.getUserId())
-						.addApiParam(APIConstants.PageInfo.PAGE_LINK,
-								PageUtil.buildNextPageLink(page.getTimestamp())).build();*/
 				api = APIBuilder
 						.create(session.getBaseUrl())
 						.setAction(COMMAND.GET_ALL_NEWS_FEEDS)
 						.setOauthToken(session.getOauthToken())
 						.addApiParam(APIConstants.User.ID, session.getUserId())
 						.addApiParam(APIConstants.PageInfo.PAGE_LINK,
-								page.getNextLink()).build();
+								PageUtil.buildNextPageLink(page.getTimestamp())).build();
+				/*api = APIBuilder
+						.create(session.getBaseUrl())
+						.setAction(command)
+						.setOauthToken(session.getOauthToken())
+						.addApiParam(APIConstants.User.ID, session.getUserId())
+						.addApiParam(APIConstants.PageInfo.PAGE_LINK,
+								page.getNextLink()).build();*/
 				page = (Pagination<JRssFeed>) api.execute();
 			}
 			
@@ -74,7 +74,9 @@ public class GetNewsTest extends BaseTest {
 	@Override
 	public void execute(TestSession session) throws Exception {
 		super.execute(session);
-		test(session);
+		test(session, COMMAND.GET_ALL_NEWS_FEEDS);
+		test(session, COMMAND.GET_ALL_SPORTS_NEWS_FEEDS);
+		test(session, COMMAND.GET_ALL_SCIENCE_AND_TECHNOLOGY_NEWS_FEEDS);
 	}
 	
 	public static void main(String[] args) throws Exception {
@@ -85,6 +87,8 @@ public class GetNewsTest extends BaseTest {
 		session.setOauthToken(oauthToken);
 		JUser user = new UserInfoTest().getUserInfo(session);
 		session.setUserId(user.getId());
-		test.test(session);
+		test.test(session, COMMAND.GET_ALL_NEWS_FEEDS);
+		test.test(session, COMMAND.GET_ALL_SPORTS_NEWS_FEEDS);
+		//test.test(session, COMMAND.GET_ALL_SCIENCE_AND_TECHNOLOGY_NEWS_FEEDS);
 	}
 }

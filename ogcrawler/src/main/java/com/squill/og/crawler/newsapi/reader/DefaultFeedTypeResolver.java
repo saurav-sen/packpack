@@ -20,16 +20,18 @@ class DefaultFeedTypeResolver {
 
 	public DefaultFeedTypeResolver(List<NewsSource> newsSources) {
 		for (NewsSource newsSource : newsSources) {
-			String orgHomePage = newsSource.getOrgHomePage();
-			if (!orgHomePage.endsWith("/")) {
-				orgHomePage = orgHomePage + "/";
-			}
-			try {
-				JRssFeedType type = JRssFeedType.valueOf(newsSource
-						.getFeedType().toUpperCase());
-				defaultFeedTypeMap.put(orgHomePage, type);
-			} catch (Exception e) {
-				LOG.error(e.getMessage(), e);
+			List<String> orgHomePages = newsSource.getOrgHomePages();
+			for(String orgHomePage : orgHomePages) {
+				if (!orgHomePage.endsWith("/")) {
+					orgHomePage = orgHomePage + "/";
+				}
+				try {
+					JRssFeedType type = JRssFeedType.valueOf(newsSource
+							.getFeedType().toUpperCase());
+					defaultFeedTypeMap.put(orgHomePage, type);
+				} catch (Exception e) {
+					LOG.error(e.getMessage(), e);
+				}
 			}
 		}
 	}

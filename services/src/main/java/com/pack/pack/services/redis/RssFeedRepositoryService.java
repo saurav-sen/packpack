@@ -138,36 +138,70 @@ public class RssFeedRepositoryService {
 		return ttlSeconds;
 	}
 	
-	private long[] resolveRangeScores(String[] scores, long timestamp, int direction) {
-		if(scores == null || scores.length == 0)
+	private long[] resolveRangeScores(String[] scores, long timestamp,
+			int direction) {
+		if (scores == null || scores.length == 0) { // NO_RESULT (Empty
+													// Responses/Feeds)
 			return new long[0];
+		}
+
 		long[] result = new long[2];
-		if(timestamp == 0) {
-			if(scores.length > 1) {
+		int len = scores.length;
+
+		short d0 = 1;
+		if (direction < 0) {
+			d0 = -1;
+		}
+
+		if (timestamp == 0) {
+			if (d0 == -1) { // END_OF_PAGE (PreviousLink direction)
+				return new long[0];
+			}
+			if (len > 2) {
+				result[0] = Long.parseLong(scores[2]);
+				result[1] = Long.parseLong(scores[0]);
+			} else if (len > 1) {
 				result[0] = Long.parseLong(scores[1]);
 				result[1] = Long.parseLong(scores[0]);
 			} else {
 				result[0] = Long.parseLong(scores[0]);
-				result[1] = result[0];
+				result[1] = Long.MAX_VALUE;
+				//result[1] = result[0];
 			}
 			return result;
 		}
-		boolean found = false;
-		if(direction < 0) {
-			for(int i=0; i<scores.length-1; i++) {
-				if(timestamp == Long.parseLong(scores[i])) {
-					i++;
-					result[0] = Long.parseLong(scores[i]);
-					result[1] = timestamp;
-					found = true;
-				}
-			}
-		} else {
-			result[0] = timestamp;
-			result[1] = Long.parseLong(scores[0]);
+
+		int i = 0;
+		long t0 = timestamp * d0;
+		int j = i;
+		int k = j;
+		while (i < len && t0 >= (Long.parseLong(scores[i]) * d0)) {
+			k = j;
+			j = i;
+			i++;
 		}
-		if(!found)
+
+		if ((i == len && d0 == 1) || (j == 0 && d0 == -1)) { // END_OF_PAGE
+																// (PreviousLink
+																// OR NextLink
+																// direction)
 			result = new long[0];
+		} else if (d0 == 1) {
+			result[0] = Long.parseLong(scores[i]);
+			int p = j + 1;
+			if (p < len) {
+				j = p;
+			}
+			result[1] = Long.parseLong(scores[j]);
+			// result[1] = timestamp;
+		} else {
+			result[0] = Long.parseLong(scores[j]);
+			int q = k - 1;
+			if (q >= 0) {
+				k = q;
+			}
+			result[1] = Long.parseLong(scores[k]);
+		}
 		return result;
 	}
 	
@@ -235,14 +269,17 @@ public class RssFeedRepositoryService {
 	}
 	
 	public Pagination<RSSFeed> getSportsNewsFeeds(long timestamp, int direction) throws PackPackException {
+		$_LOG.trace("Getting Sports News Feeds");
 		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.NEWS_SPORTS.name()), timestamp, direction);
 	}
 	
 	public Pagination<RSSFeed> getScienceAndTechnologyNewsFeeds(long timestamp, int direction) throws PackPackException {
+		$_LOG.trace("Getting Science & Technology News Feeds");
 		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.NEWS_SCIENCE_TECHNOLOGY.name()), timestamp, direction);
 	}
 	
 	public Pagination<RSSFeed> getArticleNewsFeeds(long timestamp, int direction) throws PackPackException {
+		$_LOG.trace("Getting Article News Feeds");
 		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.ARTICLE.name()), timestamp, direction);
 	}
 	
@@ -267,7 +304,19 @@ public class RssFeedRepositoryService {
 		$_LOG.trace("Range Key = " + rangeKey);
 		String ranges = sync.get(rangeKey);
 		$_LOG.trace("ranges = " + ranges);
+		if(ranges == null) {
+			page.setResult(feeds);
+			page.setNextLink(END_OF_PAGE + PAGELINK_DIRECTION_NEGATIVE);
+			page.setPreviousLink(END_OF_PAGE + PAGELINK_DIRECTION_POSITIVE);
+			return page;
+		}
 		String[] split = ranges.split(";");
+		if(split.length == 0) {
+			page.setResult(feeds);
+			page.setNextLink(END_OF_PAGE + PAGELINK_DIRECTION_NEGATIVE);
+			page.setPreviousLink(END_OF_PAGE + PAGELINK_DIRECTION_POSITIVE);
+			return page;
+		}
 		
 		List<String> keys = null;
 		long[] scores = resolveRangeScores(split, timestamp, direction);

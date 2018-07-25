@@ -26,9 +26,10 @@ public class BasicGeoLocationResolver implements IGeoLocationResolver {
 		if (feed == null)
 			return false;
 		String feedType = feed.getFeedType();
-		return JRssFeedType.NEWS_SPORTS.equals(feedType)
-				|| JRssFeedType.NEWS_SCIENCE_TECHNOLOGY.equals(feedType)
-				|| JRssFeedType.REFRESHMENT.equals(feedType);
+		return JRssFeedType.NEWS.name().equals(feedType)
+				|| JRssFeedType.NEWS_SPORTS.name().equals(feedType)
+				|| JRssFeedType.NEWS_SCIENCE_TECHNOLOGY.name().equals(feedType)
+				|| JRssFeedType.REFRESHMENT.name().equals(feedType);
 	}
 
 	@Override

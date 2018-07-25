@@ -73,23 +73,26 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 	private Pagination<JRssFeed> getAllRssFeeds(JRssFeedType type,
 			String userId, String pageLink) throws PackPackException {
 		List<JRssFeed> result = new ArrayList<JRssFeed>();
+		$_LOG.info("Reading from nextLink = " + pageLink);
 		Pagination<JRssFeed> page = getAllRssFeeds0(type, userId, pageLink);
 		String[] split = pageLink.split(PAGELINK_DIRECTION_SEPERATOR);
 		int direction = 1;
 		if (split.length > 1) {
 			direction = Integer.parseInt(split[1].trim());
 		}
+		$_LOG.info("Direction = " + direction);
 		boolean needToIterate = false;
 		String previousLink = page.getPreviousLink();
 		String nextLink = page.getNextLink();
 		List<JRssFeed> feeds = page.getResult();
 		result.addAll(feeds);
 		String link = direction > 0 ? nextLink : previousLink;
-		while (feeds != null && link != null && !feeds.isEmpty()
-				&& feeds.size() < MINIMUM_PAGE_SIZE
+		while (result != null && link != null && !result.isEmpty()
+				&& result.size() < MINIMUM_PAGE_SIZE
 				&& !link.startsWith(END_OF_PAGE)
 				&& !link.startsWith(NULL_PAGE_LINK)) {
-			Pagination<JRssFeed> page0 = getAllRssFeeds0(type, userId, nextLink);
+			$_LOG.info("Reading from nextLink = " + link);
+			Pagination<JRssFeed> page0 = getAllRssFeeds0(type, userId, link);
 			feeds = page0.getResult();
 			link = direction > 0 ? page0.getNextLink() : page0
 					.getPreviousLink();
@@ -145,7 +148,7 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 			page = repositoryService.getNewsFeeds(timestamp, direction);
 			break;
 		case NEWS_SPORTS:
-			page = repositoryService.getScienceAndTechnologyNewsFeeds(
+			page = repositoryService.getSportsNewsFeeds(
 					timestamp, direction);
 			break;
 		case NEWS_SCIENCE_TECHNOLOGY:
