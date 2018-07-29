@@ -1,5 +1,9 @@
 package com.pack.pack.client.api.test;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import com.pack.pack.client.api.API;
 import com.pack.pack.client.api.APIBuilder;
 import com.pack.pack.client.api.APIConstants;
@@ -20,6 +24,8 @@ public class GetNewsTest extends BaseTest {
 
 	@SuppressWarnings("unchecked")
 	public void test(TestSession session, COMMAND command) {
+		Set<JRssFeed> set = new HashSet<JRssFeed>();
+		Set<Long> set1 = new HashSet<Long>();
 		try {
 			API api = APIBuilder.create(session.getBaseUrl()).setAction(command)
 					.setOauthToken(session.getOauthToken())
@@ -43,10 +49,21 @@ public class GetNewsTest extends BaseTest {
 			});*/
 			int count = 0;
 			while (!page.getResult().isEmpty()) {
+				long timestamp = page.getTimestamp();
+				if(!set1.add(timestamp)) {
+					System.err.println("[FAILED]:: Duplicate Timestamp.");
+				}
+				List<JRssFeed> result = page.getResult();
+				for(JRssFeed r : result) {
+					if(!set.add(r)) {
+						System.err.println("[FAILED]:: Duplicate Feed Received.");
+					}
+				}
 				count++;
-				System.out.println("Previous --> " + page.getPreviousLink());
+				//System.out.println("Previous --> " + page.getPreviousLink());
 				System.out.println(JSONUtil.serialize(page.getResult()));
-				System.out.println("Next --> " + page.getNextLink());
+				//System.out.println("Next --> " + page.getNextLink());
+				System.out.println("Next --> " + PageUtil.buildNextPageLink(page.getTimestamp()));
 				System.out.println("*****************************************");
 				api = APIBuilder
 						.create(session.getBaseUrl())

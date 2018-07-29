@@ -175,7 +175,7 @@ public class RssFeedRepositoryService {
 		long t0 = timestamp * d0;
 		int j = i;
 		int k = j;
-		while (i < len && t0 >= (Long.parseLong(scores[i]) * d0)) {
+		while (i < len && t0 <= (Long.parseLong(scores[i]) * d0)) {
 			k = j;
 			j = i;
 			i++;
@@ -187,12 +187,19 @@ public class RssFeedRepositoryService {
 																// direction)
 			result = new long[0];
 		} else if (d0 == 1) {
-			result[0] = Long.parseLong(scores[i]);
-			int p = j + 1;
+			int p = i + 1;
 			if (p < len) {
 				j = p;
+			} else {
+				j = i;
 			}
-			result[1] = Long.parseLong(scores[j]);
+			i = i - 1;
+			if(i < 0) {
+				result = new long[0];
+			} else {
+				result[0] = Long.parseLong(scores[j]);
+				result[1] = Long.parseLong(scores[i]);
+			}
 			// result[1] = timestamp;
 		} else {
 			result[0] = Long.parseLong(scores[j]);
@@ -325,7 +332,8 @@ public class RssFeedRepositoryService {
 			return endOfPageResponse(timestamp, timestamp);
 		long r1 = scores[0];
 		long r2 = scores[1]; // r1 is expected to be <= r2
-		long max = r1 > r2 ? r1 : r2;
+		long max = r1 >= r2 ? r1 : r2;
+		long min = r1 <= r2 ? r1 : r2;
 		$_LOG.trace("setKey = " + setKey);
 		keys = resolveKeysForPagination(sync, r1, r2, setKey);
 		$_LOG.trace("Keys = " + StringUtils.stringify(keys));
@@ -346,7 +354,6 @@ public class RssFeedRepositoryService {
 				removeAllExpiredRanges(rangeKey, split, timestamp);
 				return endOfPageResponse(timestamp, max);
 			} else {
-				long min = r1 < r2 ? r1 : r2;
 				String nextLink = String.valueOf(min) + PAGELINK_DIRECTION_NEGATIVE;
 				$_LOG.debug("nextLink = " + nextLink);
 				page.setNextLink(nextLink);
@@ -368,7 +375,11 @@ public class RssFeedRepositoryService {
 		$_LOG.info("Size of Feeds = " + feeds.size());
 		page.setResult(feeds);
 		
-		page.setTimestamp(max);
+		if(direction >= 0) {
+			page.setTimestamp(min);
+		} else {
+			page.setTimestamp(max);
+		}
 		
 		return page;
 	}
@@ -413,4 +424,28 @@ public class RssFeedRepositoryService {
 		$_LOG.debug("After removing expired ranges = " + ranges);
 		sync.set(rangeKey, ranges);
 	}
+	
+	/*public static void main(String[] args) {
+		String str = "1532856567785;1532849367789;1532848564104;1532846324844;1532773602996;1532773160915;1532765960926;1532551329916;1532379579973;1532372379982;1532333901679;1532326701670;1532319501679;1532312301679;1532305101679;1532297901679;1532290701679;1532283501679;1532276301679;1532269101679;1532261901679;1532254701679;1532247501679;1532240301682;1531457146850;1531449946850;1531442746850;1531435546850;1531428346850;1531421146850;1531413946850;1531406746850;1531399546850;1531392346850;1531385146850;1531377946840;1531370746850;1531363546850;1531356346850;1531349146850;1531341946850;1531334746850;1531327546850;1531320346850;1531313146850;1531305946850;1531298746850;1531291546840;1531284346850;1531277146850;1531269946850;1531262746850;1531255546850;1531248346850;1531241146850;1531233946850;1531226746850;1531219546850;1531212346850;1531205146840;1531197946850;1531190746850;1531183546850;1531176346850;1531169146850;1531161946850;1531154746850;1531147546850;1531140346850;1531133146850;1531125946850;1531118746840;1531111546850;1531104346850;1531097146850;1531089946850;1531082746850;1531075546850;1531068346850;1531061146850;1531053946850;1531046746850;1531039546850;1531032346840;1531025146850;1531017946850;1531010746850;1531003546850;1530996346850;1530989146850;1530981946850;1530974746850;1530967546850;1530960346850;1530953146850;1530945946840;1530938746850;1530931546850;1530924346850;1530917146850;1530909946850;1530902746850;1530895546850;1530888346850;1530881146850;1530873946850;1530866746850;1530859546840;1530852346850;1530845146850;1530837946850;1530830746850;1530823546850;1530816346850;1530809146850;1530801946850;1530794746850;1530787546850;1530780346850;1530773146840;1530765946850;1530758746850;1530751546850;1530744346850;1530737146850;1530729946850;1530722746850;1530715546850;1530708346850;1530701146850;1530693946850";
+		String[] split = str.split(";");
+		long timestamp = 0;
+		int direction = 1;
+		long[] scores = new long[0];
+		do {
+			scores = resolveRangeScores(split, timestamp, direction);
+			if(scores.length == 0) {
+				break;
+			}
+			long r1 = scores[0];
+			long r2 = scores[1];
+			System.out.println("r1=" + r1 + " r2=" + r2);
+			long max = r1 >= r2 ? r1 : r2;
+			long min = r1 <= r2 ? r1 : r2;
+			if(direction >= 0) {
+				timestamp = min;
+			} else {
+				timestamp = max;
+			}
+		} while(scores.length > 1);
+	}*/
 }
