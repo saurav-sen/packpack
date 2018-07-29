@@ -13,24 +13,44 @@ public class DomainSpecificInfoHolder {
 	private static final Map<String, DomainInfo> domainVsDefaultTgtPlace = new HashMap<String, DomainInfo>();
 	static {
 		domainVsDefaultTgtPlace.put("hindu.com", new DomainInfo(
-				"11000000", "politics", new String[] { "Bhopal" }));
+				"11000000", "politics", new GeoLocation[] { new GeoLocation(23.2599, 77.4126) })); // Bhopal (India)
 		domainVsDefaultTgtPlace.put("thehindu.com", new DomainInfo(
-				"11000000", "politics", new String[] { "Bhopal" }));
+				"11000000", "politics", new GeoLocation[] { new GeoLocation(23.2599, 77.4126) })); // Bhopal (India)
 		domainVsDefaultTgtPlace.put("timesofindia.com", new DomainInfo(
-				"11000000", "politics", new String[] { "Bhopal" }));
+				"11000000", "politics", new GeoLocation[] { new GeoLocation(23.2599, 77.4126) })); // Bhopal (India)
 		domainVsDefaultTgtPlace.put("timesofindia.indiatimes.com",
-				new DomainInfo("11000000", "politics", new String[] { "Bhopal" }));
+				new DomainInfo("11000000", "politics", new GeoLocation[] { new GeoLocation(23.2599, 77.4126) })); // Bhopal (India)
 		domainVsDefaultTgtPlace.put("espncricinfo.com", new DomainInfo(
-				"15000000", "sport", new String[] { "Bhopal", "London",
-						"Islamabad", "Colombo" }));
+				"15000000", "sport", new GeoLocation[] { new GeoLocation(23.2599, 77.4126), new GeoLocation(51.508530, -0.076132),
+						new GeoLocation(33.738045, 73.084488), new GeoLocation(6.927079, 79.861244), 
+						new GeoLocation(-33.865143, 151.209900), new GeoLocation(-33.640480, 19.009657) })); 
+		// Bhopal, London, Islamabad, Colombo, Sydney (Australia), Wellington (South Africa)
 		domainVsDefaultTgtPlace.put("talksport.com", new DomainInfo(
-				"15000000", "sport", new String[0]));
+				"15000000", "sport", new GeoLocation[] {new GeoLocation(-15.790669, -47.892967), new GeoLocation(44.402393, 86.154785), 
+						new GeoLocation(54.687157, 25.279652), new GeoLocation(40.052059, -86.470642)})); 
+		// Brasil (Brazil), Xinjiang (Center Of Asia), Vilnius, Lithuania (Center Of Europe), Lebanon, Kansas (Center Of America)
 		domainVsDefaultTgtPlace.put("aljazeera.com", new DomainInfo(
-				"11000000", "politics", new String[] { "Qatar" }));
+				"11000000", "politics", new GeoLocation[] { new GeoLocation(24.952171, 51.587822) })); // Qatar
 		domainVsDefaultTgtPlace.put("newscientist.com", new DomainInfo(
-				"13000000", "science and technology", new String[0]));
+				"13000000", "science and technology", new GeoLocation[] {new GeoLocation(44.402393, 86.154785), 
+						new GeoLocation(54.687157, 25.279652), new GeoLocation(40.052059, -86.470642)})); 
+		// Xinjiang (Center Of Asia), Vilnius, Lithuania (Center Of Europe), Lebanon, Kansas (Center Of America)
 		domainVsDefaultTgtPlace.put("news.nationalgeographic.com", new DomainInfo(
-				"13000000", "science and technology", new String[0]));
+				"13000000", "science and technology", new GeoLocation[] {new GeoLocation(44.402393, 86.154785), 
+						new GeoLocation(54.687157, 25.279652), new GeoLocation(40.052059, -86.470642)}));
+		// Xinjiang (Center Of Asia), Vilnius, Lithuania (Center Of Europe), Lebanon, Kansas (Center Of America)
+		
+		domainVsDefaultTgtPlace.put("time.com", new DomainInfo(
+				"13000000", "science and technology", new GeoLocation[] {new GeoLocation(44.402393, 86.154785), 
+						new GeoLocation(54.687157, 25.279652), new GeoLocation(40.052059, -86.470642), 
+						new GeoLocation(40.730610, -73.935242), new GeoLocation(37.733795, -122.446747)}));
+		// Xinjiang (Center Of Asia), Vilnius, Lithuania (Center Of Europe), Lebanon, Kansas (Center Of America), New York (USA), San Francisco (USA)
+		
+		domainVsDefaultTgtPlace.put("nytimes.com", new DomainInfo(
+				"13000000", "science and technology", new GeoLocation[] {new GeoLocation(44.402393, 86.154785), 
+						new GeoLocation(54.687157, 25.279652), new GeoLocation(40.052059, -86.470642), 
+						new GeoLocation(40.730610, -73.935242), new GeoLocation(37.733795, -122.446747)}));
+		// Xinjiang (Center Of Asia), Vilnius, Lithuania (Center Of Europe), Lebanon, Kansas (Center Of America), New York (USA), San Francisco (USA)
 	}
 
 	private Map<String, List<GeoLocation>> entityNameVsGeoLocation = new HashMap<String, List<GeoLocation>>();
@@ -61,10 +81,10 @@ public class DomainSpecificInfoHolder {
 		return domainVsDefaultTgtPlace.get(filterDomainUrl(domainUrl));
 	}
 	
-	public String[] getTargetDefaultPlacesByDomainUrl(String domainUrl) {
+	public GeoLocation[] getTargetDefaultPlacesByDomainUrl(String domainUrl) {
 		DomainInfo domainInfo = getDomainInfoByDomainUrl(domainUrl);
 		if (domainInfo == null)
-			return new String[0];
+			return new GeoLocation[0];
 		return domainInfo.getTargetPlaces();
 	}
 	
@@ -102,12 +122,12 @@ public class DomainSpecificInfoHolder {
 		
 		private String defaultTaxonomyLabel;
 		
-		private String[] targetPlaces;
+		private GeoLocation[] geoLocations;
 		
-		DomainInfo(String defaultTaxonomyId, String defaultTaxonomyLabel, String[] targetPlaces) {
+		DomainInfo(String defaultTaxonomyId, String defaultTaxonomyLabel, GeoLocation[] geoLocations) {
 			this.defaultTaxonomyId = defaultTaxonomyId;
 			this.defaultTaxonomyLabel = defaultTaxonomyLabel;
-			this.targetPlaces = targetPlaces;
+			this.geoLocations = geoLocations;
 		}
 
 		String getDefaultTaxonomyId() {
@@ -118,8 +138,8 @@ public class DomainSpecificInfoHolder {
 			return defaultTaxonomyLabel;
 		}
 		
-		String[] getTargetPlaces() {
-			return targetPlaces;
+		GeoLocation[] getTargetPlaces() {
+			return geoLocations;
 		}
 	}
 }

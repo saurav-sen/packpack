@@ -23,7 +23,8 @@
 			   display: block;
 			   margin-left: auto;
 			   margin-right: auto;
-			   max-width: 60%;
+			   max-width: 200px;
+			   max-height: 200px;
 			   height: auto;
 			   width: auto;
 			}
@@ -57,13 +58,15 @@
 					<img src="${jsBaseUrl}/css/${logo}" class="img-logo w3-border-bottom">	
 				</#if>
 				
+				<br />
+				
 				<header class="w3-container heading">			  	
 				  <b>${ogTitle}
 				</header>
 	
 				<div class="w3-container w3-center">
 					<a href="${ogUrl}" class="no-decoration-hyperlink">
-						<img src="https://static.toiimg.com/thumb/msid-65018233,width-1070,height-580,imgsize-1584037,resizemode-6,overlay-toi_sw,pt-32,y_pad-40/photo.jpg">
+						<img src="${ogImage}">
 					</a>
 				</div>
 				
@@ -76,7 +79,7 @@
 				<footer class="w3-container w3-red">
 				  <div class="footer-squill">SQUILL</div>
 				  <div class= "footer-img" ><a href="https://play.google.com/store/apps/details?id=com.pack.pack.application" target="_blank">
-					   <img src="playstore.png" style="width:100px"></div>
+					   <img src="${jsBaseUrl}/css/playstore.png" style="width:100px"></div>
 				  </a>
 				</footer>
 				<br />

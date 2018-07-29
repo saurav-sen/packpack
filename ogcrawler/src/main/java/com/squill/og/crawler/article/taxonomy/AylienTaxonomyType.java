@@ -33,6 +33,7 @@ public class AylienTaxonomyType {
 	}
 	
 	public boolean isConfident() {
-		return confidence > 0.6f;
+		//return confidence > 0.6f;
+		return true;
 	}
 }

@@ -26,6 +26,7 @@ public class SharedExternalLinkPageGenerator implements IMarkupGenerator {
 	static {
 		logoMap.put("timesofindia.indiatimes.com", "times-of-india-logo.png");
 		logoMap.put("www.nytimes.com", "New_York_Times_logo_variation.jpg");
+		logoMap.put("www.time.com", "time_dot_com.png");
 		logoMap.put("www.thehindu.com", "thehindu-icon.png");
 		logoMap.put("talksport.com", "talksport_400x400.jpg");
 		logoMap.put("www.espncricinfo.com", "espncricinfo-6301-630x400.jpg");

@@ -231,6 +231,7 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 			JRssFeeds rssFeeds = adapt(map);
 			LOG.debug("Total feeds to be uploaded without backlog = " + rssFeeds.getFeeds().size());
 		}
+		dataCleanUp(map);
 		map = storeInArchive(map);
 		JRssFeeds rssFeeds = adapt(map);
 		LOG.info("Uploading news feeds: Total = " + rssFeeds.getFeeds().size());
@@ -252,6 +253,24 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 			webLinkTrackerService.upsertCrawledInfo(link, info, RSSConstants.DEFAULT_TTL_WEB_TRACKING_INFO, false);
 		}
 		
-		NotificationUtil.broadcastNewRSSFeedUploadSummary("You have new Items");
+		//NotificationUtil.broadcastNewRSSFeedUploadSummary("You have new Items");
+	}
+	
+	private void dataCleanUp(Map<String, List<JRssFeed>> map) {
+		Iterator<String> itr = map.keySet().iterator();
+		while (itr.hasNext()) {
+			String key = itr.next();
+			List<JRssFeed> list = map.get(key);
+			if (list == null || list.isEmpty())
+				continue;
+			for (JRssFeed feed : list) {
+				String articleSummaryText = feed.getArticleSummaryText();
+				articleSummaryText = articleSummaryText.replaceAll("\\n", "");
+				feed.setArticleSummaryText(articleSummaryText);
+				String fullArticleText = feed.getFullArticleText();
+				fullArticleText = fullArticleText.replaceAll("\\n", "");
+				feed.setFullArticleText(fullArticleText);
+			}
+		}
 	}
 }

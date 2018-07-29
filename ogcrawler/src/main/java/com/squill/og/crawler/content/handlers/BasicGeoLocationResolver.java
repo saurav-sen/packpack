@@ -1,7 +1,8 @@
 package com.squill.og.crawler.content.handlers;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.context.annotation.Scope;
@@ -50,7 +51,7 @@ public class BasicGeoLocationResolver implements IGeoLocationResolver {
 		return new GeoLocation[0];
 	}
 
-	private List<GeoLocation> resolveBasedUponServerUrl(String serverUrl,
+	/*private List<GeoLocation> resolveBasedUponServerUrl(String serverUrl,
 			DbpediaGeoLocationReader dbpediaBasedLocationResolver) {
 		List<GeoLocation> geoLocationTags = new LinkedList<GeoLocation>();
 		String urlId = serverUrl;
@@ -66,5 +67,15 @@ public class BasicGeoLocationResolver implements IGeoLocationResolver {
 			}
 		}
 		return geoLocationTags;
+	}*/
+	
+	private List<GeoLocation> resolveBasedUponServerUrl(String serverUrl,
+			DbpediaGeoLocationReader dbpediaBasedLocationResolver) {
+		GeoLocation[] locations = DomainSpecificInfoHolder.INSTANCE
+				.getTargetDefaultPlacesByDomainUrl(serverUrl);
+		if (locations != null && locations.length > 0) {
+			return Arrays.asList(locations);
+		}
+		return Collections.emptyList();
 	}
 }
