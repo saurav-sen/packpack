@@ -22,6 +22,7 @@ import com.squill.og.crawler.hooks.ITaxonomyResolver;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.FeedClassifierUtil;
 import com.squill.og.crawler.model.WebSpiderTracker;
+import com.squill.og.crawler.opennlp.ISentenceDetector;
 import com.squill.og.crawler.rss.RSSConstants;
 import com.squill.og.crawler.text.summarizer.TextSummarization;
 import com.squill.services.exception.OgCrawlException;
@@ -159,12 +160,12 @@ public class AllInOneAITaskExecutor {
 						feed.getOgUrl(), feed.getOgTitle(),
 						feed.getOgDescription());
 				if (response != null) {
-					feed.setArticleSummaryText(response
+					String summaryText = summaryTextWithLengthConstraint(response
 							.extractedAllSummary(false));
+					feed.setArticleSummaryText(summaryText);
 					feed.setFullArticleText(response.getText());
 
-					info.setArticleSummaryText(response
-							.extractedAllSummary(false));
+					info.setArticleSummaryText(summaryText);
 					info.setFullArticleText(response.getText());
 				}
 			}
@@ -174,6 +175,30 @@ public class AllInOneAITaskExecutor {
 			feed.setFullArticleText(info.getFullArticleText());
 		}
 		return needToUpsertLinkInfo;
+	}
+	
+	private String summaryTextWithLengthConstraint(String summaryText) {
+		String result = summaryText;
+		int numOfWords = 0;
+		try {
+			ISentenceDetector sentenceDetector = AppContext.INSTANCE
+					.findService("openNlpSentenceDetector",
+							ISentenceDetector.class);
+			String[] sentences = sentenceDetector.detectSentences(summaryText);
+			StringBuilder text = new StringBuilder();
+			for (String sentence : sentences) {
+				if (numOfWords >= 100) {
+					break;
+				}
+				String[] words = sentenceDetector.tokenize(sentence);
+				numOfWords = numOfWords + words.length;
+				text.append(sentence);
+			}
+			result = text.toString();
+		} catch (Exception e) {
+			LOG.debug(e.getMessage(), e);
+		}
+		return result;
 	}
 	
 	private boolean executeDocumentClassification(WebSpiderTracker info, JRssFeed feed,

@@ -265,10 +265,10 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 				continue;
 			for (JRssFeed feed : list) {
 				String articleSummaryText = feed.getArticleSummaryText();
-				articleSummaryText = articleSummaryText.replaceAll("\\n", "");
+				articleSummaryText = articleSummaryText.replaceAll("\\n", " ").replaceAll(" +", " ");
 				feed.setArticleSummaryText(articleSummaryText);
 				String fullArticleText = feed.getFullArticleText();
-				fullArticleText = fullArticleText.replaceAll("\\n", "");
+				fullArticleText = fullArticleText.replaceAll("\\n", " ").replaceAll(" +", " ");
 				feed.setFullArticleText(fullArticleText);
 			}
 		}
