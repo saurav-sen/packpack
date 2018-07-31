@@ -326,6 +326,9 @@ public class RssFeedRepositoryService {
 		}
 		
 		List<String> keys = null;
+		if(timestamp < Long.parseLong(split[split.length - 1])) {
+			timestamp = 0;
+		}
 		long[] scores = resolveRangeScores(split, timestamp, direction);
 		$_LOG.debug("Scores = " + StringUtils.stringify(scores));
 		if(scores.length == 0)

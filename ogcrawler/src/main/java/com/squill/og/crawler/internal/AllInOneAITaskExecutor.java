@@ -178,6 +178,7 @@ public class AllInOneAITaskExecutor {
 	}
 	
 	private String summaryTextWithLengthConstraint(String summaryText) {
+		LOG.debug("[STARTED] Reducing Length for summary text");
 		String result = summaryText;
 		int numOfWords = 0;
 		try {
@@ -187,7 +188,7 @@ public class AllInOneAITaskExecutor {
 			String[] sentences = sentenceDetector.detectSentences(summaryText);
 			StringBuilder text = new StringBuilder();
 			for (String sentence : sentences) {
-				if (numOfWords >= 100) {
+				if (numOfWords >= 110) {
 					break;
 				}
 				String[] words = sentenceDetector.tokenize(sentence);
@@ -198,6 +199,7 @@ public class AllInOneAITaskExecutor {
 		} catch (Exception e) {
 			LOG.debug(e.getMessage(), e);
 		}
+		LOG.debug("[DONE] Reducing Length for summary text");
 		return result;
 	}
 	

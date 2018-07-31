@@ -27,7 +27,6 @@ import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.JSONUtil;
-import com.squill.og.crawler.internal.utils.NotificationUtil;
 import com.squill.og.crawler.model.WebSpiderTracker;
 import com.squill.og.crawler.rss.RSSConstants;
 
@@ -263,13 +262,24 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 			List<JRssFeed> list = map.get(key);
 			if (list == null || list.isEmpty())
 				continue;
-			for (JRssFeed feed : list) {
+			Iterator<JRssFeed> itrFeeds = list.iterator();
+			while(itrFeeds.hasNext()) {
+				JRssFeed feed = itrFeeds.next();
 				String articleSummaryText = feed.getArticleSummaryText();
-				articleSummaryText = articleSummaryText.replaceAll("\\n", " ").replaceAll(" +", " ");
-				feed.setArticleSummaryText(articleSummaryText);
 				String fullArticleText = feed.getFullArticleText();
-				fullArticleText = fullArticleText.replaceAll("\\n", " ").replaceAll(" +", " ");
-				feed.setFullArticleText(fullArticleText);
+				if (articleSummaryText != null
+						&& !articleSummaryText.trim().isEmpty()
+						&& fullArticleText != null
+						&& !fullArticleText.trim().isEmpty()) {
+					articleSummaryText = articleSummaryText.replaceAll("\\n",
+							" ").replaceAll(" +", " ");
+					feed.setArticleSummaryText(articleSummaryText);
+					fullArticleText = fullArticleText.replaceAll("\\n", " ")
+							.replaceAll(" +", " ");
+					feed.setFullArticleText(fullArticleText);
+				} else {
+					itrFeeds.remove();
+				}
 			}
 		}
 	}
