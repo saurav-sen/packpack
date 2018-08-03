@@ -71,16 +71,16 @@
 		<module>model</module>
 		<module>feed-model</module>
 		<module>common</module>
-		<module>elastic-search</module>
+		<!--module>elastic-search</module-->
 		<module>services</module>
 		<module>services-ext</module>
 		<module>oauth</module>
 		<module>markup-gen</module>
 		<module>api</module>
-		<module>ml-api</module>
+		<!--module>ml-api</module-->
 		<module>api-client-java</module>
-		<module>news-reader</module>
-		<module>load-master</module>
+		<!--module>news-reader</module>
+		<module>load-master</module-->
 		<module>ogcrawler</module>
 	</modules>
 	<profiles>

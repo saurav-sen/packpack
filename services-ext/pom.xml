@@ -3,7 +3,7 @@
   <groupId>com.pack.pack</groupId>
   <artifactId>services-ext</artifactId>
   <name>Services Extension</name>
-  <description>Messaging and NoSQL</description>
+  <description>Messaging and NoSQL Extension</description>
   <parent>
 		<groupId>com.pack.pack</groupId>
 		<artifactId>com.pack.pack</artifactId>

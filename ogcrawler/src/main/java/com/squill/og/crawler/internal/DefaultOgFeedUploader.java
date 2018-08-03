@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.pack.pack.util.RssFeedUtil;
+import com.pack.pack.util.SystemPropertyUtil;
 import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JRssFeeds;
 import com.squill.feed.web.model.TTL;
@@ -48,8 +49,6 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(DefaultOgFeedUploader.class);
-	
-	private static final String DEFAULT_ARCHIVE_FOLDER = "archive/";
 	
 	private int count = 0;
 	
@@ -142,16 +141,6 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		return allFeeds;
 	}
 	
-	private String resolveArchiveFolder() {
-		/*return System.getProperty(SystemPropertyKeys.WEB_CRAWLERS_CONFIG_DIR) + "/../"
-				+ DEFAULT_ARCHIVE_FOLDER;*/
-		String userHome = System.getProperty("user.home");
-		if(!userHome.endsWith(File.separator)) {
-			userHome = userHome + File.separator;
-		}
-		return userHome + DEFAULT_ARCHIVE_FOLDER;
-	}
-	
 	private JRssFeeds storeInArchive(String id, List<JRssFeed> list) {
 		JRssFeeds c = new JRssFeeds();
 		LOG.debug("storeInArchive(String id, List<JRssFeed> list)");
@@ -182,7 +171,7 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		int day = dateTime.getDayOfMonth();
 		int month = dateTime.getMonthOfYear();
 		int year = dateTime.getYear();
-		String dirPath = resolveArchiveFolder();
+		String dirPath = SystemPropertyUtil.getDefaultArchiveFolder();
 		File file = new File(dirPath);
 		if(!file.exists()) {
 			file.mkdir();

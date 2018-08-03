@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>oauth</artifactId>  
   <name>oauth</name>
-  <description>PackPack token management</description>
+  <description>SQUILL token management</description>
   <packaging>jar</packaging>
   <parent>
 	<groupId>com.pack.pack</groupId>

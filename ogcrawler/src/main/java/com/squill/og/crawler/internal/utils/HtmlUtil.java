@@ -1,10 +1,27 @@
 package com.squill.og.crawler.internal.utils;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.List;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.pack.pack.markup.gen.IMarkup;
+import com.pack.pack.markup.gen.MarkupGenerator;
+import com.pack.pack.model.web.JSharedFeed;
+import com.pack.pack.services.exception.ErrorCodes;
+import com.pack.pack.services.exception.PackPackException;
+import com.pack.pack.util.SystemPropertyUtil;
 import com.squill.feed.web.model.JRssFeed;
+import com.squill.feed.web.model.JRssFeeds;
+import com.squill.feed.web.model.TTL;
 
 /**
  * 
@@ -12,6 +29,8 @@ import com.squill.feed.web.model.JRssFeed;
  *
  */
 public class HtmlUtil {
+	
+	private static final Logger $_LOG = LoggerFactory.getLogger(HtmlUtil.class);
 	
 	private HtmlUtil() {
 	}
@@ -90,5 +109,72 @@ public class HtmlUtil {
 		feed.setOgType(type);
 		
 		return feed;
+	}
+	
+	public static void generateNewsFeedsHtmlProxyPages(JRssFeeds feeds, TTL ttl, long batchId,
+			boolean sendNotification) {
+		List<JRssFeed> newFeeds = feeds.getFeeds();
+		for (JRssFeed newFeed : newFeeds) {
+			String id = newFeed.getShareableUrl();
+			if(id.endsWith("/")) {
+				id = id.substring(0, id.length() - 1);
+			}
+			id = id.substring(id.lastIndexOf("/") + 1);
+			try {
+				String html = generateExternallySharedProxyPage(id);
+				String htmlFolder = SystemPropertyUtil
+						.getDefaultArchiveHtmlFolder();
+				if (!htmlFolder.endsWith(File.separator)
+						&& !htmlFolder.endsWith("/")) {
+					htmlFolder = htmlFolder + File.separator;
+				}
+				Files.write(Paths.get(htmlFolder + id), html.getBytes(),
+						StandardOpenOption.CREATE_NEW);
+			} catch (PackPackException e) {
+				$_LOG.error(e.getMessage(), e);
+			} catch (IOException e) {
+				$_LOG.error(e.getMessage(), e);
+			}
+		}
+	}
+	
+	private static String generateExternallySharedProxyPage(String id)
+			throws PackPackException {
+		try {
+			Markup markup = new Markup();
+			MarkupGenerator.INSTANCE.generateMarkup(id, JSharedFeed.class,
+					markup);
+			return markup.getContent();
+		} catch (Exception e) {
+			$_LOG.error("Promotion failed");
+			$_LOG.error(e.getMessage(), e);
+			throw new PackPackException(ErrorCodes.PACK_ERR_61,
+					"Failed Generating Proxy Page for Shared Link", e);
+		}
+	}
+	
+	private static class Markup implements IMarkup {
+
+		@SuppressWarnings("unused")
+		private String contentType;
+
+		private String content;
+
+		private Markup() {
+		}
+
+		@Override
+		public void setContentType(String contentType) {
+			this.contentType = contentType;
+		}
+
+		@Override
+		public void setContent(String content) {
+			this.content = content;
+		}
+
+		private String getContent() {
+			return content;
+		}
 	}
 }

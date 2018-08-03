@@ -2,8 +2,8 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.pack.pack</groupId>
   <artifactId>ogcrawler</artifactId>
-  <name>Object Graph Crawler</name>
-  <description>Object Graph Crawler</description>
+  <name>SQUILL Crawler</name>
+  <description>SQUILL Crawler</description>
   <parent>
 		<groupId>com.pack.pack</groupId>
 		<artifactId>com.pack.pack</artifactId>
@@ -25,6 +25,11 @@
 			<artifactId>services</artifactId>
 			<version>${packpack.release}</version>
 		</dependency>
+		<dependency>
+        	<groupId>com.pack.pack</groupId>
+        	<artifactId>markup-gen</artifactId>
+         	<version>${packpack.release}</version>          	
+        </dependency>
 		<dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>

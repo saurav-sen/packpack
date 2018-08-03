@@ -121,7 +121,7 @@ public class Startup {
 			LOG.trace(e.getMessage(), e);
 			help();
 		} finally {
-			stopApp();
+			//stopApp();
 		}
 	}
 	

@@ -1,9 +1,5 @@
 package com.pack.pack.services.redis;
 
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.Base64;
-
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JSharedFeed;
 import com.pack.pack.model.web.ShortenUrlInfo;
@@ -28,10 +24,13 @@ public class UrlShortener {
 	private static ShortenUrlInfo shortenFeedUrl(JRssFeed feed)
 			throws PackPackException {
 		ShortenUrlInfo info = new ShortenUrlInfo();
-		String hash = String.valueOf(feed.getOgUrl().hashCode());
-		info.setHashcode(hash);
-		String shortenUrl = Base64.getEncoder().encodeToString(hash.getBytes());
-		shortenUrl = URLEncoder.encode(shortenUrl);
+		int hash = feed.getOgUrl().hashCode();
+		info.setHashcode(String.valueOf(hash));
+		//String hash = String.valueOf(feed.getOgUrl().hashCode());
+		//info.setHashcode(hash);
+		String shortenUrl = Base62.getEncoder().encode(hash);
+		//String shortenUrl = Base64.getUrlEncoder().encodeToString(hash.getBytes());
+		//shortenUrl = URLEncoder.encode(shortenUrl);
 		JSharedFeed shareableFeed = ModelConverter.convertToShareableFeed(feed);
 		String json = JSONUtil.serialize(shareableFeed, false);
 		long ttl = 7 * 24 * 60 * 60;
@@ -66,11 +65,10 @@ public class UrlShortener {
 		info.setUrl(url);
 		return info;
 	}
-
+	
 	public static JSharedFeed readShortUrlInfo(String shortenUrl)
 			throws PackPackException {
-		String hash = URLDecoder.decode(shortenUrl);
-		hash = new String(Base64.getDecoder().decode(hash));
+		int hash = Base62.getDecoder().decode(shortenUrl);
 		RedisCacheService cacheService = ServiceRegistry.INSTANCE
 				.findService(RedisCacheService.class);
 		String redisKey = SHARED_LINK_KEY_PREFIX + hash;
@@ -79,6 +77,20 @@ public class UrlShortener {
 			return null;
 		return JSONUtil.deserialize(json, JSharedFeed.class);
 	}
+
+	/*public static JSharedFeed readShortUrlInfo(String shortenUrl)
+			throws PackPackException {
+		//String hash = URLDecoder.decode(shortenUrl);
+		String hash = shortenUrl;
+		hash = new String(Base64.getUrlDecoder().decode(hash));
+		RedisCacheService cacheService = ServiceRegistry.INSTANCE
+				.findService(RedisCacheService.class);
+		String redisKey = SHARED_LINK_KEY_PREFIX + hash;
+		String json = cacheService.getFromCache(redisKey, String.class);
+		if (json == null)
+			return null;
+		return JSONUtil.deserialize(json, JSharedFeed.class);
+	}*/
 	
 	/*public static void main(String[] args) {
 		String hash = URLDecoder.decode("OTc4NjkzMTE5");

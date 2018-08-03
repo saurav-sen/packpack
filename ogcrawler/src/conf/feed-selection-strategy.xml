@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<strategies xmlns="http://www.squilla.co.in/Strategies">
+
+	<strategy name="default"
+		implementation="com.squill.broadcast.feed.upload.RandomFeedSelectionStrategy" />
+	<strategy name="noFilter"
+		implementation="com.squill.broadcast.feed.upload.NoFilterFeedSelectionStrategy" />
+</strategies>

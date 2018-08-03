@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.squill.broadcast.feed.upload.PeriodicFeedUploadTask;
 import com.squill.og.crawler.ICrawlSchedule;
 import com.squill.og.crawler.ICrawlable;
 import com.squill.og.crawler.Spider;
@@ -102,6 +103,9 @@ public class WebSpiderService {
 			
 			Runnable command = SpiderFactory.INSTANCE.createSpiderSessionRefresher(session);
 			pool.scheduleAtFixedRate(command, 1, 1, TimeUnit.HOURS);
+			
+			pool.scheduleAtFixedRate(new PeriodicFeedUploadTask(), 0, 1,
+					TimeUnit.DAYS);
 			
 			// Main thread should keep waiting forever.
 			waitFor(list);

@@ -18,7 +18,7 @@
 			<fileMode>0755</fileMode>
 		</fileSet>
 		<fileSet>
-			<directory>src/bin</directory>
+			<directory>src/scripts</directory>
 			<outputDirectory>bin</outputDirectory>
 			<includes>
 				<include>*.bat</include>
