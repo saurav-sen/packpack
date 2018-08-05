@@ -88,6 +88,7 @@ public class ModelConverter {
 		}
 		rFeed.setArticleSummaryText(feed.getArticleSummaryText());
 		rFeed.setFullArticleText(feed.getFullArticleText());
+		rFeed.setSquillUrl(feed.getSquillUrl());
 		List<GeoTag> geoTags = feed.getGeoTags();
 		if(geoTags != null && !geoTags.isEmpty()) {
 			for(GeoTag geoTag : geoTags) {
@@ -142,6 +143,7 @@ public class ModelConverter {
 		feed.setId(id);
 		feed.setBatchId(rFeed.getBatchId());
 		feed.setVideoUrl(rFeed.getVideoUrl());
+		feed.setSquillUrl(rFeed.getSquillUrl());
 		feed.setUploadTime(System.currentTimeMillis());
 		List<JRssSubFeed> siblings = rFeed.getSiblings();
 		if(siblings != null && !siblings.isEmpty()) {

@@ -65,6 +65,8 @@ public class RSSFeed /*extends CouchDbDocument*/{
 	private String createdByLogoUrl;
 	
 	private String createdByUserId;
+	
+	private String squillUrl;
 
 	public String getOgTitle() {
 		return ogTitle;
@@ -276,5 +278,13 @@ public class RSSFeed /*extends CouchDbDocument*/{
 
 	public void setBatchId(long batchId) {
 		this.batchId = batchId;
+	}
+
+	public String getSquillUrl() {
+		return squillUrl;
+	}
+
+	public void setSquillUrl(String squillUrl) {
+		this.squillUrl = squillUrl;
 	}
 }

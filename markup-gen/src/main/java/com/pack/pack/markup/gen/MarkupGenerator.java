@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.pack.pack.model.web.JSharedFeed;
+import com.squill.feed.web.model.JRssFeed;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -22,29 +23,32 @@ public class MarkupGenerator {
 	public static final MarkupGenerator INSTANCE = new MarkupGenerator();
 
 	private static Map<String, IMarkupGenerator> generatorsMap = new HashMap<String, IMarkupGenerator>();
+	
 	static {
 		generatorsMap.put(JSharedFeed.class.getName(),
 				new SharedExternalLinkPageGenerator());
+		generatorsMap
+				.put(JRssFeed.class.getName(), new NewsFeedPageGenerator());
 	}
 
 	MarkupGenerator() {
 	}
-	
-	public <T> void generateMarkup(String entityId, Class<T> type, IMarkup markup)
-			throws Exception {
-		IMarkupGenerator generator = generatorsMap.get(type.getName());
+
+	public <T> void generateMarkup(T object, IMarkup markup) throws Exception {
+		IMarkupGenerator generator = generatorsMap.get(object.getClass()
+				.getName());
 		if (generator != null) {
-			generator.generate(entityId, markup);
+			generator.generate(object, markup);
 		}
 	}
 
-	public <T> void generateAndUpload(String entityId, Class<T> type)
+	/*public <T> void generateAndUpload(String entityId, Class<T> type, T object)
 			throws Exception {
 		IMarkupGenerator generator = generatorsMap.get(type.getName());
 		if (generator != null) {
-			generator.generate(entityId, new Markup());
+			generator.generate(entityId, new Markup(), object);
 		}
-	}
+	}*/
 	
 	public String generateWelcomeEmailHtmlContent(String userName, int userCount, String OTP) throws IOException, TemplateException {
 		Writer writer = null;
@@ -107,7 +111,7 @@ public class MarkupGenerator {
 		}
 	}
 	
-	private class Markup implements IMarkup {
+	/*private class Markup implements IMarkup {
 		
 		@Override
 		public void setContentType(String contentType) {
@@ -116,5 +120,5 @@ public class MarkupGenerator {
 		@Override
 		public void setContent(String content) {
 		}
-	}
+	}*/
 }

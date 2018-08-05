@@ -108,7 +108,7 @@ public final class SystemPropertyUtil {
 	
 	private static final String EXTERNAL_SHARED_LINK_BASE_URL = "external.shared.link.base.url";
 	
-	private static final String DOMAIN_BASE_URL_DEFAULT = "http://www.squill.co.in/";
+	public static final String DOMAIN_BASE_URL_DEFAULT = "http://www.squill.co.in/";
 	
 	//private static final String EXTERNAL_SHARED_LINK_BASE_URL_DEFAULT = DOMAIN_BASE_URL_DEFAULT + "news/public/ext";
 	

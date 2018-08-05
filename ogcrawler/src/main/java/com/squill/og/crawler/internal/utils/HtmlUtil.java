@@ -3,6 +3,7 @@ package com.squill.og.crawler.internal.utils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
@@ -21,7 +22,6 @@ import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.util.SystemPropertyUtil;
 import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JRssFeeds;
-import com.squill.feed.web.model.TTL;
 
 /**
  * 
@@ -29,14 +29,14 @@ import com.squill.feed.web.model.TTL;
  *
  */
 public class HtmlUtil {
-	
+
 	private static final Logger $_LOG = LoggerFactory.getLogger(HtmlUtil.class);
-	
+
 	private HtmlUtil() {
 	}
-	
+
 	public static String cleanIllegalCharacters4mUrl(String url) {
-		if(url == null) {
+		if (url == null) {
 			return url;
 		}
 		return url.replaceAll("\\\\", "/").replaceAll("//", "/")
@@ -52,7 +52,7 @@ public class HtmlUtil {
 		if (metaOgTitle != null) {
 			title = metaOgTitle.attr("content");
 		}
-		
+
 		String pageTile = null;
 		Elements docTile = doc.select("title");
 		if (docTile != null) {
@@ -64,11 +64,12 @@ public class HtmlUtil {
 		}
 
 		String description = null;
-		Elements metaOgDescription = doc.select("meta[property=og:description]");
+		Elements metaOgDescription = doc
+				.select("meta[property=og:description]");
 		if (metaOgDescription != null) {
 			description = metaOgDescription.attr("content");
 		}
-		
+
 		String pageDescription = null;
 		Elements docDescription = doc.select("meta[name=description]");
 		if (docDescription != null) {
@@ -107,21 +108,20 @@ public class HtmlUtil {
 		feed.setOgUrl(hrefUrl);
 		feed.setHrefSource(hrefUrl);
 		feed.setOgType(type);
-		
+
 		return feed;
 	}
-	
-	public static void generateNewsFeedsHtmlProxyPages(JRssFeeds feeds, TTL ttl, long batchId,
-			boolean sendNotification) {
-		List<JRssFeed> newFeeds = feeds.getFeeds();
-		for (JRssFeed newFeed : newFeeds) {
-			String id = newFeed.getShareableUrl();
-			if(id.endsWith("/")) {
+
+	public static void generateNewsFeedsHtmlPages(JRssFeeds feeds) {
+		List<JRssFeed> rFeeds = feeds.getFeeds();
+		for (JRssFeed rFeed : rFeeds) {
+			String id = rFeed.getShareableUrl();
+			if (id.endsWith("/")) {
 				id = id.substring(0, id.length() - 1);
 			}
 			id = id.substring(id.lastIndexOf("/") + 1);
 			try {
-				String html = generateExternallySharedProxyPage(id);
+				String html = generateExternallySharedPage(id, rFeed);
 				String htmlFolder = SystemPropertyUtil
 						.getDefaultArchiveHtmlFolder();
 				if (!htmlFolder.endsWith(File.separator)
@@ -129,7 +129,30 @@ public class HtmlUtil {
 					htmlFolder = htmlFolder + File.separator;
 				}
 				Files.write(Paths.get(htmlFolder + id), html.getBytes(),
-						StandardOpenOption.CREATE_NEW);
+						StandardOpenOption.CREATE);
+				String baseUrl = SystemPropertyUtil
+						.getExternalSharedLinkBaseUrl();
+				if (!baseUrl.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+					baseUrl = baseUrl + SystemPropertyUtil.URL_SEPARATOR;
+				}
+				rFeed.setShareableUrl(baseUrl + id);
+
+				String today = today();
+				html = generateFullTextPage(id, rFeed);
+				htmlFolder = SystemPropertyUtil.getDefaultArchiveHtmlFolder();
+				if (!htmlFolder.endsWith(File.separator)
+						&& !htmlFolder.endsWith("/")) {
+					htmlFolder = htmlFolder + File.separator + today;
+					Path dirPath = Paths.get(htmlFolder);
+					if (!Files.exists(dirPath)) {
+						Files.createDirectories(dirPath);
+					}
+					htmlFolder = htmlFolder + File.separator;
+				}
+				Files.write(Paths.get(htmlFolder + id), html.getBytes(),
+						StandardOpenOption.CREATE);
+				rFeed.setSquillUrl(baseUrl + today
+						+ SystemPropertyUtil.URL_SEPARATOR + id);
 			} catch (PackPackException e) {
 				$_LOG.error(e.getMessage(), e);
 			} catch (IOException e) {
@@ -137,13 +160,16 @@ public class HtmlUtil {
 			}
 		}
 	}
-	
-	private static String generateExternallySharedProxyPage(String id)
+
+	private static String today() {
+		return DateTimeUtil.today().replaceAll("/", "_");
+	}
+
+	private static String generateFullTextPage(String id, JRssFeed feed)
 			throws PackPackException {
 		try {
 			Markup markup = new Markup();
-			MarkupGenerator.INSTANCE.generateMarkup(id, JSharedFeed.class,
-					markup);
+			MarkupGenerator.INSTANCE.generateMarkup(feed, markup);
 			return markup.getContent();
 		} catch (Exception e) {
 			$_LOG.error("Promotion failed");
@@ -152,7 +178,27 @@ public class HtmlUtil {
 					"Failed Generating Proxy Page for Shared Link", e);
 		}
 	}
-	
+
+	private static String generateExternallySharedPage(String id,
+			JRssFeed feed) throws PackPackException {
+		try {
+			Markup markup = new Markup();
+			JSharedFeed sh = new JSharedFeed();
+			sh.setActualUrl(feed.getHrefSource());
+			sh.setDescription(feed.getOgDescription());
+			sh.setImageLink(feed.getOgImage());
+			sh.setSummaryText(feed.getArticleSummaryText());
+			sh.setTitle(feed.getOgTitle());
+			MarkupGenerator.INSTANCE.generateMarkup(sh, markup);
+			return markup.getContent();
+		} catch (Exception e) {
+			$_LOG.error("Promotion failed");
+			$_LOG.error(e.getMessage(), e);
+			throw new PackPackException(ErrorCodes.PACK_ERR_61,
+					"Failed Generating Proxy Page for Shared Link", e);
+		}
+	}
+
 	private static class Markup implements IMarkup {
 
 		@SuppressWarnings("unused")

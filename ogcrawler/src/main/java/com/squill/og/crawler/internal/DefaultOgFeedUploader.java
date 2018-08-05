@@ -27,6 +27,7 @@ import com.squill.og.crawler.IWebCrawlable;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
+import com.squill.og.crawler.internal.utils.HtmlUtil;
 import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.og.crawler.model.WebSpiderTracker;
 import com.squill.og.crawler.rss.RSSConstants;
@@ -222,6 +223,9 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		dataCleanUp(map);
 		map = storeInArchive(map);
 		JRssFeeds rssFeeds = adapt(map);
+		
+		HtmlUtil.generateNewsFeedsHtmlPages(rssFeeds);
+		
 		LOG.info("Uploading news feeds: Total = " + rssFeeds.getFeeds().size());
 		TTL ttl = new TTL();
 		ttl.setTime((short) 1);

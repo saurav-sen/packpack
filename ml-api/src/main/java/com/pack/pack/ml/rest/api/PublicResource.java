@@ -30,7 +30,7 @@ public class PublicResource {
 	private static final Logger LOG = LoggerFactory
 			.getLogger(PublicResource.class);
 
-	@GET
+	/*@GET
 	@Path("{id}")
 	@Produces(MediaType.TEXT_HTML)
 	public String getExternallySharedProxyPage(@PathParam("id") String id)
@@ -46,7 +46,7 @@ public class PublicResource {
 			throw new PackPackException(ErrorCodes.PACK_ERR_61,
 					"Failed Generating Proxy Page for Shared Link", e);
 		}
-	}
+	}*/
 
 	private class Markup implements IMarkup {
 

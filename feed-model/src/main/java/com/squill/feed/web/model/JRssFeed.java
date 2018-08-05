@@ -56,6 +56,8 @@ public class JRssFeed {
 	
 	private List<JRssSubFeed> siblings;
 	
+	private String squillUrl;
+	
 	public String getOgTitle() {
 		return ogTitle;
 	}
@@ -250,5 +252,13 @@ public class JRssFeed {
 			return false;
 		}
 		return this.id.equals(((JRssFeed) obj).getId());
+	}
+
+	public String getSquillUrl() {
+		return squillUrl;
+	}
+
+	public void setSquillUrl(String squillUrl) {
+		this.squillUrl = squillUrl;
 	}
 }
