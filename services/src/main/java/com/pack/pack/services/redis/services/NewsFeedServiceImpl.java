@@ -27,6 +27,7 @@ import com.pack.pack.services.redis.RssFeedRepositoryService;
 import com.pack.pack.services.redis.UrlShortener;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.ModelConverter;
+import com.pack.pack.util.SystemPropertyUtil;
 import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JRssFeedType;
 import com.squill.feed.web.model.TTL;
@@ -209,8 +210,11 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 			NoSuchAlgorithmException {
 		boolean checkFeedExists = service.checkFeedExists(feed);
 		if (!checkFeedExists) {
+			boolean storeSharedFeed = false;
 			ShortenUrlInfo shortenUrlInfo = UrlShortener
-					.calculateShortenShareableUrl(feed);
+					.calculateShortenShareableUrl(feed,
+							SystemPropertyUtil.getExternalSharedLinkBaseUrl(),
+							storeSharedFeed);
 			feed.setShareableUrl(shortenUrlInfo.getUrl());
 			feed.setBatchId(batchId);
 			RSSFeed rssFeed = ModelConverter.convert(feed);

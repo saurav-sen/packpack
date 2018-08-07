@@ -21,7 +21,7 @@ public class UrlShortener {
 	private UrlShortener() {
 	}
 
-	private static ShortenUrlInfo shortenFeedUrl(JRssFeed feed)
+	private static ShortenUrlInfo shortenFeedUrl(JRssFeed feed, boolean storeSharedFeed)
 			throws PackPackException {
 		ShortenUrlInfo info = new ShortenUrlInfo();
 		int hash = feed.getOgUrl().hashCode();
@@ -31,16 +31,18 @@ public class UrlShortener {
 		String shortenUrl = Base62.getEncoder().encode(hash);
 		//String shortenUrl = Base64.getUrlEncoder().encodeToString(hash.getBytes());
 		//shortenUrl = URLEncoder.encode(shortenUrl);
-		JSharedFeed shareableFeed = ModelConverter.convertToShareableFeed(feed);
-		String json = JSONUtil.serialize(shareableFeed, false);
-		long ttl = 7 * 24 * 60 * 60;
-		RedisCacheService cacheService = ServiceRegistry.INSTANCE
-				.findService(RedisCacheService.class);
-		String redisKey = SHARED_LINK_KEY_PREFIX + hash;
-		if (cacheService.isKeyExists(redisKey)) {
-			cacheService.setTTL(redisKey, ttl);
-		} else {
-			cacheService.addToCache(redisKey, json, ttl);
+		if(storeSharedFeed) {
+			JSharedFeed shareableFeed = ModelConverter.convertToShareableFeed(feed);
+			String json = JSONUtil.serialize(shareableFeed, false);
+			long ttl = 7 * 24 * 60 * 60;
+			RedisCacheService cacheService = ServiceRegistry.INSTANCE
+					.findService(RedisCacheService.class);
+			String redisKey = SHARED_LINK_KEY_PREFIX + hash;
+			if (cacheService.isKeyExists(redisKey)) {
+				cacheService.setTTL(redisKey, ttl);
+			} else {
+				cacheService.addToCache(redisKey, json, ttl);
+			}
 		}
 		info.setSuffix(shortenUrl);
 		return info;
@@ -53,11 +55,12 @@ public class UrlShortener {
 		str = new String(Base64.getDecoder().decode(URLDecoder.decode(str).getBytes()));
 		System.out.println(str);
 	}*/
-
-	public static ShortenUrlInfo calculateShortenShareableUrl(JRssFeed feed)
+	
+	public static ShortenUrlInfo calculateShortenShareableUrl(JRssFeed feed, String baseUrl, boolean storeSharedFeed)
 			throws PackPackException {
-		ShortenUrlInfo info = shortenFeedUrl(feed);	
-		String url = SystemPropertyUtil.getExternalSharedLinkBaseUrl();
+		ShortenUrlInfo info = shortenFeedUrl(feed, storeSharedFeed);	
+		//String url = SystemPropertyUtil.getExternalSharedLinkBaseUrl();
+		String url = baseUrl;
 		if(!url.endsWith("/")) {
 			url = url + "/";
 		}

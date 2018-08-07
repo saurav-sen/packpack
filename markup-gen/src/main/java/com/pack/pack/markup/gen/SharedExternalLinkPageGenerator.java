@@ -18,22 +18,10 @@ import freemarker.template.Template;
  */
 public class SharedExternalLinkPageGenerator implements IMarkupGenerator {
 	
-	private static final Map<String, String> logoMap = new HashMap<String, String>();
-	
-	static {
-		logoMap.put("timesofindia.indiatimes.com", "times-of-india-logo.png");
-		logoMap.put("www.nytimes.com", "New_York_Times_logo_variation.jpg");
-		logoMap.put("www.time.com", "time_dot_com.png");
-		logoMap.put("www.thehindu.com", "thehindu-icon.png");
-		logoMap.put("talksport.com", "talksport_400x400.jpg");
-		logoMap.put("www.espncricinfo.com", "espncricinfo-6301-630x400.jpg");
-		logoMap.put("espncricinfo.com", "espncricinfo-6301-630x400.jpg");
-		logoMap.put("www.newscientist.com", "newscientisthero34_1476186101.jpg");
-		logoMap.put("newscientist.com", "newscientisthero34_1476186101.jpg");
-		logoMap.put("news.nationalgeographic.com", "national-geographic.svg.png");
-		logoMap.put("www.nationalgeographic.com", "national-geographic.svg.png");
-		logoMap.put("www.aljazeera.com", "aljazeera.jpg");
-		logoMap.put("aljazeera.com", "aljazeera.jpg");
+	@Override
+	public <T> void generate(String entityId, IMarkup markup) throws Exception {
+		throw new UnsupportedOperationException(
+				"Generation based upon ID alone us not supported");
 	}
 	
 	@Override
@@ -46,7 +34,7 @@ public class SharedExternalLinkPageGenerator implements IMarkupGenerator {
 		dataModel.put("ogUrl", sharedFeed.getActualUrl());
 		dataModel.put("summaryText", sharedFeed.getSummaryText());
 		URL url = new URL(sharedFeed.getActualUrl());
-		String logo = logoMap.get(url.getHost());
+		String logo = LogoMap.get(url.getHost());
 		dataModel.put("logo", logo);
 		String jsBaseURL = SystemPropertyUtil.getJSBaseURL();
 		if (jsBaseURL == null) {
@@ -56,7 +44,7 @@ public class SharedExternalLinkPageGenerator implements IMarkupGenerator {
 			jsBaseURL = jsBaseURL.substring(0, jsBaseURL.length() - 1);
 		}
 		dataModel.put("jsBaseUrl", jsBaseURL);
-		generateProxyPage(dataModel, markup);
+		generateSquillPage(dataModel, markup);
 	}
 
 	/*@Override
@@ -86,14 +74,14 @@ public class SharedExternalLinkPageGenerator implements IMarkupGenerator {
 		generateProxyPage(dataModel, markup);
 	}*/
 	
-	private void generateProxyPage(Map<String, Object> dataModel, IMarkup markup)
+	private void generateSquillPage(Map<String, Object> dataModel, IMarkup markup)
 			throws Exception {
 		StringWriter writer = null;
 		Configuration cfg = new Configuration();
 		try {
 			cfg.setClassForTemplateLoading(SharedExternalLinkPageGenerator.class,
 					"/com/pack/pack/markup/external/page");
-			Template template = cfg.getTemplate("proxy_page.ftl");
+			Template template = cfg.getTemplate("squill_page.ftl");
 
 			writer = new StringWriter();
 			template.process(dataModel, writer);

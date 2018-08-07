@@ -21,6 +21,7 @@ import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.hooks.ITaxonomyResolver;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.FeedClassifierUtil;
+import com.squill.og.crawler.internal.utils.HtmlUtil;
 import com.squill.og.crawler.model.WebSpiderTracker;
 import com.squill.og.crawler.opennlp.ISentenceDetector;
 import com.squill.og.crawler.rss.RSSConstants;
@@ -73,6 +74,7 @@ public class AllInOneAITaskExecutor {
 				Iterator<JRssFeed> feedsItr = feeds.iterator();
 				while(feedsItr.hasNext()) {
 					JRssFeed feed = feedsItr.next();
+					feed.setOgTitle(HtmlUtil.cleanUTFCharacters(feed.getOgTitle()));
 					feed.setOgType(feed.getFeedType());
 					String link = feed.getOgUrl();
 					WebSpiderTracker info = webLinkTrackerService.getTrackedInfo(link);
@@ -162,11 +164,13 @@ public class AllInOneAITaskExecutor {
 				if (response != null) {
 					String summaryText = summaryTextWithLengthConstraint(response
 							.extractedAllSummary(false));
+					summaryText = HtmlUtil.cleanUTFCharacters(summaryText);
+					String fullText = HtmlUtil.cleanUTFCharacters(response.getText());
 					feed.setArticleSummaryText(summaryText);
-					feed.setFullArticleText(response.getText());
+					feed.setFullArticleText(fullText);
 
 					info.setArticleSummaryText(summaryText);
-					info.setFullArticleText(response.getText());
+					info.setFullArticleText(fullText);
 				}
 			}
 			needToUpsertLinkInfo = true;

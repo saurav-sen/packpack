@@ -24,6 +24,8 @@ public class AccessTokenVerifier implements ContainerRequestFilter {
 	
 	private static final String PASSWD_RESET_LINK_PATTERN = "passwd/reset";
 	private static final String SIGNUP_CODE_LINK_PATTERN = "signup/code";
+	
+	private static final String SHARED_URL_TYPE = "/sh/";
 
 	@Override
 	public void filter(ContainerRequestContext requestContext)
@@ -41,7 +43,8 @@ public class AccessTokenVerifier implements ContainerRequestFilter {
 				&& !path.endsWith(SystemInfo.ANDROID_APK_URL)
 				&& !path.contains(SystemInfo.VALIDATE_USER_NAME_WEB_URL)
 				&& !path.contains(PASSWD_RESET_LINK_PATTERN)
-				&& !path.contains(SIGNUP_CODE_LINK_PATTERN)) {
+				&& !path.contains(SIGNUP_CODE_LINK_PATTERN)
+				&& !path.contains(SHARED_URL_TYPE)) {
 			if (isTokenEmpty) {
 				allow = false;
 			} else {

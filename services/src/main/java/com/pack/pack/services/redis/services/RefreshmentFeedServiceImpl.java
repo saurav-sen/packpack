@@ -31,6 +31,7 @@ import com.pack.pack.services.redis.UrlShortener;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.EncryptionUtil;
 import com.pack.pack.util.ModelConverter;
+import com.pack.pack.util.SystemPropertyUtil;
 import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JRssFeedType;
 import com.squill.feed.web.model.TTL;
@@ -284,7 +285,11 @@ public class RefreshmentFeedServiceImpl implements IRefreshmentFeedService {
 					.findService(RssFeedRepositoryService.class);
 			boolean checkFeedExists = service.checkFeedExists(feed);
 			if(!checkFeedExists) {
-				ShortenUrlInfo shortenUrlInfo = UrlShortener.calculateShortenShareableUrl(feed);
+				boolean storeSharedFeed = true;
+				ShortenUrlInfo shortenUrlInfo = UrlShortener
+						.calculateShortenShareableUrl(feed, SystemPropertyUtil
+								.getExternalSharedLinkRefreshmentBaseUrl(),
+								storeSharedFeed);
 				feed.setShareableUrl(shortenUrlInfo.getUrl());
 				feed.setBatchId(batchId);
 				RSSFeed rssFeed = ModelConverter.convert(feed);

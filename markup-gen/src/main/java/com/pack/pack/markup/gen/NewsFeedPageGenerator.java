@@ -12,24 +12,11 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 
 public class NewsFeedPageGenerator implements IMarkupGenerator {
-
-	private static final Map<String, String> logoMap = new HashMap<String, String>();
-
-	static {
-		logoMap.put("timesofindia.indiatimes.com", "times-of-india-logo.png");
-		logoMap.put("www.nytimes.com", "New_York_Times_logo_variation.jpg");
-		logoMap.put("www.time.com", "time_dot_com.png");
-		logoMap.put("www.thehindu.com", "thehindu-icon.png");
-		logoMap.put("talksport.com", "talksport_400x400.jpg");
-		logoMap.put("www.espncricinfo.com", "espncricinfo-6301-630x400.jpg");
-		logoMap.put("espncricinfo.com", "espncricinfo-6301-630x400.jpg");
-		logoMap.put("www.newscientist.com", "newscientisthero34_1476186101.jpg");
-		logoMap.put("newscientist.com", "newscientisthero34_1476186101.jpg");
-		logoMap.put("news.nationalgeographic.com",
-				"national-geographic.svg.png");
-		logoMap.put("www.nationalgeographic.com", "national-geographic.svg.png");
-		logoMap.put("www.aljazeera.com", "aljazeera.jpg");
-		logoMap.put("aljazeera.com", "aljazeera.jpg");
+	
+	@Override
+	public <T> void generate(String entityId, IMarkup markup) throws Exception {
+		throw new UnsupportedOperationException(
+				"Generation based upon ID alone us not supported");
 	}
 
 	@Override
@@ -50,7 +37,7 @@ public class NewsFeedPageGenerator implements IMarkupGenerator {
 		dataModel.put("ogUrl", feed.getOgUrl());
 		dataModel.put("summaryText", feed.getFullArticleText());
 		URL url = new URL(feed.getOgUrl());
-		String logo = logoMap.get(url.getHost());
+		String logo = LogoMap.get(url.getHost());
 		dataModel.put("logo", logo);
 		String jsBaseURL = SystemPropertyUtil.getJSBaseURL();
 		if (jsBaseURL == null) {

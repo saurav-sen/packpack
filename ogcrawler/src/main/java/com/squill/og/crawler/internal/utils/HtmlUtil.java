@@ -43,6 +43,13 @@ public class HtmlUtil {
 				.replaceFirst("http:/", "http://")
 				.replaceFirst("https:/", "https://");
 	}
+	
+	public static String cleanUTFCharacters(String text) {
+		if(text == null) {
+			return text;
+		}
+		return text.replaceAll("[^\\x00-\\x7F]","");
+	}
 
 	public static JRssFeed parse4mHtml(String htmlContent) {
 		Document doc = Jsoup.parse(htmlContent);

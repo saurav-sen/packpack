@@ -223,14 +223,14 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		dataCleanUp(map);
 		map = storeInArchive(map);
 		JRssFeeds rssFeeds = adapt(map);
-		
-		HtmlUtil.generateNewsFeedsHtmlPages(rssFeeds);
-		
 		LOG.info("Uploading news feeds: Total = " + rssFeeds.getFeeds().size());
 		TTL ttl = new TTL();
 		ttl.setTime((short) 1);
 		ttl.setUnit(TimeUnit.DAYS);
 		RssFeedUtil.uploadNewsFeeds(rssFeeds, ttl, batchId, true);
+		
+		HtmlUtil.generateNewsFeedsHtmlPages(rssFeeds);
+		
 		IWebLinkTrackerService webLinkTrackerService = webCrawlable.getTrackerService();
 		List<JRssFeed> feeds = rssFeeds.getFeeds();
 		for(JRssFeed feed : feeds) {

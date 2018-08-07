@@ -108,11 +108,15 @@ public final class SystemPropertyUtil {
 	
 	private static final String EXTERNAL_SHARED_LINK_BASE_URL = "external.shared.link.base.url";
 	
+	private static final String EXTERNAL_SHARED_LINK_REFRESHMENT_BASE_URL = "external.shared.link.refreshment.base.url";
+	
 	public static final String DOMAIN_BASE_URL_DEFAULT = "http://www.squill.co.in/";
 	
 	//private static final String EXTERNAL_SHARED_LINK_BASE_URL_DEFAULT = DOMAIN_BASE_URL_DEFAULT + "news/public/ext";
 	
 	private static final String EXTERNAL_SHARED_LINK_BASE_URL_DEFAULT = DOMAIN_BASE_URL_DEFAULT + "sh";
+	
+	private static final String EXTERNAL_SHARED_LINK_REFRESHMENT_BASE_URL_DEFAULT = DOMAIN_BASE_URL_DEFAULT + "api/sh";
 	
 	public final static String AUTH_KEY_FCM = "AAAApQZn_ZI:APA91bGidkJYWfz2JYHTPXWr5a0NrLwV6K2DE-z57eIoLpBmUgqaUQ239pGVbDA8Aw_KKZqBFfsxLYv3wp2bjH1XXN-uGeRuAQNpN7LrAsfWJBikVAedOzs0GvzNzPHK2eWdSKVmLXod";
 	public final static String API_URL_FCM = "https://fcm.googleapis.com/fcm/send";
@@ -314,6 +318,12 @@ public final class SystemPropertyUtil {
 		String value = getPropertyValue(EXTERNAL_SHARED_LINK_BASE_URL);
 		return value != null && !value.trim().isEmpty() ? value
 				: EXTERNAL_SHARED_LINK_BASE_URL_DEFAULT;
+	}
+	
+	public static final String getExternalSharedLinkRefreshmentBaseUrl() {
+		String value = getPropertyValue(EXTERNAL_SHARED_LINK_REFRESHMENT_BASE_URL);
+		return value != null && !value.trim().isEmpty() ? value
+				: EXTERNAL_SHARED_LINK_REFRESHMENT_BASE_URL_DEFAULT;
 	}
 	
 	public static String getAttachmentArticleBaseURL() {
