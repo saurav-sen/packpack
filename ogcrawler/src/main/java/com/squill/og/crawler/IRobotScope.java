@@ -25,4 +25,6 @@ public interface IRobotScope {
 	public void setRobotRules(BaseRobotRules robotRules);
 	
 	public void halt();
+	
+	public void incrementLinkCount();
 }

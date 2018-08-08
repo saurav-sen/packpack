@@ -177,6 +177,7 @@ public class WebSiteSpider implements Spider {
 					}
 					if(delay > 2 * 60 * 1000) { // If delay is more than 2 minutes
 						robotScope.halt();
+						Thread.sleep(2000);
 					} else {
 						Thread.sleep(delay);
 					}
@@ -185,6 +186,7 @@ public class WebSiteSpider implements Spider {
 				}
 				//count++;
 				max++;
+				robotScope.incrementLinkCount();
 			}
 		}
 	}

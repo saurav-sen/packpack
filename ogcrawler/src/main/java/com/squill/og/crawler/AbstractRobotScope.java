@@ -20,6 +20,8 @@ public abstract class AbstractRobotScope implements IRobotScope {
 	
 	private boolean halted = false;
 	
+	private int linkCount;
+	
 	@Override
 	public void setRobotRules(BaseRobotRules robotRules) {
 		this.robotRules = robotRules;
@@ -55,7 +57,7 @@ public abstract class AbstractRobotScope implements IRobotScope {
 	}
 	
 	protected boolean isHalted() {
-		return halted;
+		return halted && linkCount >= 3;
 	}
 	
 	@Override
@@ -106,5 +108,10 @@ public abstract class AbstractRobotScope implements IRobotScope {
 			return Collections.emptyList();
 		}
 		return getIfAnyLeftOverLinks();
+	}
+	
+	@Override
+	public final void incrementLinkCount() {
+		linkCount++;
 	}
 }
