@@ -35,11 +35,14 @@ public class NewsFeedPageGenerator implements IMarkupGenerator {
 		dataModel.put("ogDescription", feed.getOgDescription());
 		dataModel.put("ogImage", feed.getOgImage());
 		dataModel.put("ogUrl", feed.getOgUrl());
-		dataModel.put("summaryText", feed.getFullArticleText());
+		dataModel.put("fullText", feed.getFullArticleText());
 		URL url = new URL(feed.getOgUrl());
 		String logo = LogoMap.get(url.getHost());
 		dataModel.put("logo", logo);
-		String jsBaseURL = SystemPropertyUtil.getJSBaseURL();
+		String jsBaseURL = SystemPropertyUtil.getExternalSharedLinkBaseUrl();
+		if(jsBaseURL == null) {
+			jsBaseURL = SystemPropertyUtil.getJSBaseURL();
+		}
 		if (jsBaseURL == null) {
 			jsBaseURL = SystemPropertyUtil.DOMAIN_BASE_URL_DEFAULT;
 		}
@@ -58,7 +61,7 @@ public class NewsFeedPageGenerator implements IMarkupGenerator {
 			cfg.setClassForTemplateLoading(
 					SharedExternalLinkPageGenerator.class,
 					"/com/pack/pack/markup/external/page");
-			Template template = cfg.getTemplate("proxy_page.ftl");
+			Template template = cfg.getTemplate("squill_page.ftl");
 
 			writer = new StringWriter();
 			template.process(dataModel, writer);

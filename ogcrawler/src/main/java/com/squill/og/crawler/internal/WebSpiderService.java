@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.squill.broadcast.feed.upload.PageInfoCleanUpTask;
 import com.squill.broadcast.feed.upload.PeriodicFeedUploadTask;
 import com.squill.og.crawler.ICrawlSchedule;
 import com.squill.og.crawler.ICrawlable;
@@ -45,6 +46,8 @@ public class WebSpiderService {
 	}
 
 	public void startCrawling(List<? extends ICrawlable> crawlables, IFeedUploader feedUploader) {
+		pool.scheduleAtFixedRate(new PageInfoCleanUpTask(), 0, 1,
+				TimeUnit.DAYS);
 		if (crawlables == null || crawlables.isEmpty())
 			return;
 		List<Future<?>> list = new ArrayList<Future<?>>();

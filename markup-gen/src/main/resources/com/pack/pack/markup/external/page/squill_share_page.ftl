@@ -4,7 +4,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta property="og:title" content="${ogTitle}"/>
 		<meta property="og:description" content="${ogDescription}"/>
-		<meta property="og:image" content="${ogImage}"/>
+		<meta property="og:image" content="${jsBaseUrl}/SquillShare.jpg"/>
 		<meta property="og:url" content="${ogUrl}"/>
 		
 		<link rel="stylesheet" href="${jsBaseUrl}/css/w3.css">
@@ -72,7 +72,7 @@
 				
 				<div class="w3-container">
 				  <a href="${ogUrl}" class="no-decoration-hyperlink">
-					  <p>${fullText}</p>
+					  <p>${summaryText}</p>
 				   </a>
 				</div>
 	

@@ -17,8 +17,10 @@ import org.slf4j.LoggerFactory;
 import com.pack.pack.markup.gen.IMarkup;
 import com.pack.pack.markup.gen.MarkupGenerator;
 import com.pack.pack.model.web.JSharedFeed;
+import com.pack.pack.model.web.ShortenUrlInfo;
 import com.pack.pack.services.exception.ErrorCodes;
 import com.pack.pack.services.exception.PackPackException;
+import com.pack.pack.services.redis.UrlShortener;
 import com.pack.pack.util.SystemPropertyUtil;
 import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JRssFeeds;
@@ -123,6 +125,21 @@ public class HtmlUtil {
 		List<JRssFeed> rFeeds = feeds.getFeeds();
 		for (JRssFeed rFeed : rFeeds) {
 			String id = rFeed.getShareableUrl();
+			if(id == null) {
+				boolean storeSharedFeed = false;
+				ShortenUrlInfo shortenUrlInfo;
+				try {
+					shortenUrlInfo = UrlShortener
+							.calculateShortenShareableUrl(rFeed,
+									SystemPropertyUtil.getExternalSharedLinkBaseUrl(),
+									storeSharedFeed);
+					rFeed.setShareableUrl(shortenUrlInfo.getUrl());
+				} catch (PackPackException e) {
+					$_LOG.error(e.getMessage(), e);
+					continue;
+				}
+				id = rFeed.getShareableUrl();
+			}
 			if (id.endsWith("/")) {
 				id = id.substring(0, id.length() - 1);
 			}
@@ -176,6 +193,17 @@ public class HtmlUtil {
 			throws PackPackException {
 		try {
 			Markup markup = new Markup();
+			String ogImage = feed.getOgImage();
+			if(ogImage == null) {
+				String url = feed.getOgUrl() != null ? feed.getOgUrl() : feed.getHrefSource();
+				$_LOG.debug("[SharedPage Generation] ogImage is NULL for " + url + " Setting it to default SquillShare.jpg");
+				String baseUrl = SystemPropertyUtil.getExternalSharedLinkBaseUrl();
+				if(!baseUrl.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+					baseUrl = baseUrl + SystemPropertyUtil.URL_SEPARATOR;
+				}
+				ogImage = baseUrl + "SquillShare.jpg";
+				feed.setOgImage(ogImage);
+			}
 			MarkupGenerator.INSTANCE.generateMarkup(feed, markup);
 			return markup.getContent();
 		} catch (Exception e) {
@@ -191,9 +219,19 @@ public class HtmlUtil {
 		try {
 			Markup markup = new Markup();
 			JSharedFeed sh = new JSharedFeed();
-			sh.setActualUrl(feed.getHrefSource());
+			String url = feed.getOgUrl() != null ? feed.getOgUrl() : feed.getHrefSource();
+			sh.setActualUrl(url);
 			sh.setDescription(feed.getOgDescription());
-			sh.setImageLink(feed.getOgImage());
+			String ogImage = feed.getOgImage();
+			if(ogImage == null) {
+				$_LOG.debug("[SharedPage Generation] ogImage is NULL for " + url + " Setting it to default SquillShare.jpg");
+				String baseUrl = SystemPropertyUtil.getExternalSharedLinkBaseUrl();
+				if(!baseUrl.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+					baseUrl = baseUrl + SystemPropertyUtil.URL_SEPARATOR;
+				}
+				ogImage = baseUrl + "SquillShare.jpg";
+			}
+			sh.setImageLink(ogImage);
 			sh.setSummaryText(feed.getArticleSummaryText());
 			sh.setTitle(feed.getOgTitle());
 			MarkupGenerator.INSTANCE.generateMarkup(sh, markup);

@@ -36,9 +36,12 @@ public class SharedExternalLinkPageGenerator implements IMarkupGenerator {
 		URL url = new URL(sharedFeed.getActualUrl());
 		String logo = LogoMap.get(url.getHost());
 		dataModel.put("logo", logo);
-		String jsBaseURL = SystemPropertyUtil.getJSBaseURL();
+		String jsBaseURL = SystemPropertyUtil.getExternalSharedLinkBaseUrl();
+		if(jsBaseURL == null) {
+			jsBaseURL = SystemPropertyUtil.getJSBaseURL();
+		}
 		if (jsBaseURL == null) {
-			jsBaseURL = "http://www.squill.co.in";
+			jsBaseURL = SystemPropertyUtil.DOMAIN_BASE_URL_DEFAULT;
 		}
 		if (jsBaseURL.endsWith("/")) {
 			jsBaseURL = jsBaseURL.substring(0, jsBaseURL.length() - 1);
@@ -81,7 +84,7 @@ public class SharedExternalLinkPageGenerator implements IMarkupGenerator {
 		try {
 			cfg.setClassForTemplateLoading(SharedExternalLinkPageGenerator.class,
 					"/com/pack/pack/markup/external/page");
-			Template template = cfg.getTemplate("squill_page.ftl");
+			Template template = cfg.getTemplate("squill_share_page.ftl");
 
 			writer = new StringWriter();
 			template.process(dataModel, writer);

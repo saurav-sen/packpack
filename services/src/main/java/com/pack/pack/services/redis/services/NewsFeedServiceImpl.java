@@ -45,6 +45,13 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 			.getLogger(NewsFeedServiceImpl.class);
 
 	private static final int MINIMUM_PAGE_SIZE = 10;
+	
+	@Override
+	public void cleanupExpiredPageInfos() {
+		RssFeedRepositoryService repositoryService = ServiceRegistry.INSTANCE
+				.findService(RssFeedRepositoryService.class);
+		repositoryService.cleanupRangeKeys();
+	}
 
 	@Override
 	public Pagination<JRssFeed> getAllNewsRssFeeds(String userId,
@@ -209,7 +216,18 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 			TTL ttl, long batchId) throws PackPackException,
 			NoSuchAlgorithmException {
 		boolean checkFeedExists = service.checkFeedExists(feed);
-		if (!checkFeedExists) {
+		/*if (!checkFeedExists) {
+			boolean storeSharedFeed = false;
+			ShortenUrlInfo shortenUrlInfo = UrlShortener
+					.calculateShortenShareableUrl(feed,
+							SystemPropertyUtil.getExternalSharedLinkBaseUrl(),
+							storeSharedFeed);
+			feed.setShareableUrl(shortenUrlInfo.getUrl());
+			feed.setBatchId(batchId);
+			RSSFeed rssFeed = ModelConverter.convert(feed);
+			service.uploadNewsFeed(rssFeed, ttl, batchId, true);
+		}*/
+		if (feed.getShareableUrl() == null) {
 			boolean storeSharedFeed = false;
 			ShortenUrlInfo shortenUrlInfo = UrlShortener
 					.calculateShortenShareableUrl(feed,

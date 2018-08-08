@@ -290,6 +290,42 @@ public class RssFeedRepositoryService {
 		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.ARTICLE.name()), timestamp, direction);
 	}
 	
+	public void cleanupRangeKeys() {
+		cleanupRangeKeys0(SET_KEY_PREFIX + RssFeedUtil.resolvePrefix(JRssFeedType.NEWS.name()));
+		cleanupRangeKeys0(SET_KEY_PREFIX + RssFeedUtil.resolvePrefix(JRssFeedType.NEWS_SPORTS.name()));
+		cleanupRangeKeys0(SET_KEY_PREFIX + RssFeedUtil.resolvePrefix(JRssFeedType.NEWS_SCIENCE_TECHNOLOGY.name()));
+		cleanupRangeKeys0(SET_KEY_PREFIX + RssFeedUtil.resolvePrefix(JRssFeedType.ARTICLE.name()));
+	}
+	
+	private void cleanupRangeKeys0(String setKey) {
+		$_LOG.trace("setKey = " + setKey);
+		RedisCommands<String, String> sync = getSyncRedisCommands();
+		List<String> keys = resolveAllSetKeys(sync, setKey);
+		if(keys == null || keys.isEmpty()) {
+			$_LOG.debug("Could not find any key for setKey = " + setKey);
+			return;
+		}
+		for (String key : keys) {
+			String json = sync.get(key);
+			if(json == null) {
+				sync.zrem(setKey, key);
+			}
+		}
+	}
+	
+	private List<String> resolveAllSetKeys(
+			RedisCommands<String, String> sync, String setKey) {
+		List<String> keys = new LinkedList<String>();
+		List<ScoredValue<String>> zrangeWithScores = sync.zrangeWithScores(
+				setKey, 0, -1);
+		if (zrangeWithScores == null || zrangeWithScores.isEmpty())
+			return Collections.emptyList();
+		for (ScoredValue<String> zrangeWithScore : zrangeWithScores) {
+			keys.add(zrangeWithScore.value);
+		}
+		return keys;
+	}
+	
 	private Pagination<RSSFeed> getAllUpdatedFeeds(String keyPattern, long timestamp, int direction) throws PackPackException {
 		$_LOG.trace("timestamp = " + timestamp + " & direction = " + direction);
 		$_LOG.trace("Key Pattern = " + keyPattern);

@@ -67,6 +67,9 @@ public class JRssFeed {
 	}
 
 	public String getOgDescription() {
+		if(ogDescription == null) {
+			ogDescription = "";
+		}
 		return ogDescription;
 	}
 

@@ -59,4 +59,9 @@ public interface INewsFeedService {
 	 * @throws PackPackException
 	 */
 	public boolean upload(List<JRssFeed> feeds, TTL ttl, long batchId) throws PackPackException;
+	
+	/*
+	 * 
+	 */
+	public void cleanupExpiredPageInfos();
 }
