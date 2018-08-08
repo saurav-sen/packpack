@@ -171,11 +171,15 @@ public class WebSiteSpider implements Spider {
 				}
 				try {
 					//Default crawl delay
-					int delay = robotScope != null ? robotScope.getDefaultCrawlDelay() : 2000;
+					long delay = robotScope != null ? robotScope.getDefaultCrawlDelay() : 2000;
 					if(delay < 2000) {
 						delay = 2000;
 					}
-					Thread.sleep(2000);
+					if(delay > 2 * 60 * 1000) { // If delay is more than 2 minutes
+						robotScope.halt();
+					} else {
+						Thread.sleep(delay);
+					}
 				} catch (Exception e) {
 					LOG.error(e.getMessage(), e);
 				}

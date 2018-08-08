@@ -434,14 +434,15 @@ public class SimpleRobotRulesParser extends BaseRobotsParser {
         }
 
         SimpleRobotRules result = parseState.getRobotRules();
-        if (result.getCrawlDelay() > MAX_CRAWL_DELAY) {
+        /*if (result.getCrawlDelay() > MAX_CRAWL_DELAY) {
             // Some evil sites use a value like 3600 (seconds) for the crawl delay, which would
             // cause lots of problems for us.
             LOGGER.debug("Crawl delay exceeds max value - so disallowing all URLs: " + url);
             return new SimpleRobotRules(RobotRulesMode.ALLOW_NONE);
         } else {
             return result;
-        }
+        }*/
+        return result;
     }
 
     private void reportWarning(String msg, String url) {

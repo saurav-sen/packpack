@@ -1,6 +1,8 @@
 package com.squill.og.crawler;
 
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -16,6 +18,8 @@ public abstract class AbstractRobotScope implements IRobotScope {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractRobotScope.class);
 	
+	private boolean halted = false;
+	
 	@Override
 	public void setRobotRules(BaseRobotRules robotRules) {
 		this.robotRules = robotRules;
@@ -25,13 +29,39 @@ public abstract class AbstractRobotScope implements IRobotScope {
 	
 	@Override
 	public final boolean isScoped(String link) {
+		if(isHalted())
+			return false;
 		if(!robotRules.isAllowed(link))
 			return false;
 		return ifScoped(link);
 	}
 	
 	@Override
+	public long getDefaultCrawlDelay() {
+		long defaultInMillis = 2 * 1000;
+		if(robotRules == null) {
+			return defaultInMillis;
+		}
+		long delay = robotRules.getCrawlDelay() * 1000;
+		if(delay < defaultInMillis) {
+			return defaultInMillis;
+		}
+		return delay;
+	}
+	
+	@Override
+	public void halt() {
+		halted = true;
+	}
+	
+	protected boolean isHalted() {
+		return halted;
+	}
+	
+	@Override
 	public boolean isScopedSiteMap(SiteMapURL siteMapURL) {
+		if(isHalted())
+			return false;
 		if (siteMapURL == null)
 			return false;
 		SiteMapNews siteMapNews = siteMapURL.getSiteMapNews();
@@ -56,5 +86,25 @@ public abstract class AbstractRobotScope implements IRobotScope {
 			LOG.error("Error Parsing " + publication_date, e.getMessage(), e);
 			return false;
 		}
+	}
+	
+	public abstract boolean ifScopedSiteMapUrl(String sitemapUrl);
+	
+	@Override
+	public final boolean isScopedSiteMapUrl(String sitemapUrl) {
+		if(isHalted()) {
+			return false;
+		}
+		return ifScopedSiteMapUrl(sitemapUrl);
+	}
+	
+	protected abstract List<? extends ILink> getIfAnyLeftOverLinks();
+	
+	@Override
+	public final List<? extends ILink> getAnyLeftOverLinks() {
+		if(isHalted()) {
+			return Collections.emptyList();
+		}
+		return getIfAnyLeftOverLinks();
 	}
 }

@@ -20,7 +20,9 @@ public interface IRobotScope {
 	
 	public List<? extends ILink> getAnyLeftOverLinks();
 	
-	public int getDefaultCrawlDelay();
+	public long getDefaultCrawlDelay();
 	
 	public void setRobotRules(BaseRobotRules robotRules);
+	
+	public void halt();
 }

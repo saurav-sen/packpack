@@ -146,17 +146,12 @@ public class WebsiteImpl implements IWebSite {
 		}
 
 		@Override
-		public int getDefaultCrawlDelay() {
-			return 2;
-		}
-
-		@Override
-		public List<? extends ILink> getAnyLeftOverLinks() {
+		public List<? extends ILink> getIfAnyLeftOverLinks() {
 			return Collections.emptyList();
 		}
 
 		@Override
-		public boolean isScopedSiteMapUrl(String sitemapUrl) {
+		public boolean ifScopedSiteMapUrl(String sitemapUrl) {
 			if(linkFilterHandler != null) {
 				return linkFilterHandler.isScopedSitemapUrl(sitemapUrl);
 			}
