@@ -50,9 +50,9 @@
 	    <div class="w3-container">
 	    
 			<div class="w3-container w3-border-top w3-border-left w3-border-bottom w3-border-right">
-			<div class="w3-container w3-red header-border">
+			<!--div class="w3-container w3-red header-border">
 			 <h3><center>SQUILL</center></h3>
-			</div>
+			</div-->
 			
 			    <#if logo??>
 					<img src="${jsBaseUrl}/css/${logo}" class="img-logo w3-border-bottom">	
@@ -64,11 +64,11 @@
 				  <b>${ogTitle}
 				</header>
 	
-				<div class="w3-container w3-center">
+				<!--div class="w3-container w3-center">
 					<a href="${ogUrl}" class="no-decoration-hyperlink">
 						<img src="${ogImage}">
 					</a>
-				</div>
+				</div-->
 				
 				<div class="w3-container">
 				  <a href="${ogUrl}" class="no-decoration-hyperlink">
@@ -76,12 +76,12 @@
 				   </a>
 				</div>
 	
-				<footer class="w3-container w3-red">
+				<!--footer class="w3-container w3-red">
 				  <div class="footer-squill">SQUILL</div>
 				  <div class= "footer-img" ><a href="https://play.google.com/store/apps/details?id=com.pack.pack.application" target="_blank">
 					   <img src="${jsBaseUrl}/css/playstore.png" style="width:100px"></div>
 				  </a>
-				</footer>
+				</footer-->
 				<br />
 			  </div>
 			</div>

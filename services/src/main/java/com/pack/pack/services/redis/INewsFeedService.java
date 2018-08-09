@@ -13,6 +13,13 @@ import com.squill.feed.web.model.TTL;
  *
  */
 public interface INewsFeedService {
+	
+	/**
+	 * 
+	 * @return
+	 * @throws PackPackException
+	 */
+	public List<JRssFeed> getAllFeeds() throws PackPackException;
 
 	/**
 	 * 

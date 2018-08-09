@@ -326,6 +326,11 @@ public class RssFeedRepositoryService {
 		return keys;
 	}
 	
+	public Pagination<RSSFeed> getAllFeedsInStore(String keyPattern)
+			throws PackPackException {
+		return getAllUpdatedFeeds(keyPattern, -1, 1);
+	}
+	
 	private Pagination<RSSFeed> getAllUpdatedFeeds(String keyPattern, long timestamp, int direction) throws PackPackException {
 		$_LOG.trace("timestamp = " + timestamp + " & direction = " + direction);
 		$_LOG.trace("Key Pattern = " + keyPattern);
@@ -333,7 +338,7 @@ public class RssFeedRepositoryService {
 		List<RSSFeed> feeds = new ArrayList<RSSFeed>();
 		if(timestamp < 0) {
 			if(timestamp != END_OF_PAGE_TIMESTAMP) {
-				feeds = getAllFeeds(keyPattern);
+				feeds = getAllFeeds(keyPattern + "*");
 			}
 			page.setResult(feeds);
 			page.setNextLink(END_OF_PAGE + PAGELINK_DIRECTION_NEGATIVE);

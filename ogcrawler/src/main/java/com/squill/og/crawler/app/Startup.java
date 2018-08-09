@@ -67,12 +67,16 @@ public class Startup {
 	public static void main(String[] args) {
 		final Startup app = new Startup(args);
 		try {
+			addShutdownHook(app);
 			app.startApp();
 		} catch (BeansException e) {
 			LOG.debug(e.getMessage(), e);
 		} catch (JAXBException e) {
 			LOG.debug(e.getMessage(), e);
 		}
+	}
+	
+	private static void addShutdownHook(final Startup app) {
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 			
 			@Override
@@ -145,11 +149,13 @@ public class Startup {
 	
 	private void stopApp() {
 		try {
+			LOG.debug("Stopping Crawler Application");
 			AppContext appContext = AppContext.INSTANCE.init();
 			WebSpiderService webSpiderService = appContext.findService(WebSpiderService.class);
 			if (webSpiderService != null) {
 				webSpiderService.shutdown();
 			}
+			LOG.debug("Stopped Crawler Application");
 		} catch (OgCrawlException e) {
 			LOG.debug(e.getMessage(), e);
 		}

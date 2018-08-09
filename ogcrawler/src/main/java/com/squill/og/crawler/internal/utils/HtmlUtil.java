@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.Random;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -20,6 +21,7 @@ import com.pack.pack.model.web.JSharedFeed;
 import com.pack.pack.model.web.ShortenUrlInfo;
 import com.pack.pack.services.exception.ErrorCodes;
 import com.pack.pack.services.exception.PackPackException;
+import com.pack.pack.services.redis.Base62;
 import com.pack.pack.services.redis.UrlShortener;
 import com.pack.pack.util.SystemPropertyUtil;
 import com.squill.feed.web.model.JRssFeed;
@@ -120,7 +122,167 @@ public class HtmlUtil {
 
 		return feed;
 	}
-
+	
+	public static void main(String[] args) {
+		String url = "http://www.squill.in/09-08-2018/vzGRf/";
+		if(url.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+			url = url.substring(0, url.length()-1);
+		}
+		String baseUrl = "http://www.squill.in";
+		if (!baseUrl.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+			baseUrl = baseUrl + SystemPropertyUtil.URL_SEPARATOR;
+		}
+		String path = url.substring(baseUrl.length());
+		//path = path.replaceAll(SystemPropertyUtil.URL_SEPARATOR, File.separator);
+		String htmlFolder = "/home/ubuntu/archive/html";
+		if (!htmlFolder.endsWith(File.separator)
+				&& !htmlFolder.endsWith("/")) {
+			htmlFolder = htmlFolder + File.separator;
+		}
+		System.out.println(htmlFolder + path);
+	}
+	
+	public static boolean isSharedPageFileExists(JRssFeed rFeed) {
+		String url = rFeed.getShareableUrl();
+		if(url == null) {
+			return false;
+		}
+		return isPageFileExists(url);
+	}
+	
+	public static boolean isFullPageFileExists(JRssFeed rFeed) {
+		String url = rFeed.getSquillUrl();
+		if(url == null) {
+			return false;
+		}
+		return isPageFileExists(url);
+	}
+	
+	private static boolean isPageFileExists(String url) {
+		if(url.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+			url = url.substring(0, url.length()-1);
+		}
+		String baseUrl = SystemPropertyUtil
+				.getExternalSharedLinkBaseUrl();
+		if (!baseUrl.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+			baseUrl = baseUrl + SystemPropertyUtil.URL_SEPARATOR;
+		}
+		String path = url.substring(baseUrl.length());
+		path = path.replaceAll(SystemPropertyUtil.URL_SEPARATOR, File.separator);
+		String htmlFolder = SystemPropertyUtil
+				.getDefaultArchiveHtmlFolder();
+		if (!htmlFolder.endsWith(File.separator)
+				&& !htmlFolder.endsWith("/")) {
+			htmlFolder = htmlFolder + File.separator;
+		}
+		return Files.exists(Paths.get(htmlFolder + path));
+	}
+	
+	public static void generateNewsFeedsSharedHtmlPage(JRssFeed rFeed) {
+		String id = rFeed.getShareableUrl();
+		if(id == null) {
+			boolean storeSharedFeed = false;
+			ShortenUrlInfo shortenUrlInfo;
+			try {
+				shortenUrlInfo = UrlShortener
+						.calculateShortenShareableUrl(rFeed,
+								SystemPropertyUtil.getExternalSharedLinkBaseUrl(),
+								storeSharedFeed);
+				rFeed.setShareableUrl(shortenUrlInfo.getUrl());
+			} catch (PackPackException e) {
+				$_LOG.error(e.getMessage(), e);
+				return;
+			}
+			id = rFeed.getShareableUrl();
+		}
+		if (id.endsWith("/")) {
+			id = id.substring(0, id.length() - 1);
+		}
+		id = id.substring(id.lastIndexOf("/") + 1);
+		try {
+			String html = generateExternallySharedPage(rFeed);
+			String htmlFolder = SystemPropertyUtil
+					.getDefaultArchiveHtmlFolder();
+			if (!htmlFolder.endsWith(File.separator)
+					&& !htmlFolder.endsWith("/")) {
+				htmlFolder = htmlFolder + File.separator;
+			}
+			while(Files.exists(Paths.get(htmlFolder + id))) {
+				$_LOG.debug("ID Conflict for page generation. Resolving ...");
+				int decode = Base62.getDecoder().decode(id) + new Random().nextInt();
+				id = Base62.getEncoder().encode(decode);
+			}
+			Files.write(Paths.get(htmlFolder + id), html.getBytes(),
+					StandardOpenOption.CREATE);
+			String baseUrl = SystemPropertyUtil
+					.getExternalSharedLinkBaseUrl();
+			if (!baseUrl.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+				baseUrl = baseUrl + SystemPropertyUtil.URL_SEPARATOR;
+			}
+			rFeed.setShareableUrl(baseUrl + id);
+		} catch (PackPackException e) {
+			$_LOG.error(e.getMessage(), e);
+		} catch (IOException e) {
+			$_LOG.error(e.getMessage(), e);
+		}
+	}
+	
+	public static void generateNewsFeedsFullHtmlPage(JRssFeed rFeed) {
+		String id = rFeed.getShareableUrl();
+		if (id == null) {
+			boolean storeSharedFeed = false;
+			ShortenUrlInfo shortenUrlInfo;
+			try {
+				shortenUrlInfo = UrlShortener.calculateShortenShareableUrl(
+						rFeed,
+						SystemPropertyUtil.getExternalSharedLinkBaseUrl(),
+						storeSharedFeed);
+				rFeed.setShareableUrl(shortenUrlInfo.getUrl());
+			} catch (PackPackException e) {
+				$_LOG.error(e.getMessage(), e);
+				return;
+			}
+			id = rFeed.getShareableUrl();
+		}
+		if (id.endsWith("/")) {
+			id = id.substring(0, id.length() - 1);
+		}
+		id = id.substring(id.lastIndexOf("/") + 1);
+		try {
+			String today = today();
+			String html = generateFullTextPage(rFeed);
+			String htmlFolder = SystemPropertyUtil.getDefaultArchiveHtmlFolder();
+			if (!htmlFolder.endsWith(File.separator)
+					&& !htmlFolder.endsWith("/")) {
+				htmlFolder = htmlFolder + File.separator + today;
+				Path dirPath = Paths.get(htmlFolder);
+				if (!Files.exists(dirPath)) {
+					Files.createDirectories(dirPath);
+				}
+				htmlFolder = htmlFolder + File.separator;
+			}
+			while (Files.exists(Paths.get(htmlFolder + id))) {
+				$_LOG.debug("ID Conflict for page generation. Resolving ...");
+				int decode = Base62.getDecoder().decode(id)
+						+ new Random().nextInt();
+				id = Base62.getEncoder().encode(decode);
+			}
+			String baseUrl = SystemPropertyUtil
+					.getExternalSharedLinkBaseUrl();
+			if (!baseUrl.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+				baseUrl = baseUrl + SystemPropertyUtil.URL_SEPARATOR;
+			}
+			Files.write(Paths.get(htmlFolder + id), html.getBytes(),
+					StandardOpenOption.CREATE);
+			rFeed.setSquillUrl(baseUrl + today
+					+ SystemPropertyUtil.URL_SEPARATOR + id);
+		} catch (PackPackException e) {
+			$_LOG.error(e.getMessage(), e);
+		} catch (IOException e) {
+			$_LOG.error(e.getMessage(), e);
+		}
+	}
+	
 	public static void generateNewsFeedsHtmlPages(JRssFeeds feeds) {
 		List<JRssFeed> rFeeds = feeds.getFeeds();
 		for (JRssFeed rFeed : rFeeds) {
@@ -145,12 +307,17 @@ public class HtmlUtil {
 			}
 			id = id.substring(id.lastIndexOf("/") + 1);
 			try {
-				String html = generateExternallySharedPage(id, rFeed);
+				String html = generateExternallySharedPage(rFeed);
 				String htmlFolder = SystemPropertyUtil
 						.getDefaultArchiveHtmlFolder();
 				if (!htmlFolder.endsWith(File.separator)
 						&& !htmlFolder.endsWith("/")) {
 					htmlFolder = htmlFolder + File.separator;
+				}
+				while(Files.exists(Paths.get(htmlFolder + id))) {
+					$_LOG.debug("ID Conflict for page generation. Resolving ...");
+					int decode = Base62.getDecoder().decode(id) + new Random().nextInt();
+					id = Base62.getEncoder().encode(decode);
 				}
 				Files.write(Paths.get(htmlFolder + id), html.getBytes(),
 						StandardOpenOption.CREATE);
@@ -162,7 +329,7 @@ public class HtmlUtil {
 				rFeed.setShareableUrl(baseUrl + id);
 
 				String today = today();
-				html = generateFullTextPage(id, rFeed);
+				html = generateFullTextPage(rFeed);
 				htmlFolder = SystemPropertyUtil.getDefaultArchiveHtmlFolder();
 				if (!htmlFolder.endsWith(File.separator)
 						&& !htmlFolder.endsWith("/")) {
@@ -172,6 +339,11 @@ public class HtmlUtil {
 						Files.createDirectories(dirPath);
 					}
 					htmlFolder = htmlFolder + File.separator;
+				}
+				while(Files.exists(Paths.get(htmlFolder + id))) {
+					$_LOG.debug("ID Conflict for page generation. Resolving ...");
+					int decode = Base62.getDecoder().decode(id) + new Random().nextInt();
+					id = Base62.getEncoder().encode(decode);
 				}
 				Files.write(Paths.get(htmlFolder + id), html.getBytes(),
 						StandardOpenOption.CREATE);
@@ -189,7 +361,7 @@ public class HtmlUtil {
 		return DateTimeUtil.today().replaceAll("/", "_");
 	}
 
-	private static String generateFullTextPage(String id, JRssFeed feed)
+	private static String generateFullTextPage(JRssFeed feed)
 			throws PackPackException {
 		try {
 			Markup markup = new Markup();
@@ -214,8 +386,8 @@ public class HtmlUtil {
 		}
 	}
 
-	private static String generateExternallySharedPage(String id,
-			JRssFeed feed) throws PackPackException {
+	private static String generateExternallySharedPage(JRssFeed feed)
+			throws PackPackException {
 		try {
 			Markup markup = new Markup();
 			JSharedFeed sh = new JSharedFeed();

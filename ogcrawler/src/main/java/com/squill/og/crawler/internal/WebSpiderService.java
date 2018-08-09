@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.squill.broadcast.feed.upload.PageInfoCleanUpTask;
+import com.squill.broadcast.feed.upload.NewsFeedsIntegrityCheckerTask;
 import com.squill.broadcast.feed.upload.PeriodicFeedUploadTask;
 import com.squill.og.crawler.ICrawlSchedule;
 import com.squill.og.crawler.ICrawlable;
@@ -46,69 +46,80 @@ public class WebSpiderService {
 	}
 
 	public void startCrawling(List<? extends ICrawlable> crawlables, IFeedUploader feedUploader) {
-		pool.scheduleAtFixedRate(new PageInfoCleanUpTask(), 0, 1,
-				TimeUnit.DAYS);
-		if (crawlables == null || crawlables.isEmpty())
-			return;
 		List<Future<?>> list = new ArrayList<Future<?>>();
 		int count = 0;
 		int len = crawlables.size();
-		ISpiderSession session = SpiderSessionFactory.INSTANCE.createNewSession(feedUploader);
 		try {
-			for (int i = 0; i < len; i++) {
-				ICrawlable crawlable = crawlables.get(i);
-
-				ICrawlSchedule schedule = crawlable.getSchedule();
-				long period = schedule.getPeriodicDelay();
-				TimeUnit timeUnit = schedule.getTimeUnit();
-				if (period < 0 || timeUnit == null) {
-					period = 0;
-					if (timeUnit == null) {
-						period = 1;
-						timeUnit = TimeUnit.DAYS;
-					}
-				}
-				long crawlSchedulePeriodicTimeInMillis = crawlSchedulePeriodicTimeInMillis(
-						period, timeUnit);
-				Spider spider = SpiderFactory.INSTANCE.createNewSpiderInstance(
-						crawlable, crawlSchedulePeriodicTimeInMillis,
-						crawlable.getTrackerService(), (SpiderSession) session);
-				if(spider == null) {
-					LOG.error("Failed to initialize Spider instance for <" + crawlable.getUniqueId() + ">");
-					continue;
-				}
-				Future<?> future = pool.scheduleAtFixedRate(spider,
-						schedule.getInitialDelay(),
-						crawlSchedulePeriodicTimeInMillis, TimeUnit.MILLISECONDS);
+			
+			{
+				Future<?> future = pool.scheduleAtFixedRate(
+						new NewsFeedsIntegrityCheckerTask(), 0, 1, TimeUnit.DAYS);
 				list.add(future);
-				count++;
-				if (count >= 10) {
-					try {
-						// To optimize concurrency.
-						Thread.sleep(30 * 60 * 1000);
-					} catch (InterruptedException e) {
-						LOG.debug(e.getMessage(), e);
-					} finally {
-						count = 0;
-					}
-				}
-				/*
-				 * if(count == 20) { // Max concurrent submission allowed
-				 * waitFor(list.subList(0, 20/2)); count = 0; }
-				 */
 			}
 			
-			Spider emailSpider = SpiderFactory.INSTANCE
-					.createSupportEmailSpider();
-			Future<?> future = pool.scheduleAtFixedRate(emailSpider, 0, 1,
-					TimeUnit.HOURS);
-			list.add(future);
+			if (crawlables != null && !crawlables.isEmpty()) {
+				ISpiderSession session = SpiderSessionFactory.INSTANCE.createNewSession(feedUploader);
+				for (int i = 0; i < len; i++) {
+					ICrawlable crawlable = crawlables.get(i);
+
+					ICrawlSchedule schedule = crawlable.getSchedule();
+					long period = schedule.getPeriodicDelay();
+					TimeUnit timeUnit = schedule.getTimeUnit();
+					if (period < 0 || timeUnit == null) {
+						period = 0;
+						if (timeUnit == null) {
+							period = 1;
+							timeUnit = TimeUnit.DAYS;
+						}
+					}
+					long crawlSchedulePeriodicTimeInMillis = crawlSchedulePeriodicTimeInMillis(
+							period, timeUnit);
+					Spider spider = SpiderFactory.INSTANCE.createNewSpiderInstance(
+							crawlable, crawlSchedulePeriodicTimeInMillis,
+							crawlable.getTrackerService(), (SpiderSession) session);
+					if(spider == null) {
+						LOG.error("Failed to initialize Spider instance for <" + crawlable.getUniqueId() + ">");
+						continue;
+					}
+					Future<?> future = pool.scheduleAtFixedRate(spider,
+							schedule.getInitialDelay(),
+							crawlSchedulePeriodicTimeInMillis, TimeUnit.MILLISECONDS);
+					list.add(future);
+					count++;
+					if (count >= 10) {
+						try {
+							// To optimize concurrency.
+							Thread.sleep(30 * 60 * 1000);
+						} catch (InterruptedException e) {
+							LOG.debug(e.getMessage(), e);
+						} finally {
+							count = 0;
+						}
+					}
+					/*
+					 * if(count == 20) { // Max concurrent submission allowed
+					 * waitFor(list.subList(0, 20/2)); count = 0; }
+					 */
+				}
+				
+				Runnable command = SpiderFactory.INSTANCE.createSpiderSessionRefresher(session);
+				pool.scheduleAtFixedRate(command, 1, 1, TimeUnit.HOURS);
+			}
 			
-			Runnable command = SpiderFactory.INSTANCE.createSpiderSessionRefresher(session);
-			pool.scheduleAtFixedRate(command, 1, 1, TimeUnit.HOURS);
 			
-			pool.scheduleAtFixedRate(new PeriodicFeedUploadTask(), 0, 1,
-					TimeUnit.DAYS);
+			{
+				Spider emailSpider = SpiderFactory.INSTANCE
+						.createSupportEmailSpider();
+				Future<?> future = pool.scheduleAtFixedRate(emailSpider, 0, 1,
+						TimeUnit.HOURS);
+				list.add(future);
+			}
+			
+			{
+				Future<?> future = pool.scheduleAtFixedRate(new PeriodicFeedUploadTask(), 0, 1,
+						TimeUnit.DAYS);
+				list.add(future);
+			}
 			
 			// Main thread should keep waiting forever.
 			waitFor(list);

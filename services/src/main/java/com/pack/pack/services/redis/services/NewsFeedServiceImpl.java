@@ -27,6 +27,7 @@ import com.pack.pack.services.redis.RssFeedRepositoryService;
 import com.pack.pack.services.redis.UrlShortener;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.ModelConverter;
+import com.pack.pack.util.RssFeedUtil;
 import com.pack.pack.util.SystemPropertyUtil;
 import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JRssFeedType;
@@ -45,6 +46,23 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 			.getLogger(NewsFeedServiceImpl.class);
 
 	private static final int MINIMUM_PAGE_SIZE = 10;
+	
+	@Override
+	public List<JRssFeed> getAllFeeds() throws PackPackException {
+		List<JRssFeed> list = new ArrayList<JRssFeed>();
+		RssFeedRepositoryService repositoryService = ServiceRegistry.INSTANCE
+				.findService(RssFeedRepositoryService.class);
+		Pagination<RSSFeed> page = repositoryService
+				.getAllFeedsInStore(RssFeedUtil.resolvePrefix(JRssFeedType.NEWS
+						.name()) + "*");
+		list.addAll(ModelConverter.convertAllRssFeeds(page.getResult(), true,
+				true));
+		page = repositoryService.getAllFeedsInStore(RssFeedUtil
+				.resolvePrefix(JRssFeedType.ARTICLE.name()) + "*");
+		list.addAll(ModelConverter.convertAllRssFeeds(page.getResult(), true,
+				true));
+		return list;
+	}
 	
 	@Override
 	public void cleanupExpiredPageInfos() {
@@ -235,9 +253,9 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 							storeSharedFeed);
 			feed.setShareableUrl(shortenUrlInfo.getUrl());
 			feed.setBatchId(batchId);
-			RSSFeed rssFeed = ModelConverter.convert(feed);
-			service.uploadNewsFeed(rssFeed, ttl, batchId, true);
 		}
+		RSSFeed rssFeed = ModelConverter.convert(feed);
+		service.uploadNewsFeed(rssFeed, ttl, batchId, true);
 		return !checkFeedExists;
 	}
 }
