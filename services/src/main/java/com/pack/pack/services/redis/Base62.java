@@ -1,5 +1,7 @@
 package com.pack.pack.services.redis;
 
+import java.util.UUID;
+
 public class Base62 {
 
 	private static final char[] CHAR_SET = new char[] { 'a', 'b', 'c', 'd',
@@ -21,7 +23,7 @@ public class Base62 {
 
 		public String encode(int number) {
 			StringBuilder text = new StringBuilder();
-
+			number = adjust(number);
 			while (number > 0) {
 				text.append(CHAR_SET[number % 62]);
 				number = number / 62;
@@ -29,6 +31,14 @@ public class Base62 {
 
 			text = text.reverse();
 			return text.toString();
+		}
+		
+		private int adjust(int number) {
+			while(number <= 0) {
+				number = UUID.randomUUID().hashCode();
+				number = (int)(System.currentTimeMillis() - number);
+			}
+			return number;
 		}
 	}
 

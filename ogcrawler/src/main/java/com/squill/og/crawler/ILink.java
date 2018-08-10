@@ -14,4 +14,8 @@ public interface ILink {
 	public String getUrl();
 	
 	public List<String> getTags();
+	
+	public default long getLastModified() {
+		return 0;
+	}
 }

@@ -7,6 +7,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -72,15 +73,16 @@ public class WebSpiderUtils {
 			}
 			else {
 				List<ILink> links = new ArrayList<ILink>();
-				links.add(new HyperLink(domainUrl, webSite));
+				links.add(new HyperLink(domainUrl, webSite, -1));
 				return links;
 			}
+		} else {
+			HttpRequestExecutor executor = new HttpRequestExecutor();
+			String html = executor.GET0(domainUrl, "");
+			HtmlPage page = ResponseUtil.getParseableHtml(html, domainUrl);
+			PageLinkExtractor extractor = new PageLinkExtractor();
+			return extractor.extractAllPageLinks(page, webSite);
 		}
-		HttpRequestExecutor executor = new HttpRequestExecutor();
-		String html = executor.GET0(domainUrl, "");
-		HtmlPage page = ResponseUtil.getParseableHtml(html, domainUrl);
-		PageLinkExtractor extractor = new PageLinkExtractor();
-		return extractor.extractAllPageLinks(page, webSite);
 	}
 	
 	private static List<ILink> parseSiteMaps(List<String> sitemaps,
@@ -158,7 +160,12 @@ public class WebSpiderUtils {
 					String urlPath = siteMapURL.getUrl().toString().trim();
 					if (robotScope.isScoped(urlPath)
 							&& robotScope.isScopedSiteMap(siteMapURL)) {
-						ILink link = new HyperLink(urlPath, webSite);
+						long lastModified = 0;
+						Date date = siteMapURL.getLastModified();
+						if(date != null) {
+							lastModified = date.getTime();
+						}
+						ILink link = new HyperLink(urlPath, webSite, lastModified);
 						result.add(link);
 					}
 				}
@@ -179,7 +186,12 @@ public class WebSpiderUtils {
 				while(itr.hasNext()) {
 					SiteMapURL url = itr.next();
 					String urlPath = url.getUrl().toString().trim();
-					ILink link = new HyperLink(urlPath, root);
+					long lastModified = 0;
+					Date date = url.getLastModified();
+					if(date != null) {
+						lastModified = date.getTime();
+					}
+					ILink link = new HyperLink(urlPath, root, lastModified);
 					result.add(link);
 				}
 			}
@@ -194,9 +206,17 @@ public class WebSpiderUtils {
 		
 		private IWebSite root;
 		
-		public HyperLink(String url, IWebSite root) {
+		private long lastModified;
+		
+		public HyperLink(String url, IWebSite root, long lastModified) {
 			this.url = HtmlUtil.cleanIllegalCharacters4mUrl(url);
 			this.root = root;
+			this.lastModified = lastModified;
+		}
+		
+		@Override
+		public long getLastModified() {
+			return lastModified;
 		}
 		
 		@Override

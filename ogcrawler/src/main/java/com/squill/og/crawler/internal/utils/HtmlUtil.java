@@ -123,36 +123,31 @@ public class HtmlUtil {
 		return feed;
 	}
 	
-	public static void main(String[] args) {
-		String url = "http://www.squill.in/09-08-2018/vzGRf/";
-		if(url.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-			url = url.substring(0, url.length()-1);
-		}
-		String baseUrl = "http://www.squill.in";
-		if (!baseUrl.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-			baseUrl = baseUrl + SystemPropertyUtil.URL_SEPARATOR;
-		}
-		String path = url.substring(baseUrl.length());
-		//path = path.replaceAll(SystemPropertyUtil.URL_SEPARATOR, File.separator);
-		String htmlFolder = "/home/ubuntu/archive/html";
-		if (!htmlFolder.endsWith(File.separator)
-				&& !htmlFolder.endsWith("/")) {
-			htmlFolder = htmlFolder + File.separator;
-		}
-		System.out.println(htmlFolder + path);
-	}
-	
 	public static boolean isSharedPageFileExists(JRssFeed rFeed) {
+		String pageId = resolveHtmlPageId(rFeed);
+		if(pageId == null)
+			return false;
 		String url = rFeed.getShareableUrl();
 		if(url == null) {
+			return false;
+		}
+		if (!url.endsWith(pageId)
+				&& !url.endsWith(pageId + SystemPropertyUtil.URL_SEPARATOR)) {
 			return false;
 		}
 		return isPageFileExists(url);
 	}
 	
 	public static boolean isFullPageFileExists(JRssFeed rFeed) {
+		String pageId = resolveHtmlPageId(rFeed);
+		if(pageId == null)
+			return false;
 		String url = rFeed.getSquillUrl();
 		if(url == null) {
+			return false;
+		}
+		if (!url.endsWith(pageId)
+				&& !url.endsWith(pageId + SystemPropertyUtil.URL_SEPARATOR)) {
 			return false;
 		}
 		return isPageFileExists(url);
@@ -167,6 +162,7 @@ public class HtmlUtil {
 		if (!baseUrl.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
 			baseUrl = baseUrl + SystemPropertyUtil.URL_SEPARATOR;
 		}
+		$_LOG.trace(url);
 		String path = url.substring(baseUrl.length());
 		path = path.replaceAll(SystemPropertyUtil.URL_SEPARATOR, File.separator);
 		String htmlFolder = SystemPropertyUtil
@@ -180,11 +176,25 @@ public class HtmlUtil {
 	
 	public static String resolveHtmlPageId(JRssFeed rFeed) {
 		String id = rFeed.getShareableUrl();
+		String baseUrl = SystemPropertyUtil.getExternalSharedLinkBaseUrl();
+		if(!baseUrl.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+			baseUrl = baseUrl + SystemPropertyUtil.URL_SEPARATOR;
+		}
+		if(!id.startsWith(baseUrl))
+			return null;
+		if(id.equals(baseUrl))
+			return null;
+		id = id.substring(baseUrl.length());
 		if(id != null) {
-			if (id.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-				id = id.substring(0, id.length() - 1);
+			if(id.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+				int i = id.indexOf(SystemPropertyUtil.URL_SEPARATOR);
+				if(i >= 0) {
+					id = id.substring(i + SystemPropertyUtil.URL_SEPARATOR.length());
+				}
 			}
-			id = id.substring(id.lastIndexOf(SystemPropertyUtil.URL_SEPARATOR) + 1);
+			if(id.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+				id = id.substring(0, id.lastIndexOf(SystemPropertyUtil.URL_SEPARATOR));
+			}
 		}
 		return id;
 	}

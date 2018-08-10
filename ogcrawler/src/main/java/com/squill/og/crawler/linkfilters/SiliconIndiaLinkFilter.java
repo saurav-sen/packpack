@@ -20,4 +20,9 @@ public class SiliconIndiaLinkFilter extends DailyFixedSizeLinkFilter {
 	public boolean isScopedSitemapUrl(String sitemapUrl) {
 		return true;
 	}
+	
+	@Override
+	protected String todayKeySuffix() {
+		return "silicon_india";
+	}
 }

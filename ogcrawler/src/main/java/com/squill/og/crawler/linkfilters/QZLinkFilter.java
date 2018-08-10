@@ -24,6 +24,11 @@ public class QZLinkFilter extends DailyFixedSizeLinkFilter {
 	}
 	
 	@Override
+	protected String todayKeySuffix() {
+		return "qz_dot_com";
+	}
+	
+	@Override
 	public boolean isScopedSitemapUrl(String sitemapUrl) {
 		try {
 			URL url = new URL(sitemapUrl);

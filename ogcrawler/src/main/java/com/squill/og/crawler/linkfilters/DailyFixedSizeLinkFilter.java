@@ -22,18 +22,33 @@ public abstract class DailyFixedSizeLinkFilter implements ILinkFilter {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(DailyFixedSizeLinkFilter.class);
 	
+	private boolean needToRefresh = true;
+	
 	protected DailyFixedSizeLinkFilter(int maxNumberOfLinksPerDay) {
 		this.maxNumberOfLinksPerDay = maxNumberOfLinksPerDay;
+	}
+	
+	private void refresh() {
+		if(!needToRefresh) {
+			return;
+		}
+		IWebLinkTrackerService service = getTrackerService();
+		String todaysKey = today() + todayKeySuffix();
+		long ttlSeconds = 24 * 60 * 60;
+		service.addValue(KEY_PREFIX, todaysKey, String.valueOf(0),
+				ttlSeconds);
+		needToRefresh = false;
 	}
 
 	@Override
 	public boolean isScoped(String linkUrl) {
+		refresh();
 		IWebLinkTrackerService service = getTrackerService();
 		if (service == null) {
 			return true;
 		}
 		int intValue = 1;
-		String todaysKey = today();
+		String todaysKey = today() + todayKeySuffix();
 		long ttlSeconds = 24 * 60 * 60;
 		String value = service.getValue(KEY_PREFIX, todaysKey);
 		if(value != null) {
@@ -52,6 +67,8 @@ public abstract class DailyFixedSizeLinkFilter implements ILinkFilter {
 	protected String today() {
 		return DateTimeUtil.today();
 	}
+	
+	protected abstract String todayKeySuffix();
 	
 	protected String toDateString(int dd, int mm, int yyyy) {
 		return DateTimeUtil.toDateString(dd, mm, yyyy);

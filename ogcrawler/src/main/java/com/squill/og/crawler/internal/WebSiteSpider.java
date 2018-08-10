@@ -1,5 +1,7 @@
 package com.squill.og.crawler.internal;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +53,7 @@ public class WebSiteSpider implements Spider {
 		this.tracker = tracker;
 		this.session = session;
 	}
-
+	
 	@Override
 	public void run() {
 		if(session.isThresholdReached())
@@ -64,6 +66,12 @@ public class WebSiteSpider implements Spider {
 			feedUploader.beginEach(session, webSite);
 			if (links.isEmpty()) {
 				List<? extends ILink> parseCrawlableURLs = WebSpiderUtils.parseCrawlableURLs(webSite);
+				Collections.sort(parseCrawlableURLs, new Comparator<ILink>() {
+					@Override
+					public int compare(ILink o1, ILink o2) {
+						return  (int)(o2.getLastModified() - o1.getLastModified());
+					}
+				});
 				for(ILink parseCrawlableURL : parseCrawlableURLs) {
 					links.offer(parseCrawlableURL);
 				}
