@@ -61,6 +61,11 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 				.resolvePrefix(JRssFeedType.ARTICLE.name()) + "*");
 		list.addAll(ModelConverter.convertAllRssFeeds(page.getResult(), true,
 				true));
+		
+		page = repositoryService.getAllFeedsInStore(RssFeedUtil
+				.resolvePrefix(JRssFeedType.REFRESHMENT.name()) + "*");
+		list.addAll(ModelConverter.convertAllRssFeeds(page.getResult(), false,
+				false));
 		return list;
 	}
 	

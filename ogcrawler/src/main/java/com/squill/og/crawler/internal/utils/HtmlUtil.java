@@ -178,6 +178,17 @@ public class HtmlUtil {
 		return Files.exists(Paths.get(htmlFolder + path));
 	}
 	
+	public static String resolveHtmlPageId(JRssFeed rFeed) {
+		String id = rFeed.getShareableUrl();
+		if(id != null) {
+			if (id.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+				id = id.substring(0, id.length() - 1);
+			}
+			id = id.substring(id.lastIndexOf(SystemPropertyUtil.URL_SEPARATOR) + 1);
+		}
+		return id;
+	}
+	
 	public static void generateNewsFeedsSharedHtmlPage(JRssFeed rFeed) {
 		String id = rFeed.getShareableUrl();
 		if(id == null) {

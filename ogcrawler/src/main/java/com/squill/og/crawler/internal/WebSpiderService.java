@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.squill.broadcast.feed.upload.NewsFeedsIntegrityCheckerTask;
+import com.squill.broadcast.feed.upload.FeedStoreIntegrityCheckerTask;
 import com.squill.broadcast.feed.upload.PeriodicFeedUploadTask;
 import com.squill.og.crawler.ICrawlSchedule;
 import com.squill.og.crawler.ICrawlable;
@@ -53,7 +53,7 @@ public class WebSpiderService {
 			
 			{
 				Future<?> future = pool.scheduleAtFixedRate(
-						new NewsFeedsIntegrityCheckerTask(), 0, 1, TimeUnit.DAYS);
+						new FeedStoreIntegrityCheckerTask(), 0, 1, TimeUnit.DAYS);
 				list.add(future);
 			}
 			
