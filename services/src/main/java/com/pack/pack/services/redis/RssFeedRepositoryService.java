@@ -331,6 +331,13 @@ public class RssFeedRepositoryService {
 		return getAllUpdatedFeeds(keyPattern, -1, 1);
 	}
 	
+	private static boolean isExpiredTimestamp(long timestamp) {
+		long currentTimestamp = System.currentTimeMillis();
+		long diff = currentTimestamp - timestamp;
+		int days = (int)((((diff/1000)/60)/60)/24);
+		return days >= 2 ? true : false;
+	}
+	
 	private Pagination<RSSFeed> getAllUpdatedFeeds(String keyPattern, long timestamp, int direction) throws PackPackException {
 		$_LOG.trace("timestamp = " + timestamp + " & direction = " + direction);
 		$_LOG.trace("Key Pattern = " + keyPattern);
@@ -367,7 +374,7 @@ public class RssFeedRepositoryService {
 		}
 		
 		List<String> keys = null;
-		if(timestamp < Long.parseLong(split[split.length - 1])) {
+		if(isExpiredTimestamp(timestamp) || timestamp < Long.parseLong(split[split.length - 1])) {
 			timestamp = 0;
 		}
 		long[] scores = resolveRangeScores(split, timestamp, direction);

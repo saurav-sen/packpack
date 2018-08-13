@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.squill.crawlercommons.robots.BaseRobotRules;
 import com.squill.crawlercommons.sitemaps.SiteMapNews;
 import com.squill.crawlercommons.sitemaps.SiteMapURL;
+import com.squill.og.crawler.internal.utils.DateTimeUtil;
 
 public abstract class AbstractRobotScope implements IRobotScope {
 
@@ -62,7 +63,7 @@ public abstract class AbstractRobotScope implements IRobotScope {
 	
 	@Override
 	public boolean isScopedSiteMap(SiteMapURL siteMapURL) {
-		if(isHalted())
+		if (isHalted())
 			return false;
 		if (siteMapURL == null)
 			return false;
@@ -77,13 +78,9 @@ public abstract class AbstractRobotScope implements IRobotScope {
 			int dd0 = dateTime.getDayOfMonth();
 			int mm0 = dateTime.getMonthOfYear();
 			int yyyy0 = dateTime.getYear();
-
-			Calendar c = Calendar.getInstance();
-			int dd1 = c.get(Calendar.DAY_OF_MONTH);
-			int mm1 = c.get(Calendar.MONTH) + 1;
-			int yyyy1 = c.get(Calendar.YEAR);
-
-			return dd0 == dd1 && mm0 == mm1 && yyyy0 == yyyy1;
+			String dateString0 = DateTimeUtil.toDateString(dd0, mm0, yyyy0);
+			return DateTimeUtil.today().equals(dateString0)
+					|| DateTimeUtil.yesterday().equals(dateString0);
 		} catch (Exception e) {
 			LOG.error("Error Parsing " + publication_date, e.getMessage(), e);
 			return false;

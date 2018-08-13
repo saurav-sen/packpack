@@ -15,6 +15,7 @@ import com.squill.feed.web.model.JTaxonomy;
 import com.squill.og.crawler.IWebCrawlable;
 import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.hooks.GeoLocation;
+import com.squill.og.crawler.hooks.IArticleTextExtractor;
 import com.squill.og.crawler.hooks.IArticleTextSummarizer;
 import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.hooks.ISpiderSession;
@@ -25,6 +26,7 @@ import com.squill.og.crawler.internal.utils.HtmlUtil;
 import com.squill.og.crawler.model.WebSpiderTracker;
 import com.squill.og.crawler.opennlp.ISentenceDetector;
 import com.squill.og.crawler.rss.RSSConstants;
+import com.squill.og.crawler.text.summarizer.ArticleText;
 import com.squill.og.crawler.text.summarizer.TextSummarization;
 import com.squill.services.exception.OgCrawlException;
 
@@ -93,6 +95,7 @@ public class AllInOneAITaskExecutor {
 					if(info == null) {
 						info = new WebSpiderTracker();
 						info.setWebCrawlerId(webCrawlable.getUniqueId());
+						info.setTitle(feed.getOgTitle());
 						isNew = true;
 					}
 					
@@ -119,12 +122,13 @@ public class AllInOneAITaskExecutor {
 						domainUrl = resolveDomainUrl(feed.getOgUrl());
 					}
 					
-					executeDocumentSummarization(
-							info, feed, webCrawlable, isNew);
-					executeDocumentClassification(info, feed,
-									webCrawlable, domainUrl, isNew);
-					executeDocumentGeoTagging(info, feed,
-									webCrawlable, domainUrl, isNew);
+					executeDocumentSummarization(info, feed, webCrawlable,
+							isNew);
+					executeArticleExtractor(info, oldFeed, webCrawlable, isNew);
+					executeDocumentClassification(info, feed, webCrawlable,
+							domainUrl, isNew);
+					executeDocumentGeoTagging(info, feed, webCrawlable,
+							domainUrl, isNew);
 					
 					info.setFeedToUpload(feed);
 					webLinkTrackerService.upsertCrawledInfo(link, info,
@@ -181,6 +185,50 @@ public class AllInOneAITaskExecutor {
 		return needToUpsertLinkInfo;
 	}
 	
+	private boolean executeArticleExtractor(WebSpiderTracker info,
+			JRssFeed feed, IWebCrawlable webCrawlable, boolean isNew)
+			throws OgCrawlException {
+		boolean needToUpsertLinkInfo = false;
+		String link = feed.getOgUrl();
+		if (!info.isArticleExtractionDone()) {
+			if (!isNew) {
+				LOG.debug("Article Extraction was NOT yet done for link @ "
+						+ link);
+			}
+			IArticleTextExtractor articleTextExtractor = webCrawlable
+					.getArticleTextExtractor();
+			if (articleTextExtractor != null) {
+				session.incrementCrawledCount(1);
+				if (session.isThresholdReached()) {
+					return false;
+				}
+				ArticleText response = articleTextExtractor.extractArticle(
+						feed.getOgUrl(), feed.getOgTitle(),
+						feed.getOgDescription());
+				if (response != null) {
+					String fullText = HtmlUtil.cleanUTFCharacters(response
+							.getArticle());
+					String title = response.getTitle();
+					if (title != null && !title.trim().isEmpty()) {
+						title = HtmlUtil.cleanUTFCharacters(title);
+						feed.setOgTitle(title);
+						info.setTitle(title);
+					}
+					if (fullText != null && !fullText.trim().isEmpty()) {
+						feed.setFullArticleText(fullText);
+						info.setFullArticleText(fullText);
+					}
+				}
+			}
+			info.setArticleExtractionDone(true);
+			needToUpsertLinkInfo = true;
+		} else {
+			feed.setOgTitle(info.getTitle());
+			feed.setFullArticleText(info.getFullArticleText());
+		}
+		return needToUpsertLinkInfo;
+	}
+	
 	private String summaryTextWithLengthConstraint(String summaryText) {
 		LOG.debug("[STARTED] Reducing Length for summary text");
 		String result = summaryText;
@@ -211,7 +259,7 @@ public class AllInOneAITaskExecutor {
 			IWebCrawlable webCrawlable, String domainUrl, boolean isNew) throws Exception {
 		boolean needToUpsertLinkInfo = false;
 		String link = feed.getOgUrl();
-		ITaxonomyResolver taxonomyResolver = webCrawlable.getTaxonomyResolver();
+		//ITaxonomyResolver taxonomyResolver = webCrawlable.getTaxonomyResolver();
 		if(info.getTaxonomies().isEmpty()) {
 			if(!isNew) {
 				LOG.debug("Taxonomies NOT resolved @ " + link);
@@ -227,14 +275,14 @@ public class AllInOneAITaskExecutor {
 				taxonomies = basicTaxonomyResolver
 						.resolveTaxonomies(feed.getOgTitle(),
 								feed.getOgUrl(), domainUrl);
-			} else if (taxonomyResolver != null) {
+			} /*else if (taxonomyResolver != null) {
 				session.incrementCrawledCount(1);
 				if (session.isThresholdReached()) {
 					return false;
 				}
 				taxonomies = taxonomyResolver.resolveTaxonomies(
 						feed.getOgTitle(), feed.getOgUrl(), domainUrl);
-			}
+			}*/
 			if(taxonomies != null && taxonomies.length > 0) {
 				for(JTaxonomy taxonomy : taxonomies) {
 					feed.getTaxonomies().add(taxonomy);

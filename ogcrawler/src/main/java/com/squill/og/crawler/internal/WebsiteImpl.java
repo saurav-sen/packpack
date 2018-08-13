@@ -15,6 +15,7 @@ import com.squill.og.crawler.IRobotScope;
 import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.content.handlers.ExpressionContext;
 import com.squill.og.crawler.content.handlers.ExpressionContext.EvalContext;
+import com.squill.og.crawler.hooks.IArticleTextExtractor;
 import com.squill.og.crawler.hooks.IArticleTextSummarizer;
 import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
@@ -204,6 +205,11 @@ public class WebsiteImpl implements IWebSite {
 			isTextSummarizerResolverLoadTried = true;
 		}
 		return articleTextSummarizer;
+	}
+	
+	@Override
+	public IArticleTextExtractor getArticleTextExtractor() {
+		return getArticleTextSummarizer();
 	}
 
 	@Override

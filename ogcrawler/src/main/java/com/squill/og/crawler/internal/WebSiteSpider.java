@@ -39,7 +39,7 @@ public class WebSiteSpider implements Spider {
 	private IWebSite webSite;
 	private IWebLinkTrackerService tracker;
 	
-	private static Logger LOG = LoggerFactory.getLogger(WebSiteSpider.class);
+	private static Logger $LOG = LoggerFactory.getLogger(WebSiteSpider.class);
 	
 	private Queue<ILink> links = new ConcurrentLinkedQueue<ILink>();
 	
@@ -91,7 +91,7 @@ public class WebSiteSpider implements Spider {
 			//session.addAttr(webSite, ISpiderSession.RSS_FEEDS_KEY, rssFeeds);
 			feedUploader.endEach(session, webSite);
 		} catch (Throwable e) {
-			LOG.error(e.getMessage(), e);
+			$LOG.error(e.getMessage(), e);
 		} finally {
 			session.end(webSite);
 		}
@@ -119,7 +119,7 @@ public class WebSiteSpider implements Spider {
 			ILink link = links.poll();
 			if(contentHandler.getThresholdFrequency() > 0 
 					&& max >= contentHandler.getThresholdFrequency()) {
-				LOG.info("Threshold value reached... crawler will hung up for next scheduled time.");
+				$LOG.info("Threshold value reached... crawler will hung up for next scheduled time.");
 				return;
 			}
 			/*if(count >= contentHandler.getFlushFrequency()) {
@@ -130,6 +130,8 @@ public class WebSiteSpider implements Spider {
 			
 			if(link == null || link.getUrl() == null || "".equals(link.getUrl().trim()))
 				continue;
+			
+			boolean incrementCrawledLinkCount4NewLink = false;
 			if(robotScope.isScoped(link.getUrl())) {
 				String url = link.getUrl();
 				long currentTimeMillis = System.currentTimeMillis();
@@ -137,15 +139,16 @@ public class WebSiteSpider implements Spider {
 				if (info == null) {
 					info = new WebSpiderTracker();
 					info.setWebCrawlerId(webSiteId);
+					incrementCrawledLinkCount4NewLink = true;
 				} else if (currentTimeMillis - info.getLastCrawled() >= crawlSchedulePeriodicTimeInMillis) {
-					LOG.info("Skip URL <" + url + ">, as it has already visited within periodic delay time. "
+					$LOG.info("Skip URL <" + url + ">, as it has already visited within periodic delay time. "
 							+ "Thereby could be crawler trap.");
 					continue;
 				}
 				info.setLastCrawled(currentTimeMillis);
 				info.setLink(link.getUrl());
 				
-				LOG.info("Visiting " + url);
+				$LOG.info("Visiting " + url);
 				contentHandler.preProcess(link, session);
 				
 				String html = new HttpRequestExecutor().GET(url, info);
@@ -160,21 +163,21 @@ public class WebSiteSpider implements Spider {
 				HtmlPage htmlPage = ResponseUtil.getParseableHtml(html, link.getUrl());
 				List<PageLink> extractAllPageLinks = isPageLinkExtractorEnabled ? new PageLinkExtractor(
 						robotScope, null).extractAllPageLinks(htmlPage, webSite) : new LinkedList<PageLink>();
-				LOG.info("*** Extracted Page Links ***");
+				$LOG.info("*** Extracted Page Links ***");
 				if(extractAllPageLinks != null && !extractAllPageLinks.isEmpty()) {
 					links.addAll(extractAllPageLinks);
-					if(LOG.isDebugEnabled()) {
+					if($LOG.isDebugEnabled()) {
 						for(PageLink extractAllPageLink : extractAllPageLinks) {
-							LOG.info(extractAllPageLink.getLink());
+							$LOG.info(extractAllPageLink.getLink());
 						}
 					}
 				}
-				LOG.info("********************************");
+				$LOG.info("********************************");
 				
 				try {
 					contentHandler.postProcess(html, link, session);
 				} catch (Exception e1) {
-					LOG.error(e1.getMessage());
+					$LOG.error(e1.getMessage());
 					return;
 				}
 				try {
@@ -190,11 +193,13 @@ public class WebSiteSpider implements Spider {
 						Thread.sleep(delay);
 					}
 				} catch (Exception e) {
-					LOG.error(e.getMessage(), e);
+					$LOG.error(e.getMessage(), e);
 				}
 				//count++;
-				max++;
-				robotScope.incrementLinkCount();
+				if(incrementCrawledLinkCount4NewLink) {
+					max++;
+					robotScope.incrementLinkCount();
+				}
 			}
 		}
 	}

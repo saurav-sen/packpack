@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.squill.og.crawler.hooks.IArticleTextExtractor;
 import com.squill.og.crawler.hooks.IArticleTextSummarizer;
 import com.squill.og.crawler.rss.LogTags;
 import com.squill.services.exception.OgCrawlException;
@@ -35,4 +36,20 @@ public class DefaultArticleTextSummarizer implements IArticleTextSummarizer {
 		return summarizedText;
 	}
 
+	@Override
+	public ArticleText extractArticle(String url, String title,
+			String description) throws OgCrawlException {
+		ArticleText articleText = null;
+		try {
+			articleText = new AylienArticleTextExtractor().extract(url);
+		} catch (ClientProtocolException e) {
+			LOG.error(LogTags.ARTICLE_EXTRACTION_ERROR + e.getMessage(), e);
+			throw new OgCrawlException("", e.getMessage(), e);
+		} catch (IOException e) {
+			LOG.error(LogTags.ARTICLE_EXTRACTION_ERROR + e.getMessage(), e);
+			throw new OgCrawlException("", e.getMessage(), e);
+		}
+		LOG.info(LogTags.ARTICLE_EXTRACTION_SUCCESS + "Successfully extracted article text");
+		return articleText;
+	}
 }

@@ -32,8 +32,13 @@ public class BasicTaxonomyResolver implements ITaxonomyResolver {
 	private JTaxonomy tryResolveTaxonomy(String domainUrl) {
 		JTaxonomy jTaxonomy = DomainSpecificInfoHolder.INSTANCE
 				.getDefaultTaxonomyByDomainUrl(domainUrl);
-		if (jTaxonomy == null)
-			return null;
+		if (jTaxonomy == null) { // TODO -- Temporary work around for now.
+			jTaxonomy = new JTaxonomy();
+			jTaxonomy.setId("11000000");
+			jTaxonomy.setName("politics");
+			return jTaxonomy;
+			//return null;
+		}
 		JRssFeedType feedType = SubjectCodeRegistry.INSTANCE
 				.resolveSquillFeedType(jTaxonomy);
 		if (feedType == null)

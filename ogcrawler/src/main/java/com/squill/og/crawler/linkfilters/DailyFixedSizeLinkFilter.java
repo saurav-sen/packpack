@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import com.squill.og.crawler.hooks.ILinkFilter;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.DateTimeUtil;
+import com.squill.og.crawler.model.WebSpiderTracker;
 
 /**
  * 
@@ -47,9 +48,12 @@ public abstract class DailyFixedSizeLinkFilter implements ILinkFilter {
 		if (service == null) {
 			return true;
 		}
+		WebSpiderTracker trackedInfo = service.getTrackedInfo(linkUrl);
+		if(trackedInfo == null) { // Older Link (Already crawled link)
+			return true;
+		}
 		int intValue = 1;
 		String todaysKey = today() + todayKeySuffix();
-		long ttlSeconds = 24 * 60 * 60;
 		String value = service.getValue(KEY_PREFIX, todaysKey);
 		if(value != null) {
 			try {
@@ -59,8 +63,6 @@ public abstract class DailyFixedSizeLinkFilter implements ILinkFilter {
 				return true;
 			}
 		}
-		service.addValue(KEY_PREFIX, todaysKey, String.valueOf(intValue),
-				ttlSeconds);
 		return intValue <= maxNumberOfLinksPerDay;
 	}
 	
@@ -80,5 +82,27 @@ public abstract class DailyFixedSizeLinkFilter implements ILinkFilter {
 
 	protected IWebLinkTrackerService getTrackerService() {
 		return trackerService;
+	}
+	
+	@Override
+	public void incrementLinkCount() {
+		IWebLinkTrackerService service = getTrackerService();
+		if (service == null) {
+			return;
+		}
+		int intValue = 1;
+		String todaysKey = today() + todayKeySuffix();
+		long ttlSeconds = 24 * 60 * 60;
+		String value = service.getValue(KEY_PREFIX, todaysKey);
+		if(value != null) {
+			try {
+				intValue = Integer.parseInt(value.trim()) + 1;
+			} catch (NumberFormatException e) {
+				LOG.error(e.getMessage(), e);
+				return;
+			}
+		}
+		service.addValue(KEY_PREFIX, todaysKey, String.valueOf(intValue),
+				ttlSeconds);
 	}
 }

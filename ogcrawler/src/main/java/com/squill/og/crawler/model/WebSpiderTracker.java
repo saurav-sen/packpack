@@ -37,6 +37,10 @@ public class WebSpiderTracker {
 	
 	private String webCrawlerId;
 	
+	private boolean articleExtractionDone = false;
+	
+	private String title;
+	
 	public WebSpiderTracker() {
 		
 	}
@@ -136,5 +140,21 @@ public class WebSpiderTracker {
 
 	public void setWebCrawlerId(String webCrawlerId) {
 		this.webCrawlerId = webCrawlerId;
+	}
+
+	public boolean isArticleExtractionDone() {
+		return articleExtractionDone;
+	}
+
+	public void setArticleExtractionDone(boolean articleExtractionDone) {
+		this.articleExtractionDone = articleExtractionDone;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 }

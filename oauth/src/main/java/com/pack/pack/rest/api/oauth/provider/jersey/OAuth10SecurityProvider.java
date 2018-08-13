@@ -111,7 +111,7 @@ public class OAuth10SecurityProvider implements OAuth1Provider {
 			final String callbackUrl, final Map<String, List<String>> attributes) {
 		final Token rt = new Token(newUUIDString(), newUUIDString(),
 				consumerKey, callbackUrl, attributes);
-		rt.setExpiry(new TTL(2, TimeUnit.HOURS));
+		rt.setExpiry(new TTL(30, TimeUnit.MINUTES));
 		rt.setTimeOfIssue(System.currentTimeMillis());
 		TokenRegistry.INSTANCE.addRequestToken(rt);
 		return rt;

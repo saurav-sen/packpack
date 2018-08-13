@@ -10,6 +10,7 @@ import com.squill.og.crawler.ICrawlSchedule;
 import com.squill.og.crawler.IWebApi;
 import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.hooks.IApiRequestExecutor;
+import com.squill.og.crawler.hooks.IArticleTextExtractor;
 import com.squill.og.crawler.hooks.IArticleTextSummarizer;
 import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.hooks.ITaxonomyResolver;
@@ -121,6 +122,11 @@ public class WebApiImpl implements IWebApi {
 			isTextSummarizerResolverLoadTried = true;
 		}
 		return articleTextSummarizer;
+	}
+	
+	@Override
+	public IArticleTextExtractor getArticleTextExtractor() {
+		return getArticleTextSummarizer();
 	}
 	
 	private IApiRequestExecutor loadApiRequestExecutorInstance(String executor) {
