@@ -228,11 +228,15 @@
                             <b>Hello ${name}, thanks for signing up!</b>
                             <br/>
                             We're really excited for having you with us as our ${count} user! 
-                            With SQUILL now you can save/share your family photos/memories with your near and dear one.
-                            You can form your society with your colony mates, or with neighbours in your apartment/society.
-                            SQUILL smart-society can help you to deal with social affairs in your society with better ease.
-                            SQUILL Team stays committed stays committed to add many-more support in smart-society as we go along.
-                            Follow latest trends and news across the globe thereby putting an end to browsing 10 different forums & websites.
+                            Follow latest trends and news across the globe thereby putting an end to browsing many different forums & websites.
+                            SQUILL sees that with rapid speed of globalization today, interest of news reader is very wide and diversified.
+                            This is very difficult for news reader to look for one forum or news channel to get all diversified topics & happening across the globe.
+                            Mostly, all news providers available today carry their interests in the local matters. While they portray matters from one angle they fail 
+                            to do so equally from all diversified angle for the same matter. This thereby influences mind of news readers which SQUILL believes was never
+                            the purpose of any of the news providers in the world.
+                            SQUILL solves the problem by aggregating news from many different news publishers, news originators, thereby bringing to news readers
+                            all different diversified topics of interests across the globe & also different political or non-political angle of presentation of the same 
+                            matter from different new providers.                                                    
 							SQUILL refreshment will provide you with unique & amazing feeds for music/art/stunt works etc.. to revitalize your mind each day.
 							Hope you will enjoy your stay with us for longer.
 							We shall be very thankful to hear your feedback @ <a href="mailto:support@squill.co.in">SQUILL Support</a>

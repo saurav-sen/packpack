@@ -31,7 +31,7 @@ public class GetNewsTest extends BaseTest {
 					.setOauthToken(session.getOauthToken())
 					.addApiParam(APIConstants.User.ID, session.getUserId())
 					/*.addApiParam(APIConstants.PageInfo.PAGE_LINK, CommonConstants.NULL_PAGE_LINK)*/
-					.addApiParam(APIConstants.PageInfo.PAGE_LINK, PageUtil.buildNextPageLink(0))
+					.addApiParam(APIConstants.PageInfo.PAGE_LINK, PageUtil.buildNextPageLink(1532849367789L)) /*PageUtil.buildNextPageLink(0))*/
 					.build();
 			Pagination<JRssFeed> page = (Pagination<JRssFeed>) api.execute();
 			/*List<JRssFeed> result = page.getResult();
@@ -96,7 +96,20 @@ public class GetNewsTest extends BaseTest {
 		test(session, COMMAND.GET_ALL_SCIENCE_AND_TECHNOLOGY_NEWS_FEEDS);
 	}
 	
-	public static void main(String[] args) throws Exception {
+	public static void main2(String[] args) {
+		long l0 = System.currentTimeMillis();
+		long l = l0 - 1532849367789L;
+		int days = (int)((((l/1000)/60)/60)/24);
+		System.out.println(days);
+	}
+	
+	public static void main(String[] args) {
+		String str = "a\t\tb\tc";
+		System.out.println(str);
+		System.out.println(str.replaceAll("\\t+", " "));
+	}
+	
+	public static void main1(String[] args) throws Exception {
 		GetNewsTest test = new GetNewsTest();
 		TestSession session = new TestSession(0, TestWorkflow.BASE_URL, TestWorkflow.BASE_URL_2);
 		//new SignUpUserTest().signUp(session);

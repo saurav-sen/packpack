@@ -22,7 +22,7 @@ public class AylienArticleTextExtractor {
 	public ArticleText extract(String url) throws ClientProtocolException,
 			IOException, OgCrawlException {
 		ArticleText aylienResponse = null;
-		String GET_URL = NLPApiConstants.AYLIEN_ARTICLE_EXTRACTOR_API_URL;
+		String GET_URL = NLPApiConstants.AYLIEN_ARTICLE_EXTRACTOR_API_URL + "?url=" + url;
 		HttpGet GET = new HttpGet(GET_URL);
 		GET.addHeader("X-AYLIEN-TextAPI-Application-Key",
 				NLPApiConstants.AYLIEN_API_KEY);

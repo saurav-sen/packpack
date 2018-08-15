@@ -124,7 +124,7 @@ public class AllInOneAITaskExecutor {
 					
 					executeDocumentSummarization(info, feed, webCrawlable,
 							isNew);
-					executeArticleExtractor(info, oldFeed, webCrawlable, isNew);
+					executeArticleExtractor(info, feed, webCrawlable, isNew);
 					executeDocumentClassification(info, feed, webCrawlable,
 							domainUrl, isNew);
 					executeDocumentGeoTagging(info, feed, webCrawlable,
