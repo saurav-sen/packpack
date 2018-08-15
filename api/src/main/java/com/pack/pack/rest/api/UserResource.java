@@ -215,6 +215,8 @@ public class UserResource {
 		String password = dto.getPassword();
 		double longitude = dto.getLongitude();
 		double latitude = dto.getLatitude();
+		LOG.info("New SignUp Details");
+		LOG.info("Name = " + name + ", Email = " + email + ", Longitude = " + longitude + ", Latitude = " + latitude);
 		String verificationCode = dto.getVerificationCode();
 		return doRegisterUser(name, email, password, longitude, latitude,
 				verificationCode);

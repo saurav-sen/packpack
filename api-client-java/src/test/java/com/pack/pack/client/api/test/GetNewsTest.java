@@ -67,7 +67,7 @@ public class GetNewsTest extends BaseTest {
 				System.out.println("*****************************************");
 				api = APIBuilder
 						.create(session.getBaseUrl())
-						.setAction(COMMAND.GET_ALL_NEWS_FEEDS)
+						.setAction(command)
 						.setOauthToken(session.getOauthToken())
 						.addApiParam(APIConstants.User.ID, session.getUserId())
 						.addApiParam(APIConstants.PageInfo.PAGE_LINK,
@@ -94,22 +94,10 @@ public class GetNewsTest extends BaseTest {
 		test(session, COMMAND.GET_ALL_NEWS_FEEDS);
 		test(session, COMMAND.GET_ALL_SPORTS_NEWS_FEEDS);
 		test(session, COMMAND.GET_ALL_SCIENCE_AND_TECHNOLOGY_NEWS_FEEDS);
+		test(session, COMMAND.GET_ALL_ARTICLES_FEEDS);
 	}
 	
-	public static void main2(String[] args) {
-		long l0 = System.currentTimeMillis();
-		long l = l0 - 1532849367789L;
-		int days = (int)((((l/1000)/60)/60)/24);
-		System.out.println(days);
-	}
-	
-	public static void main(String[] args) {
-		String str = "a\t\tb\tc";
-		System.out.println(str);
-		System.out.println(str.replaceAll("\\t+", " "));
-	}
-	
-	public static void main1(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 		GetNewsTest test = new GetNewsTest();
 		TestSession session = new TestSession(0, TestWorkflow.BASE_URL, TestWorkflow.BASE_URL_2);
 		//new SignUpUserTest().signUp(session);
@@ -117,8 +105,9 @@ public class GetNewsTest extends BaseTest {
 		session.setOauthToken(oauthToken);
 		JUser user = new UserInfoTest().getUserInfo(session);
 		session.setUserId(user.getId());
-		test.test(session, COMMAND.GET_ALL_NEWS_FEEDS);
+		/*test.test(session, COMMAND.GET_ALL_NEWS_FEEDS);
 		test.test(session, COMMAND.GET_ALL_SPORTS_NEWS_FEEDS);
-		//test.test(session, COMMAND.GET_ALL_SCIENCE_AND_TECHNOLOGY_NEWS_FEEDS);
+		test.test(session, COMMAND.GET_ALL_SCIENCE_AND_TECHNOLOGY_NEWS_FEEDS);*/
+		test.test(session, COMMAND.GET_ALL_ARTICLES_FEEDS);
 	}
 }

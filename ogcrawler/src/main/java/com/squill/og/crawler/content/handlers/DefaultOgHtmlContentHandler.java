@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -101,6 +102,9 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 		}
 
 		JRssFeed feed = new JRssFeed();
+		DateTime dateTime = new DateTime();
+		feed.setId(String.valueOf(dateTime.getMillis()));
+		feed.setUploadTime(dateTime.getMillis());
 		feed.setOgTitle(title);
 		feed.setOgDescription(description);
 		feed.setOgImage(imageUrl);
