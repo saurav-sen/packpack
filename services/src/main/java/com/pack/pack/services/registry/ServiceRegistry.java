@@ -59,6 +59,8 @@ public class ServiceRegistry {
 			return "META-INF/services_test.xml.txt";
 		} else if (ServiceRegistryModes.REDIS_ONLY_SERVICES == mode) {
 			return "META-INF/services_redis.xml";
+		} else if(ServiceRegistryModes.REDIS_DBPEDIA_SERVICES == mode) {
+			return "META-INF/services_redis-dbpedia.xml";
 		}
 		return "META-INF/services.xml";
 	}

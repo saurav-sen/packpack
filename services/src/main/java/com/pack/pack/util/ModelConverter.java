@@ -11,14 +11,16 @@ import org.slf4j.LoggerFactory;
 
 import com.pack.pack.IUserService;
 import com.pack.pack.common.util.CommonConstants;
-import com.pack.pack.model.Concept;
 import com.pack.pack.model.GeoTag;
 import com.pack.pack.model.RSSFeed;
 import com.pack.pack.model.RssSubFeed;
+import com.pack.pack.model.SemanticElement;
 import com.pack.pack.model.Taxonomy;
 import com.pack.pack.model.User;
 import com.pack.pack.model.UserInfo;
 import com.pack.pack.model.es.UserDetail;
+import com.pack.pack.model.web.JGeoLocation;
+import com.pack.pack.model.web.JSemanticElement;
 import com.pack.pack.model.web.JSharedFeed;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.services.exception.PackPackException;
@@ -163,7 +165,7 @@ public class ModelConverter {
 		List<JConcept> rConcepts = rFeed.getConcepts();
 		if(rConcepts != null && !rConcepts.isEmpty()) {
 			for(JConcept rConcept : rConcepts) {
-				feed.getConcepts().add(convert(rConcept));
+				feed.getConcepts().add(convert(rConcept, rGeoTags));
 			}
 		}
 		List<JTaxonomy> rTaxonomies = rFeed.getTaxonomies();
@@ -182,18 +184,89 @@ public class ModelConverter {
 		return taxonomy;
 	}
 	
-	private static Concept convert(JConcept rConcept) {
-		Concept concept = new Concept();
+	public static SemanticElement convert(JSemanticElement jSemanticElement) {
+		if(jSemanticElement == null)
+			return null;
+		SemanticElement semanticElement = new SemanticElement();
+		semanticElement.setConfidence(jSemanticElement.getConfidence());
+		semanticElement.setContent(jSemanticElement.getContent());
+		semanticElement.setDbpediaRef(jSemanticElement.getDbpediaRef());
+		semanticElement.setStartIndex(jSemanticElement.getStartIndex());
+		semanticElement.setEndIndex(jSemanticElement.getEndIndex());
+		semanticElement.setConceptId(jSemanticElement.getId());
+		semanticElement.setOntologyTypes(jSemanticElement.getOntologyTypes());
+		semanticElement.setParentContent(jSemanticElement.getParentContent());
+		semanticElement.setSpot(jSemanticElement.getSpot());
+		List<JGeoLocation> geoTags = jSemanticElement.getGeoTagSet();
+		for(JGeoLocation geoTag : geoTags) {
+			semanticElement.getGeoTagSet().add(convertToGeoLocation(geoTag));
+		}
+		return semanticElement;
+	}
+	
+	public static JSemanticElement convert(SemanticElement semanticElement) {
+		if(semanticElement == null)
+			return null;
+		JSemanticElement jSemanticElement = new JSemanticElement();
+		jSemanticElement.setConfidence(semanticElement.getConfidence());
+		jSemanticElement.setContent(semanticElement.getContent());
+		jSemanticElement.setDbpediaRef(semanticElement.getDbpediaRef());
+		jSemanticElement.setStartIndex(semanticElement.getStartIndex());
+		jSemanticElement.setEndIndex(semanticElement.getEndIndex());
+		jSemanticElement.setId(semanticElement.getConceptId());
+		jSemanticElement.setOntologyTypes(semanticElement.getOntologyTypes());
+		jSemanticElement.setParentContent(semanticElement.getParentContent());
+		jSemanticElement.setSpot(semanticElement.getSpot());
+		List<GeoTag> geoTags = semanticElement.getGeoTagSet();
+		for(GeoTag geoTag : geoTags) {
+			jSemanticElement.getGeoTagSet().add(convertToGeoLocation(geoTag));
+		}
+		return jSemanticElement;
+	}
+	
+	private static GeoTag convertToGeoLocation(JGeoLocation geoLocation) {
+		GeoTag geoTag = new GeoTag();
+		geoTag.setLongitude(geoLocation.getLongitude());
+		geoTag.setLatitude(geoLocation.getLatitude());
+		return geoTag;
+	}
+	
+	private static JGeoLocation convertToGeoLocation(GeoTag geoTag) {
+		JGeoLocation geoLocation = new JGeoLocation();
+		geoLocation.setLongitude(geoTag.getLongitude());
+		geoLocation.setLatitude(geoTag.getLatitude());
+		return geoLocation;
+	}
+	
+	private static SemanticElement convert(JConcept rConcept, List<JGeoTag> rGeoTags) {
+		SemanticElement concept = new SemanticElement();
 		concept.setConfidence(rConcept.getConfidence());
 		concept.setContent(rConcept.getContent());
 		concept.setDbpediaRef(rConcept.getDbpediaRef());
 		concept.setStartIndex(rConcept.getStartIndex());
 		concept.setEndIndex(rConcept.getEndIndex());
-		concept.setId(rConcept.getId());
+		concept.setConceptId(rConcept.getId());
 		concept.setOntologyTypes(rConcept.getOntologyTypes());
 		concept.setParentContent(rConcept.getParentContent());
 		concept.setSpot(rConcept.getSpot());
+		for(JGeoTag rGeoTag : rGeoTags) {
+			concept.getGeoTagSet().add(convert(rGeoTag));
+		}
 		return concept;
+	}
+	
+	public static JSemanticElement convert(JConcept concept) {
+		JSemanticElement semanticElement = new JSemanticElement();
+		semanticElement.setConfidence(concept.getConfidence());
+		semanticElement.setContent(concept.getContent());
+		semanticElement.setDbpediaRef(concept.getDbpediaRef());
+		semanticElement.setStartIndex(concept.getStartIndex());
+		semanticElement.setEndIndex(concept.getEndIndex());
+		semanticElement.setId(concept.getId());
+		semanticElement.setOntologyTypes(concept.getOntologyTypes());
+		semanticElement.setParentContent(concept.getParentContent());
+		semanticElement.setSpot(concept.getSpot());
+		return semanticElement;
 	}
 	
 	private static RssSubFeed convert(JRssSubFeed sibling) {

@@ -1,5 +1,12 @@
 package com.squill.og.crawler.content.handlers;
 
+import static com.pack.pack.util.ModelConverter.convert;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -14,6 +21,11 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.pack.pack.dbpedia.concept.ISemanticElementService;
+import com.pack.pack.model.web.JGeoLocation;
+import com.pack.pack.model.web.JSemanticElement;
+import com.pack.pack.services.exception.PackPackException;
+import com.pack.pack.services.registry.ServiceRegistry;
 import com.squill.feed.web.model.JConcept;
 import com.squill.og.crawler.hooks.GeoLocation;
 import com.squill.og.crawler.internal.utils.JSONUtil;
@@ -324,8 +336,30 @@ public class DbpediaGeoLocationReader {
 		return name.trim().replaceAll("\\/", "").replaceAll("\\s{1,}", "_");
 	}
 	
-	private List<GeoLocation> resolveGeoLocationTag(JConcept concept) {
+	private List<GeoLocation> resolveGeoLocationTags(JConcept concept) {
 		List<GeoLocation> geoLocations = new ArrayList<GeoLocation>();
+		JSemanticElement semanticElement = null;
+		ISemanticElementService service = null;
+		try {
+			service = ServiceRegistry.INSTANCE
+					.findCompositeService(ISemanticElementService.class);
+			semanticElement = service.findSemanticElementByAnnotationId(concept
+					.getId());
+			if (semanticElement != null) {
+				List<JGeoLocation> jGeoLocations = semanticElement
+						.getGeoTagSet();
+				if (jGeoLocations != null && !jGeoLocations.isEmpty()) {
+					for (JGeoLocation jGeoLocation : jGeoLocations) {
+						geoLocations.add(new GeoLocation(jGeoLocation
+								.getLatitude(), jGeoLocation.getLongitude()));
+					}
+				}
+				return geoLocations;
+			}
+		} catch (PackPackException e) {
+			LOG.error(e.getMessage(), e);
+		}
+		
 		if (isPlace(concept)) {
 			String[] names = resolveNames(concept);
 			if (names != null && names.length > 1) {
@@ -398,13 +432,60 @@ public class DbpediaGeoLocationReader {
 						personName, geoLocations);
 			}
 		}
+		try {
+			if(service != null && !geoLocations.isEmpty()) {
+				if(semanticElement == null) {
+					semanticElement = convert(concept);
+				}
+				for(GeoLocation geoLocation : geoLocations) {
+					semanticElement.getGeoTagSet().add(
+							new JGeoLocation(geoLocation.getLatitude(), geoLocation
+									.getLongitude()));
+				}
+				semanticElement = service.store(semanticElement);
+				if((geoLocations == null || geoLocations.isEmpty()) && semanticElement != null) {
+					reportError(semanticElement);
+				}
+			}
+		} catch (PackPackException e) {
+			LOG.error(e.getMessage(), e);
+		} catch (OgCrawlException e) {
+			LOG.error(e.getMessage(), e);
+		} catch (IOException e) {
+			LOG.error(e.getMessage(), e);
+		}
 		return geoLocations;
+	}
+	
+	private void reportError(JSemanticElement semanticElement)
+			throws IOException, OgCrawlException {
+		String reportErrorFile = System.getProperty("java.io.tmpdir");
+		if (!reportErrorFile.endsWith(File.separator)
+				&& !reportErrorFile.endsWith("/")
+				&& !reportErrorFile.endsWith("\\")) {
+			reportErrorFile = reportErrorFile + File.separator;
+		}
+		reportErrorFile = reportErrorFile + "concept_geo_location_resolver.txt";
+		StringBuilder content = new StringBuilder();
+		if (Files.exists(Paths.get(reportErrorFile))) {
+			content.append(new String(Files.readAllBytes(Paths
+					.get(reportErrorFile))));
+		}
+
+		content.append(JSONUtil.serialize(semanticElement));
+		content.append("\n");
+
+		Files.write(Paths.get(reportErrorFile), content.toString().getBytes(),
+				StandardOpenOption.CREATE);
 	}
 	
 	public List<GeoLocation> resolveGeoLocationTags(List<JConcept> concepts) {
 		List<GeoLocation> geoLocations = new ArrayList<GeoLocation>();
 		for(JConcept concept : concepts) {
-			geoLocations.addAll(resolveGeoLocationTag(concept));
+			List<GeoLocation> resolveGeoLocationTags = resolveGeoLocationTags(concept);
+			if(resolveGeoLocationTags != null) {
+				geoLocations.addAll(resolveGeoLocationTags);
+			}
 		}
 		return geoLocations;
 	}

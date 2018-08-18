@@ -104,8 +104,10 @@ public class Startup {
 				readSystemPropertiesConfigured(crawlersDef);
 				AppContext appContext = AppContext.INSTANCE.init();
 				SystemPropertyUtil.init();
+				/*ServiceRegistry.INSTANCE
+						.init(ServiceRegistryModes.REDIS_ONLY_SERVICES);*/
 				ServiceRegistry.INSTANCE
-						.init(ServiceRegistryModes.REDIS_ONLY_SERVICES);
+						.init(ServiceRegistryModes.REDIS_DBPEDIA_SERVICES);
 				//check();
 				IFeedUploader feedUploader = loadFeedUploader(crawlersDef);
 				List<IWebSite> websites = readCrawlableWebSites(crawlersDef);

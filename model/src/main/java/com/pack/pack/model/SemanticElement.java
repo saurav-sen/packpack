@@ -3,9 +3,21 @@ package com.pack.pack.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Concept {
+import org.ektorp.support.CouchDbDocument;
 
-	private String id;
+/**
+ * 
+ * @author Saurav
+ *
+ */
+public class SemanticElement extends CouchDbDocument {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3382106426078468016L;
+
+	private String conceptId;
 
 	private String spot;
 
@@ -22,13 +34,15 @@ public class Concept {
 	private String content;
 
 	private double confidence;
+	
+	private List<GeoTag> geoTagSet;
 
-	public String getId() {
-		return id;
+	public String getConceptId() {
+		return conceptId;
 	}
 
-	public void setId(String id) {
-		this.id = id;
+	public void setConceptId(String conceptId) {
+		this.conceptId = conceptId;
 	}
 
 	public String getSpot() {
@@ -96,5 +110,16 @@ public class Concept {
 
 	public void setConfidence(double confidence) {
 		this.confidence = confidence;
+	}
+
+	public List<GeoTag> getGeoTagSet() {
+		if(geoTagSet == null) {
+			geoTagSet = new ArrayList<GeoTag>();
+		}
+		return geoTagSet;
+	}
+
+	public void setGeoTagSet(List<GeoTag> geoTagSet) {
+		this.geoTagSet = geoTagSet;
 	}
 }

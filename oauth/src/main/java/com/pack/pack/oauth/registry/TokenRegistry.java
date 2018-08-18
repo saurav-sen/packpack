@@ -47,7 +47,7 @@ public class TokenRegistry {
 		try {
 			RedisCacheService cacheService = ServiceRegistry.INSTANCE
 					.findService(RedisCacheService.class);
-			long ttlSeconds = 2 * 60 * 60;
+			long ttlSeconds = 30 * 60; // 30-minutes
 			cacheService.addToCache(token.getToken(), token.convert(),
 					ttlSeconds);
 		} catch (PackPackException e) {
@@ -146,7 +146,8 @@ public class TokenRegistry {
 		try {
 			RedisCacheService cacheService = ServiceRegistry.INSTANCE
 					.findService(RedisCacheService.class);
-			cacheService.addToCache(requestToken + ":verifier", verifier);
+			long ttlSeconds = 15 * 60; // 15-minutes
+			cacheService.addToCache(requestToken + ":verifier", verifier, ttlSeconds);
 		} catch (PackPackException e) {
 			LOG.debug(e.getErrorCode(), e.getMessage(), e);
 		}

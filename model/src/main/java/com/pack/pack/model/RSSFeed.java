@@ -56,7 +56,7 @@ public class RSSFeed /*extends CouchDbDocument*/{
 	
 	private List<GeoTag> geoTags;
 	
-	private List<Concept> concepts;
+	private List<SemanticElement> concepts;
 	
 	private List<Taxonomy> taxonomies;
 	
@@ -226,14 +226,14 @@ public class RSSFeed /*extends CouchDbDocument*/{
 		this.geoTags = geoTags;
 	}
 
-	public List<Concept> getConcepts() {
+	public List<SemanticElement> getConcepts() {
 		if(concepts == null) {
-			concepts = new LinkedList<Concept>();
+			concepts = new LinkedList<SemanticElement>();
 		}
 		return concepts;
 	}
 
-	public void setConcepts(List<Concept> concepts) {
+	public void setConcepts(List<SemanticElement> concepts) {
 		this.concepts = concepts;
 	}
 

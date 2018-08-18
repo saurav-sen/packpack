@@ -25,7 +25,7 @@ import com.pack.pack.util.SystemPropertyUtil;
 @Singleton
 @Provider
 @Path("/sh")
-public class sharedResources {
+public class SharedResources {
 
 	@GET
 	@Path("{id}")

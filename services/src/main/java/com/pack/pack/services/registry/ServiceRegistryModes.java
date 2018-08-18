@@ -8,5 +8,6 @@ package com.pack.pack.services.registry;
 public enum ServiceRegistryModes {
 
 	ALL_SERVICES,
-	REDIS_ONLY_SERVICES;
+	REDIS_ONLY_SERVICES,
+	REDIS_DBPEDIA_SERVICES;
 }
