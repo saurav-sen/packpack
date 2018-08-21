@@ -35,6 +35,17 @@
 		  <artifactId>jsoup</artifactId>
 		  <version>1.8.1</version>
 		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.tika</groupId>
+		    <artifactId>tika-core</artifactId>
+		    <version>${tika.version}</version>
+	    </dependency>
+	    <dependency>
+		    <groupId>org.apache.tika</groupId>
+		    <artifactId>tika-parsers</artifactId>
+		    <version>${tika.version}</version>
+	    </dependency>
 		<!--dependency>
 			<groupId>org.ektorp</groupId>
 			<artifactId>org.ektorp</artifactId>
