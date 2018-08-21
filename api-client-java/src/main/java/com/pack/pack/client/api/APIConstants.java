@@ -34,7 +34,7 @@ public interface APIConstants {
 		public static interface Register {
 			public static final String NAME = "name";
 			public static final String EMAIL = "email";
-			public static final String PASSWORD = "password";
+			/*public static final String PASSWORD = "password";*/
 			public static final String LONGITUDE = "longitude";
 			public static final String LATITUDE = "latitude";
 			public static final String VERIFIER = "verifier";
@@ -53,6 +53,10 @@ public interface APIConstants {
 	
 	public static interface PageInfo {
 		public static final String PAGE_LINK = "pageLink";
+	}
+	
+	public static interface Bookmark {
+		public static final String WEB_LINK = "WEB_LINK";
 	}
 	
 	public static interface Topic {

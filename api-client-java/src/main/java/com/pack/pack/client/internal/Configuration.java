@@ -13,7 +13,7 @@ public interface Configuration {
 
 	public COMMAND getAction();
 	
-	public String getOAuthToken();
+	public String getUserName();
 	
 	public Map<String, Object> getApiParams();
 }

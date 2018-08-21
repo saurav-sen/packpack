@@ -7,8 +7,10 @@ package com.pack.pack.client.api;
  */
 public enum COMMAND {
 
-	SIGN_IN(APIConstants.Login.CLIENT_KEY, APIConstants.Login.CLIENT_SECRET,
-			APIConstants.Login.USERNAME, APIConstants.Login.PASSWORD), SIGN_UP(), SIGN_OUT(), EDIT_USER_CATEGORIES(
+	/*
+	 * SIGN_IN(APIConstants.Login.CLIENT_KEY, APIConstants.Login.CLIENT_SECRET,
+	 * APIConstants.Login.USERNAME, APIConstants.Login.PASSWORD),
+	 */SIGN_UP(), SIGN_OUT(), EDIT_USER_CATEGORIES(
 			APIConstants.TopicCategories.FOLLOWED_CATEGORIES), GET_USER_CATEGORIES(
 			APIConstants.User.ID), GET_USER_BY_ID(APIConstants.User.ID), GET_USER_BY_USERNAME(
 			APIConstants.User.USERNAME), SEARCH_USER_BY_NAME(
@@ -27,11 +29,16 @@ public enum COMMAND {
 			APIConstants.User.ID, APIConstants.PageInfo.PAGE_LINK), SYNC_TIME, VALIDATE_USER_NAME(
 			APIConstants.User.USERNAME), ANDROID_APK_URL(), CRAWL_FEED(
 			APIConstants.ExternalResource.RESOURCE_URL), ISSUE_PASSWD_RESET_LINK(
-			APIConstants.User.USERNAME), RESET_USER_PASSWD(
-			APIConstants.User.USERNAME,
-			APIConstants.User.PasswordReset.VERIFIER_CODE,
-			APIConstants.User.PasswordReset.NEW_PASSWORD), ISSUE_SIGNUP_VERIFIER(
-			APIConstants.User.Register.EMAIL, APIConstants.User.Register.NAME);
+			APIConstants.User.USERNAME), /*
+										 * RESET_USER_PASSWD(
+										 * APIConstants.User.USERNAME,
+										 * APIConstants
+										 * .User.PasswordReset.VERIFIER_CODE,
+										 * APIConstants
+										 * .User.PasswordReset.NEW_PASSWORD),
+										 */ISSUE_SIGNUP_VERIFIER(
+			APIConstants.User.Register.EMAIL, APIConstants.User.Register.NAME), PROCESS_BOOKMARK(
+			APIConstants.Bookmark.WEB_LINK, APIConstants.User.USERNAME);
 
 	private String[] paramNames;
 

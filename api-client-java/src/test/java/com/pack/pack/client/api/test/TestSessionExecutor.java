@@ -11,8 +11,8 @@ public class TestSessionExecutor {
 
 	public void execute(TestSession session) throws Exception {
 		new SignUpUserTest().signUp(session);
-		String oAuthToken = new SignInUserTest().signIn(session);
-		session.setOauthToken(oAuthToken);
+		//String oAuthToken = new SignInUserTest().signIn(session);
+		session.setUserName(session.getUserName());
 		JUser user = new UserInfoTest().getUserInfo(session);
 		session.setUserId(user.getId());
 		new DefaultTopicResourceTest().execute(session);
@@ -23,8 +23,8 @@ public class TestSessionExecutor {
 	
 	private void execute_0(TestSession session) throws Exception {
 		//new SignUpUserTest().signUp(session);
-		String oAuthToken = new SignInUserTest().signIn(session);
-		session.setOauthToken(oAuthToken);
+		//String oAuthToken = new SignInUserTest().signIn(session);
+		session.setUserName(session.getUserName());
 		JUser user = new UserInfoTest().getUserInfo(session);
 		session.setUserId(user.getId());
 		//new DefaultTopicResourceTest().execute(session);

@@ -33,8 +33,8 @@ public class APIBuilderImpl extends APIBuilder {
 		return this;
 	}
 
-	public APIBuilder setOauthToken(String oAuthToken) {
-		config.oAuthToken = oAuthToken;
+	public APIBuilder setUserName(String userName) {
+		config.userName = userName;
 		return this;
 	}
 
@@ -46,13 +46,13 @@ public class APIBuilderImpl extends APIBuilder {
 				|| action == COMMAND.SEARCH_USER_BY_NAME
 				|| action == COMMAND.EDIT_USER_CATEGORIES
 				|| action == COMMAND.GET_USER_CATEGORIES
-				|| action == COMMAND.SIGN_IN 
+				/*|| action == COMMAND.SIGN_IN */
 				|| action == COMMAND.SIGN_OUT
 				|| action == COMMAND.SIGN_UP
 				|| action == COMMAND.UPLOAD_USER_PROFILE_PICTURE
 				|| action == COMMAND.UPDATE_USER_SETTINGS
 				|| action == COMMAND.ISSUE_PASSWD_RESET_LINK
-				|| action == COMMAND.RESET_USER_PASSWD
+				/*|| action == COMMAND.RESET_USER_PASSWD*/
 				|| action == COMMAND.ISSUE_SIGNUP_VERIFIER) {
 			api = new APIWrapper(new UserManagementApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
@@ -77,7 +77,8 @@ public class APIBuilderImpl extends APIBuilder {
 				|| action == COMMAND.ANDROID_APK_URL) {
 			api = new APIWrapper(new PublicApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
-		} else if(action == COMMAND.CRAWL_FEED) {
+		} else if(action == COMMAND.CRAWL_FEED
+				|| action == COMMAND.PROCESS_BOOKMARK) {
 			api = new APIWrapper(new FeedReaderApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
 		}
@@ -90,7 +91,7 @@ public class APIBuilderImpl extends APIBuilder {
 
 		private Map<String, Object> params = new HashMap<String, Object>();
 
-		private String oAuthToken;
+		private String userName;
 
 		@Override
 		public COMMAND getAction() {
@@ -98,8 +99,8 @@ public class APIBuilderImpl extends APIBuilder {
 		}
 
 		@Override
-		public String getOAuthToken() {
-			return oAuthToken;
+		public String getUserName() {
+			return userName;
 		}
 
 		@Override

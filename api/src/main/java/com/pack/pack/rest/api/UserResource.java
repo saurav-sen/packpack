@@ -32,7 +32,6 @@ import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.JUsers;
 import com.pack.pack.model.web.StatusType;
-import com.pack.pack.model.web.dto.PasswordResetDTO;
 import com.pack.pack.model.web.dto.SignupDTO;
 import com.pack.pack.model.web.dto.SignupVerifierDTO;
 import com.pack.pack.model.web.dto.UserSettings;
@@ -166,7 +165,7 @@ public class UserResource {
 				profilePictureFileName);
 	}
 
-	private JUser doRegisterUser(String name, String email, String password,
+	/*private JUser doRegisterUser(String name, String email, String password,
 			double longitude, double latitude, String verificationCode)
 			throws PackPackException {
 		LOG.debug("Verification CODE = " + verificationCode);
@@ -187,6 +186,28 @@ public class UserResource {
 			return newUser;
 		}
 		throw new PackPackException(ErrorCodes.PACK_ERR_95, "Invalid Verification Code");
+	}*/
+	
+	private JUser doRegisterUser(String name, String email, double longitude, double latitude, String verificationCode)
+			throws PackPackException {
+		LOG.debug("Verification CODE = " + verificationCode);
+		if (validateOTP(SIGNUP_VERIFIER, email, verificationCode)) {
+			IUserService service = ServiceRegistry.INSTANCE
+					.findCompositeService(IUserService.class);
+			UserRepositoryService repoService = ServiceRegistry.INSTANCE
+					.findService(UserRepositoryService.class);
+			List<User> users = repoService.getBasedOnUsername(email);
+			if (users != null && !users.isEmpty()) {
+				throw new PackPackException("TODO",
+						"Duplicate user. User with username = " + email
+								+ " already registered");
+			}
+			/*password = EncryptionUtil.encryptPassword(password);*/
+			JUser newUser = service.registerNewUser(name, email, 
+					longitude, latitude, null, null);
+			return newUser;
+		}
+		throw new PackPackException(ErrorCodes.PACK_ERR_95, "Invalid Verification Code");
 	}
 
 	private void sendWelcomeMail(String nameOfUser, String email, String OTP) {
@@ -203,6 +224,25 @@ public class UserResource {
 		}
 	}
 
+	/*@POST
+	@CompressRead
+	@CompressWrite
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public JUser registerUser(String json) throws PackPackException {
+		SignupDTO dto = JSONUtil.deserialize(json, SignupDTO.class, true);
+		String name = dto.getName();
+		String email = dto.getEmail();
+		//String password = dto.getPassword();
+		double longitude = dto.getLongitude();
+		double latitude = dto.getLatitude();
+		LOG.info("New SignUp Details");
+		LOG.info("Name = " + name + ", Email = " + email + ", Longitude = " + longitude + ", Latitude = " + latitude);
+		String verificationCode = dto.getVerificationCode();
+		return doRegisterUser(name, email, password, longitude, latitude,
+				verificationCode);
+	}*/
+	
 	@POST
 	@CompressRead
 	@CompressWrite
@@ -212,13 +252,13 @@ public class UserResource {
 		SignupDTO dto = JSONUtil.deserialize(json, SignupDTO.class, true);
 		String name = dto.getName();
 		String email = dto.getEmail();
-		String password = dto.getPassword();
+		//String password = dto.getPassword();
 		double longitude = dto.getLongitude();
 		double latitude = dto.getLatitude();
 		LOG.info("New SignUp Details");
 		LOG.info("Name = " + name + ", Email = " + email + ", Longitude = " + longitude + ", Latitude = " + latitude);
 		String verificationCode = dto.getVerificationCode();
-		return doRegisterUser(name, email, password, longitude, latitude,
+		return doRegisterUser(name, email, longitude, latitude,
 				verificationCode);
 	}
 
@@ -274,13 +314,13 @@ public class UserResource {
 		return issueOTP(dto.getEmail(), dto.getNameOfUser(), "Welcome to SQUILL", SIGNUP_VERIFIER);
 	}
 
-	@GET
+	/*@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("passwd/reset/usr/{userName}")
 	public JStatus issuePasswordResetVerifier(
 			@PathParam("userName") String userName) throws PackPackException {
 		return issueOTP(userName, null, "SQUILL password assistance", PASSWD_RESET_VERIFIER);
-	}
+	}*/
 
 	public JStatus issueOTP(String email, String nameOfUser, String mailSubject, String keyPrefix)
 			throws PackPackException {
@@ -324,7 +364,7 @@ public class UserResource {
 		}
 	}
 
-	@POST
+	/*@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path("passwd/reset/usr/{userName}")
@@ -363,7 +403,7 @@ public class UserResource {
 					e.getMessage(), e);
 		}
 		return response;
-	}
+	}*/
 
 	private boolean validateOTP(String keyPrefix, String email, String verifier) {
 		LOG.debug("validateOTP(...)");

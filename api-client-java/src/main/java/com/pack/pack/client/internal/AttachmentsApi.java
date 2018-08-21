@@ -33,12 +33,12 @@ class AttachmentsApi extends BaseAPI {
 	}
 
 	private HttpResponse getProfilePicture(String userId, String fileName,
-			String oAuthToken) throws Exception {
+			String userName) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
 		String url = getBaseUrl() + ATTACHMENT + "profile/image/" + userId + "/"
 				+ fileName;
 		HttpGet GET = new HttpGet(url);
-		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		GET.addHeader(AUTHORIZATION_HEADER, userName);
 		HttpResponse response = client.execute(GET);
 		return response;
 	}
@@ -49,13 +49,13 @@ class AttachmentsApi extends BaseAPI {
 
 		private Map<String, Object> params;
 
-		private String oAuthToken;
+		private String userName;
 
 		@Override
 		public void setConfiguration(Configuration configuration) {
 			action = configuration.getAction();
 			params = configuration.getApiParams();
-			oAuthToken = configuration.getOAuthToken();
+			userName = configuration.getUserName();
 		}
 
 		@Override
@@ -71,7 +71,7 @@ class AttachmentsApi extends BaseAPI {
 				String userId = (String) params.get(APIConstants.User.ID);
 				String fileName = (String) params
 						.get(APIConstants.Attachment.FILE_NAME);
-				result = getProfilePicture(userId, fileName, oAuthToken);
+				result = getProfilePicture(userId, fileName, userName);
 			}
 			return result;
 		}

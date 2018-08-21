@@ -39,12 +39,12 @@ class RefreshmentFeedsApi extends BaseAPI {
 
 	@SuppressWarnings("unchecked")
 	private Pagination<JRssFeed> getAllFeeds(String userId, String pageLink,
-			String oAuthToken, String source) throws Exception {
+			String userName, String source) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
 		String url = getBaseUrl() + "refreshment/usr/" + userId + "/page/" + pageLink
 				+ "/version/v2?source=" + source;
 		HttpGet GET = new HttpGet(url);
-		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		GET.addHeader(AUTHORIZATION_HEADER, userName);
 		HttpResponse response = client.execute(GET);
 		Pagination<JRssFeed> page = JSONUtil
 				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
@@ -65,13 +65,13 @@ class RefreshmentFeedsApi extends BaseAPI {
 
 		private Map<String, Object> params;
 
-		private String oAuthToken;
+		private String userName;
 
 		@Override
 		public void setConfiguration(Configuration configuration) {
 			action = configuration.getAction();
 			params = configuration.getApiParams();
-			oAuthToken = configuration.getOAuthToken();
+			userName = configuration.getUserName();
 		}
 
 		@Override
@@ -89,7 +89,7 @@ class RefreshmentFeedsApi extends BaseAPI {
 				if (pageLink == null || pageLink.trim().equals("")) {
 					pageLink = "FIRSTPAGE";
 				}
-				return getAllFeeds(userId, pageLink, oAuthToken, source);
+				return getAllFeeds(userId, pageLink, userName, source);
 			}
 			return null;
 		}

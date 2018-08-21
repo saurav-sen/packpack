@@ -14,7 +14,7 @@ public class DefaultTopicResourceTest extends BaseTest {
 	public void test(TestSession session) {
 		try {
 			API api = APIBuilder.create(session.getBaseUrl()).setAction(COMMAND.GET_ALL_REFRESHMENT_FEEDS)
-					.setOauthToken(session.getOauthToken())
+					.setUserName(session.getUserName())
 					.addApiParam(APIConstants.User.ID, session.getUserId())
 					.addApiParam(APIConstants.PageInfo.PAGE_LINK, "FIRST_PAGE")
 					.build();
@@ -47,8 +47,8 @@ public class DefaultTopicResourceTest extends BaseTest {
 	public static void main(String[] args) throws Exception {
 		DefaultTopicResourceTest test = new DefaultTopicResourceTest();
 		TestSession session = new TestSession(0, TestWorkflow.BASE_URL, TestWorkflow.BASE_URL_2);
-		String oauthToken = SignInUtil.signIn(session);
-		session.setOauthToken(oauthToken);
+		//String oauthToken = SignInUtil.signIn(session);
+		session.setUserName(TestDataSet.getInstance().getUserEmail(session.getSeqNo()));
 		JUser user = new UserInfoTest().getUserInfo(session);
 		session.setUserId(user.getId());
 		test.test(session);

@@ -24,14 +24,14 @@ public class UserInfoTest {
 			API api = APIBuilder
 					.create(session.getBaseUrl())
 					.setAction(COMMAND.GET_USER_BY_USERNAME)
-					.setOauthToken(session.getOauthToken())
+					.setUserName(session.getUserName())
 					.addApiParam(APIConstants.User.USERNAME,
 							TestDataSet.getInstance().getUserEmail(session.getSeqNo())).build();
 			JUser user = (JUser) api.execute();
 			String id = user.getId();
 			
 			api = APIBuilder.create(session.getBaseUrl()).setAction(COMMAND.GET_USER_BY_ID)
-					.setOauthToken(session.getOauthToken())
+					.setUserName(session.getUserName())
 					.addApiParam(APIConstants.User.ID, id).build();
 			return (JUser) api.execute();
 		} catch (Exception e) {

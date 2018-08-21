@@ -6,7 +6,6 @@ import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -35,14 +34,9 @@ import com.pack.pack.client.api.MultipartRequestProgressListener;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.JUser;
-import com.pack.pack.model.web.dto.PasswordResetDTO;
 import com.pack.pack.model.web.dto.SignupDTO;
 import com.pack.pack.model.web.dto.SignupVerifierDTO;
 import com.pack.pack.model.web.dto.UserSettings;
-import com.pack.pack.oauth1.client.AccessToken;
-import com.pack.pack.oauth1.client.OAuth1ClientCredentials;
-import com.pack.pack.oauth1.client.OAuth1RequestFlow;
-import com.pack.pack.oauth1.client.OAuth1Support;
 import com.pack.pack.services.exception.PackPackException;
 
 /**
@@ -73,13 +67,13 @@ class UserManagementApi extends BaseAPI {
 		
 		private Map<String, Object> params;
 		
-		private String oAuthToken;
+		private String userName;
 		
 		@Override
 		public void setConfiguration(Configuration configuration) {
 			action = configuration.getAction();
 			params = configuration.getApiParams();
-			oAuthToken = configuration.getOAuthToken();
+			userName = configuration.getUserName();
 		}
 		
 		@Override
@@ -91,9 +85,9 @@ class UserManagementApi extends BaseAPI {
 		@SuppressWarnings("unchecked")
 		public Object invoke(MultipartRequestProgressListener listener) throws Exception {
 			Object result = null;
-			if (action == COMMAND.SIGN_IN) {
+			/*if (action == COMMAND.SIGN_IN) {
 				result = signIn(params);
-			} else if (action == COMMAND.SIGN_UP) {
+			} else */if (action == COMMAND.SIGN_UP) {
 				result = signUp(params);
 			} else if (action == COMMAND.EDIT_USER_CATEGORIES) {
 				String userId = (String) params.get(APIConstants.User.ID);
@@ -106,33 +100,33 @@ class UserManagementApi extends BaseAPI {
 							.append(APIConstants.TopicCategories.SEPARATOR);
 				}
 				result = editUserFollowdCategories(userId,
-						followedCategoriesStr.toString(), oAuthToken);
+						followedCategoriesStr.toString(), userName);
 			} else if(action == COMMAND.GET_USER_CATEGORIES) {
 				String userId = (String) params.get(APIConstants.User.ID);
-				result = getUserFollowedCategories(userId, oAuthToken);
+				result = getUserFollowedCategories(userId, userName);
 			} else if (action == COMMAND.GET_USER_BY_ID) {
-				result = getUserById(params, oAuthToken);
+				result = getUserById(params, userName);
 			} else if (action == COMMAND.GET_USER_BY_USERNAME) {
-				result = getUserByUsername(params, oAuthToken);
+				result = getUserByUsername(params, userName);
 			} else if (action == COMMAND.SEARCH_USER_BY_NAME) {
 				result = searchUserByName(
 						(String) params.get(APIConstants.User.NAME_SEARCH_PATTERN),
-						oAuthToken);
+						userName);
 			} else if (action == COMMAND.UPLOAD_USER_PROFILE_PICTURE) {
 				String userId = (String) params.get(APIConstants.User.ID);
 				byte[] data = (byte[]) params
 						.get(APIConstants.User.PROFILE_PICTURE);
-				result = uploadUserProfilePicture(userId, data, oAuthToken);
+				result = uploadUserProfilePicture(userId, data, userName);
 			} else if(action == COMMAND.UPDATE_USER_SETTINGS) {
 				String userId = (String) params.get(APIConstants.User.ID);
 				String key = (String) params.get(APIConstants.User.Settings.KEY);
 				String value = (String) params.get(APIConstants.User.Settings.VALUE);
-				result = updateUserSettings(userId, key, value, oAuthToken);
+				result = updateUserSettings(userId, key, value, userName);
 			} else if (action == COMMAND.ISSUE_PASSWD_RESET_LINK) {
 				String userName = (String) params
 						.get(APIConstants.User.USERNAME);
 				result = issuePasswordResetVerifier(userName);
-			} else if (action == COMMAND.RESET_USER_PASSWD) {
+			} /*else if (action == COMMAND.RESET_USER_PASSWD) {
 				String userName = (String) params
 						.get(APIConstants.User.USERNAME);
 				String verifier = (String) params
@@ -140,7 +134,7 @@ class UserManagementApi extends BaseAPI {
 				String password = (String) params
 						.get(APIConstants.User.PasswordReset.NEW_PASSWORD);
 				result = resetUserPassword(userName, verifier, password);
-			} else if(action == COMMAND.ISSUE_SIGNUP_VERIFIER) {
+			}*/ else if(action == COMMAND.ISSUE_SIGNUP_VERIFIER) {
 				String email = (String) params
 						.get(APIConstants.User.Register.EMAIL);
 				String name = (String) params
@@ -162,12 +156,12 @@ class UserManagementApi extends BaseAPI {
 	}
 	
 	private JUser updateUserSettings(String userId, String key, String value,
-			String oAuthToken) throws ClientProtocolException, IOException,
+			String userName) throws ClientProtocolException, IOException,
 			PackPackException {
 		String url = getBaseUrl() + "user/id/" + userId + "/settings";
 		HttpPut PUT = new HttpPut(url);
 		DefaultHttpClient client = new DefaultHttpClient();
-		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		PUT.addHeader(AUTHORIZATION_HEADER, userName);
 		UserSettings settings = new UserSettings();
 		settings.setKey(key);
 		settings.setValue(value);
@@ -181,38 +175,38 @@ class UserManagementApi extends BaseAPI {
 						.getEntity())), JUser.class);
 	}
 
-	private JUser searchUserByName(String namePattern, String accessToken)
+	private JUser searchUserByName(String namePattern, String userName)
 			throws ClientProtocolException, IOException, ParseException,
 			PackPackException {
 		String url = getBaseUrl() + "user/name/" + namePattern;
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpGet GET = new HttpGet(url);
-		GET.addHeader(AUTHORIZATION_HEADER, accessToken);
+		GET.addHeader(AUTHORIZATION_HEADER, userName);
 		HttpResponse response = client.execute(GET);
 		return JSONUtil.deserialize(EntityUtils.toString(GZipUtil.decompress(response.getEntity())),
 				JUser.class);
 	}
 
 	private JUser getUserByUsername(Map<String, Object> params,
-			String accessToken) throws ClientProtocolException, IOException,
+			String userName) throws ClientProtocolException, IOException,
 			ParseException, PackPackException {
 		String username = (String) params.get(APIConstants.User.USERNAME);
 		String url = getBaseUrl() + "user/username/" + username;
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpGet GET = new HttpGet(url);
-		GET.addHeader(AUTHORIZATION_HEADER, accessToken);
+		GET.addHeader(AUTHORIZATION_HEADER, userName);
 		HttpResponse response = client.execute(GET);
 		return JSONUtil.deserialize(EntityUtils.toString(GZipUtil.decompress(response.getEntity())),
 				JUser.class);
 	}
 
-	private JUser getUserById(Map<String, Object> params, String accessToken)
+	private JUser getUserById(Map<String, Object> params, String userName)
 			throws ClientProtocolException, IOException, PackPackException {
 		String id = (String) params.get(APIConstants.User.ID);
 		String url = getBaseUrl() + "user/id/" + id;
 		HttpClient client = new DefaultHttpClient();
 		HttpGet GET = new HttpGet(url);
-		GET.addHeader(AUTHORIZATION_HEADER, accessToken);
+		GET.addHeader(AUTHORIZATION_HEADER, userName);
 		HttpResponse response = client.execute(GET);
 		String json = EntityUtils.toString(GZipUtil.decompress(response.getEntity()));
 		return JSONUtil.deserialize(json, JUser.class);
@@ -220,12 +214,12 @@ class UserManagementApi extends BaseAPI {
 	
 	@SuppressWarnings("unchecked")
 	private List<String> getUserFollowedCategories(String userId,
-			String accessToken) throws ClientProtocolException, IOException,
+			String userName) throws ClientProtocolException, IOException,
 			PackPackException {
 		String url = getBaseUrl() + "user/id/" + userId + "/follow/category";
 		HttpClient client = new DefaultHttpClient();
 		HttpGet GET = new HttpGet(url);
-		GET.addHeader(AUTHORIZATION_HEADER, accessToken);
+		GET.addHeader(AUTHORIZATION_HEADER, userName);
 		HttpResponse response = client.execute(GET);
 		String json = EntityUtils.toString(GZipUtil.decompress(response
 				.getEntity()));
@@ -233,12 +227,12 @@ class UserManagementApi extends BaseAPI {
 	}
 	
 	private JUser editUserFollowdCategories(String userId,
-			String followedCategories, String accessToken)
+			String followedCategories, String userName)
 			throws ClientProtocolException, IOException, PackPackException {
 		String url = getBaseUrl() + "user/id/" + userId + "/follow/category";
 		HttpClient client = new DefaultHttpClient();
 		HttpPut PUT = new HttpPut(url);
-		PUT.addHeader(AUTHORIZATION_HEADER, accessToken);
+		PUT.addHeader(AUTHORIZATION_HEADER, userName);
 		HttpEntity entity = new StringEntity(followedCategories);
 		PUT.setEntity(GZipUtil.compress(entity));
 		PUT.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
@@ -249,12 +243,12 @@ class UserManagementApi extends BaseAPI {
 	}
 	
 	private JUser uploadUserProfilePicture(String userId, byte[] data,
-			String oAuthToken) throws ClientProtocolException, IOException,
+			String userName) throws ClientProtocolException, IOException,
 			PackPackException {
 		String url = getBaseUrl() + "user/id/" + userId;
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpPut PUT = new HttpPut(url);
-		PUT.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		PUT.addHeader(AUTHORIZATION_HEADER, userName);
 		MultipartEntity multipartEntity = new MultipartEntity();
 		multipartEntity.addPart(APIConstants.User.PROFILE_PICTURE,
 				new ByteArrayBody(data, "image/jpeg", userId
@@ -305,7 +299,7 @@ class UserManagementApi extends BaseAPI {
 			SignupDTO dto = new SignupDTO();
 			String name = (String) params.get(APIConstants.User.Register.NAME);
 			String email = (String) params.get(APIConstants.User.Register.EMAIL);
-			String password = (String) params.get(APIConstants.User.Register.PASSWORD);
+			//String password = (String) params.get(APIConstants.User.Register.PASSWORD);
 			String verificationCode = (String) params.get(APIConstants.User.Register.VERIFIER);
 			double longitude = (double) params.get(APIConstants.User.Register.LONGITUDE);
 			double latitude = (double) params.get(APIConstants.User.Register.LATITUDE);
@@ -313,7 +307,7 @@ class UserManagementApi extends BaseAPI {
 			dto.setLatitude(latitude);
 			dto.setEmail(email);
 			dto.setName(name);
-			dto.setPassword(password);
+			//dto.setPassword(password);
 			dto.setVerificationCode(verificationCode);
 			String json = JSONUtil.serialize(dto);
 			HttpEntity jsonBody = new StringEntity(json, UTF_8);
@@ -358,7 +352,7 @@ class UserManagementApi extends BaseAPI {
 				JStatus.class);
 	}
 
-	private JStatus resetUserPassword(String userName, String verifier,
+	/*private JStatus resetUserPassword(String userName, String verifier,
 			String password) throws Exception {
 		String url = getBaseUrl() + "user/passwd/reset/usr/" + userName;
 		DefaultHttpClient client = new DefaultHttpClient();
@@ -371,9 +365,9 @@ class UserManagementApi extends BaseAPI {
 		HttpResponse response = client.execute(POST);
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JStatus.class);
-	}
+	}*/
 
-	private AccessToken signIn(Map<String, Object> params)
+	/*private AccessToken signIn(Map<String, Object> params)
 			throws ClientProtocolException, IOException {
 		String clientKey = (String) params.get(APIConstants.Login.CLIENT_KEY);
 		String clientSecret = (String) params
@@ -393,9 +387,9 @@ class UserManagementApi extends BaseAPI {
 					oldAccessToken, oldAccessTokenSecret);
 		}
 		return null;
-	}
+	}*/
 	
-	private AccessToken doSignIn(String clientKey, String clientSecret,
+	/*private AccessToken doSignIn(String clientKey, String clientSecret,
 			String username, String password) throws ClientProtocolException,
 			IOException {
 		OAuth1ClientCredentials consumerCredentials = new OAuth1ClientCredentials(
@@ -429,7 +423,7 @@ class UserManagementApi extends BaseAPI {
 		String verifier = authFlow.authorizeToken(requestToken, accessToken, accessTokenSecret);
 
 		return authFlow.finish(requestToken, verifier);
-	}
+	}*/
 
 	/*private AccessToken doSignIn(String clientKey, String clientSecret,
 			String username, String password) throws ClientProtocolException,

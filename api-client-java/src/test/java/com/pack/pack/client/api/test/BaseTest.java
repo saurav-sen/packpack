@@ -14,11 +14,12 @@ import com.pack.pack.model.web.JUser;
 public abstract class BaseTest implements Test {
 	
 	private void beforeTest(TestSession session) throws Exception {
-		String oAuthToken = SignInUtil.signIn(session);
-		session.setOauthToken(oAuthToken);
+		//String oAuthToken = SignInUtil.signIn(session);
+		String userName = TestDataSet.getInstance().getUserEmail(session.getSeqNo());
+		session.setUserName(userName);
 		
 		API api = APIBuilder.create(session.getBaseUrl()).setAction(COMMAND.GET_USER_BY_USERNAME)
-				.setOauthToken(oAuthToken)
+				.setUserName(userName)
 				.addApiParam(APIConstants.User.USERNAME, TestDataSet.getInstance().getUserEmail(session.getSeqNo()))
 				.build();
 		JUser user = (JUser) api.execute();

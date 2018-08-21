@@ -9,11 +9,11 @@ package com.pack.pack.client.api.test;
 public class SignInUserTest {
 
 
-	public String signIn(TestSession session) {
+	/*public String signIn(TestSession session) {
 		try {
 			return SignInUtil.signIn(session);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-	}
+	}*/
 }

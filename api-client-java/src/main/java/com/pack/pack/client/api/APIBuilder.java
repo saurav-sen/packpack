@@ -21,7 +21,7 @@ public class APIBuilder {
 		throw new UnsupportedOperationException();
 	}
 
-	public APIBuilder setOauthToken(String oAuthToken) {
+	public APIBuilder setUserName(String userName) {
 		throw new UnsupportedOperationException();
 	}
 

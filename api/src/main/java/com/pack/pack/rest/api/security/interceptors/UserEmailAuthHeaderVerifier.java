@@ -20,9 +20,9 @@ import com.pack.pack.rest.web.util.SystemInfo;
  *
  */
 @Provider
-public class AccessTokenVerifier implements ContainerRequestFilter {
+public class UserEmailAuthHeaderVerifier implements ContainerRequestFilter {
 	
-	private static final String PASSWD_RESET_LINK_PATTERN = "passwd/reset";
+	/*private static final String PASSWD_RESET_LINK_PATTERN = "passwd/reset";*/
 	private static final String SIGNUP_CODE_LINK_PATTERN = "signup/code";
 	
 	private static final String SHARED_URL_TYPE = "/sh/";
@@ -42,14 +42,14 @@ public class AccessTokenVerifier implements ContainerRequestFilter {
 				&& !path.endsWith(SystemInfo.NTP_INFO_WEB_URL)
 				&& !path.endsWith(SystemInfo.ANDROID_APK_URL)
 				&& !path.contains(SystemInfo.VALIDATE_USER_NAME_WEB_URL)
-				&& !path.contains(PASSWD_RESET_LINK_PATTERN)
+				/*&& !path.contains(PASSWD_RESET_LINK_PATTERN)*/
 				&& !path.contains(SIGNUP_CODE_LINK_PATTERN)
 				&& !path.contains(SHARED_URL_TYPE)) {
 			if (isTokenEmpty) {
 				allow = false;
-			} else {
+			} /*else {
 				allow = TokenRegistry.INSTANCE.isValidAccessToken(token);
-			}
+			}*/
 			if(path.endsWith("user") && requestContext.getMethod().equals(HttpMethod.POST)) {
 				allow = true;				
 			}

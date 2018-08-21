@@ -15,12 +15,13 @@ import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.html.BoilerpipeContentHandler;
 import org.apache.tika.sax.BodyContentHandler;
-import org.json.simple.JSONObject;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
+
+import com.squill.feed.web.model.JRssFeed;
 
 import de.l3s.boilerpipe.extractors.LargestContentExtractor;
 
@@ -29,7 +30,7 @@ import de.l3s.boilerpipe.extractors.LargestContentExtractor;
 @Scope("singleton")
 public class WebDocumentParser {
 
-	public static final String ARTICLE_TITLE = "title";
+	/*public static final String ARTICLE_TITLE = "title";
 
 	public static final String ARTICLE_FULL_TEXT = "articleFullText";
 	
@@ -41,11 +42,10 @@ public class WebDocumentParser {
 
 	public static final String STATUS_SUCCESS = "success";
 
-	public static final String STATUS_ERROR = "error";
+	public static final String STATUS_ERROR = "error";*/
 
-	@SuppressWarnings("unchecked")
-	public JSONObject parse(String url) {
-		JSONObject json = new JSONObject();
+	public JRssFeed parse(String url) {
+		JRssFeed json = new JRssFeed();
 		try {
 			HttpGet httpget = new HttpGet(url);
 			HttpEntity entity = null;
@@ -77,29 +77,51 @@ public class WebDocumentParser {
 					title = ogTitle;
 				}
 
-				json.put("og:image", metadata.get("og:image"));
-				json.put("twitter:image", metadata.get("twitter:image"));
-				json.put("og:site_name", metadata.get("og:site_name"));
-				json.put("keywords", metadata.get("keywords"));
-				json.put("og:url", metadata.get("og:url"));
-				json.put("twitter:url", metadata.get("twitter:url"));
-				json.put("description", metadata.get("description"));
-				json.put("y_key", metadata.get("y_key"));
-				json.put("og:title", ogTitle);
-				json.put("twitter:title", metadata.get("twitter:title"));
-				json.put("og:description", metadata.get("og:description"));
-				json.put("twitter:description",
-						metadata.get("twitter:description"));
-				json.put("fb:pages", metadata.get("fb:pages"));
-				json.put(ARTICLE_TITLE, title);
-				json.put(ARTICLE_FULL_TEXT, article);
-				json.put(SOURCE, url);
-				json.put(STATUS, STATUS_SUCCESS);
+				String ogImage = metadata.get("og:image");
+				if(ogImage == null) {
+					ogImage = metadata.get("twitter:image");
+				}
+				json.setOgImage(ogImage);
+				//json.put("og:site_name", metadata.get("og:site_name"));
+				//json.put("keywords", metadata.get("keywords"));
+				String keywordsText = metadata.get("keywords");
+				if(keywordsText != null) {
+					String[] keywords = keywordsText.split(",");
+					for(String keyword : keywords) {
+						json.getKeywords().add(keyword.trim());
+					}
+				}
+				
+				String ogUrl = metadata.get("og:url");
+				if(ogUrl == null) {
+					ogUrl = metadata.get("twitter:url");
+				}
+				if(ogUrl == null) {
+					ogUrl = url;
+				}
+				json.setOgUrl(ogUrl);
+				json.setHrefSource(ogUrl);
+				
+				String ogDescription = metadata.get("og:description");
+				if(ogDescription == null) {
+					ogDescription = metadata.get("twitter:description");
+				}
+				if(ogDescription == null) {
+					ogDescription = metadata.get("description");
+				}
+				json.setOgDescription(ogDescription);
+				/*json.put("y_key", metadata.get("y_key"));
+				json.put("fb:pages", metadata.get("fb:pages"));*/
+				
+				json.setOgTitle(title);
+				json.setFullArticleText(article);
 				
 				Summarizer summarizer = new Summarizer();
 				String summaryText = summarizer.Summarize(article, 3);
 				
-				json.put(ARTICLE_SUMMARY_TEXT, summaryText);
+				json.setArticleSummaryText(summaryText);
+				
+				json.setId(String.valueOf(System.currentTimeMillis()));
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

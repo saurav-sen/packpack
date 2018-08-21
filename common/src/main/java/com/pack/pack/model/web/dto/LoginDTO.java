@@ -7,7 +7,7 @@ package com.pack.pack.model.web.dto;
  */
 public class LoginDTO {
 	
-	private String username;
+	/*private String username;
 	
 	private String password;
 	
@@ -45,5 +45,5 @@ public class LoginDTO {
 
 	public void setSecret(String secret) {
 		this.secret = secret;
-	}
+	}*/
 }

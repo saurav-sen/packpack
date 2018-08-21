@@ -1,11 +1,18 @@
 package com.pack.pack.client.internal;
 
+import static com.pack.pack.client.api.APIConstants.APPLICATION_JSON;
+import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
+import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
+
 import java.util.Map;
 
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
@@ -15,6 +22,8 @@ import org.jsoup.select.Elements;
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.client.api.MultipartRequestProgressListener;
+import com.pack.pack.common.util.JSONUtil;
+import com.pack.pack.model.web.dto.BookmarkDTO;
 import com.squill.feed.web.model.JRssFeed;
 
 class FeedReaderApi extends BaseAPI {
@@ -83,6 +92,24 @@ class FeedReaderApi extends BaseAPI {
 		}
 		return null;
 	}
+	
+	private JRssFeed processBookmark(String webLink, String userName)
+			throws Exception {
+		DefaultHttpClient client = new DefaultHttpClient();
+		String url = getBaseUrl() + "bookmark";
+		HttpPost POST = new HttpPost(url);
+		POST.addHeader(AUTHORIZATION_HEADER, userName);
+		POST.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
+		BookmarkDTO dto = new BookmarkDTO();
+		dto.setHyperlink(webLink);
+		dto.setUserName(userName);
+		String json = JSONUtil.serialize(dto);
+		HttpEntity jsonBody = new StringEntity(json, UTF_8);
+		POST.setEntity(jsonBody);
+		HttpResponse response = client.execute(POST);
+		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
+				JRssFeed.class);
+	}
 
 	private class Invoker implements ApiInvoker {
 
@@ -101,6 +128,10 @@ class FeedReaderApi extends BaseAPI {
 			if (COMMAND.CRAWL_FEED.equals(action)) {
 				String externalPublicLink = (String) params.get(APIConstants.ExternalResource.RESOURCE_URL);
 				return doCrawlExternalPublicLink(externalPublicLink);
+			} else if(COMMAND.PROCESS_BOOKMARK.equals(action)) {
+				String webLink = (String) params.get(APIConstants.Bookmark.WEB_LINK);
+				String userName = (String) params.get(APIConstants.User.USERNAME);
+				return processBookmark(webLink, userName);
 			}
 			return null;
 		}

@@ -7,7 +7,7 @@ import com.pack.pack.client.api.COMMAND;
 
 public class ResetPasswordTest {
 	
-	public void testIssueVerifier(TestSession session) throws Exception {
+	/*public void testIssueVerifier(TestSession session) throws Exception {
 		API api = APIBuilder
 				.create(session.getBaseUrl())
 				.setAction(COMMAND.ISSUE_PASSWD_RESET_LINK)
@@ -27,7 +27,7 @@ public class ResetPasswordTest {
 				.addApiParam(APIConstants.User.PasswordReset.NEW_PASSWORD,
 						"p@ssword").build();
 		api.execute();
-	}
+	}*/
 	
 	public static void main(String[] args) throws Exception {
 		//new ResetPasswordTest().testIssueVerifier();

@@ -7,7 +7,7 @@ public class TestSession {
 	
 	private Map<String, Object> map = new HashMap<String, Object>();
 	
-	private String oauthToken;
+	private String userName;
 	
 	private String userId;
 	
@@ -39,14 +39,6 @@ public class TestSession {
 		return map.get(key);
 	}
 
-	public String getOauthToken() {
-		return oauthToken;
-	}
-
-	public void setOauthToken(String oauthToken) {
-		this.oauthToken = oauthToken;
-	}
-
 	public String getUserId() {
 		return userId;
 	}
@@ -56,7 +48,7 @@ public class TestSession {
 	}
 	
 	public boolean isInitialized() {
-		return oauthToken != null && userId != null;
+		return userName != null && userId != null;
 	}
 
 	public int getSeqNo() {
@@ -65,5 +57,16 @@ public class TestSession {
 
 	public void setSeqNo(int seqNo) {
 		this.seqNo = seqNo;
+	}
+
+	public String getUserName() {
+		if(userName == null) {
+			userName = TestDataSet.getInstance().getUserEmail(getSeqNo());
+		}
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
 	}
 }

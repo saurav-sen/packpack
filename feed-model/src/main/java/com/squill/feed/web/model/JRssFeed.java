@@ -58,6 +58,8 @@ public class JRssFeed {
 	
 	private String squillUrl;
 	
+	private List<String> keywords;
+	
 	public String getOgTitle() {
 		return ogTitle;
 	}
@@ -263,5 +265,16 @@ public class JRssFeed {
 
 	public void setSquillUrl(String squillUrl) {
 		this.squillUrl = squillUrl;
+	}
+
+	public List<String> getKeywords() {
+		if(keywords == null) {
+			keywords = new LinkedList<String>();
+		}
+		return keywords;
+	}
+
+	public void setKeywords(List<String> keywords) {
+		this.keywords = keywords;
 	}
 }

@@ -13,7 +13,7 @@ public class PackPackWSApp extends ResourceConfig {
 	
 	public PackPackWSApp() {
 		register(new AppBinder());
-		register(new OAuth10SupportFeature());
+		//register(new OAuth10SupportFeature());
 		packages(true, "com.pack.pack.rest.api");
 	}
 }

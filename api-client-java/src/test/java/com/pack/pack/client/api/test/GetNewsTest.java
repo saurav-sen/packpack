@@ -28,7 +28,7 @@ public class GetNewsTest extends BaseTest {
 		Set<Long> set1 = new HashSet<Long>();
 		try {
 			API api = APIBuilder.create(session.getBaseUrl()).setAction(command)
-					.setOauthToken(session.getOauthToken())
+					.setUserName(session.getUserName())
 					.addApiParam(APIConstants.User.ID, session.getUserId())
 					/*.addApiParam(APIConstants.PageInfo.PAGE_LINK, CommonConstants.NULL_PAGE_LINK)*/
 					.addApiParam(APIConstants.PageInfo.PAGE_LINK, PageUtil.buildNextPageLink(1532849367789L)) /*PageUtil.buildNextPageLink(0))*/
@@ -68,7 +68,7 @@ public class GetNewsTest extends BaseTest {
 				api = APIBuilder
 						.create(session.getBaseUrl())
 						.setAction(command)
-						.setOauthToken(session.getOauthToken())
+						.setUserName(session.getUserName())
 						.addApiParam(APIConstants.User.ID, session.getUserId())
 						.addApiParam(APIConstants.PageInfo.PAGE_LINK,
 								PageUtil.buildNextPageLink(page.getTimestamp())).build();
@@ -100,9 +100,9 @@ public class GetNewsTest extends BaseTest {
 	public static void main(String[] args) throws Exception {
 		GetNewsTest test = new GetNewsTest();
 		TestSession session = new TestSession(0, TestWorkflow.BASE_URL, TestWorkflow.BASE_URL_2);
-		//new SignUpUserTest().signUp(session);
-		String oauthToken = SignInUtil.signIn(session);
-		session.setOauthToken(oauthToken);
+		new SignUpUserTest().signUp(session);
+		//String oauthToken = SignInUtil.signIn(session);
+		session.setUserName(session.getUserName());
 		JUser user = new UserInfoTest().getUserInfo(session);
 		session.setUserId(user.getId());
 		/*test.test(session, COMMAND.GET_ALL_NEWS_FEEDS);

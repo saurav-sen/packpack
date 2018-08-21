@@ -29,7 +29,7 @@ class ResourceLoaderApi extends BaseAPI {
 	}
 
 	private InputStream loadResource(String url, int width, int height,
-			String oAuthToken) throws ClientProtocolException, IOException {
+			String userName) throws ClientProtocolException, IOException {
 		DefaultHttpClient client = new DefaultHttpClient();
 		if (url.contains("?")) {
 			url = url + "&" + APIConstants.Image.WIDTH + "=" + width + "&"
@@ -39,17 +39,17 @@ class ResourceLoaderApi extends BaseAPI {
 					+ APIConstants.Image.HEIGHT + "=" + height;
 		}
 		HttpGet GET = new HttpGet(url);
-		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		GET.addHeader(AUTHORIZATION_HEADER, userName);
 		HttpResponse response = client.execute(GET);
 		return GZipUtil.decompress(response.getEntity()).getContent();
 	}
 
-	private InputStream loadExternalResource(String url, String oAuthToken, boolean isIncludeOauthToken)
+	private InputStream loadExternalResource(String url, String userName, boolean isIncludeOauthToken)
 			throws ClientProtocolException, IOException {
 		DefaultHttpClient client = new DefaultHttpClient();
 		HttpGet GET = new HttpGet(url);
 		if (isIncludeOauthToken) {
-			GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+			GET.addHeader(AUTHORIZATION_HEADER, userName);
 		}
 		HttpResponse response = client.execute(GET);
 		return GZipUtil.decompress(response.getEntity()).getContent();
@@ -61,13 +61,13 @@ class ResourceLoaderApi extends BaseAPI {
 
 		private Map<String, Object> params;
 
-		private String oAuthToken;
+		private String userName;
 
 		@Override
 		public void setConfiguration(Configuration configuration) {
 			action = configuration.getAction();
 			params = configuration.getApiParams();
-			oAuthToken = configuration.getOAuthToken();
+			userName = configuration.getUserName();
 		}
 
 		@Override
@@ -90,7 +90,7 @@ class ResourceLoaderApi extends BaseAPI {
 				if (height == null) {
 					height = -1;
 				}
-				return loadResource(url, width, height, oAuthToken);
+				return loadResource(url, width, height, userName);
 			} else if (COMMAND.LOAD_EXTERNAL_RESOURCE.equals(action)) {
 				String url = (String) params
 						.get(APIConstants.ExternalResource.RESOURCE_URL);
@@ -105,7 +105,7 @@ class ResourceLoaderApi extends BaseAPI {
 					} catch (Exception e) {
 					}
 				}
-				return loadExternalResource(url, oAuthToken, isIncludeOauthToken);
+				return loadExternalResource(url, userName, isIncludeOauthToken);
 			}
 			return null;
 		}

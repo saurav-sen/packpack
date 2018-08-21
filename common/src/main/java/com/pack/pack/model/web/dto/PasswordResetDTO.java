@@ -7,7 +7,7 @@ package com.pack.pack.model.web.dto;
  */
 public class PasswordResetDTO {
 
-	private String userName;
+	/*private String userName;
 	
 	private String verifier;
 	
@@ -44,5 +44,5 @@ public class PasswordResetDTO {
 
 	public void setNewPassword(String newPassword) {
 		this.newPassword = newPassword;
-	}
+	}*/
 }

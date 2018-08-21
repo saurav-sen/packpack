@@ -34,12 +34,12 @@ public class NewsFeedsApi extends BaseAPI {
 
 	@SuppressWarnings("unchecked")
 	private Pagination<JRssFeed> getAllFeeds(String userId, String pageLink,
-			String oAuthToken, String source) throws Exception {
+			String userName, String source) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
 		String url = getBaseUrl() + "news/usr/" + userId + "/page/" + pageLink
 				+ "?source=" + source;
 		HttpGet GET = new HttpGet(url);
-		GET.addHeader(AUTHORIZATION_HEADER, oAuthToken);
+		GET.addHeader(AUTHORIZATION_HEADER, userName);
 		HttpResponse response = client.execute(GET);
 		Pagination<JRssFeed> page = JSONUtil
 				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
@@ -60,13 +60,13 @@ public class NewsFeedsApi extends BaseAPI {
 
 		private Map<String, Object> params;
 
-		private String oAuthToken;
+		private String userName;
 
 		@Override
 		public void setConfiguration(Configuration configuration) {
 			action = configuration.getAction();
 			params = configuration.getApiParams();
-			oAuthToken = configuration.getOAuthToken();
+			userName = configuration.getUserName();
 		}
 
 		@Override
@@ -79,7 +79,7 @@ public class NewsFeedsApi extends BaseAPI {
 				if (pageLink == null || pageLink.trim().equals("")) {
 					pageLink = "FIRSTPAGE_1";
 				}
-				return getAllFeeds(userId, pageLink, oAuthToken, source);
+				return getAllFeeds(userId, pageLink, userName, source);
 			} else if (COMMAND.GET_ALL_SPORTS_NEWS_FEEDS.equals(action)) {
 				String userId = (String) params.get(APIConstants.User.ID);
 				String source = JRssFeedType.NEWS_SPORTS.name();
@@ -88,7 +88,7 @@ public class NewsFeedsApi extends BaseAPI {
 				if (pageLink == null || pageLink.trim().equals("")) {
 					pageLink = "FIRSTPAGE_1";
 				}
-				return getAllFeeds(userId, pageLink, oAuthToken, source);
+				return getAllFeeds(userId, pageLink, userName, source);
 			} else if (COMMAND.GET_ALL_SCIENCE_AND_TECHNOLOGY_NEWS_FEEDS
 					.equals(action)) {
 				String userId = (String) params.get(APIConstants.User.ID);
@@ -98,7 +98,7 @@ public class NewsFeedsApi extends BaseAPI {
 				if (pageLink == null || pageLink.trim().equals("")) {
 					pageLink = "FIRSTPAGE_1";
 				}
-				return getAllFeeds(userId, pageLink, oAuthToken, source);
+				return getAllFeeds(userId, pageLink, userName, source);
 			} else if (COMMAND.GET_ALL_ARTICLES_FEEDS.equals(action)) {
 				String userId = (String) params.get(APIConstants.User.ID);
 				String source = JRssFeedType.ARTICLE.name();
@@ -107,7 +107,7 @@ public class NewsFeedsApi extends BaseAPI {
 				if (pageLink == null || pageLink.trim().equals("")) {
 					pageLink = "FIRSTPAGE_1";
 				}
-				return getAllFeeds(userId, pageLink, oAuthToken, source);
+				return getAllFeeds(userId, pageLink, userName, source);
 			}
 			return null;
 		}

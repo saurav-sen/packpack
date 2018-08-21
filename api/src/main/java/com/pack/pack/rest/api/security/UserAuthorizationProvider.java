@@ -29,11 +29,11 @@ import com.pack.pack.services.exception.PackPackException;
  * @author Saurav
  *
  */
-@Provider
-@Path("/" + OAuthConstants.OAUTH_AUTHORIZATION_PATH)
+/*@Provider
+@Path("/" + OAuthConstants.OAUTH_AUTHORIZATION_PATH)*/
 public class UserAuthorizationProvider {
 
-	@Inject
+	/*@Inject
 	private OAuth1Provider oauthProvider;
 
 	@POST
@@ -44,10 +44,10 @@ public class UserAuthorizationProvider {
 			final LoginDTO dto) throws PackPackException {
 		try {
 			String password = dto.getPassword();
-			/*
+			
 			 * if (password != null) { password =
 			 * EncryptionUtil.encryptPassword(password); }
-			 */
+			 
 			Token token = ((OAuth10SecurityProvider) oauthProvider)
 					.getRequestToken(requestToken);
 			if (token != null
@@ -91,5 +91,5 @@ public class UserAuthorizationProvider {
 					accessToken, null);
 		}
 		return false;
-	}
+	}*/
 }

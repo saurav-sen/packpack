@@ -26,7 +26,7 @@ import com.pack.pack.oauth.OAuthConstants;
  */
 public class LoginTest {
 
-	public static void main(String[] args) throws ClientProtocolException,
+	/*public static void main(String[] args) throws ClientProtocolException,
 			IOException {
 		ConsumerCredentials consumerCredentials = new ConsumerCredentials(
 				OAuthConstants.DEFAULT_CLIENT_KEY,
@@ -63,5 +63,5 @@ public class LoginTest {
 
 		AccessToken accessToken = authFlow.finish(verifier);
 		System.out.println("Access token: " + accessToken.getToken());
-	}
+	}*/
 }
