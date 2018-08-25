@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+
 import static com.pack.pack.services.ext.text.summerize.STOP_WORDS.STOP_WORDS;
 
 public class Summarizer {
@@ -119,9 +122,10 @@ public class Summarizer {
 	}
 
 	public String Summarize(String text, int maxSummarySize) {
-		if (text.equals("") || text.equals(" ") || text.equals("\n")) {
-			String msg = "Nothing to summarize...";
-			return msg;
+		if (text.equals("") || text.equals(" ") || text.equals("\n") || text.trim().isEmpty()) {
+			/*String msg = "Nothing to summarize...";
+			return msg;*/
+			return "";
 		}
 		// start with raw freqs
 		Map<String, Integer> wordFrequencies = getWordCounts(text);
@@ -155,8 +159,10 @@ public class Summarizer {
 		}
 		// construct the summary size out of select sentences
 		String summary = "";
-		summary = summary + "? " + firstSentence
+		/*summary = summary + "? " + firstSentence
 				+ System.getProperty("line.separator")
+				+ System.getProperty("line.separator");*/
+		summary = summary + " " + firstSentence
 				+ System.getProperty("line.separator");
 
 		for (String sentence : sentences)// foreach string sentence in sentences
@@ -165,11 +171,15 @@ public class Summarizer {
 			if (setSummarySentences.contains(sentence)) {
 				// produce each sentence with a bullet point and good amounts of
 				// spacing
-				summary = summary + "? " + sentence
+				/*summary = summary + "? " + sentence
 						+ System.getProperty("line.separator")
+						+ System.getProperty("line.separator");*/
+				summary = summary + " " + sentence
 						+ System.getProperty("line.separator");
 			}
 		}
-		return summary;
+		//return summary;
+		//System.out.println(StringEscapeUtils.escapeHtml(summary));
+		return StringEscapeUtils.escapeJava(summary);
 	}
 }
