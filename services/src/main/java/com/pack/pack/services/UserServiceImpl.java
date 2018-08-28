@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -37,6 +39,9 @@ import com.pack.pack.util.SystemPropertyUtil;
 @Scope("singleton")
 public class UserServiceImpl implements IUserService {
 	
+	private static final Logger $_LOG = LoggerFactory
+			.getLogger(UserServiceImpl.class);
+	
 	@Override
 	public JUser registerNewUser(String name, String email, double longitude,
 			double latitude, InputStream profilePicture,
@@ -46,9 +51,13 @@ public class UserServiceImpl implements IUserService {
 		User user = new User();
 		user.setName(name);
 		user.setUsername(email);
-		service.add(user);
-		JStatus status = new JStatus();
 		List<User> users = service.getBasedOnUsername(email);
+		if (users == null || users.isEmpty()) {
+			service.add(user);
+		} else {
+			service.update(user);
+		}
+		users = service.getBasedOnUsername(email);
 		if (users == null || users.isEmpty()) {
 			throw new PackPackException("", "Internal Server Error. Failed to register user: "
 					+ email);
@@ -58,24 +67,33 @@ public class UserServiceImpl implements IUserService {
 			String profilePictureUrl = storeProfilePicture(user.getId(),
 					profilePicture, profilePictureFileName);
 			user.setProfilePicture(profilePictureUrl);
+			service.update(user);
 		}
-		service.update(user);
-		status.setStatus(StatusType.OK);
-		status.setInfo("Successfully registered the user " + email);
+		
+		$_LOG.info("Successfully registered the user " + email);
 
 		if (longitude > 0 && latitude > 0) {
-			UserLocation userLocation = new UserLocation();
+			boolean isNew = false;
+			UserLocationRepositoryService service2 = ServiceRegistry.INSTANCE
+					.findService(UserLocationRepositoryService.class);
+			UserLocation userLocation = service2.findUserLocationById(user.getId());
+			if(userLocation == null) {
+				userLocation = new UserLocation();
+				isNew = true;
+			}
 			userLocation.setUserId(user.getId());
 			userLocation.setLongitude(String.valueOf(longitude));
 			userLocation.setLatitude(String.valueOf(latitude));
-			UserLocationRepositoryService service2 = ServiceRegistry.INSTANCE
-					.findService(UserLocationRepositoryService.class);
-			service2.add(userLocation);
+			if(isNew) {
+				service2.add(userLocation);
+			} else {
+				service2.update(userLocation);
+			}
 		}
 
-		ESUploadService esService = ServiceRegistry.INSTANCE
+		/*ESUploadService esService = ServiceRegistry.INSTANCE
 				.findService(ESUploadService.class);
-		esService.uploadNewUserDetails(user);
+		esService.uploadNewUserDetails(user);*/
 		return ModelConverter.convert(user);
 	}
 	

@@ -194,14 +194,14 @@ public class UserResource {
 		if (validateOTP(SIGNUP_VERIFIER, email, verificationCode)) {
 			IUserService service = ServiceRegistry.INSTANCE
 					.findCompositeService(IUserService.class);
-			UserRepositoryService repoService = ServiceRegistry.INSTANCE
+			/*UserRepositoryService repoService = ServiceRegistry.INSTANCE
 					.findService(UserRepositoryService.class);
 			List<User> users = repoService.getBasedOnUsername(email);
 			if (users != null && !users.isEmpty()) {
 				throw new PackPackException("TODO",
 						"Duplicate user. User with username = " + email
 								+ " already registered");
-			}
+			}*/
 			/*password = EncryptionUtil.encryptPassword(password);*/
 			JUser newUser = service.registerNewUser(name, email, 
 					longitude, latitude, null, null);
