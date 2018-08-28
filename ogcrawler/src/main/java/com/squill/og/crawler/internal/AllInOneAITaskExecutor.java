@@ -2,13 +2,17 @@ package com.squill.og.crawler.internal;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.squill.feed.web.model.JConcept;
 import com.squill.feed.web.model.JGeoTag;
 import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JTaxonomy;
@@ -32,9 +36,11 @@ import com.squill.services.exception.OgCrawlException;
 
 public class AllInOneAITaskExecutor {
 	
-	private static final Logger LOG = LoggerFactory.getLogger(AllInOneAITaskExecutor.class);
+	private static final Logger $LOG = LoggerFactory.getLogger(AllInOneAITaskExecutor.class);
 	
 	private ISpiderSession session;
+	
+	private Map<JConcept, List<JRssFeed>> conceptVsFeedsMap = new HashMap<JConcept, List<JRssFeed>>();
 	
 	public AllInOneAITaskExecutor(ISpiderSession session) {
 		this.session = session;
@@ -57,7 +63,7 @@ public class AllInOneAITaskExecutor {
 			URL url = new URL(linkUrl);
 			return url.getProtocol() + "://" + url.getHost();
 		} catch (MalformedURLException e) {
-			LOG.error(e.getMessage(), e);
+			$LOG.error(e.getMessage(), e);
 			return null;
 		}
 	}
@@ -66,26 +72,42 @@ public class AllInOneAITaskExecutor {
 		IWebLinkTrackerService webLinkTrackerService = webCrawlable.getTrackerService();
 
 		try {
+			String notificationMessage = null;
+			String randomNotificationMessage = null;
+			int random = Math.abs(new Random().nextInt()) % (feedsMap.keySet().size());
+			int count = 0;
 			Iterator<String> itr = feedsMap.keySet().iterator();
 			while(itr.hasNext()) {
 				String key = itr.next();
+				count++;
 				List<JRssFeed> feeds = feedsMap.get(key);
 				if(feeds == null)
 					continue;
-				LOG.debug("Total Feeds from " + key + " is = " + feeds.size());
+				int randomCount = 0;
+				int randomIndex = -1;
+				if(count == random) {
+					randomIndex = Math.abs(new Random().nextInt()) % feeds.size();
+				}
+				$LOG.debug("Total Feeds from " + key + " is = " + feeds.size());
 				Iterator<JRssFeed> feedsItr = feeds.iterator();
 				while(feedsItr.hasNext()) {
 					JRssFeed feed = feedsItr.next();
 					feed.setOgTitle(HtmlUtil.cleanUTFCharacters(feed.getOgTitle()));
+					if(randomIndex >= 0) {
+						if(randomCount == randomIndex) {
+							randomNotificationMessage = feed.getOgTitle();
+						}
+						randomCount++;
+					}
 					feed.setOgType(feed.getFeedType());
 					String link = feed.getOgUrl();
 					WebSpiderTracker info = webLinkTrackerService.getTrackedInfo(link);
 					if(session.isThresholdReached()) {
-						LOG.debug("Threshold Reached for the day, will skip all remaining");
+						$LOG.debug("Threshold Reached for the day, will skip all remaining");
 					}
 					if((info != null && info.isUploadCompleted()) || session.isThresholdReached()) {
 						if(info != null && info.isUploadCompleted()) {
-							LOG.debug("Already read earlier thereby skipping link @ " + link);
+							$LOG.debug("Already read earlier thereby skipping link @ " + link);
 						}
 						feedsItr.remove();
 						continue;
@@ -134,15 +156,52 @@ public class AllInOneAITaskExecutor {
 					webLinkTrackerService.upsertCrawledInfo(link, info,
 							RSSConstants.DEFAULT_TTL_WEB_TRACKING_INFO,
 							false);
+					
+					if (!session.hashMoreNotificationMessages()) {
+						List<JConcept> concepts = feed.getConcepts();
+						if (notificationMessage == null && concepts != null
+								&& !concepts.isEmpty()) {
+							for (JConcept concept : concepts) {
+								List<JRssFeed> list = conceptVsFeedsMap
+										.get(concept);
+								if (list == null) {
+									list = new LinkedList<JRssFeed>();
+									conceptVsFeedsMap.put(concept, list);
+								}
+								list.add(feed);
+								if (list.size() > 1) {
+									notificationMessage = feed.getOgTitle();
+								}
+							}
+						}
+					}
 				}
 			}
+			if(notificationMessage == null) {
+				notificationMessage = randomNotificationMessage;
+			}
+			if (notificationMessage != null) {
+				$LOG.debug("About to add notification message for send in session queue = "
+						+ notificationMessage);
+				if (!session.hashMoreNotificationMessages()) {
+					session.addNotificationMessage(notificationMessage);
+				} else {
+					$LOG.debug("But, crawling session has more notification messages, thereby skipping");
+				}
+			} else {
+				if (!session.hashMoreNotificationMessages()) {
+					$LOG.debug("No notification message could be calculated yet");
+				}
+			}
+			conceptVsFeedsMap.clear();
+			conceptVsFeedsMap = null; // Enable GC to destroy
 			/*IFeedUploader feedUploader = currentWebSite.getFeedUploader();
 			if(feedUploader != null) {
 				feedUploader.uploadBulk(rssFeeds);
 			}*/
 			//return deDuplicateFeeds(feedsMap);
 		} catch (Exception e) {
-			LOG.error(e.getMessage(), e);
+			$LOG.error(e.getMessage(), e);
 			//return feedsMap;
 		}
 	}
@@ -153,7 +212,7 @@ public class AllInOneAITaskExecutor {
 		String link = feed.getOgUrl();
 		if (info.getArticleSummaryText() == null) {
 			if (!isNew) {
-				LOG.debug("Article Summary Text is NULL @ " + link);
+				$LOG.debug("Article Summary Text is NULL @ " + link);
 			}
 			IArticleTextSummarizer articleTextSummarizer = webCrawlable
 					.getArticleTextSummarizer();
@@ -192,7 +251,7 @@ public class AllInOneAITaskExecutor {
 		String link = feed.getOgUrl();
 		if (!info.isArticleExtractionDone()) {
 			if (!isNew) {
-				LOG.debug("Article Extraction was NOT yet done for link @ "
+				$LOG.debug("Article Extraction was NOT yet done for link @ "
 						+ link);
 			}
 			IArticleTextExtractor articleTextExtractor = webCrawlable
@@ -230,7 +289,7 @@ public class AllInOneAITaskExecutor {
 	}
 	
 	private String summaryTextWithLengthConstraint(String summaryText) {
-		LOG.debug("[STARTED] Reducing Length for summary text");
+		$LOG.debug("[STARTED] Reducing Length for summary text");
 		String result = summaryText;
 		int numOfWords = 0;
 		try {
@@ -249,9 +308,9 @@ public class AllInOneAITaskExecutor {
 			}
 			result = text.toString();
 		} catch (Exception e) {
-			LOG.debug(e.getMessage(), e);
+			$LOG.debug(e.getMessage(), e);
 		}
-		LOG.debug("[DONE] Reducing Length for summary text");
+		$LOG.debug("[DONE] Reducing Length for summary text");
 		return result;
 	}
 	
@@ -262,7 +321,7 @@ public class AllInOneAITaskExecutor {
 		//ITaxonomyResolver taxonomyResolver = webCrawlable.getTaxonomyResolver();
 		if(info.getTaxonomies().isEmpty()) {
 			if(!isNew) {
-				LOG.debug("Taxonomies NOT resolved @ " + link);
+				$LOG.debug("Taxonomies NOT resolved @ " + link);
 			}
 			needToUpsertLinkInfo = true;
 			JTaxonomy[] taxonomies = null;
@@ -291,7 +350,7 @@ public class AllInOneAITaskExecutor {
 			}
 		} else {
 			if(!isNew) {
-				LOG.debug("Taxonomies NOT resolved @ " + link);
+				$LOG.debug("Taxonomies NOT resolved @ " + link);
 			}
 			feed.getTaxonomies().addAll(info.getTaxonomies());
 		}
@@ -345,7 +404,7 @@ public class AllInOneAITaskExecutor {
 			}
 		} else {
 			if(!isNew) {
-				LOG.debug("Geo Tag NOT resolved @ " + link);
+				$LOG.debug("Geo Tag NOT resolved @ " + link);
 			}
 			feed.getGeoTags().addAll(info.getGeoTags());
 		}

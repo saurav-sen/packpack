@@ -37,6 +37,7 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
 import com.pack.pack.services.ext.HttpRequestExecutor;
+import com.pack.pack.util.LanguageUtil;
 import com.squill.feed.web.model.JRssFeed;
 
 import de.l3s.boilerpipe.extractors.LargestContentExtractor;
@@ -89,7 +90,7 @@ public class WebDocumentParser {
 
 			String article = textHandler.toString();
 			if (article == null || article.trim().isEmpty()) {
-				article = webDocument.document.body().text();
+				article = webDocument.getDocument().body().text();
 			}
 
 			String title = webDocument.getTitle();
@@ -373,6 +374,21 @@ public class WebDocumentParser {
 		description = LanguageUtil.cleanHtmlInvisibleCharacters(description);
 		return description;
 	}
+	
+	private String readOgImage(Document doc) {
+		String imageUrl = null;
+		Elements metaOgImage = doc
+				.select("meta[property=og:image]");
+		if (metaOgImage == null) {
+			metaOgImage = doc
+					.select("meta[property=twitter:image]");
+		}
+		if (metaOgImage != null) {
+			imageUrl = metaOgImage.attr("content");
+		}
+		imageUrl = LanguageUtil.cleanHtmlInvisibleCharacters(imageUrl);
+		return imageUrl;
+	}
 
 	private List<String> readKeywordsList(Document doc) {
 		Elements metaOgKeywords = doc.select("meta[name=keywords]");
@@ -443,16 +459,17 @@ public class WebDocumentParser {
 		removeStyleLinks(doc);
 		String title = readOgTilte(doc);
 		String description = readOgDescription(doc);
+		String imageUrl = readOgImage(doc);
 		List<String> keywordsList = readKeywordsList(doc);
 
 		WebElement primaryElement = findPrimaryElement(doc, description,
 				keywordsList);
 		if (primaryElement == null) {
-			return new WebDocument(title, doc);
+			return new WebDocument(title, description, imageUrl, doc);
 		}
 		Element majorElement = primaryElement.getPrimaryElement();
 		if (majorElement == null) {
-			return new WebDocument(title, doc);
+			return new WebDocument(title, description, imageUrl, doc);
 		}
 
 		Element h1Element = null;
@@ -461,12 +478,12 @@ public class WebDocumentParser {
 			h1Element = h1Elements.get(0);
 		}
 		if (h1Element == null) {
-			return new WebDocument(title, doc);
+			return new WebDocument(title, description, imageUrl, doc);
 		}
 
 		Element _LCA = findLowestCommonAncestor(majorElement, h1Element);
 		if (_LCA == null) {
-			return new WebDocument(title, doc);
+			return new WebDocument(title, description, imageUrl, doc);
 		}
 
 		Elements siblingElements = siblingElements(_LCA);
@@ -496,7 +513,7 @@ public class WebDocumentParser {
 		$LOG.debug(document.text());
 		$LOG.debug(document.outerHtml());
 
-		return new WebDocument(title, document).setSuccess(true);
+		return new WebDocument(title, description, imageUrl, document).setSuccess(true);
 	}
 
 	private void cleanUpLCA(Element lca, Element majorElement) {
@@ -662,41 +679,6 @@ public class WebDocumentParser {
 				size = size - 1;
 				i--;
 			}
-		}
-	}
-
-	private class WebDocument {
-
-		private String title;
-
-		private Document document;
-
-		private boolean success = false;
-
-		private WebDocument(String title, Document document) {
-			this.title = title;
-			this.document = document;
-			setSuccess(false);
-		}
-
-		public String getTitle() {
-			return title;
-		}
-
-		public String getFilteredHtml() {
-			if (document == null) {
-				return "";
-			}
-			return document.outerHtml();
-		}
-
-		public boolean isSuccess() {
-			return success;
-		}
-
-		public WebDocument setSuccess(boolean success) {
-			this.success = success;
-			return this;
 		}
 	}
 

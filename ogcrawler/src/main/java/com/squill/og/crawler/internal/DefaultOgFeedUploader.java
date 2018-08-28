@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.util.RssFeedUtil;
 import com.pack.pack.util.SystemPropertyUtil;
 import com.squill.feed.web.model.JRssFeed;
@@ -115,6 +116,14 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 			} catch (Exception e) {
 				LOG.error(e.getMessage(), e);
 			}
+		}
+		
+		try {
+			while(session.hashMoreNotificationMessages()) {
+				NotificationUtil.broadcastNewRSSFeedUploadSummary(session.getTopNotificationMessage());
+			}
+		} catch (PackPackException e) {
+			LOG.error(e.getMessage(), e);
 		}
 	}
 	
@@ -247,7 +256,7 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 			webLinkTrackerService.upsertCrawledInfo(link, info, RSSConstants.DEFAULT_TTL_WEB_TRACKING_INFO, false);
 		}
 		
-		NotificationUtil.broadcastNewRSSFeedUploadSummary("You have new Items");
+		//NotificationUtil.broadcastNewRSSFeedUploadSummary("You have new Items");
 	}
 	
 	private void dataCleanUp(Map<String, List<JRssFeed>> map) {

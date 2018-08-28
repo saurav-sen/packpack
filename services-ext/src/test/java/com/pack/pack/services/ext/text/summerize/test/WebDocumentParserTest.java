@@ -32,5 +32,9 @@ public class WebDocumentParserTest {
 				.parse("https://www.thehindu.com/news/national/other-states/police-preventing-people-from-joining-hunger-strike-says-hardik-patel/article24778711.ece?homepage=true");
 		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil
 				.serialize(json)));
+		
+		json = new WebDocumentParser()
+				.parse("https://qz.com/india/1370598/google-amazon-and-paytm-want-to-invest-in-indias-future-retail/");
+		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
 	}
 }

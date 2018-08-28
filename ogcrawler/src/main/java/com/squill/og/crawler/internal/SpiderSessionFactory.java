@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +41,8 @@ public class SpiderSessionFactory {
 		
 		private long startTime = 0;
 		
+		private Queue<String> notificationMessages = new LinkedList<String>();
+		
 		private SpiderSessionImpl(IFeedUploader feedUploader) {
 			super(feedUploader);
 		}
@@ -46,6 +50,21 @@ public class SpiderSessionFactory {
 		@Override
 		public synchronized void refresh() {
 			crawledCount = new Count();
+		}
+		
+		@Override
+		public void addNotificationMessage(String message) {
+			notificationMessages.offer(message);
+		}
+		
+		@Override
+		public String getTopNotificationMessage() {
+			return notificationMessages.poll();
+		}
+		
+		@Override
+		public boolean hashMoreNotificationMessages() {	
+			return notificationMessages.peek() != null;
 		}
 
 		@Override

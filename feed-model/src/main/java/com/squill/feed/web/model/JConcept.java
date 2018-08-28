@@ -97,4 +97,17 @@ public class JConcept {
 	public void setConfidence(double confidence) {
 		this.confidence = confidence;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof JConcept) {
+			return this.dbpediaRef.equals(((JConcept)obj).dbpediaRef);
+		}
+		return super.equals(obj);
+	}
+	
+	@Override
+	public int hashCode() {
+		return (this.getClass().getName() + "_" + dbpediaRef).hashCode();
+	}
 }

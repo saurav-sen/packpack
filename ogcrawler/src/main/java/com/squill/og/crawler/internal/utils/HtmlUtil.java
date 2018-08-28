@@ -23,6 +23,7 @@ import com.pack.pack.services.exception.ErrorCodes;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.redis.Base62;
 import com.pack.pack.services.redis.UrlShortener;
+import com.pack.pack.util.LanguageUtil;
 import com.pack.pack.util.SystemPropertyUtil;
 import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JRssFeeds;
@@ -47,12 +48,12 @@ public class HtmlUtil {
 				.replaceFirst("http:/", "http://")
 				.replaceFirst("https:/", "https://");
 	}
-	
+
 	public static String cleanUTFCharacters(String text) {
-		if(text == null) {
+		if (text == null) {
 			return text;
 		}
-		return text.replaceAll("[^\\x00-\\x7F]","");
+		return LanguageUtil.foldToASCII(text.replaceAll("[^\\x00-\\x7F]", ""));
 	}
 
 	public static JRssFeed parse4mHtml(String htmlContent) {
@@ -122,13 +123,13 @@ public class HtmlUtil {
 
 		return feed;
 	}
-	
+
 	public static boolean isSharedPageFileExists(JRssFeed rFeed) {
 		String pageId = resolveHtmlPageId(rFeed);
-		if(pageId == null)
+		if (pageId == null)
 			return false;
 		String url = rFeed.getShareableUrl();
-		if(url == null) {
+		if (url == null) {
 			return false;
 		}
 		if (!url.endsWith(pageId)
@@ -137,13 +138,13 @@ public class HtmlUtil {
 		}
 		return isPageFileExists(url);
 	}
-	
+
 	public static boolean isFullPageFileExists(JRssFeed rFeed) {
 		String pageId = resolveHtmlPageId(rFeed);
-		if(pageId == null)
+		if (pageId == null)
 			return false;
 		String url = rFeed.getSquillUrl();
-		if(url == null) {
+		if (url == null) {
 			return false;
 		}
 		if (!url.endsWith(pageId)
@@ -152,63 +153,63 @@ public class HtmlUtil {
 		}
 		return isPageFileExists(url);
 	}
-	
+
 	private static boolean isPageFileExists(String url) {
-		if(url.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-			url = url.substring(0, url.length()-1);
+		if (url.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+			url = url.substring(0, url.length() - 1);
 		}
-		String baseUrl = SystemPropertyUtil
-				.getExternalSharedLinkBaseUrl();
+		String baseUrl = SystemPropertyUtil.getExternalSharedLinkBaseUrl();
 		if (!baseUrl.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
 			baseUrl = baseUrl + SystemPropertyUtil.URL_SEPARATOR;
 		}
 		$_LOG.trace(url);
 		String path = url.substring(baseUrl.length());
-		path = path.replaceAll(SystemPropertyUtil.URL_SEPARATOR, File.separator);
-		String htmlFolder = SystemPropertyUtil
-				.getDefaultArchiveHtmlFolder();
-		if (!htmlFolder.endsWith(File.separator)
-				&& !htmlFolder.endsWith("/")) {
+		path = path
+				.replaceAll(SystemPropertyUtil.URL_SEPARATOR, File.separator);
+		String htmlFolder = SystemPropertyUtil.getDefaultArchiveHtmlFolder();
+		if (!htmlFolder.endsWith(File.separator) && !htmlFolder.endsWith("/")) {
 			htmlFolder = htmlFolder + File.separator;
 		}
 		return Files.exists(Paths.get(htmlFolder + path));
 	}
-	
+
 	public static String resolveHtmlPageId(JRssFeed rFeed) {
 		String id = rFeed.getShareableUrl();
 		String baseUrl = SystemPropertyUtil.getExternalSharedLinkBaseUrl();
-		if(!baseUrl.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+		if (!baseUrl.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
 			baseUrl = baseUrl + SystemPropertyUtil.URL_SEPARATOR;
 		}
-		if(!id.startsWith(baseUrl))
+		if (!id.startsWith(baseUrl))
 			return null;
-		if(id.equals(baseUrl))
+		if (id.equals(baseUrl))
 			return null;
 		id = id.substring(baseUrl.length());
-		if(id != null) {
-			if(id.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+		if (id != null) {
+			if (id.startsWith(SystemPropertyUtil.URL_SEPARATOR)) {
 				int i = id.indexOf(SystemPropertyUtil.URL_SEPARATOR);
-				if(i >= 0) {
-					id = id.substring(i + SystemPropertyUtil.URL_SEPARATOR.length());
+				if (i >= 0) {
+					id = id.substring(i
+							+ SystemPropertyUtil.URL_SEPARATOR.length());
 				}
 			}
-			if(id.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-				id = id.substring(0, id.lastIndexOf(SystemPropertyUtil.URL_SEPARATOR));
+			if (id.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+				id = id.substring(0,
+						id.lastIndexOf(SystemPropertyUtil.URL_SEPARATOR));
 			}
 		}
 		return id;
 	}
-	
+
 	public static void generateNewsFeedsSharedHtmlPage(JRssFeed rFeed) {
 		String id = rFeed.getShareableUrl();
-		if(id == null) {
+		if (id == null) {
 			boolean storeSharedFeed = false;
 			ShortenUrlInfo shortenUrlInfo;
 			try {
-				shortenUrlInfo = UrlShortener
-						.calculateShortenShareableUrl(rFeed,
-								SystemPropertyUtil.getExternalSharedLinkBaseUrl(),
-								storeSharedFeed);
+				shortenUrlInfo = UrlShortener.calculateShortenShareableUrl(
+						rFeed,
+						SystemPropertyUtil.getExternalSharedLinkBaseUrl(),
+						storeSharedFeed);
 				rFeed.setShareableUrl(shortenUrlInfo.getUrl());
 			} catch (PackPackException e) {
 				$_LOG.error(e.getMessage(), e);
@@ -228,15 +229,15 @@ public class HtmlUtil {
 					&& !htmlFolder.endsWith("/")) {
 				htmlFolder = htmlFolder + File.separator;
 			}
-			while(Files.exists(Paths.get(htmlFolder + id))) {
+			while (Files.exists(Paths.get(htmlFolder + id))) {
 				$_LOG.debug("ID Conflict for page generation. Resolving ...");
-				int decode = Base62.getDecoder().decode(id) + new Random().nextInt();
+				int decode = Base62.getDecoder().decode(id)
+						+ new Random().nextInt();
 				id = Base62.getEncoder().encode(decode);
 			}
 			Files.write(Paths.get(htmlFolder + id), html.getBytes(),
 					StandardOpenOption.CREATE);
-			String baseUrl = SystemPropertyUtil
-					.getExternalSharedLinkBaseUrl();
+			String baseUrl = SystemPropertyUtil.getExternalSharedLinkBaseUrl();
 			if (!baseUrl.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
 				baseUrl = baseUrl + SystemPropertyUtil.URL_SEPARATOR;
 			}
@@ -247,7 +248,7 @@ public class HtmlUtil {
 			$_LOG.error(e.getMessage(), e);
 		}
 	}
-	
+
 	public static void generateNewsFeedsFullHtmlPage(JRssFeed rFeed) {
 		String id = rFeed.getShareableUrl();
 		if (id == null) {
@@ -272,7 +273,8 @@ public class HtmlUtil {
 		try {
 			String today = today();
 			String html = generateFullTextPage(rFeed);
-			String htmlFolder = SystemPropertyUtil.getDefaultArchiveHtmlFolder();
+			String htmlFolder = SystemPropertyUtil
+					.getDefaultArchiveHtmlFolder();
 			if (!htmlFolder.endsWith(File.separator)
 					&& !htmlFolder.endsWith("/")) {
 				htmlFolder = htmlFolder + File.separator + today;
@@ -288,8 +290,7 @@ public class HtmlUtil {
 						+ new Random().nextInt();
 				id = Base62.getEncoder().encode(decode);
 			}
-			String baseUrl = SystemPropertyUtil
-					.getExternalSharedLinkBaseUrl();
+			String baseUrl = SystemPropertyUtil.getExternalSharedLinkBaseUrl();
 			if (!baseUrl.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
 				baseUrl = baseUrl + SystemPropertyUtil.URL_SEPARATOR;
 			}
@@ -303,19 +304,19 @@ public class HtmlUtil {
 			$_LOG.error(e.getMessage(), e);
 		}
 	}
-	
+
 	public static void generateNewsFeedsHtmlPages(JRssFeeds feeds) {
 		List<JRssFeed> rFeeds = feeds.getFeeds();
 		for (JRssFeed rFeed : rFeeds) {
 			String id = rFeed.getShareableUrl();
-			if(id == null) {
+			if (id == null) {
 				boolean storeSharedFeed = false;
 				ShortenUrlInfo shortenUrlInfo;
 				try {
-					shortenUrlInfo = UrlShortener
-							.calculateShortenShareableUrl(rFeed,
-									SystemPropertyUtil.getExternalSharedLinkBaseUrl(),
-									storeSharedFeed);
+					shortenUrlInfo = UrlShortener.calculateShortenShareableUrl(
+							rFeed,
+							SystemPropertyUtil.getExternalSharedLinkBaseUrl(),
+							storeSharedFeed);
 					rFeed.setShareableUrl(shortenUrlInfo.getUrl());
 				} catch (PackPackException e) {
 					$_LOG.error(e.getMessage(), e);
@@ -335,9 +336,10 @@ public class HtmlUtil {
 						&& !htmlFolder.endsWith("/")) {
 					htmlFolder = htmlFolder + File.separator;
 				}
-				while(Files.exists(Paths.get(htmlFolder + id))) {
+				while (Files.exists(Paths.get(htmlFolder + id))) {
 					$_LOG.debug("ID Conflict for page generation. Resolving ...");
-					int decode = Base62.getDecoder().decode(id) + new Random().nextInt();
+					int decode = Base62.getDecoder().decode(id)
+							+ new Random().nextInt();
 					id = Base62.getEncoder().encode(decode);
 				}
 				Files.write(Paths.get(htmlFolder + id), html.getBytes(),
@@ -361,9 +363,10 @@ public class HtmlUtil {
 					}
 					htmlFolder = htmlFolder + File.separator;
 				}
-				while(Files.exists(Paths.get(htmlFolder + id))) {
+				while (Files.exists(Paths.get(htmlFolder + id))) {
 					$_LOG.debug("ID Conflict for page generation. Resolving ...");
-					int decode = Base62.getDecoder().decode(id) + new Random().nextInt();
+					int decode = Base62.getDecoder().decode(id)
+							+ new Random().nextInt();
 					id = Base62.getEncoder().encode(decode);
 				}
 				Files.write(Paths.get(htmlFolder + id), html.getBytes(),
@@ -387,11 +390,14 @@ public class HtmlUtil {
 		try {
 			Markup markup = new Markup();
 			String ogImage = feed.getOgImage();
-			if(ogImage == null) {
-				String url = feed.getOgUrl() != null ? feed.getOgUrl() : feed.getHrefSource();
-				$_LOG.debug("[SharedPage Generation] ogImage is NULL for " + url + " Setting it to default SquillShare.jpg");
-				String baseUrl = SystemPropertyUtil.getExternalSharedLinkBaseUrl();
-				if(!baseUrl.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+			if (ogImage == null) {
+				String url = feed.getOgUrl() != null ? feed.getOgUrl() : feed
+						.getHrefSource();
+				$_LOG.debug("[SharedPage Generation] ogImage is NULL for "
+						+ url + " Setting it to default SquillShare.jpg");
+				String baseUrl = SystemPropertyUtil
+						.getExternalSharedLinkBaseUrl();
+				if (!baseUrl.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
 					baseUrl = baseUrl + SystemPropertyUtil.URL_SEPARATOR;
 				}
 				ogImage = baseUrl + "SquillShare.jpg";
@@ -412,14 +418,17 @@ public class HtmlUtil {
 		try {
 			Markup markup = new Markup();
 			JSharedFeed sh = new JSharedFeed();
-			String url = feed.getOgUrl() != null ? feed.getOgUrl() : feed.getHrefSource();
+			String url = feed.getOgUrl() != null ? feed.getOgUrl() : feed
+					.getHrefSource();
 			sh.setActualUrl(url);
 			sh.setDescription(feed.getOgDescription());
 			String ogImage = feed.getOgImage();
-			if(ogImage == null) {
-				$_LOG.debug("[SharedPage Generation] ogImage is NULL for " + url + " Setting it to default SquillShare.jpg");
-				String baseUrl = SystemPropertyUtil.getExternalSharedLinkBaseUrl();
-				if(!baseUrl.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
+			if (ogImage == null) {
+				$_LOG.debug("[SharedPage Generation] ogImage is NULL for "
+						+ url + " Setting it to default SquillShare.jpg");
+				String baseUrl = SystemPropertyUtil
+						.getExternalSharedLinkBaseUrl();
+				if (!baseUrl.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
 					baseUrl = baseUrl + SystemPropertyUtil.URL_SEPARATOR;
 				}
 				ogImage = baseUrl + "SquillShare.jpg";

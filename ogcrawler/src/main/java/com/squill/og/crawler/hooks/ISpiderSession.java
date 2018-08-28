@@ -29,5 +29,11 @@ public interface ISpiderSession {
 	
 	public void incrementCrawledCount(int incCountBy);
 	
+	public void addNotificationMessage(String message);
+	
+	public String getTopNotificationMessage();
+	
+	public boolean hashMoreNotificationMessages();
+	
 	public void refresh();
 }
