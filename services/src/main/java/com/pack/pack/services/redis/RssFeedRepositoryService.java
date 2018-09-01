@@ -7,9 +7,14 @@ import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_POSIT
 
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
@@ -221,11 +226,35 @@ public class RssFeedRepositoryService {
 		if(value == null) {
 			value = "";
 		}
-		String nValue = String.valueOf(batchId);
+		String[] split = value.split(";");
+		Set<Long> sortedSet = new TreeSet<Long>(new Comparator<Long>() {
+			@Override
+			public int compare(Long o1, Long o2) {
+				long r = o2 - o1;
+				return r == 0 ? 0 : (r > 0 ? 1 : -1);
+			}
+		});
+		for(String s : split) {
+			if(s == null || s.trim().isEmpty())
+				continue;
+			sortedSet.add(Long.parseLong(s));
+		}
+		sortedSet.add(batchId);
+		StringBuilder stringBuilder = new StringBuilder();
+		Iterator<Long> itr = sortedSet.iterator();
+		while(itr.hasNext()) {
+			Long v = itr.next();
+			stringBuilder.append(v);
+			if(itr.hasNext()) {
+				stringBuilder.append(";");
+			}
+		}
+		sync.set(setKey, stringBuilder.toString());
+		/*String nValue = String.valueOf(batchId);
 		if(!value.contains(nValue)) {
 			value = nValue + ";" + value;
 			sync.set(setKey, value);
-		}
+		}*/
 	}
 
 	public void uploadNewsFeed(RSSFeed feed, TTL ttl, long batchId, boolean updatePaginationInfo)
@@ -311,6 +340,52 @@ public class RssFeedRepositoryService {
 				sync.zrem(setKey, key);
 			}
 		}
+		
+		String rangeKey = setKey + LATEST_SCORE;
+		String ranges = sync.get(rangeKey);
+		if(ranges != null && !ranges.trim().isEmpty()) {
+			ranges = removeExpiredRanges(ranges);
+			if(ranges != null && !ranges.trim().isEmpty()) {
+				sync.set(rangeKey, ranges);
+			}
+		}
+	}
+	
+	private String removeExpiredRanges(String rangesValue) {
+		String[] ranges = rangesValue.split(";");
+		Set<Long> set = new TreeSet<Long>(new Comparator<Long>() {
+			
+			@Override
+			public int compare(Long o1, Long o2) {
+				long r = o2 - o1;
+				return r == 0 ? 0 : (r > 0 ? 1 : -1);
+			}
+		});
+		for(String range : ranges) {
+			if(range == null || range.trim().isEmpty())
+				continue;
+			set.add(Long.parseLong(range.trim()));
+		}
+		long first = -1;
+		long diff = 50 * 60 * 60 * 1000;
+		Iterator<Long> itr = set.iterator();
+		while(itr.hasNext()) {
+			Long v = itr.next();
+			if(first < 0) {
+				first = v;
+			} else if(first - v > diff) {
+				itr.remove();
+			}
+		}
+		StringBuilder finalRangesValue = new StringBuilder();
+		itr = set.iterator();
+		while(itr.hasNext()) {
+			finalRangesValue.append(itr.next());
+			if(itr.hasNext()) {
+				finalRangesValue.append(";");
+			}
+		}
+		return finalRangesValue.toString();
 	}
 	
 	private List<String> resolveAllSetKeys(
@@ -389,7 +464,7 @@ public class RssFeedRepositoryService {
 		keys = resolveKeysForPagination(sync, r1, r2, setKey);
 		$_LOG.trace("Keys = " + StringUtils.stringify(keys));
 		if (keys == null || keys.isEmpty()) { // This means all the keys got expired due to TTL (And have been removed earlier or during auto sync, but ranges/scores NOT updated accordingly)
-			removeAllExpiredRanges(rangeKey, split, timestamp);
+			//removeAllExpiredRanges(rangeKey, split, timestamp);
 			return endOfPageResponse(timestamp, max);
 		} else {
 			for (String key : keys) {
@@ -402,7 +477,7 @@ public class RssFeedRepositoryService {
 				feeds.add(feed);
 			}
 			if(feeds.isEmpty()) { // This means all the keys got expired due to TTL
-				removeAllExpiredRanges(rangeKey, split, timestamp);
+				//removeAllExpiredRanges(rangeKey, split, timestamp);
 				return endOfPageResponse(timestamp, max);
 			} else {
 				String nextLink = String.valueOf(min) + PAGELINK_DIRECTION_NEGATIVE;
@@ -430,6 +505,14 @@ public class RssFeedRepositoryService {
 			page.setTimestamp(min);
 		} else {
 			page.setTimestamp(max);
+		}
+		
+		if(direction >= 0) {
+			page.setNextLink(page.getTimestamp() + PAGELINK_DIRECTION_POSITIVE);
+			page.setPreviousLink(page.getTimestamp() + PAGELINK_DIRECTION_NEGATIVE);
+		} else {
+			page.setNextLink(page.getTimestamp() + PAGELINK_DIRECTION_NEGATIVE);
+			page.setPreviousLink(page.getTimestamp() + PAGELINK_DIRECTION_POSITIVE);
 		}
 		
 		return page;
@@ -461,7 +544,7 @@ public class RssFeedRepositoryService {
 		return page;
 	}
 	
-	private void removeAllExpiredRanges(String rangeKey, String[] rangesArr, long timestamp) {
+	/*private void removeAllExpiredRanges(String rangeKey, String[] rangesArr, long timestamp) {
 		int i = 0;
 		RedisCommands<String, String> sync = getSyncRedisCommands();
 		StringBuilder updatedRanges = new StringBuilder();
@@ -474,29 +557,41 @@ public class RssFeedRepositoryService {
 		String ranges = updatedRanges.toString();
 		$_LOG.debug("After removing expired ranges = " + ranges);
 		sync.set(rangeKey, ranges);
+	}*/
+	
+	public void test() {
+		String[] scores = new String[] { "1535778663195", "1535771463195",
+				"1535764263195", "1535757063183", "1535757064222",
+				"1535749863195", "1535742663195", "1535735463195",
+				"1535728263195", "1535721063195", "1535713863195",
+				"1535706663195", "1535699463195", "1535692263195",
+				"1535685063195", "1535677863195", "1535670664518",
+				"1535670664517", "1535663463195", "1535656263195",
+				"1535649063195", "1535641863195", "1535634663195",
+				"1535627463195", "1535620263195", "1535613063195",
+				"1535605863195", "1535598663195", "1535591463195",
+				"1535584263211", "1535566514641", "1535559314641",
+				"1535552114659" };
+		//long score = Long.parseLong("1535757064222");
+		//long[] ranges = resolveRangeScores(scores, score, 1);
+		//System.out.println(StringUtils.stringify(ranges));
+		scores = new String[] { "10", "20", "30", "40", "50", "60",
+				"70", "80", "90", "100", "110", "120", "130", "140", "150",
+				"160", "170", "180", "190", "200", "210", "220", "230", "240",
+				"250", "260", "270", "280", "290", "300", "310", "320", "330" };
+		List<String> asList = Arrays.asList(scores);
+		Collections.reverse(asList);
+		scores = asList.toArray(new String[scores.length]);
+		//System.out.println(StringUtils.stringify(scores));
+		long[] ranges = new long[] {Long.parseLong(scores[2])};
+		while(ranges.length > 0) {
+			long score = ranges[0];
+			ranges = resolveRangeScores(scores, score, 1);
+			System.out.println(StringUtils.stringify(ranges));
+		}
 	}
 	
-	/*public static void main(String[] args) {
-		String str = "1532856567785;1532849367789;1532848564104;1532846324844;1532773602996;1532773160915;1532765960926;1532551329916;1532379579973;1532372379982;1532333901679;1532326701670;1532319501679;1532312301679;1532305101679;1532297901679;1532290701679;1532283501679;1532276301679;1532269101679;1532261901679;1532254701679;1532247501679;1532240301682;1531457146850;1531449946850;1531442746850;1531435546850;1531428346850;1531421146850;1531413946850;1531406746850;1531399546850;1531392346850;1531385146850;1531377946840;1531370746850;1531363546850;1531356346850;1531349146850;1531341946850;1531334746850;1531327546850;1531320346850;1531313146850;1531305946850;1531298746850;1531291546840;1531284346850;1531277146850;1531269946850;1531262746850;1531255546850;1531248346850;1531241146850;1531233946850;1531226746850;1531219546850;1531212346850;1531205146840;1531197946850;1531190746850;1531183546850;1531176346850;1531169146850;1531161946850;1531154746850;1531147546850;1531140346850;1531133146850;1531125946850;1531118746840;1531111546850;1531104346850;1531097146850;1531089946850;1531082746850;1531075546850;1531068346850;1531061146850;1531053946850;1531046746850;1531039546850;1531032346840;1531025146850;1531017946850;1531010746850;1531003546850;1530996346850;1530989146850;1530981946850;1530974746850;1530967546850;1530960346850;1530953146850;1530945946840;1530938746850;1530931546850;1530924346850;1530917146850;1530909946850;1530902746850;1530895546850;1530888346850;1530881146850;1530873946850;1530866746850;1530859546840;1530852346850;1530845146850;1530837946850;1530830746850;1530823546850;1530816346850;1530809146850;1530801946850;1530794746850;1530787546850;1530780346850;1530773146840;1530765946850;1530758746850;1530751546850;1530744346850;1530737146850;1530729946850;1530722746850;1530715546850;1530708346850;1530701146850;1530693946850";
-		String[] split = str.split(";");
-		long timestamp = 0;
-		int direction = 1;
-		long[] scores = new long[0];
-		do {
-			scores = resolveRangeScores(split, timestamp, direction);
-			if(scores.length == 0) {
-				break;
-			}
-			long r1 = scores[0];
-			long r2 = scores[1];
-			System.out.println("r1=" + r1 + " r2=" + r2);
-			long max = r1 >= r2 ? r1 : r2;
-			long min = r1 <= r2 ? r1 : r2;
-			if(direction >= 0) {
-				timestamp = min;
-			} else {
-				timestamp = max;
-			}
-		} while(scores.length > 1);
-	}*/
+	public static void main(String[] args) {
+		new RssFeedRepositoryService().test();
+	}
 }

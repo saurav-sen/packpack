@@ -59,8 +59,9 @@ public class TestDataSet {
 	}
 
 	public String getUserFullName(int seqNo) {
-		int index = Math.abs(new Random().nextInt() % names.length);
-		return names[index];
+		/*int index = Math.abs(new Random().nextInt() % names.length);
+		return names[index];*/
+		return "Saurav Sen";
 	}
 	
 	public String getUserEmail(int seqNo) {
@@ -71,7 +72,8 @@ public class TestDataSet {
 		}
 		return ID;*/
 		//return "sourabhnits@gmail.com";
-		return "dbe67b466165409687b6fef497860672@testmail.com";
+		/*return "dbe67b466165409687b6fef497860672@testmail.com";*/
+		return "sourabhnits@gmail.com";
 	}
 	
 	public double getUserLongitude(int seqNo) {

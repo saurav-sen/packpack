@@ -4,6 +4,7 @@ import com.pack.pack.client.api.API;
 import com.pack.pack.client.api.APIBuilder;
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
+import com.pack.pack.model.web.JUser;
 
 /**
  * 
@@ -24,7 +25,8 @@ public class SignUpUserTest {
 					.addApiParam(APIConstants.User.Register.LATITUDE, TestDataSet.getInstance().getUserLatitude(session.getSeqNo()))
 					.addApiParam(APIConstants.User.Register.VERIFIER, TestDataSet.getInstance().getSpecialSignUpVerifierCode())
 					.build();
-			api.execute();
+			JUser user = (JUser) api.execute();
+			System.out.println(user.getName());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

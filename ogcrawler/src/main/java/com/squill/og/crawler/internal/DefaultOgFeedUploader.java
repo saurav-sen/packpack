@@ -240,7 +240,9 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		
 		HtmlUtil.generateNewsFeedsHtmlPages(rssFeeds);
 		
-		RssFeedUtil.uploadNewsFeeds(rssFeeds, ttl, batchId, true);
+		//RssFeedUtil.uploadNewsFeeds(rssFeeds, ttl, batchId, true);
+		
+		RssFeedUtil.uploadNewsFeeds(rssFeeds, ttl, System.currentTimeMillis(), true);
 		
 		IWebLinkTrackerService webLinkTrackerService = webCrawlable.getTrackerService();
 		List<JRssFeed> feeds = rssFeeds.getFeeds();

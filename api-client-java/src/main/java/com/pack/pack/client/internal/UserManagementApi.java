@@ -85,9 +85,7 @@ class UserManagementApi extends BaseAPI {
 		@SuppressWarnings("unchecked")
 		public Object invoke(MultipartRequestProgressListener listener) throws Exception {
 			Object result = null;
-			/*if (action == COMMAND.SIGN_IN) {
-				result = signIn(params);
-			} else */if (action == COMMAND.SIGN_UP) {
+			if (action == COMMAND.SIGN_UP) {
 				result = signUp(params);
 			} else if (action == COMMAND.EDIT_USER_CATEGORIES) {
 				String userId = (String) params.get(APIConstants.User.ID);

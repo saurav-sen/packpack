@@ -248,7 +248,7 @@ public class JRssFeed {
 	
 	@Override
 	public int hashCode() {
-		return (getClass().getName() + "_" + id).hashCode();
+		return (getClass().getName() + "_" + ogUrl).hashCode();
 	}
 
 	@Override
@@ -256,7 +256,7 @@ public class JRssFeed {
 		if (!(obj instanceof JRssFeed)) {
 			return false;
 		}
-		return this.id.equals(((JRssFeed) obj).getId());
+		return this.ogUrl.equals(((JRssFeed) obj).getOgUrl());
 	}
 
 	public String getSquillUrl() {

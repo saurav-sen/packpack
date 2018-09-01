@@ -113,6 +113,7 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 		}
 		$_LOG.info("Direction = " + direction);
 		boolean needToIterate = false;
+		long pageTimestamp = page.getTimestamp();
 		String previousLink = page.getPreviousLink();
 		String nextLink = page.getNextLink();
 		List<JRssFeed> feeds = page.getResult();
@@ -129,6 +130,9 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 					.getPreviousLink();
 			result.addAll(feeds);
 			needToIterate = true;
+			previousLink = page0.getPreviousLink();
+			nextLink = page0.getNextLink();
+			pageTimestamp = page0.getTimestamp();
 		}
 		if (needToIterate) {
 			$_LOG.debug("Needed to iterate over multiple pages due to MINIMUM_PAGE_SIZE");
@@ -140,6 +144,7 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 			page.setPreviousLink(previousLink);
 			page.setResult(result);
 			page.setNextLink(nextLink);
+			page.setTimestamp(pageTimestamp);
 		}
 		return page;
 	}

@@ -54,7 +54,11 @@ public class UserServiceImpl implements IUserService {
 		List<User> users = service.getBasedOnUsername(email);
 		if (users == null || users.isEmpty()) {
 			service.add(user);
+		} else if(users.size() > 1) {
+			$_LOG.error("Multiple Users found with Email = " + email);
+			return ModelConverter.convert(users.get(0));
 		} else {
+			user = users.get(0);
 			service.update(user);
 		}
 		users = service.getBasedOnUsername(email);

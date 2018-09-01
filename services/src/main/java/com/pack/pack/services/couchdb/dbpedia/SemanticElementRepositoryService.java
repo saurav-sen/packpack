@@ -28,7 +28,7 @@ import com.pack.pack.model.SemanticElement;
 		@View(name = "findDbpediaRefLink", map = "function(doc) { if(doc.dbpediaRef) { emit(doc.dbpediaRef); } }") })
 public class SemanticElementRepositoryService extends
 		CouchDbRepositorySupport<SemanticElement> {
-
+	
 	@Autowired
 	public SemanticElementRepositoryService(
 			@Qualifier("packDB") CouchDbConnector db) {
@@ -41,7 +41,7 @@ public class SemanticElementRepositoryService extends
 	}
 
 	public SemanticElement findByConceptId(String conceptId) {
-		ViewQuery query = createQuery("findConceptById").key(conceptId);
+		ViewQuery query = createQuery("findByConceptId").key(conceptId);
 		List<SemanticElement> result = db.queryView(query,
 				SemanticElement.class);
 		if (result == null || result.isEmpty())

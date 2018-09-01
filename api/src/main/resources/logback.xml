@@ -35,10 +35,10 @@
 	
 	<!--logger name="com.pack.pack.services" level="debug" /-->
 	
-	<logger name="com.pack.pack" level="info" />
+	<logger name="com.pack.pack" level="trace" />
 
 	<logger name="packpack">
-		<level value="info" />
+		<level value="trace" />
 	</logger>
 
 	<root>

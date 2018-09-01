@@ -33,11 +33,11 @@ public abstract class DailyFixedSizeLinkFilter implements ILinkFilter {
 		if(!needToRefresh) {
 			return;
 		}
-		IWebLinkTrackerService service = getTrackerService();
+		/*IWebLinkTrackerService service = getTrackerService();
 		String todaysKey = today() + todayKeySuffix();
 		long ttlSeconds = 24 * 60 * 60;
 		service.addValue(KEY_PREFIX, todaysKey, String.valueOf(0),
-				ttlSeconds);
+				ttlSeconds);*/
 		needToRefresh = false;
 	}
 
@@ -104,5 +104,6 @@ public abstract class DailyFixedSizeLinkFilter implements ILinkFilter {
 		}
 		service.addValue(KEY_PREFIX, todaysKey, String.valueOf(intValue),
 				ttlSeconds);
+		LOG.debug("Incremented in :: " + KEY_PREFIX + todaysKey);
 	}
 }
