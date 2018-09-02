@@ -74,6 +74,10 @@ public class AllInOneAITaskExecutor {
 		try {
 			String notificationMessage = null;
 			String randomNotificationMessage = null;
+			if(feedsMap.isEmpty()) {
+				$LOG.debug("Feeds Map Received is EMPTY, skipping AI workflow requests completely.");
+				return;
+			}
 			int random = Math.abs(new Random().nextInt()) % (feedsMap.keySet().size());
 			int count = 0;
 			Iterator<String> itr = feedsMap.keySet().iterator();

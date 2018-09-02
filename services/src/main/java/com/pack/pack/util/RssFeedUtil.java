@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,8 +34,10 @@ public class RssFeedUtil {
 		LOG.info("Classification done. Uploading Refreshment feeds to DB");
 		try {
 			List<JRssFeed> list = new LinkedList<JRssFeed>();
+			int size = 0;
 			List<JRssFeed> newFeeds = feeds.getFeeds();
 			if (newFeeds != null && !newFeeds.isEmpty()) {
+				size = newFeeds.size();
 				// TTL ttl = new TTL();
 				ttl.setTime((short) 2);
 				ttl.setUnit(TimeUnit.DAYS);
@@ -44,13 +45,13 @@ public class RssFeedUtil {
 						.findCompositeService(IRefreshmentFeedService.class);
 				for (JRssFeed feed : newFeeds) {
 					boolean f = service.upload(feed, ttl, batchId);
-					LOG.info("Upleaded Refreshment Feed = " + f);
+					LOG.info("Uploaded Refreshment Feed = " + f);
 					if (f) {
 						list.add(feed);
 					}
 				}
 			}
-			LOG.info("Successfully uploaded Refreshment feeds in DB");
+			LOG.info("Successfully uploaded Refreshment " + list.size() + " out of " + size + " feeds in DB");
 		} catch (PackPackException e) {
 			LOG.error(e.getErrorCode() + "::" + e.getMessage(), e);
 		}
@@ -60,21 +61,23 @@ public class RssFeedUtil {
 			boolean sendNotification) {
 		LOG.info("Classification done. Uploading News feeds to DB");
 		try {
+			int size = 0;
 			List<JRssFeed> list = new LinkedList<JRssFeed>();
 			List<JRssFeed> newFeeds = feeds.getFeeds();
 			if (newFeeds != null && !newFeeds.isEmpty()) {
 				// TTL ttl = new TTL();
+				size = newFeeds.size();
 				ttl.setTime((short) 2);
 				ttl.setUnit(TimeUnit.DAYS);
 				INewsFeedService service = ServiceRegistry.INSTANCE
 						.findCompositeService(INewsFeedService.class);
 				boolean f = service.upload(feeds.getFeeds(), ttl, batchId);
-				LOG.info("Upleaded News Feed = " + f);
+				LOG.info("Uploaded News Feed = " + f);
 				if (f) {
 					list.addAll(feeds.getFeeds());
 				}
 			}
-			LOG.info("Successfully uploaded News feeds in DB");
+			LOG.info("Successfully uploaded News " + list.size() + " out of " + size + " feeds in DB");
 		} catch (PackPackException e) {
 			LOG.error(e.getErrorCode() + "::" + e.getMessage(), e);
 		}

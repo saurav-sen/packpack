@@ -62,11 +62,11 @@ public class FeedUploadUtil {
 	}
 
 	public static JRssFeeds reloadSelectiveFeeds(boolean ignoreOlder) {
-		String mlWC = SystemPropertyUtil.getMlWorkingDirectory();
-		if (mlWC == null) {
+		String workingDirectory = SystemPropertyUtil.getDefaultArchiveRefreshmentFolder();
+		if (workingDirectory == null) {
 			return null;
 		}
-		File mlWCDir = new File(mlWC);
+		File mlWCDir = new File(workingDirectory);
 		if (!mlWCDir.exists()) {
 			return null;
 		}

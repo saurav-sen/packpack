@@ -78,13 +78,9 @@ public final class SystemPropertyUtil {
 	private static final String GOOGLE_GEO_CODING_API_KEY = "google.geo.coding.api_key";
 
 	private static final String WEB_PAGES_ROOT_PATH = "web.pages.root.path";
-
-	private static final String ML_WORKING_DIR = "ml.work.dir";
-	private static final String ML_SERVER_START_MODE = "ml.server.mode";
 	
 	private static final String NEWS_API_ORG_KEY = "news.api.org.key";
 
-	public static final String ML_SERVER_TEST_MODE = "test";
 	public static final String ML_SERVER_CLASSIFY_MODE = "classify";
 
 	private static final String FEED_SELECTION_STRATEGY_KEY = "feed.selection.strategy.name";
@@ -123,6 +119,7 @@ public final class SystemPropertyUtil {
 	
 	private static final String DEFAULT_ARCHIVE_FOLDER = "archive/";
 	private static final String DEFAULT_ARCHIVE_HTML_FOLDER = "html";
+	private static final String DEFAULT_ARCHIVE_REFRESHMENT_FOLDER = "refreshment";
 	
 	private SystemPropertyUtil() {
 	}
@@ -154,6 +151,11 @@ public final class SystemPropertyUtil {
 	
 	public static String getDefaultArchiveHtmlFolder() {
 		String path = getDefaultArchiveFolder() + DEFAULT_ARCHIVE_HTML_FOLDER;
+		return path;
+	}
+	
+	public static String getDefaultArchiveRefreshmentFolder() {
+		String path = getDefaultArchiveFolder() + DEFAULT_ARCHIVE_REFRESHMENT_FOLDER;
 		return path;
 	}
 	
@@ -215,14 +217,6 @@ public final class SystemPropertyUtil {
 	
 	public static String getAttachmentStoryHome() {
 		return getPropertyValue(ATTACHMENT_STORY_HOME);
-	}
-
-	public static String getMlServerMode() {
-		return getPropertyValue(ML_SERVER_START_MODE);
-	}
-
-	public static String getMlWorkingDirectory() {
-		return getPropertyValue(ML_WORKING_DIR);
 	}
 
 	public static String getFFmpegCommand() {

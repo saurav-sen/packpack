@@ -3,7 +3,6 @@ package com.pack.pack.client.api.test;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,7 +12,6 @@ import com.pack.pack.client.api.APIBuilder;
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.client.api.PageUtil;
-import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.Pagination;
 import com.squill.feed.web.model.JRssFeed;
@@ -38,6 +36,7 @@ public class GetNewsTest extends BaseTest {
 			Pagination<JRssFeed> page = (Pagination<JRssFeed>) api.execute();
 			total = total + page.getResult().size();
 			//System.out.println(JSONUtil.serialize(page.getResult()));
+			Set<String> nextLinksSet = new HashSet<String>();
 			int count = 0;
 			while (!page.getResult().isEmpty()) {
 				List<JRssFeed> result = page.getResult();
@@ -67,6 +66,9 @@ public class GetNewsTest extends BaseTest {
 				count++;
 				total = total + page.getResult().size();
 				//System.out.println(JSONUtil.serialize(page.getResult()));
+				if(!nextLinksSet.add(PageUtil.buildNextPageLink(page.getTimestamp()))) {
+					System.out.println("Duplicate Links");
+				}
 				System.out.println("Next --> " + PageUtil.buildNextPageLink(page.getTimestamp()));
 				System.out.println("*****************************************");
 				api = APIBuilder

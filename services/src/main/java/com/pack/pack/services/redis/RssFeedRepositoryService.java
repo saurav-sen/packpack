@@ -263,10 +263,11 @@ public class RssFeedRepositoryService {
 		$_LOG.info("Uploading Feed for " + feedType);
 		$_LOG.info("Uploading " + feedType + " Feed @ " + feed.getOgUrl());
 		$_LOG.info("Uploading Feed Titled :: " + feed.getOgTitle());
-		String json = JSONUtil.serialize(feed);
 		RedisCommands<String, String> sync = getSyncRedisCommands();
 		long ttlSeconds = resolveTTL_InSeconds(ttl);
 		String key = RssFeedUtil.generateUploadKey(feed);
+		feed.setId(key);
+		String json = JSONUtil.serialize(feed);
 		if(updatePaginationInfo) {
 			$_LOG.info("Updating pagination infomation");
 			String setKey = SET_KEY_PREFIX + RssFeedUtil.resolvePrefix(feed);
