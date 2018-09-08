@@ -1,10 +1,14 @@
 package com.squill.crawler.email;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,9 +31,36 @@ public class EmailReaderUtil {
 	private static final Pattern REGEX = Pattern
 			.compile("(?:(?:https?|ftp):\\/\\/)?[\\w/\\-?=%.]+\\.[\\w/\\-?=%.]+");
 	
-	private static final Logger LOG = LoggerFactory.getLogger(EmailReaderUtil.class);
+	private static final String REGISTERED_PUBLISHERS_CONFIG_FILE = "../conf/registered_email_publisher.properties";
+	private static final String REGISTERED_PUBLISHERS_LIST = "register.email.publishers.list";
+	
+	private static final Logger $LOG = LoggerFactory.getLogger(EmailReaderUtil.class);
 
 	private EmailReaderUtil() {
+	}
+	
+	public static Set<String> registeredEmailPublishersList() {
+		Set<String> registeredEmailPublishers = new HashSet<String>();
+		try {
+			Properties properties = new Properties();
+			properties.load(new FileInputStream(new File(REGISTERED_PUBLISHERS_CONFIG_FILE)));
+			String value = (String) properties.get(REGISTERED_PUBLISHERS_LIST);
+			if(value == null || value.trim().isEmpty())
+				return registeredEmailPublishers;
+			String[] split = value.trim().split("\\|");
+			if(split == null || split.length == 0)
+				return registeredEmailPublishers;
+			for(String s : split) {
+				if(s == null || s.trim().isEmpty())
+					continue;
+				registeredEmailPublishers.add(s.trim());
+			}
+		} catch (FileNotFoundException e) {
+			$LOG.error(e.getMessage(), e);
+		} catch (IOException e) {
+			$LOG.error(e.getMessage(), e);
+		}
+		return registeredEmailPublishers;
 	}
 
 	public static Set<String> extractLinks(Message message)
@@ -62,7 +93,7 @@ public class EmailReaderUtil {
 					itr.remove();
 				}
 			} catch (MalformedURLException e) {
-				LOG.error(e.getMessage(), e);
+				$LOG.error(e.getMessage(), e);
 				itr.remove();
 			}
 		}
@@ -102,7 +133,7 @@ public class EmailReaderUtil {
 		return result;
 	}
 	
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		String text = "The link of this question: https://stackoverflow.com/questions/6038061/regular-expression-to-find-urls-within-a-string\n"
 				+ "Also there are some urls: www.google.com, facebook.com, http://test.com/method?param=wasd\n"
 				+ "The code below catches all urls in text and returns urls in list.";
@@ -110,5 +141,5 @@ public class EmailReaderUtil {
 		for (String link : links) {
 			System.out.println(link);
 		}
-	}
+	}*/
 }

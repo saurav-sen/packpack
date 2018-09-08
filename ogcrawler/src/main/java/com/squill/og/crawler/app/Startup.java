@@ -115,8 +115,8 @@ public class Startup {
 				List<ICrawlable> allCrawlables = new ArrayList<ICrawlable>();
 				allCrawlables.addAll(websites);
 				allCrawlables.addAll(webApis);
-				if(allCrawlables.isEmpty())
-					return;
+				/*if(allCrawlables.isEmpty())
+					return;*/
 				WebSpiderService webSpiderService = appContext
 						.findService(WebSpiderService.class);
 				webSpiderService.startCrawling(allCrawlables, feedUploader);
@@ -157,6 +157,7 @@ public class Startup {
 			if (webSpiderService != null) {
 				webSpiderService.shutdown();
 			}
+			appContext.shutdown();
 			LOG.debug("Stopped Crawler Application");
 		} catch (OgCrawlException e) {
 			LOG.debug(e.getMessage(), e);

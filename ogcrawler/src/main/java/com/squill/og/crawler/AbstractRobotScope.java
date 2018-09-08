@@ -1,6 +1,5 @@
 package com.squill.og.crawler;
 
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
@@ -108,7 +107,7 @@ public abstract class AbstractRobotScope implements IRobotScope {
 	}
 	
 	@Override
-	public final void incrementLinkCount() {
+	public void incrementLinkCount() {
 		linkCount++;
 	}
 }

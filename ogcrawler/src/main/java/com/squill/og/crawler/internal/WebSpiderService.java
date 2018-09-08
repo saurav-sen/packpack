@@ -110,16 +110,16 @@ public class WebSpiderService {
 			{
 				Spider emailSpider = SpiderFactory.INSTANCE
 						.createSupportEmailSpider();
-				Future<?> future = pool.scheduleAtFixedRate(emailSpider, 0, 1,
-						TimeUnit.HOURS);
+				Future<?> future = pool.scheduleAtFixedRate(emailSpider, 0, 30,
+						TimeUnit.MINUTES);
 				list.add(future);
 			}
 			
-			{
+			/*{
 				Future<?> future = pool.scheduleAtFixedRate(new PeriodicFeedUploadTask(), 0, 1,
 						TimeUnit.DAYS);
 				list.add(future);
-			}
+			}*/
 			
 			// Main thread should keep waiting forever.
 			waitFor(list);

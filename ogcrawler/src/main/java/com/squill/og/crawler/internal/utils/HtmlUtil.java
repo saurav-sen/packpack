@@ -2,6 +2,8 @@ package com.squill.og.crawler.internal.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -120,6 +122,15 @@ public class HtmlUtil {
 		feed.setOgUrl(hrefUrl);
 		feed.setHrefSource(hrefUrl);
 		feed.setOgType(type);
+		
+		try {
+			URL url = new URL(hrefUrl);
+			if(url.getHost().contains("youtube.") || url.getHost().contains("youtu.be")) {
+				feed.setVideoUrl(hrefUrl);
+			}
+		} catch (MalformedURLException e) {
+			$_LOG.error(e.getMessage(), e);
+		}
 
 		return feed;
 	}
@@ -230,7 +241,7 @@ public class HtmlUtil {
 				htmlFolder = htmlFolder + File.separator;
 			}
 			while (Files.exists(Paths.get(htmlFolder + id))) {
-				$_LOG.debug("ID Conflict for page generation. Resolving ...");
+				$_LOG.debug("ID Conflict for page generation. Resolving ... id = " + id);
 				int decode = Base62.getDecoder().decode(id)
 						+ new Random().nextInt();
 				id = Base62.getEncoder().encode(decode);
@@ -250,6 +261,7 @@ public class HtmlUtil {
 	}
 
 	public static void generateNewsFeedsFullHtmlPage(JRssFeed rFeed) {
+		$_LOG.debug("generateNewsFeedsFullHtmlPage(...)");
 		String id = rFeed.getShareableUrl();
 		if (id == null) {
 			boolean storeSharedFeed = false;
@@ -285,7 +297,7 @@ public class HtmlUtil {
 				htmlFolder = htmlFolder + File.separator;
 			}
 			while (Files.exists(Paths.get(htmlFolder + id))) {
-				$_LOG.debug("ID Conflict for page generation. Resolving ...");
+				$_LOG.debug("ID Conflict for page generation. Resolving ... id = " + id);
 				int decode = Base62.getDecoder().decode(id)
 						+ new Random().nextInt();
 				id = Base62.getEncoder().encode(decode);
@@ -306,6 +318,7 @@ public class HtmlUtil {
 	}
 
 	public static void generateNewsFeedsHtmlPages(JRssFeeds feeds) {
+		$_LOG.debug("generateNewsFeedsHtmlPages(...)");
 		List<JRssFeed> rFeeds = feeds.getFeeds();
 		for (JRssFeed rFeed : rFeeds) {
 			String id = rFeed.getShareableUrl();

@@ -34,7 +34,7 @@ public class AppContext {
 						throw new RuntimeException("Error initializing spring "
 								+ "context for repository services");
 					}
-					((AnnotationConfigApplicationContext)appContext).registerShutdownHook();
+					//((AnnotationConfigApplicationContext)appContext).registerShutdownHook();
 					initializedBeans = true;
 				}
 			} finally {
@@ -42,6 +42,10 @@ public class AppContext {
 			}
 		}
 		return this;
+	}
+	
+	public void shutdown() {
+		((AnnotationConfigApplicationContext)appContext).close();
 	}
 	
 	public <T> T findService(Class<T> serviceClass) {

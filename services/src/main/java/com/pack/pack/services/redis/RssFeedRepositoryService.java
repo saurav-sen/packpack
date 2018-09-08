@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -91,14 +92,24 @@ public class RssFeedRepositoryService {
 		return sync;
 	}
 	
-	public boolean checkFeedExists(JRssFeed feed) throws NoSuchAlgorithmException {
+	public boolean checkFeedExists(JRssFeed feed) throws NoSuchAlgorithmException, PackPackException {
 		RedisCommands<String, String> sync = getSyncRedisCommands();
 		//String key = "Feeds_" + String.valueOf(feed.getOgUrl().hashCode());
 		String key = RssFeedUtil.generateUploadKey(feed);
 		List<String> list = sync.keys(key);
 		if(list == null || list.isEmpty())
 			return false;
-		return true;
+		String tmpKey = list.get(0);
+		String tmpJson = sync.get(tmpKey);
+		if(tmpJson == null || tmpJson.trim().isEmpty())
+			return false;
+		RSSFeed tmpFeed = JSONUtil.deserialize(tmpJson, RSSFeed.class, true);
+		if(tmpFeed == null)
+			return false;
+		String tmpOgUrl = tmpFeed.getOgUrl();
+		if(tmpOgUrl == null)
+			return false;
+		return tmpOgUrl.equals(feed.getOgUrl());
 	}
 	
 	public void uploadRefreshmentFeed(RSSFeed feed, TTL ttl)
@@ -273,6 +284,30 @@ public class RssFeedRepositoryService {
 			String setKey = SET_KEY_PREFIX + RssFeedUtil.resolvePrefix(feed);
 			sync.zadd(setKey, batchId, key);
 		}
+		
+		// Avoid duplicate HashValues here.
+		{
+			String tmpKey = key;
+			String tmpJson = null;
+			RSSFeed tmpFeed = null;
+			int i = 0;
+			do {
+				$_LOG.debug("feed.getOgUrl() = " + feed.getOgUrl());
+				tmpJson = sync.get(tmpKey);
+				$_LOG.debug("tmpKey = " + tmpKey);
+				$_LOG.debug("tmpJson = " + tmpJson);
+				if (tmpJson != null) {
+					tmpFeed = JSONUtil
+							.deserialize(tmpJson, RSSFeed.class, true);
+					$_LOG.debug("tmpFeed.getOgUrl() = " + tmpFeed.getOgUrl());
+					tmpKey = new StringBuilder(key).append(i).toString();
+					$_LOG.debug("tmpKey = " + tmpKey);
+					i++;
+				}
+			} while(tmpJson != null && tmpFeed != null && feed.getOgUrl().equals(tmpFeed.getOgUrl()));
+			key = tmpKey;
+		}
+		
 		sync.setex(key, ttlSeconds, json);
 		if(updatePaginationInfo) {
 			$_LOG.info("Updating latest score");
@@ -449,7 +484,7 @@ public class RssFeedRepositoryService {
 			return page;
 		}
 		
-		List<String> keys = null;
+		Set<String> keys = null;
 		if(isExpiredTimestamp(timestamp) || timestamp < Long.parseLong(split[split.length - 1])) {
 			timestamp = 0;
 		}
@@ -519,19 +554,22 @@ public class RssFeedRepositoryService {
 		return page;
 	}
 	
-	private List<String> resolveKeysForPagination(
+	private Set<String> resolveKeysForPagination(
 			RedisCommands<String, String> sync, long r1, long r2,
 			String rangeKey) {
 		long min = r1 < r2 ? r1 : r2;
 		long max = r1 > r2 ? r1 : r2;
-		List<String> keys = new LinkedList<String>();
+		Set<String> keys = new HashSet<String>();
 		List<ScoredValue<String>> zrangeWithScores = sync.zrangeWithScores(
 				rangeKey, 0, -1);
 		if (zrangeWithScores == null || zrangeWithScores.isEmpty())
-			return Collections.emptyList();
+			return Collections.emptySet();
 		for (ScoredValue<String> zrangeWithScore : zrangeWithScores) {
 			if (zrangeWithScore.score >= min && zrangeWithScore.score <= max) {
-				keys.add(zrangeWithScore.value);
+				boolean success = keys.add(zrangeWithScore.value);
+				if(!success && $_LOG.isTraceEnabled()) {
+					$_LOG.warn("Duplicate Key = " + zrangeWithScore.value);
+				}
 			}
 		}
 		return keys;

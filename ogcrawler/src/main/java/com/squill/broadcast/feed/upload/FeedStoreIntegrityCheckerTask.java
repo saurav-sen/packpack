@@ -3,7 +3,6 @@ package com.squill.broadcast.feed.upload;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import com.pack.pack.services.redis.INewsFeedService;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.RssFeedUtil;
-import com.pack.pack.util.SystemPropertyUtil;
 import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JRssFeedType;
 import com.squill.feed.web.model.JRssFeeds;
@@ -83,7 +81,7 @@ public class FeedStoreIntegrityCheckerTask implements Runnable {
 			long batchId = System.currentTimeMillis();
 			RssFeedUtil.uploadNewsFeeds(rssFeeds, ttl, batchId, true);
 
-			$LOG.info("Cleaning Up Un-Used files from HTML shared pages location");
+			/*$LOG.info("Cleaning Up Un-Used files from HTML shared pages location");
 
 			String htmlFolder = SystemPropertyUtil
 					.getDefaultArchiveHtmlFolder();
@@ -124,7 +122,7 @@ public class FeedStoreIntegrityCheckerTask implements Runnable {
 						}).forEach(DeleteCommand::delete);
 			}
 
-			$LOG.info("Done Pending Feed Upload");
+			$LOG.info("Done Pending Feed Upload");*/
 		} catch (Exception e) {
 			$LOG.error("Failed during cleaning up expired pages information");
 			$LOG.error(e.getMessage(), e);

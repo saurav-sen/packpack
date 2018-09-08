@@ -1,5 +1,6 @@
 package com.pack.pack.model.web;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,6 +40,9 @@ public class Pagination<T> {
 	}
 
 	public List<T> getResult() {
+		if(result == null) {
+			result = new ArrayList<T>();
+		}
 		return result;
 	}
 

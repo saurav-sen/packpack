@@ -120,6 +120,14 @@ public class WebsiteImpl implements IWebSite {
 			return new LinkFilterConditionEvaluator().evalExp(expression);
 		}
 		
+		@Override
+		public void incrementLinkCount() {
+			super.incrementLinkCount();
+			if(linkFilterHandler != null) {
+				linkFilterHandler.incrementLinkCount();
+			}
+		}
+		
 		private void initLinkFilterHandler(IWebLinkTrackerService trackerService) {
 			LinkFilter linkFilter = crawlerDef.getLinkFilter();
 			String handler = linkFilter.getHandler();

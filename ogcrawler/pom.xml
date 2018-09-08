@@ -27,6 +27,11 @@
 		</dependency>
 		<dependency>
         	<groupId>com.pack.pack</groupId>
+        	<artifactId>services-ext</artifactId>
+         	<version>${packpack.release}</version>          	
+        </dependency>
+		<dependency>
+        	<groupId>com.pack.pack</groupId>
         	<artifactId>markup-gen</artifactId>
          	<version>${packpack.release}</version>          	
         </dependency>

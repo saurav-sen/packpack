@@ -33,7 +33,7 @@ import com.squill.services.exception.OgCrawlException;
 
 public class DbpediaGeoLocationReader {
 	
-	private static final Logger LOG = LoggerFactory.getLogger(DbpediaGeoLocationReader.class);
+	private static final Logger $LOG = LoggerFactory.getLogger(DbpediaGeoLocationReader.class);
 	
 	private static final String PREFIX = "dbpedia.org/resource/";
 	
@@ -57,6 +57,7 @@ public class DbpediaGeoLocationReader {
 	private Model createModel(String dppediaLink) {
 		Model model = linkVsModelMap.get(dppediaLink);
 		if(model == null) {
+			$LOG.debug("dppediaLink = " + dppediaLink);
 			model = ModelFactory.createDefaultModel().read(dppediaLink);
 			linkVsModelMap.put(dppediaLink, model);
 		}
@@ -72,7 +73,7 @@ public class DbpediaGeoLocationReader {
 		String dppediaLink = "http://dbpedia.org/data/" + orgName + ".rdf";
 		Model model = createModel(dppediaLink);
 		if(model == null) {
-			LOG.error("Could Not find dbpedia link @ " + dppediaLink);
+			$LOG.error("Could Not find dbpedia link @ " + dppediaLink);
 		}
 		geoLocations.addAll(georss_Query(model));
 		if(geoLocations.isEmpty()) {
@@ -81,8 +82,8 @@ public class DbpediaGeoLocationReader {
 		if(geoLocations.isEmpty()) {
 			geoLocations.addAll(country_Query(model));
 		}
-		if(LOG.isDebugEnabled() && geoLocations.isEmpty()) {
-			LOG.debug("COULD NOT FIND");
+		if($LOG.isDebugEnabled() && geoLocations.isEmpty()) {
+			$LOG.debug("COULD NOT FIND");
 		}
 		return geoLocations;
 	}
@@ -180,14 +181,14 @@ public class DbpediaGeoLocationReader {
 		String dppediaLink = "http://dbpedia.org/data/" + personName + ".rdf";
 		Model model = createModel(dppediaLink);
 		if(model == null) {
-			LOG.error("Could Not find dbpedia link @ " + dppediaLink);
+			$LOG.error("Could Not find dbpedia link @ " + dppediaLink);
 		}
 		geoLocations.addAll(residence_Query(model));
 		if(geoLocations.isEmpty()) {
 			geoLocations.addAll(birthPlace_Query(model));
 		}
-		if(LOG.isDebugEnabled() && geoLocations.isEmpty()) {
-			LOG.debug("COULD NOT FIND");
+		if($LOG.isDebugEnabled() && geoLocations.isEmpty()) {
+			$LOG.debug("COULD NOT FIND");
 		}
 		return geoLocations;
 	}
@@ -197,12 +198,12 @@ public class DbpediaGeoLocationReader {
 		String dppediaLink = "http://dbpedia.org/data/" + placeName + ".rdf";
 		Model model = createModel(dppediaLink);
 		if(model == null) {
-			LOG.error("Could Not find dbpedia link @ " + dppediaLink);
+			$LOG.error("Could Not find dbpedia link @ " + dppediaLink);
 			return geoLocations;
 		}
 		geoLocations.addAll(georss_Query(model));
-		if(LOG.isDebugEnabled() && geoLocations.isEmpty()) {
-			LOG.debug("COULD NOT FIND");
+		if($LOG.isDebugEnabled() && geoLocations.isEmpty()) {
+			$LOG.debug("COULD NOT FIND");
 		}
 		return geoLocations;
 	}
@@ -270,11 +271,11 @@ public class DbpediaGeoLocationReader {
 	private boolean checkType(JConcept concept, String[] expectedTypes) {
 		List<String> ontologyTypes = concept.getOntologyTypes();
 		if(ontologyTypes == null) {
-			LOG.error("Ontology types not resolved for concept");
+			$LOG.error("Ontology types not resolved for concept");
 			try {
-				LOG.debug(JSONUtil.serialize(concept));
+				$LOG.debug(JSONUtil.serialize(concept));
 			} catch (OgCrawlException e) {
-				LOG.error(e.getMessage(), e);
+				$LOG.error(e.getMessage(), e);
 			}
 			return false;
 		}
@@ -291,11 +292,11 @@ public class DbpediaGeoLocationReader {
 	private String[] resolveNames(JConcept concept) {
 		String dbpediaRef = concept.getDbpediaRef();
 		if(dbpediaRef == null || dbpediaRef.trim().isEmpty()) {
-			LOG.error("Dbpedia Link is not resolved for concept");
+			$LOG.error("Dbpedia Link is not resolved for concept");
 			try {
-				LOG.debug(JSONUtil.serialize(concept));
+				$LOG.debug(JSONUtil.serialize(concept));
 			} catch (OgCrawlException e) {
-				LOG.error(e.getMessage(), e);
+				$LOG.error(e.getMessage(), e);
 			}
 			return null;
 		}
@@ -310,7 +311,7 @@ public class DbpediaGeoLocationReader {
 	
 	private String[] resolveNames(String dbpediaRef) {
 		if(dbpediaRef == null || dbpediaRef.trim().isEmpty()) {
-			LOG.error("Dbpedia Link is not resolved for concept");
+			$LOG.error("Dbpedia Link is not resolved for concept");
 			return null;
 		}
 		String originalName = null;
@@ -357,7 +358,7 @@ public class DbpediaGeoLocationReader {
 				return geoLocations;
 			}
 		} catch (PackPackException e) {
-			LOG.error(e.getMessage(), e);
+			$LOG.error(e.getMessage(), e);
 		}
 		
 		if (isPlace(concept)) {
@@ -448,11 +449,13 @@ public class DbpediaGeoLocationReader {
 				}
 			}
 		} catch (PackPackException e) {
-			LOG.error(e.getMessage(), e);
+			$LOG.error(e.getMessage(), e);
 		} catch (OgCrawlException e) {
-			LOG.error(e.getMessage(), e);
+			$LOG.error(e.getMessage(), e);
 		} catch (IOException e) {
-			LOG.error(e.getMessage(), e);
+			$LOG.error(e.getMessage(), e);
+		} catch (Exception e) {
+			$LOG.error(e.getMessage(), e);
 		}
 		return geoLocations;
 	}

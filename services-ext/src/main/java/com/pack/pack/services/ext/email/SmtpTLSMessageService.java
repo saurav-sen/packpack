@@ -75,7 +75,11 @@ public class SmtpTLSMessageService {
 			message.setRecipients(Message.RecipientType.TO,
 					InternetAddress.parse(receipentEmailId));
 			message.setSubject(subject);
-			message.setContent(htmlContent, "text/html; charset=UTF-8");
+			if(isHtml) {
+				message.setContent(htmlContent, "text/html; charset=UTF-8");
+			} else {
+				message.setContent(htmlContent, "text/plain");
+			}
 
 			Transport.send(message);
 
@@ -101,7 +105,7 @@ public class SmtpTLSMessageService {
 				sendMail(message.getReceipentEmailId(), message.getSubject(),
 						message.getContent(), message.isHtml());
 			} catch (Throwable e) {
-				LOG.error("Send Welcome Mail failed", e);
+				LOG.error("Send Mail failed", e);
 			}
 		}
 	}
