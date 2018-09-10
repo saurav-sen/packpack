@@ -27,7 +27,6 @@ public class NewsFeedConverter {
 	static JRssFeed convert(NewsFeed article, DefaultFeedTypeResolver typeResolver) {
 		JRssFeed result = new JRssFeed();
 		DateTime dateTime = new DateTime();
-		result.setId(String.valueOf(dateTime.getMillis()));
 		result.setUploadTime(dateTime.getMillis());
 		result.setOgTitle(article.getTitle());
 		result.setOgDescription(article.getDescription());

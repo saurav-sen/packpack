@@ -21,7 +21,7 @@ public abstract class DailyFixedSizeLinkFilter implements ILinkFilter {
 	
 	private static final String KEY_PREFIX = "DFSLF";
 	
-	private static final Logger LOG = LoggerFactory.getLogger(DailyFixedSizeLinkFilter.class);
+	private static final Logger $_LOG = LoggerFactory.getLogger(DailyFixedSizeLinkFilter.class);
 	
 	private boolean needToRefresh = true;
 	
@@ -46,10 +46,7 @@ public abstract class DailyFixedSizeLinkFilter implements ILinkFilter {
 		refresh();
 		IWebLinkTrackerService service = getTrackerService();
 		if (service == null) {
-			return true;
-		}
-		WebSpiderTracker trackedInfo = service.getTrackedInfo(linkUrl);
-		if(trackedInfo == null) { // Older Link (Already crawled link)
+			$_LOG.debug("IWebLinkTrackerService instance is NUll thereby link @ " + linkUrl + " is scoped");
 			return true;
 		}
 		int intValue = 1;
@@ -59,11 +56,21 @@ public abstract class DailyFixedSizeLinkFilter implements ILinkFilter {
 			try {
 				intValue = Integer.parseInt(value.trim()) + 1;
 			} catch (NumberFormatException e) {
-				LOG.error(e.getMessage(), e);
+				$_LOG.error(e.getMessage(), e);
 				return true;
 			}
 		}
-		return intValue <= maxNumberOfLinksPerDay;
+		if(intValue > maxNumberOfLinksPerDay) {
+			$_LOG.info("Threshold reached for Daily Fixed Sized size link filter " + todaysKey);
+			$_LOG.info("Skipping link @ " + linkUrl);
+			return false;
+		}
+		WebSpiderTracker trackedInfo = service.getTrackedInfo(linkUrl);
+		if(trackedInfo == null) { // Older Link (Already crawled link)
+			return true;
+		}
+		
+		return false;
 	}
 	
 	protected String today() {
@@ -98,12 +105,12 @@ public abstract class DailyFixedSizeLinkFilter implements ILinkFilter {
 			try {
 				intValue = Integer.parseInt(value.trim()) + 1;
 			} catch (NumberFormatException e) {
-				LOG.error(e.getMessage(), e);
+				$_LOG.error(e.getMessage(), e);
 				return;
 			}
 		}
 		service.addValue(KEY_PREFIX, todaysKey, String.valueOf(intValue),
 				ttlSeconds);
-		LOG.debug("Incremented in :: " + KEY_PREFIX + todaysKey);
+		$_LOG.debug("Incremented in :: " + KEY_PREFIX + todaysKey);
 	}
 }

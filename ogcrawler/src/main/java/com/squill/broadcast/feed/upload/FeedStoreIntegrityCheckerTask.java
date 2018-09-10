@@ -67,19 +67,17 @@ public class FeedStoreIntegrityCheckerTask implements Runnable {
 					allRequiredHtmlPageIdList.put(htmlPageId, OBJ);
 				}
 			}
-			if ($LOG.isDebugEnabled()) {
-				if (count > 0) {
-					$LOG.debug("Found " + count + " to be uploaded back again");
-				} else {
-					$LOG.debug("No pending feed(s) for upload");
-				}
+			if (count > 0) {
+				$LOG.info("Found " + count + " to be uploaded back again");
+			} else {
+				$LOG.info("No pending feed(s) for upload");
 			}
 
-			TTL ttl = new TTL();
+			/*TTL ttl = new TTL();
 			ttl.setTime((short) 1);
 			ttl.setUnit(TimeUnit.DAYS);
 			long batchId = System.currentTimeMillis();
-			RssFeedUtil.uploadNewsFeeds(rssFeeds, ttl, batchId, true);
+			RssFeedUtil.uploadNewsFeeds(rssFeeds, ttl, batchId, true);*/
 
 			/*$LOG.info("Cleaning Up Un-Used files from HTML shared pages location");
 

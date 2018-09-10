@@ -4,10 +4,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
-import org.ektorp.ComplexKey;
 import org.ektorp.CouchDbConnector;
-import org.ektorp.Page;
-import org.ektorp.PageRequest;
 import org.ektorp.ViewQuery;
 import org.ektorp.support.CouchDbRepositorySupport;
 import org.ektorp.support.View;
@@ -29,9 +26,6 @@ import com.pack.pack.model.User;
 @Component
 @Scope("singleton")
 @Views({
-	@View(name="basedOnLocation", map="function(doc) { if(doc.address && doc.address.city && doc.address.state "
-			+ "&& doc.address.country) { emit([doc.address.city, doc.address.state, doc.address.country], doc); } }"),
-	@View(name="basedOnAddress", map="function(doc) { if(doc.address) { emit([doc.address.city, doc.address.state, doc.address.country], doc); } }"),
 	@View(name="basedOnUsername", map="function(doc) { if(doc.username) { emit(doc.username); } }")
 })
 public class UserRepositoryService extends CouchDbRepositorySupport<User> {
@@ -46,27 +40,6 @@ public class UserRepositoryService extends CouchDbRepositorySupport<User> {
 	@PostConstruct
 	public void doInit() {
 		initStandardDesignDocument();
-	}
-	
-	public Page<User> getBasedOnCity(String city, PageRequest page) {
-		logger.debug("getBasedOnCity(city=" + city + ", page-link=" + page.asLink());
-		ComplexKey key = ComplexKey.of(city, ComplexKey.emptyObject());
-		ViewQuery query = createQuery("basedOnAddress").key(key);
-		return db.queryForPage(query, page, User.class);
-	}
-	
-	public Page<User> getBasedOnState(String state, PageRequest page) {
-		logger.debug("getBasedOnState(state=" + state + ", page-link=" + page.asLink());
-		ComplexKey key = ComplexKey.of(state, ComplexKey.emptyObject());
-		ViewQuery query = createQuery("basedOnAddress").key(key);
-		return db.queryForPage(query, page, User.class);
-	}
-	
-	public Page<User> getBasedOnCountry(String country, PageRequest page) {
-		logger.debug("getBasedOnCountry(country=" + country + ", page-link=" + page.asLink());
-		ComplexKey key = ComplexKey.of(country, ComplexKey.emptyObject());
-		ViewQuery query = createQuery("basedOnAddress").key(key);
-		return db.queryForPage(query, page, User.class);
 	}
 	
 	public List<User> getBasedOnUsername(String username) {

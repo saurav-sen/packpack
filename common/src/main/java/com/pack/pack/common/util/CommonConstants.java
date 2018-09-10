@@ -24,13 +24,6 @@ public class CommonConstants {
 	
 	public static final long END_OF_PAGE_TIMESTAMP = Long.MIN_VALUE;
 	
-	public static final String PAGELINK_DIRECTION_SEPERATOR = "_";
-	public static final String PAGELINK_DIRECTION_POSITIVE = PAGELINK_DIRECTION_SEPERATOR + "1";
-	public static final String PAGELINK_DIRECTION_NEGATIVE = PAGELINK_DIRECTION_SEPERATOR + "-1";
-	
-	public static final String NEXT_PAGE_LINK_PREFIX = "NEXT";
-	public static final String PREV_PAGE_LINK_PREFIX = "PREV";
-	
 	public static final String HOME = "home";
 	public static final String LIFESTYLE = "lifestyle";
     public static final String ART = "art";

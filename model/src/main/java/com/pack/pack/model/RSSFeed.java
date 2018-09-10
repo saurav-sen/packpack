@@ -36,10 +36,6 @@ public class RSSFeed /*extends CouchDbDocument*/{
 	
 	private String promoExpiryTimestamp;
 	
-	private String id;
-	
-	private long batchId;
-	
 	private String videoUrl;
 	
 	private List<RssSubFeed> siblings;
@@ -146,14 +142,6 @@ public class RSSFeed /*extends CouchDbDocument*/{
 
 	public void setPromoExpiryTimestamp(String promoExpiryTimestamp) {
 		this.promoExpiryTimestamp = promoExpiryTimestamp;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
 	}
 
 	public String getVideoUrl() {
@@ -270,14 +258,6 @@ public class RSSFeed /*extends CouchDbDocument*/{
 
 	public void setCreatedByUserId(String createdByUserId) {
 		this.createdByUserId = createdByUserId;
-	}
-
-	public long getBatchId() {
-		return batchId;
-	}
-
-	public void setBatchId(long batchId) {
-		this.batchId = batchId;
 	}
 
 	public String getSquillUrl() {

@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,11 @@ import com.squill.feed.web.model.TTL;
  *
  */
 public class RssFeedUtil {
+	
+	public static void main(String[] args) {
+		DateTime dt = new DateTime(1536508598427L);
+		System.out.println(dt);
+	}
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(RssFeedUtil.class);
@@ -67,7 +73,7 @@ public class RssFeedUtil {
 			if (newFeeds != null && !newFeeds.isEmpty()) {
 				// TTL ttl = new TTL();
 				size = newFeeds.size();
-				ttl.setTime((short) 2);
+				ttl.setTime((short) 1);
 				ttl.setUnit(TimeUnit.DAYS);
 				INewsFeedService service = ServiceRegistry.INSTANCE
 						.findCompositeService(INewsFeedService.class);

@@ -9,7 +9,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.pack.pack.IUserService;
 import com.pack.pack.common.util.CommonConstants;
 import com.pack.pack.model.GeoTag;
 import com.pack.pack.model.RSSFeed;
@@ -23,8 +22,6 @@ import com.pack.pack.model.web.JGeoLocation;
 import com.pack.pack.model.web.JSemanticElement;
 import com.pack.pack.model.web.JSharedFeed;
 import com.pack.pack.model.web.JUser;
-import com.pack.pack.services.exception.PackPackException;
-import com.pack.pack.services.registry.ServiceRegistry;
 import com.squill.feed.web.model.JConcept;
 import com.squill.feed.web.model.JGeoTag;
 import com.squill.feed.web.model.JRssFeed;
@@ -41,8 +38,8 @@ public class ModelConverter {
 	private static Logger logger = LoggerFactory
 			.getLogger(ModelConverter.class);
 
-	private static final String HTTP = "http://";
-	private static final String HTTPS = "https://";
+	//private static final String HTTP = "http://";
+	//private static final String HTTPS = "https://";
 
 	public static List<JRssFeed> convertAllRssFeeds(List<RSSFeed> feeds, boolean ignoreVideoFeeds, boolean ignoreSlideShows) {
 		if (feeds == null || feeds.isEmpty())
@@ -77,8 +74,6 @@ public class ModelConverter {
 		rFeed.setOgTitle(feed.getOgTitle());
 		rFeed.setOgType(feed.getOgType());
 		rFeed.setOgUrl(feed.getOgUrl());
-		rFeed.setId(feed.getId());
-		rFeed.setBatchId(feed.getBatchId());
 		rFeed.setVideoUrl(feed.getVideoUrl());
 		rFeed.setUploadTime(feed.getUploadTime());
 		rFeed.setShareableUrl(feed.getShareableUrl());
@@ -125,10 +120,6 @@ public class ModelConverter {
 	}
 	
 	public static RSSFeed convert(JRssFeed rFeed) {
-		return convert(rFeed, rFeed.getId());
-	}
-
-	private static RSSFeed convert(JRssFeed rFeed, String id) {
 		if (rFeed == null)
 			return null;
 		RSSFeed feed = new RSSFeed();
@@ -139,11 +130,6 @@ public class ModelConverter {
 		feed.setOgType(rFeed.getOgType());
 		feed.setOgUrl(rFeed.getOgUrl());
 		feed.setFeedType(rFeed.getFeedType());
-		if(id == null) {
-			id = rFeed.getId();
-		}
-		feed.setId(id);
-		feed.setBatchId(rFeed.getBatchId());
 		feed.setVideoUrl(rFeed.getVideoUrl());
 		feed.setSquillUrl(rFeed.getSquillUrl());
 		feed.setUploadTime(System.currentTimeMillis());
@@ -373,63 +359,9 @@ public class ModelConverter {
 		return topicWallpaperUrl;
 	}
 
-	private static JUser getUserInfo(String userId) throws PackPackException {
-		IUserService service = ServiceRegistry.INSTANCE
-				.findCompositeService(IUserService.class);
-		return service.findUserById(userId);
-	}
-
 	public static String resolveTopicPrimaryCategory(String subCategory) {
 		return CommonConstants.resolvePrimaryCategory(subCategory);
 	}
-
-	private static String resolveEGiftUrl(String url) {
-		String baseURL = SystemPropertyUtil.getImageAttachmentBaseURL(url);
-		String resolvedUrl = url.replaceAll(File.separator,
-				SystemPropertyUtil.URL_SEPARATOR);
-		if (!resolvedUrl.startsWith(SystemPropertyUtil.URL_SEPARATOR)
-				&& !baseURL.endsWith(SystemPropertyUtil.URL_SEPARATOR)) {
-			resolvedUrl = baseURL + SystemPropertyUtil.URL_SEPARATOR
-					+ resolvedUrl;
-		} else {
-			resolvedUrl = baseURL + resolvedUrl;
-		}
-		return resolvedUrl;
-	}
-
-	/*
-	 * public static List<JReply> convertReplies(List<Reply> replies) {
-	 * List<JReply> jReplies = new LinkedList<JReply>(); if(replies != null &&
-	 * !replies.isEmpty()) { for(Reply reply : replies) { JReply jReply =
-	 * convert(reply); if(jReply != null) { jReplies.add(jReply); } } } return
-	 * jReplies; }
-	 * 
-	 * public static JReply convert(Reply reply) { if(reply == null) return
-	 * null; JReply jReply = new JReply(); jReply.setId(reply.getId());
-	 * jReply.setContent(reply.getReply());
-	 * jReply.setFromUserId(reply.getFromUserId());
-	 * jReply.setDateTime(reply.getDateTime());
-	 * jReply.setLikes(reply.getLikes());
-	 * jReply.setLikeUsers(reply.getLikeUsers()); return jReply; }
-	 * 
-	 * public static List<Reply> convertJReplies(List<JReply> jReplies) {
-	 * if(jReplies == null) return null; List<Reply> replies = new
-	 * LinkedList<Reply>(); for(JReply jReply : jReplies) { Reply reply =
-	 * convert(jReply); if(reply != null) { replies.add(reply); } } return
-	 * replies; }
-	 */
-
-	/*
-	 * public static Reply convert(JReply jReply) { if(jReply == null) return
-	 * null; Reply reply = new Reply(); reply.setReply(jReply.getContent());
-	 * reply.setFromUserId(jReply.getFromUserId());
-	 * reply.setLikes(jReply.getLikes());
-	 * reply.setDateTime(jReply.getDateTime());
-	 * reply.setLikeUsers(jReply.getLikeUsers()); List<JReply> jReplies =
-	 * jReply.getReplies(); if(jReplies != null && !jReplies.isEmpty()) {
-	 * List<Reply> replies = convertJReplies(jReplies);
-	 * reply.setReplies(replies); } return reply; }
-	 */
 
 	public static JSharedFeed convertToShareableFeed(JRssFeed feed) {
 		JSharedFeed sharedFeed = new JSharedFeed();

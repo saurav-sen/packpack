@@ -16,7 +16,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.squill.broadcast.feed.upload.FeedStoreIntegrityCheckerTask;
-import com.squill.broadcast.feed.upload.PeriodicFeedUploadTask;
 import com.squill.og.crawler.ICrawlSchedule;
 import com.squill.og.crawler.ICrawlable;
 import com.squill.og.crawler.Spider;

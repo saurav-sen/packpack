@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.joda.time.DateTime;
@@ -231,7 +232,8 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 			LOG.debug("Total feeds to be uploaded without backlog = " + rssFeeds.getFeeds().size());
 		}
 		dataCleanUp(map);
-		map = storeInArchive(map);
+		storeInArchive(map);
+		//map = storeInArchive(map);
 		JRssFeeds rssFeeds = adapt(map);
 		LOG.info("Uploading news feeds: Total = " + rssFeeds.getFeeds().size());
 		TTL ttl = new TTL();
@@ -258,7 +260,11 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 			webLinkTrackerService.upsertCrawledInfo(link, info, RSSConstants.DEFAULT_TTL_WEB_TRACKING_INFO, false);
 		}
 		
-		//NotificationUtil.broadcastNewRSSFeedUploadSummary("You have new Items");
+		if (!feeds.isEmpty()) {
+			JRssFeed f = feeds.get(Math.abs(new Random().nextInt())
+					% feeds.size());
+			NotificationUtil.broadcastNewRSSFeedUploadSummary(f.getOgTitle());
+		}
 	}
 	
 	private void dataCleanUp(Map<String, List<JRssFeed>> map) {

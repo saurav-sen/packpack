@@ -52,7 +52,7 @@ public interface APIConstants {
 	}
 	
 	public static interface PageInfo {
-		public static final String PAGE_LINK = "pageLink";
+		public static final String PAGE_NO = "pageNo";
 	}
 	
 	public static interface Bookmark {

@@ -24,38 +24,38 @@ public interface INewsFeedService {
 	/**
 	 * 
 	 * @param userId
-	 * @param pageLink
+	 * @param pageNo
 	 * @return
 	 * @throws PackPackException
 	 */
-	public Pagination<JRssFeed> getAllNewsRssFeeds(String userId, String pageLink) throws PackPackException;
+	public Pagination<JRssFeed> getAllNewsRssFeeds(String userId, int pageNo) throws PackPackException;
 	
 	/**
 	 * 
 	 * @param userId
-	 * @param pageLink
+	 * @param pageNo
 	 * @return
 	 * @throws PackPackException
 	 */
-	public Pagination<JRssFeed> getAllSportsNewsRssFeeds(String userId, String pageLink) throws PackPackException;
+	public Pagination<JRssFeed> getAllSportsNewsRssFeeds(String userId, int pageNo) throws PackPackException;
 	
 	/**
 	 * 
 	 * @param userId
-	 * @param pageLink
+	 * @param pageNo
 	 * @return
 	 * @throws PackPackException
 	 */
-	public Pagination<JRssFeed> getAllScienceAndTechnologyNewsRssFeeds(String userId, String pageLink) throws PackPackException;
+	public Pagination<JRssFeed> getAllScienceAndTechnologyNewsRssFeeds(String userId, int pageNo) throws PackPackException;
 	
 	/**
 	 * 
 	 * @param userId
-	 * @param pageLink
+	 * @param pageNo
 	 * @return
 	 * @throws PackPackException
 	 */
-	public Pagination<JRssFeed> getArticleNewsRssFeeds(String userId, String pageLink) throws PackPackException;
+	public Pagination<JRssFeed> getArticleNewsRssFeeds(String userId, int pageNo) throws PackPackException;
 
 	/**
 	 * 

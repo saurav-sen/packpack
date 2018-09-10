@@ -33,10 +33,10 @@ public class NewsFeedsApi extends BaseAPI {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Pagination<JRssFeed> getAllFeeds(String userId, String pageLink,
+	private Pagination<JRssFeed> getAllFeeds(String userId, int pageNo,
 			String userName, String source) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = getBaseUrl() + "news/usr/" + userId + "/page/" + pageLink
+		String url = getBaseUrl() + "news/usr/" + userId + "/page/" + String.valueOf(pageNo)
 				+ "?source=" + source;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, userName);
@@ -74,40 +74,40 @@ public class NewsFeedsApi extends BaseAPI {
 			if (COMMAND.GET_ALL_NEWS_FEEDS.equals(action)) {
 				String userId = (String) params.get(APIConstants.User.ID);
 				String source = JRssFeedType.NEWS.name();
-				String pageLink = (String) params
-						.get(APIConstants.PageInfo.PAGE_LINK);
-				if (pageLink == null || pageLink.trim().equals("")) {
-					pageLink = "FIRSTPAGE_1";
+				Object pageNoString = params.get(APIConstants.PageInfo.PAGE_NO);
+				if (pageNoString == null) {
+					pageNoString = 0;
 				}
-				return getAllFeeds(userId, pageLink, userName, source);
+				int pageNo = (int) pageNoString;
+				return getAllFeeds(userId, pageNo, userName, source);
 			} else if (COMMAND.GET_ALL_SPORTS_NEWS_FEEDS.equals(action)) {
 				String userId = (String) params.get(APIConstants.User.ID);
 				String source = JRssFeedType.NEWS_SPORTS.name();
-				String pageLink = (String) params
-						.get(APIConstants.PageInfo.PAGE_LINK);
-				if (pageLink == null || pageLink.trim().equals("")) {
-					pageLink = "FIRSTPAGE_1";
+				Object pageNoString = params.get(APIConstants.PageInfo.PAGE_NO);
+				if (pageNoString == null) {
+					pageNoString = 0;
 				}
-				return getAllFeeds(userId, pageLink, userName, source);
+				int pageNo = (int) pageNoString;
+				return getAllFeeds(userId, pageNo, userName, source);
 			} else if (COMMAND.GET_ALL_SCIENCE_AND_TECHNOLOGY_NEWS_FEEDS
 					.equals(action)) {
 				String userId = (String) params.get(APIConstants.User.ID);
 				String source = JRssFeedType.NEWS_SCIENCE_TECHNOLOGY.name();
-				String pageLink = (String) params
-						.get(APIConstants.PageInfo.PAGE_LINK);
-				if (pageLink == null || pageLink.trim().equals("")) {
-					pageLink = "FIRSTPAGE_1";
+				Object pageNoString = params.get(APIConstants.PageInfo.PAGE_NO);
+				if (pageNoString == null) {
+					pageNoString = 0;
 				}
-				return getAllFeeds(userId, pageLink, userName, source);
+				int pageNo = (int) pageNoString;
+				return getAllFeeds(userId, pageNo, userName, source);
 			} else if (COMMAND.GET_ALL_ARTICLES_FEEDS.equals(action)) {
 				String userId = (String) params.get(APIConstants.User.ID);
 				String source = JRssFeedType.ARTICLE.name();
-				String pageLink = (String) params
-						.get(APIConstants.PageInfo.PAGE_LINK);
-				if (pageLink == null || pageLink.trim().equals("")) {
-					pageLink = "FIRSTPAGE_1";
+				Object pageNoString = params.get(APIConstants.PageInfo.PAGE_NO);
+				if (pageNoString == null) {
+					pageNoString = 0;
 				}
-				return getAllFeeds(userId, pageLink, userName, source);
+				int pageNo = (int) pageNoString;
+				return getAllFeeds(userId, pageNo, userName, source);
 			}
 			return null;
 		}

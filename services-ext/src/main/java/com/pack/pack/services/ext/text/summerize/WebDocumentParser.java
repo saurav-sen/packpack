@@ -152,7 +152,6 @@ public class WebDocumentParser {
 				json.setArticleSummaryText(summaryText);
 			}
 
-			json.setId(String.valueOf(System.currentTimeMillis()));
 		} catch (FileNotFoundException e) {
 			$LOG.error(e.getMessage(), e);
 		} catch (IOException e) {

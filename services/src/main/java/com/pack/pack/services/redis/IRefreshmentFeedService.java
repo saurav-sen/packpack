@@ -15,11 +15,11 @@ public interface IRefreshmentFeedService {
 	/**
 	 * 
 	 * @param userId
-	 * @param pageLink
+	 * @param pageNo
 	 * @return
 	 * @throws PackPackException
 	 */
-	public Pagination<JRssFeed> getAllRssFeeds(String userId, String pageLink) throws PackPackException;
+	public Pagination<JRssFeed> getAllRssFeeds(String userId, int pageNo) throws PackPackException;
 
 	/**
 	 * 

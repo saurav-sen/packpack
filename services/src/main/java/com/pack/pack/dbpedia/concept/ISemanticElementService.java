@@ -10,9 +10,6 @@ import com.pack.pack.services.exception.PackPackException;
  */
 public interface ISemanticElementService {
 
-	public JSemanticElement findSemanticElementByAnnotationId(
-			String annotationId) throws PackPackException;
-
 	public JSemanticElement findSemanticElementByDbpediaRefLinkId(
 			String dbpediaRefLinkId) throws PackPackException;
 

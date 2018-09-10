@@ -25,10 +25,6 @@ public class JRssFeed {
 	
 	private String hrefSource;
 	
-	private String id;
-	
-	private long batchId;
-	
 	@JsonIgnore
 	private String feedType;
 	
@@ -109,14 +105,6 @@ public class JRssFeed {
 
 	public void setHrefSource(String hrefSource) {
 		this.hrefSource = hrefSource;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
 	}
 
 	public String getFeedType() {
@@ -238,14 +226,6 @@ public class JRssFeed {
 		this.siblings = siblings;
 	}
 
-	public long getBatchId() {
-		return batchId;
-	}
-
-	public void setBatchId(long batchId) {
-		this.batchId = batchId;
-	}
-	
 	@Override
 	public int hashCode() {
 		return (getClass().getName() + "_" + ogUrl).hashCode();

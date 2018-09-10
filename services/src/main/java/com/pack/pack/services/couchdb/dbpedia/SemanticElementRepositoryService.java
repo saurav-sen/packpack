@@ -24,7 +24,6 @@ import com.pack.pack.model.SemanticElement;
 @Component
 @Scope("singleton")
 @Views({
-		@View(name = "findByConceptId", map = "function(doc) { if(doc.id) { emit(doc.id); } }"),
 		@View(name = "findDbpediaRefLink", map = "function(doc) { if(doc.dbpediaRef) { emit(doc.dbpediaRef); } }") })
 public class SemanticElementRepositoryService extends
 		CouchDbRepositorySupport<SemanticElement> {
@@ -38,15 +37,6 @@ public class SemanticElementRepositoryService extends
 	@PostConstruct
 	public void doInit() {
 		initStandardDesignDocument();
-	}
-
-	public SemanticElement findByConceptId(String conceptId) {
-		ViewQuery query = createQuery("findByConceptId").key(conceptId);
-		List<SemanticElement> result = db.queryView(query,
-				SemanticElement.class);
-		if (result == null || result.isEmpty())
-			return null;
-		return result.get(0);
 	}
 
 	public SemanticElement findDbpediaRefLink(String dbpediaRef) {

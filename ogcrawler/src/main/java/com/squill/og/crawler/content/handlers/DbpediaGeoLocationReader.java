@@ -344,8 +344,11 @@ public class DbpediaGeoLocationReader {
 		try {
 			service = ServiceRegistry.INSTANCE
 					.findCompositeService(ISemanticElementService.class);
-			semanticElement = service.findSemanticElementByAnnotationId(concept
-					.getId());
+			/*semanticElement = service.findSemanticElementByAnnotationId(concept
+					.getId());*/
+			semanticElement = service
+					.findSemanticElementByDbpediaRefLinkId(concept
+							.getDbpediaRef());
 			if (semanticElement != null) {
 				List<JGeoLocation> jGeoLocations = semanticElement
 						.getGeoTagSet();

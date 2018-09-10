@@ -10,33 +10,16 @@ import java.util.List;
  */
 public class Pagination<T> {
 	
-	private String previousLink;
-	private String nextLink;
+	private int nextPageNo;
 
 	private List<T> result;
-	
-	private long timestamp;
 	
 	public Pagination() {
 	}
 	
-	public Pagination(long timestamp) {
-		this.timestamp = timestamp;
-	}
-	
-	public Pagination(String previousLink, String nextLink, List<T> result, long timestamp) {
-		this.previousLink = previousLink;
-		this.nextLink = nextLink;
+	public Pagination(int nextPageNo, List<T> result) {
+		this.nextPageNo = nextPageNo;
 		this.result = result;
-		this.timestamp = timestamp;
-	}
-
-	public String getPreviousLink() {
-		return previousLink;
-	}
-
-	public String getNextLink() {
-		return nextLink;
 	}
 
 	public List<T> getResult() {
@@ -46,23 +29,15 @@ public class Pagination<T> {
 		return result;
 	}
 
-	public void setPreviousLink(String previousLink) {
-		this.previousLink = previousLink;
-	}
-
-	public void setNextLink(String nextLink) {
-		this.nextLink = nextLink;
-	}
-
 	public void setResult(List<T> result) {
 		this.result = result;
 	}
 
-	public long getTimestamp() {
-		return timestamp;
+	public int getNextPageNo() {
+		return nextPageNo;
 	}
 
-	public void setTimestamp(long timestamp) {
-		this.timestamp = timestamp;
+	public void setNextPageNo(int nextPageNo) {
+		this.nextPageNo = nextPageNo;
 	}
 }

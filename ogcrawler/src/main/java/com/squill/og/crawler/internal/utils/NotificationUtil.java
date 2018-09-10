@@ -25,10 +25,14 @@ public class NotificationUtil {
 	private static final Logger LOG = LoggerFactory
 			.getLogger(NotificationUtil.class);
 	
-	private static boolean enableNotification = false;
+	private static boolean enableNotification = true;
 
 	private NotificationUtil() {
 	}
+	
+	/*public static void main(String[] args) throws PackPackException {
+		broadcastNewRSSFeedUploadSummary("Congress-led Bharat bandh fuels Opposition fire against Centre");
+	}*/
 
 	public static void broadcastNewRSSFeedUploadSummary(String notification)
 			throws PackPackException {
@@ -49,9 +53,10 @@ public class NotificationUtil {
 
 			JSONObject jsonObj = new JSONObject();
 			// jsonObj.put("to", "/topics/squillWorld");
-			jsonObj.put("to", "/topics/allDevices");
+			jsonObj.put("to", "/topics/global");
 			JSONObject j = new JSONObject();
-			j.put("title", notification);
+			j.put("body", notification);
+			j.put("title", "SQUILL");
 			jsonObj.put("notification", j);
 
 			LOG.info("Sending notification \n " + notification);

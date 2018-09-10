@@ -1,10 +1,5 @@
 package com.pack.pack.rest.api;
 
-import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
-import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE_TIMESTAMP;
-import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_NEGATIVE;
-import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_POSITIVE;
-
 import java.util.Collections;
 
 import javax.inject.Singleton;
@@ -15,6 +10,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.rest.api.security.interceptors.CompressWrite;
@@ -33,6 +31,8 @@ import com.squill.feed.web.model.JRssFeedType;
 @Provider
 @Path("/news")
 public class NewsResource {
+	
+	private static final Logger $_LOG = LoggerFactory.getLogger(NewsResource.class);
 
 	@GET
 	@CompressWrite
@@ -42,32 +42,39 @@ public class NewsResource {
 			@PathParam("pageLink") String pageLink,
 			@QueryParam("source") String source)
 			throws PackPackException {
+		int pageNo = -1;
+		if(pageLink != null && !pageLink.trim().isEmpty()) {
+			try {
+				pageNo = Integer.parseInt(pageLink.trim());
+			} catch (NumberFormatException e) {
+				$_LOG.error(e.getMessage(), e);
+			}
+		}
 		if(source == null || source.trim().isEmpty()
 				|| "default".equals(source)
 				|| JRssFeedType.NEWS.name().equals(source)) {
 			INewsFeedService service = ServiceRegistry.INSTANCE
 					.findCompositeService(INewsFeedService.class);
-			return service.getAllNewsRssFeeds(userId, pageLink);
+			return service.getAllNewsRssFeeds(userId, pageNo);
 		} else if(JRssFeedType.NEWS_SPORTS.name().equals(source)) {
 			INewsFeedService service = ServiceRegistry.INSTANCE
 					.findCompositeService(INewsFeedService.class);
-			return service.getAllSportsNewsRssFeeds(userId, pageLink);
+			return service.getAllSportsNewsRssFeeds(userId, pageNo);
 		} else if(JRssFeedType.NEWS_SCIENCE_TECHNOLOGY.name().equals(source)) {
 			INewsFeedService service = ServiceRegistry.INSTANCE
 					.findCompositeService(INewsFeedService.class);
-			return service.getAllScienceAndTechnologyNewsRssFeeds(userId, pageLink);
+			return service.getAllScienceAndTechnologyNewsRssFeeds(userId, pageNo);
 		} else if(JRssFeedType.ARTICLE.name().equals(source)) {
 			INewsFeedService service = ServiceRegistry.INSTANCE
 					.findCompositeService(INewsFeedService.class);
-			return service.getArticleNewsRssFeeds(userId, pageLink);
+			return service.getArticleNewsRssFeeds(userId, pageNo);
 		}
 		return emptyResponse();
 	}
 	
 	private Pagination<JRssFeed> emptyResponse() {
-		Pagination<JRssFeed> page = new Pagination<JRssFeed>(END_OF_PAGE_TIMESTAMP);
-		page.setNextLink(END_OF_PAGE + PAGELINK_DIRECTION_POSITIVE);
-		page.setPreviousLink(END_OF_PAGE + PAGELINK_DIRECTION_NEGATIVE);
+		Pagination<JRssFeed> page = new Pagination<JRssFeed>();
+		page.setNextPageNo(-1);
 		page.setResult(Collections.emptyList());
 		return page;
 	}

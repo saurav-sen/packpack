@@ -21,17 +21,10 @@ import com.pack.pack.util.ModelConverter;
 public class SemanticElementServiceImpl implements ISemanticElementService {
 
 	@Override
-	public JSemanticElement findSemanticElementByAnnotationId(
-			String annotationId) throws PackPackException {
-		SemanticElementRepositoryService service = ServiceRegistry.INSTANCE
-				.findService(SemanticElementRepositoryService.class);
-		SemanticElement semanticElement = service.findByConceptId(annotationId);
-		return ModelConverter.convert(semanticElement);
-	}
-
-	@Override
 	public JSemanticElement findSemanticElementByDbpediaRefLinkId(
 			String dbpediaRefLinkId) throws PackPackException {
+		if(dbpediaRefLinkId == null || dbpediaRefLinkId.trim().isEmpty())
+			return null;
 		SemanticElementRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(SemanticElementRepositoryService.class);
 		SemanticElement semanticElement = service
@@ -45,7 +38,7 @@ public class SemanticElementServiceImpl implements ISemanticElementService {
 		SemanticElementRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(SemanticElementRepositoryService.class);
 		service.add(ModelConverter.convert(semanticElement));
-		return findSemanticElementByAnnotationId(semanticElement.getId());
+		return findSemanticElementByDbpediaRefLinkId(semanticElement.getDbpediaRef());
 	}
 
 }

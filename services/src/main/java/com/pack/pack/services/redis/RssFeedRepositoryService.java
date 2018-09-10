@@ -1,10 +1,5 @@
 package com.pack.pack.services.redis;
 
-import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE;
-import static com.pack.pack.common.util.CommonConstants.END_OF_PAGE_TIMESTAMP;
-import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_NEGATIVE;
-import static com.pack.pack.common.util.CommonConstants.PAGELINK_DIRECTION_POSITIVE;
-
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,11 +21,11 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.lambdaworks.redis.RedisClient;
-import com.lambdaworks.redis.ScoredValue;
 import com.lambdaworks.redis.api.StatefulRedisConnection;
 import com.lambdaworks.redis.api.sync.RedisCommands;
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.RSSFeed;
+import com.pack.pack.model.RssFeedType;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.util.RssFeedUtil;
@@ -56,14 +51,14 @@ public class RssFeedRepositoryService {
 
 	private static final Logger $_LOG = LoggerFactory
 			.getLogger(RssFeedRepositoryService.class);
-	
+
 	private static final String SET_KEY_PREFIX = "SET_";
-	
+
 	private static final String LATEST_SCORE = "LATEST_SCORE";
 
 	@PostConstruct
 	private void init() {
-		if(System.getProperty("service.registry.test") != null) {
+		if (System.getProperty("service.registry.test") != null) {
 			return;
 		}
 		client = RedisClient.create(SystemPropertyUtil.getRedisURI());
@@ -91,31 +86,33 @@ public class RssFeedRepositoryService {
 		sync = getConnection().sync();
 		return sync;
 	}
-	
-	public boolean checkFeedExists(JRssFeed feed) throws NoSuchAlgorithmException, PackPackException {
+
+	public boolean checkFeedExists(JRssFeed feed)
+			throws NoSuchAlgorithmException, PackPackException {
 		RedisCommands<String, String> sync = getSyncRedisCommands();
-		//String key = "Feeds_" + String.valueOf(feed.getOgUrl().hashCode());
+		// String key = "Feeds_" + String.valueOf(feed.getOgUrl().hashCode());
 		String key = RssFeedUtil.generateUploadKey(feed);
 		List<String> list = sync.keys(key);
-		if(list == null || list.isEmpty())
+		if (list == null || list.isEmpty())
 			return false;
 		String tmpKey = list.get(0);
 		String tmpJson = sync.get(tmpKey);
-		if(tmpJson == null || tmpJson.trim().isEmpty())
+		if (tmpJson == null || tmpJson.trim().isEmpty())
 			return false;
 		RSSFeed tmpFeed = JSONUtil.deserialize(tmpJson, RSSFeed.class, true);
-		if(tmpFeed == null)
+		if (tmpFeed == null)
 			return false;
 		String tmpOgUrl = tmpFeed.getOgUrl();
-		if(tmpOgUrl == null)
+		if (tmpOgUrl == null)
 			return false;
 		return tmpOgUrl.equals(feed.getOgUrl());
 	}
-	
+
 	public void uploadRefreshmentFeed(RSSFeed feed, TTL ttl)
 			throws PackPackException, NoSuchAlgorithmException {
 		$_LOG.info("Uploading Feed for Refreshment");
-		$_LOG.info("Uploading " + feed.getOgType() + " Feed @ " + feed.getOgUrl());
+		$_LOG.info("Uploading " + feed.getOgType() + " Feed @ "
+				+ feed.getOgUrl());
 		$_LOG.info("Uploading Feed Titled :: " + feed.getOgTitle());
 		String json = JSONUtil.serialize(feed);
 		RedisCommands<String, String> sync = getSyncRedisCommands();
@@ -125,7 +122,7 @@ public class RssFeedRepositoryService {
 		$_LOG.info("Successfully uploaded Refreshment Feed");
 		// sync.close();
 	}
-	
+
 	private long resolveTTL_InSeconds(TTL ttl) {
 		long ttlSeconds = ttl.getTime();
 		TimeUnit unit = ttl.getUnit();
@@ -153,88 +150,34 @@ public class RssFeedRepositoryService {
 		}
 		return ttlSeconds;
 	}
-	
-	private long[] resolveRangeScores(String[] scores, long timestamp,
-			int direction) {
+
+	private long[] resolveRangeScores(String[] scores, int pageNo) {
 		if (scores == null || scores.length == 0) { // NO_RESULT (Empty
 													// Responses/Feeds)
 			return new long[0];
 		}
 
-		long[] result = new long[2];
+		if (pageNo < 0) {
+			return new long[0];
+		}
 		int len = scores.length;
-
-		short d0 = 1;
-		if (direction < 0) {
-			d0 = -1;
+		if (pageNo >= len) {
+			return new long[0];
 		}
 
-		if (timestamp == 0) {
-			if (d0 == -1) { // END_OF_PAGE (PreviousLink direction)
-				return new long[0];
-			}
-			if (len > 2) {
-				result[0] = Long.parseLong(scores[2]);
-				result[1] = Long.parseLong(scores[0]);
-			} else if (len > 1) {
-				result[0] = Long.parseLong(scores[1]);
-				result[1] = Long.parseLong(scores[0]);
-			} else {
-				result[0] = Long.parseLong(scores[0]);
-				result[1] = Long.MAX_VALUE;
-				//result[1] = result[0];
-			}
-			return result;
-		}
-
-		int i = 0;
-		long t0 = timestamp * d0;
-		int j = i;
-		int k = j;
-		while (i < len && t0 <= (Long.parseLong(scores[i]) * d0)) {
-			k = j;
-			j = i;
-			i++;
-		}
-
-		if ((i == len && d0 == 1) || (j == 0 && d0 == -1)) { // END_OF_PAGE
-																// (PreviousLink
-																// OR NextLink
-																// direction)
-			result = new long[0];
-		} else if (d0 == 1) {
-			int p = i + 1;
-			if (p < len) {
-				j = p;
-			} else {
-				j = i;
-			}
-			i = i - 1;
-			if(i < 0) {
-				result = new long[0];
-			} else {
-				result[0] = Long.parseLong(scores[j]);
-				result[1] = Long.parseLong(scores[i]);
-			}
-			// result[1] = timestamp;
-		} else {
-			result[0] = Long.parseLong(scores[j]);
-			int q = k - 1;
-			if (q >= 0) {
-				k = q;
-			}
-			result[1] = Long.parseLong(scores[k]);
-		}
+		long[] result = new long[1];
+		result[0] = Long.parseLong(scores[pageNo].trim());
+		//result[1] = Long.parseLong(scores[i].trim());
 		return result;
 	}
-	
+
 	private void updateLatestScoreForNewsFeed(
 			RedisCommands<String, String> sync, RSSFeed feed, long batchId)
 			throws PackPackException, NoSuchAlgorithmException {
 		String setKey = SET_KEY_PREFIX + RssFeedUtil.resolvePrefix(feed)
 				+ LATEST_SCORE;
 		String value = sync.get(setKey);
-		if(value == null) {
+		if (value == null) {
 			value = "";
 		}
 		String[] split = value.split(";");
@@ -245,31 +188,94 @@ public class RssFeedRepositoryService {
 				return r == 0 ? 0 : (r > 0 ? 1 : -1);
 			}
 		});
-		for(String s : split) {
-			if(s == null || s.trim().isEmpty())
+		for (String s : split) {
+			if (s == null || s.trim().isEmpty())
 				continue;
 			sortedSet.add(Long.parseLong(s));
 		}
 		sortedSet.add(batchId);
 		StringBuilder stringBuilder = new StringBuilder();
 		Iterator<Long> itr = sortedSet.iterator();
-		while(itr.hasNext()) {
+		while (itr.hasNext()) {
 			Long v = itr.next();
 			stringBuilder.append(v);
-			if(itr.hasNext()) {
+			if (itr.hasNext()) {
 				stringBuilder.append(";");
 			}
 		}
 		sync.set(setKey, stringBuilder.toString());
-		/*String nValue = String.valueOf(batchId);
-		if(!value.contains(nValue)) {
-			value = nValue + ";" + value;
-			sync.set(setKey, value);
-		}*/
+	}
+	
+	public void uploadNewsFeed(List<RSSFeed> feeds, TTL ttl, long batchId,
+			boolean updatePaginationInfo) throws PackPackException,
+			NoSuchAlgorithmException {
+		StringBuilder newsKeys = new StringBuilder();
+		StringBuilder sportsKeys = new StringBuilder();
+		StringBuilder scienceAndTechnologyKeys = new StringBuilder();
+		StringBuilder articleKeys = new StringBuilder();
+		for(RSSFeed feed : feeds) {
+			String key = uploadNewsFeed(feed, ttl, batchId, updatePaginationInfo);
+			if(updatePaginationInfo && key != null) {
+				if(RssFeedType.NEWS.name().equalsIgnoreCase(feed.getFeedType())) {
+					newsKeys.append(key);
+					newsKeys.append(";");
+				} else if(RssFeedType.NEWS_SPORTS.name().equalsIgnoreCase(feed.getFeedType())) {
+					sportsKeys.append(key);
+					sportsKeys.append(";");
+				} else if(RssFeedType.NEWS_SCIENCE_TECHNOLOGY.name().equalsIgnoreCase(feed.getFeedType())) {
+					scienceAndTechnologyKeys.append(key);
+					scienceAndTechnologyKeys.append(";");
+				} else if(RssFeedType.ARTICLE.name().equalsIgnoreCase(feed.getFeedType())) {
+					articleKeys.append(key);
+					articleKeys.append(";");
+				}
+			}
+		}
+		
+		long ttlSeconds = 30 * 60 * 60 * 1000; // 30 Hours
+		RedisCommands<String, String> sync = getSyncRedisCommands();
+		String setKey = null;
+		if (!newsKeys.toString().isEmpty()) {
+			setKey = SET_KEY_PREFIX
+					+ RssFeedUtil.resolvePrefix(RssFeedType.NEWS.name())
+					+ batchId;
+			sync.setex(setKey, ttlSeconds, newsKeys.toString());
+		}
+		
+		if (!sportsKeys.toString().isEmpty()) {
+			setKey = SET_KEY_PREFIX
+					+ RssFeedUtil.resolvePrefix(RssFeedType.NEWS_SPORTS.name())
+					+ batchId;
+			sync.setex(setKey, ttlSeconds, sportsKeys.toString());
+		}
+
+		if (!scienceAndTechnologyKeys.toString().isEmpty()) {
+			setKey = SET_KEY_PREFIX
+					+ RssFeedUtil
+							.resolvePrefix(RssFeedType.NEWS_SCIENCE_TECHNOLOGY
+									.name()) + batchId;
+			sync.setex(setKey, ttlSeconds, scienceAndTechnologyKeys.toString());
+		}
+
+		if (!articleKeys.toString().isEmpty()) {
+			setKey = SET_KEY_PREFIX
+					+ RssFeedUtil.resolvePrefix(RssFeedType.ARTICLE.name())
+					+ batchId;
+			sync.setex(setKey, ttlSeconds, articleKeys.toString());
+		}
+	}
+	
+	private Set<String> resolveKeysForPagination(
+			RedisCommands<String, String> sync, long batchId, String rangeKey) {
+		String keys = sync.get(rangeKey + batchId);
+		if (keys == null)
+			return Collections.emptySet();
+		return new HashSet<String>(Arrays.asList(keys.split(";")));
 	}
 
-	public void uploadNewsFeed(RSSFeed feed, TTL ttl, long batchId, boolean updatePaginationInfo)
-			throws PackPackException, NoSuchAlgorithmException {
+	private String uploadNewsFeed(RSSFeed feed, TTL ttl, long batchId,
+			boolean updatePaginationInfo) throws PackPackException,
+			NoSuchAlgorithmException {
 		String feedType = feed.getFeedType().toUpperCase();
 		$_LOG.info("Uploading Feed for " + feedType);
 		$_LOG.info("Uploading " + feedType + " Feed @ " + feed.getOgUrl());
@@ -277,16 +283,10 @@ public class RssFeedRepositoryService {
 		RedisCommands<String, String> sync = getSyncRedisCommands();
 		long ttlSeconds = resolveTTL_InSeconds(ttl);
 		String key = RssFeedUtil.generateUploadKey(feed);
-		feed.setId(key);
 		String json = JSONUtil.serialize(feed);
-		if(updatePaginationInfo) {
-			$_LOG.info("Updating pagination infomation");
-			String setKey = SET_KEY_PREFIX + RssFeedUtil.resolvePrefix(feed);
-			sync.zadd(setKey, batchId, key);
-		}
-		
-		// Avoid duplicate HashValues here.
-		{
+
+		// Avoid duplicate HashValues here (Only for new entries)
+		if (updatePaginationInfo) {
 			String tmpKey = key;
 			String tmpJson = null;
 			RSSFeed tmpFeed = null;
@@ -304,23 +304,30 @@ public class RssFeedRepositoryService {
 					$_LOG.debug("tmpKey = " + tmpKey);
 					i++;
 				}
-			} while(tmpJson != null && tmpFeed != null && feed.getOgUrl().equals(tmpFeed.getOgUrl()));
+			} while (tmpJson != null && tmpFeed != null
+					&& feed.getOgUrl().equals(tmpFeed.getOgUrl()));
 			key = tmpKey;
 		}
-		
+
+		if (!updatePaginationInfo) {
+			ttlSeconds = sync.ttl(key);
+		}
 		sync.setex(key, ttlSeconds, json);
-		if(updatePaginationInfo) {
+		if (updatePaginationInfo) {
 			$_LOG.info("Updating latest score");
 			updateLatestScoreForNewsFeed(sync, feed, batchId);
 		}
 		$_LOG.info("Successfully uploaded " + feedType + " Feed");
+		return key;
 	}
-	
+
 	public List<RSSFeed> getAllRefrehmentFeeds() throws PackPackException {
-		return getAllFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.REFRESHMENT.name()) + "*");
+		return getAllFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.REFRESHMENT
+				.name()) + "*");
 	}
-	
-	private List<RSSFeed> getAllFeeds(String keyPattern) throws PackPackException {
+
+	private List<RSSFeed> getAllFeeds(String keyPattern)
+			throws PackPackException {
 		RedisCommands<String, String> sync = getSyncRedisCommands();
 		List<String> keys = sync.keys(keyPattern);
 		if (keys == null || keys.isEmpty())
@@ -334,270 +341,197 @@ public class RssFeedRepositoryService {
 		// sync.close();
 		return feeds;
 	}
-	
-	public Pagination<RSSFeed> getNewsFeeds(long timestamp, int direction) throws PackPackException {
+
+	public Pagination<RSSFeed> getNewsFeeds(int pageNo)
+			throws PackPackException {
 		$_LOG.trace("Getting News Feeds");
-		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.NEWS.name()), timestamp, direction);
+		return getAllUpdatedFeeds(
+				RssFeedUtil.resolvePrefix(JRssFeedType.NEWS.name()), pageNo);
 	}
-	
-	public Pagination<RSSFeed> getSportsNewsFeeds(long timestamp, int direction) throws PackPackException {
+
+	public Pagination<RSSFeed> getSportsNewsFeeds(int pageNo)
+			throws PackPackException {
 		$_LOG.trace("Getting Sports News Feeds");
-		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.NEWS_SPORTS.name()), timestamp, direction);
+		return getAllUpdatedFeeds(
+				RssFeedUtil.resolvePrefix(JRssFeedType.NEWS_SPORTS.name()),
+				pageNo);
 	}
-	
-	public Pagination<RSSFeed> getScienceAndTechnologyNewsFeeds(long timestamp, int direction) throws PackPackException {
+
+	public Pagination<RSSFeed> getScienceAndTechnologyNewsFeeds(int pageNo)
+			throws PackPackException {
 		$_LOG.trace("Getting Science & Technology News Feeds");
-		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.NEWS_SCIENCE_TECHNOLOGY.name()), timestamp, direction);
+		return getAllUpdatedFeeds(
+				RssFeedUtil.resolvePrefix(JRssFeedType.NEWS_SCIENCE_TECHNOLOGY
+						.name()), pageNo);
 	}
-	
-	public Pagination<RSSFeed> getArticleNewsFeeds(long timestamp, int direction) throws PackPackException {
+
+	public Pagination<RSSFeed> getArticleNewsFeeds(int pageNo)
+			throws PackPackException {
 		$_LOG.trace("Getting Article News Feeds");
-		return getAllUpdatedFeeds(RssFeedUtil.resolvePrefix(JRssFeedType.ARTICLE.name()), timestamp, direction);
+		return getAllUpdatedFeeds(
+				RssFeedUtil.resolvePrefix(JRssFeedType.ARTICLE.name()), pageNo);
 	}
-	
+
 	public void cleanupRangeKeys() {
-		cleanupRangeKeys0(SET_KEY_PREFIX + RssFeedUtil.resolvePrefix(JRssFeedType.NEWS.name()));
-		cleanupRangeKeys0(SET_KEY_PREFIX + RssFeedUtil.resolvePrefix(JRssFeedType.NEWS_SPORTS.name()));
-		cleanupRangeKeys0(SET_KEY_PREFIX + RssFeedUtil.resolvePrefix(JRssFeedType.NEWS_SCIENCE_TECHNOLOGY.name()));
-		cleanupRangeKeys0(SET_KEY_PREFIX + RssFeedUtil.resolvePrefix(JRssFeedType.ARTICLE.name()));
+		cleanupRangeKeys0(SET_KEY_PREFIX
+				+ RssFeedUtil.resolvePrefix(JRssFeedType.NEWS.name()));
+		cleanupRangeKeys0(SET_KEY_PREFIX
+				+ RssFeedUtil.resolvePrefix(JRssFeedType.NEWS_SPORTS.name()));
+		cleanupRangeKeys0(SET_KEY_PREFIX
+				+ RssFeedUtil
+						.resolvePrefix(JRssFeedType.NEWS_SCIENCE_TECHNOLOGY
+								.name()));
+		cleanupRangeKeys0(SET_KEY_PREFIX
+				+ RssFeedUtil.resolvePrefix(JRssFeedType.ARTICLE.name()));
 	}
-	
+
 	private void cleanupRangeKeys0(String setKey) {
 		$_LOG.trace("setKey = " + setKey);
 		RedisCommands<String, String> sync = getSyncRedisCommands();
-		List<String> keys = resolveAllSetKeys(sync, setKey);
-		if(keys == null || keys.isEmpty()) {
-			$_LOG.debug("Could not find any key for setKey = " + setKey);
-			return;
-		}
-		for (String key : keys) {
-			String json = sync.get(key);
-			if(json == null) {
-				sync.zrem(setKey, key);
-			}
-		}
-		
+
 		String rangeKey = setKey + LATEST_SCORE;
 		String ranges = sync.get(rangeKey);
-		if(ranges != null && !ranges.trim().isEmpty()) {
+		if (ranges != null && !ranges.trim().isEmpty()) {
 			ranges = removeExpiredRanges(ranges);
-			if(ranges != null && !ranges.trim().isEmpty()) {
+			if (ranges != null && !ranges.trim().isEmpty()) {
 				sync.set(rangeKey, ranges);
 			}
 		}
 	}
-	
+
 	private String removeExpiredRanges(String rangesValue) {
 		String[] ranges = rangesValue.split(";");
 		Set<Long> set = new TreeSet<Long>(new Comparator<Long>() {
-			
+
 			@Override
 			public int compare(Long o1, Long o2) {
 				long r = o2 - o1;
 				return r == 0 ? 0 : (r > 0 ? 1 : -1);
 			}
 		});
-		for(String range : ranges) {
-			if(range == null || range.trim().isEmpty())
+		for (String range : ranges) {
+			if (range == null || range.trim().isEmpty())
 				continue;
 			set.add(Long.parseLong(range.trim()));
 		}
 		long first = -1;
 		long diff = 50 * 60 * 60 * 1000;
 		Iterator<Long> itr = set.iterator();
-		while(itr.hasNext()) {
+		while (itr.hasNext()) {
 			Long v = itr.next();
-			if(first < 0) {
+			if (first < 0) {
 				first = v;
-			} else if(first - v > diff) {
+			} else if (first - v > diff) {
 				itr.remove();
 			}
 		}
 		StringBuilder finalRangesValue = new StringBuilder();
 		itr = set.iterator();
-		while(itr.hasNext()) {
+		while (itr.hasNext()) {
 			finalRangesValue.append(itr.next());
-			if(itr.hasNext()) {
+			if (itr.hasNext()) {
 				finalRangesValue.append(";");
 			}
 		}
 		return finalRangesValue.toString();
 	}
-	
-	private List<String> resolveAllSetKeys(
-			RedisCommands<String, String> sync, String setKey) {
-		List<String> keys = new LinkedList<String>();
-		List<ScoredValue<String>> zrangeWithScores = sync.zrangeWithScores(
-				setKey, 0, -1);
-		if (zrangeWithScores == null || zrangeWithScores.isEmpty())
-			return Collections.emptyList();
-		for (ScoredValue<String> zrangeWithScore : zrangeWithScores) {
-			keys.add(zrangeWithScore.value);
-		}
-		return keys;
-	}
-	
+
 	public Pagination<RSSFeed> getAllFeedsInStore(String keyPattern)
 			throws PackPackException {
-		return getAllUpdatedFeeds(keyPattern, -1, 1);
-	}
-	
-	private static boolean isExpiredTimestamp(long timestamp) {
-		long currentTimestamp = System.currentTimeMillis();
-		long diff = currentTimestamp - timestamp;
-		int days = (int)((((diff/1000)/60)/60)/24);
-		return days >= 2 ? true : false;
-	}
-	
-	private Pagination<RSSFeed> getAllUpdatedFeeds(String keyPattern, long timestamp, int direction) throws PackPackException {
-		$_LOG.trace("timestamp = " + timestamp + " & direction = " + direction);
-		$_LOG.trace("Key Pattern = " + keyPattern);
-		Pagination<RSSFeed> page = new Pagination<RSSFeed>(timestamp);
 		List<RSSFeed> feeds = new ArrayList<RSSFeed>();
-		if(timestamp < 0) {
-			if(timestamp != END_OF_PAGE_TIMESTAMP) {
-				feeds = getAllFeeds(keyPattern + "*");
+		Pagination<RSSFeed> page = new Pagination<RSSFeed>();
+		page.setNextPageNo(-1);
+		RedisCommands<String, String> sync = getSyncRedisCommands();
+		List<String> keys = sync.keys(keyPattern);
+		for (String key : keys) {
+			String json = sync.get(key);
+			if (json == null) {
+				// sync.del(key);
+				continue;
 			}
+			RSSFeed feed = JSONUtil.deserialize(json, RSSFeed.class, true);
+			feeds.add(feed);
+		}
+		page.setResult(feeds);
+		return page;
+	}
+
+	private Pagination<RSSFeed> getAllUpdatedFeeds(String keyPattern, int pageNo)
+			throws PackPackException {
+		$_LOG.trace("Key Pattern = " + keyPattern);
+		Pagination<RSSFeed> page = new Pagination<RSSFeed>();
+		List<RSSFeed> feeds = new ArrayList<RSSFeed>();
+		if (pageNo < 0) {
 			page.setResult(feeds);
-			page.setNextLink(END_OF_PAGE + PAGELINK_DIRECTION_NEGATIVE);
-			page.setPreviousLink(END_OF_PAGE + PAGELINK_DIRECTION_POSITIVE);
+			page.setNextPageNo(-1);
 			return page;
 		}
-		
+
 		RedisCommands<String, String> sync = getSyncRedisCommands();
 		String setKey = SET_KEY_PREFIX + keyPattern.toUpperCase();
 		String rangeKey = setKey + LATEST_SCORE;
 		$_LOG.trace("Range Key = " + rangeKey);
 		String ranges = sync.get(rangeKey);
 		$_LOG.trace("ranges = " + ranges);
-		if(ranges == null) {
+		if (ranges == null) {
 			page.setResult(feeds);
-			page.setNextLink(END_OF_PAGE + PAGELINK_DIRECTION_NEGATIVE);
-			page.setPreviousLink(END_OF_PAGE + PAGELINK_DIRECTION_POSITIVE);
+			page.setNextPageNo(-1);
 			return page;
 		}
 		String[] split = ranges.split(";");
-		if(split.length == 0) {
+		if (split.length == 0) {
 			page.setResult(feeds);
-			page.setNextLink(END_OF_PAGE + PAGELINK_DIRECTION_NEGATIVE);
-			page.setPreviousLink(END_OF_PAGE + PAGELINK_DIRECTION_POSITIVE);
+			page.setNextPageNo(-1);
 			return page;
 		}
-		
+
 		Set<String> keys = null;
-		if(isExpiredTimestamp(timestamp) || timestamp < Long.parseLong(split[split.length - 1])) {
-			timestamp = 0;
-		}
-		long[] scores = resolveRangeScores(split, timestamp, direction);
+		long[] scores = resolveRangeScores(split, pageNo);
 		$_LOG.debug("Scores = " + StringUtils.stringify(scores));
-		if(scores.length == 0)
-			return endOfPageResponse(timestamp, timestamp);
-		long r1 = scores[0];
-		long r2 = scores[1]; // r1 is expected to be <= r2
-		long max = r1 >= r2 ? r1 : r2;
-		long min = r1 <= r2 ? r1 : r2;
+		if (scores.length == 0)
+			return endOfPageResponse(pageNo);
+		long batchId = scores[0];
 		$_LOG.trace("setKey = " + setKey);
-		keys = resolveKeysForPagination(sync, r1, r2, setKey);
-		$_LOG.trace("Keys = " + StringUtils.stringify(keys));
-		if (keys == null || keys.isEmpty()) { // This means all the keys got expired due to TTL (And have been removed earlier or during auto sync, but ranges/scores NOT updated accordingly)
-			//removeAllExpiredRanges(rangeKey, split, timestamp);
-			return endOfPageResponse(timestamp, max);
+		int i = pageNo + 1;
+		keys = resolveKeysForPagination(sync, batchId, setKey);
+		while (keys.isEmpty() && scores.length > 0) {
+			$_LOG.trace("Keys = " + StringUtils.stringify(keys));
+			scores = resolveRangeScores(split, i);
+			batchId = scores[0];
+			keys = resolveKeysForPagination(sync, batchId, setKey);
+			i++;
+		}
+		
+		$_LOG.debug("No of keys = " + keys.size());
+
+		if (scores.length == 0) {
+			page = new Pagination<RSSFeed>();
+			page.setResult(Collections.emptyList());
+			page.setNextPageNo(-1);
+			return page;
 		} else {
 			for (String key : keys) {
 				String json = sync.get(key);
-				if(json == null) {
-					sync.zrem(setKey, key);
+				if (json == null) {
 					continue;
 				}
 				RSSFeed feed = JSONUtil.deserialize(json, RSSFeed.class, true);
 				feeds.add(feed);
 			}
-			if(feeds.isEmpty()) { // This means all the keys got expired due to TTL
-				//removeAllExpiredRanges(rangeKey, split, timestamp);
-				return endOfPageResponse(timestamp, max);
-			} else {
-				String nextLink = String.valueOf(min) + PAGELINK_DIRECTION_NEGATIVE;
-				$_LOG.debug("nextLink = " + nextLink);
-				page.setNextLink(nextLink);
-				/*while(feeds.size() < 10) {
-					Pagination<RSSFeed> nextPage = getAllUpdatedFeeds(keyPattern, r1);
-					feeds.addAll(nextPage.getResult());
-					page.setNextLink(nextPage.getNextLink());
-				}*/
-			}
+			page = new Pagination<RSSFeed>();
+			$_LOG.info("Size of Feeds = " + feeds.size());
+			page.setResult(feeds);
+			page.setNextPageNo(i);
 		}
-		
-		if(timestamp == 0) {
-			page.setPreviousLink(END_OF_PAGE + PAGELINK_DIRECTION_POSITIVE);
-		} else if(timestamp == Long.MAX_VALUE) {
-			page.setPreviousLink(END_OF_PAGE + PAGELINK_DIRECTION_POSITIVE);
-		} else {
-			page.setPreviousLink(String.valueOf(timestamp) + PAGELINK_DIRECTION_POSITIVE);
-		}
-		$_LOG.info("Size of Feeds = " + feeds.size());
-		page.setResult(feeds);
-		
-		if(direction >= 0) {
-			page.setTimestamp(min);
-		} else {
-			page.setTimestamp(max);
-		}
-		
-		if(direction >= 0) {
-			page.setNextLink(page.getTimestamp() + PAGELINK_DIRECTION_POSITIVE);
-			page.setPreviousLink(page.getTimestamp() + PAGELINK_DIRECTION_NEGATIVE);
-		} else {
-			page.setNextLink(page.getTimestamp() + PAGELINK_DIRECTION_NEGATIVE);
-			page.setPreviousLink(page.getTimestamp() + PAGELINK_DIRECTION_POSITIVE);
-		}
-		
 		return page;
 	}
-	
-	private Set<String> resolveKeysForPagination(
-			RedisCommands<String, String> sync, long r1, long r2,
-			String rangeKey) {
-		long min = r1 < r2 ? r1 : r2;
-		long max = r1 > r2 ? r1 : r2;
-		Set<String> keys = new HashSet<String>();
-		List<ScoredValue<String>> zrangeWithScores = sync.zrangeWithScores(
-				rangeKey, 0, -1);
-		if (zrangeWithScores == null || zrangeWithScores.isEmpty())
-			return Collections.emptySet();
-		for (ScoredValue<String> zrangeWithScore : zrangeWithScores) {
-			if (zrangeWithScore.score >= min && zrangeWithScore.score <= max) {
-				boolean success = keys.add(zrangeWithScore.value);
-				if(!success && $_LOG.isTraceEnabled()) {
-					$_LOG.warn("Duplicate Key = " + zrangeWithScore.value);
-				}
-			}
-		}
-		return keys;
-	}
-	
-	private Pagination<RSSFeed> endOfPageResponse(long previousTimestamp, long currentTimestamp) {
-		Pagination<RSSFeed> page = new Pagination<RSSFeed>(currentTimestamp);
-		page.setNextLink(END_OF_PAGE + PAGELINK_DIRECTION_POSITIVE);
-		page.setPreviousLink(String.valueOf(previousTimestamp) + PAGELINK_DIRECTION_NEGATIVE);
-		page.setResult(Collections.emptyList());
+
+	private Pagination<RSSFeed> endOfPageResponse(int pageNo) {
+		Pagination<RSSFeed> page = new Pagination<RSSFeed>();
+		page.setNextPageNo(-1);
 		return page;
 	}
-	
-	/*private void removeAllExpiredRanges(String rangeKey, String[] rangesArr, long timestamp) {
-		int i = 0;
-		RedisCommands<String, String> sync = getSyncRedisCommands();
-		StringBuilder updatedRanges = new StringBuilder();
-		while(Long.parseLong(rangesArr[i]) != timestamp) {
-			updatedRanges.append(rangesArr[i]);
-			updatedRanges.append(";");
-			i++;
-		}
-		updatedRanges.append(String.valueOf(timestamp));
-		String ranges = updatedRanges.toString();
-		$_LOG.debug("After removing expired ranges = " + ranges);
-		sync.set(rangeKey, ranges);
-	}*/
-	
+
 	public void test() {
 		String[] scores = new String[] { "1535778663195", "1535771463195",
 				"1535764263195", "1535757063183", "1535757064222",
@@ -611,25 +545,20 @@ public class RssFeedRepositoryService {
 				"1535605863195", "1535598663195", "1535591463195",
 				"1535584263211", "1535566514641", "1535559314641",
 				"1535552114659" };
-		//long score = Long.parseLong("1535757064222");
-		//long[] ranges = resolveRangeScores(scores, score, 1);
-		//System.out.println(StringUtils.stringify(ranges));
-		scores = new String[] { "10", "20", "30", "40", "50", "60",
-				"70", "80", "90", "100", "110", "120", "130", "140", "150",
-				"160", "170", "180", "190", "200", "210", "220", "230", "240",
-				"250", "260", "270", "280", "290", "300", "310", "320", "330" };
+		scores = new String[] { "10", "20", "30", "40", "50", "60", "70", "80",
+				"90", "100", "110", "120", "130", "140", "150", "160", "170",
+				"180", "190", "200", "210", "220", "230", "240", "250", "260",
+				"270", "280", "290", "300", "310", "320", "330" };
 		List<String> asList = Arrays.asList(scores);
 		Collections.reverse(asList);
 		scores = asList.toArray(new String[scores.length]);
-		//System.out.println(StringUtils.stringify(scores));
-		long[] ranges = new long[] {Long.parseLong(scores[2])};
-		while(ranges.length > 0) {
-			long score = ranges[0];
-			ranges = resolveRangeScores(scores, score, 1);
+		long[] ranges = new long[] { Long.parseLong(scores[2]) };
+		for (int i = 0; i < ranges.length; i++) {
+			ranges = resolveRangeScores(scores, i);
 			System.out.println(StringUtils.stringify(ranges));
 		}
 	}
-	
+
 	public static void main(String[] args) {
 		new RssFeedRepositoryService().test();
 	}

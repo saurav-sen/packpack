@@ -11,7 +11,7 @@ import com.pack.pack.client.api.API;
 import com.pack.pack.client.api.APIBuilder;
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
-import com.pack.pack.client.api.PageUtil;
+import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.JUser;
 import com.pack.pack.model.web.Pagination;
 import com.squill.feed.web.model.JRssFeed;
@@ -28,15 +28,16 @@ public class GetNewsTest extends BaseTest {
 		int total = 0;
 		Set<JRssFeed> set = new HashSet<JRssFeed>();
 		try {
+			int pageNo = 0;
 			API api = APIBuilder.create(session.getBaseUrl()).setAction(command)
 					.setUserName(session.getUserName())
 					.addApiParam(APIConstants.User.ID, session.getUserId())
-					.addApiParam(APIConstants.PageInfo.PAGE_LINK, PageUtil.buildNextPageLink(0)) /*PageUtil.buildNextPageLink(0))*/
+					.addApiParam(APIConstants.PageInfo.PAGE_NO, pageNo)
 					.build();
 			Pagination<JRssFeed> page = (Pagination<JRssFeed>) api.execute();
-			total = total + page.getResult().size();
+			//total = total + page.getResult().size();
 			//System.out.println(JSONUtil.serialize(page.getResult()));
-			Set<String> nextLinksSet = new HashSet<String>();
+			//Set<String> nextLinksSet = new HashSet<String>();
 			int count = 0;
 			while (!page.getResult().isEmpty()) {
 				List<JRssFeed> result = page.getResult();
@@ -65,19 +66,18 @@ public class GetNewsTest extends BaseTest {
 				map.clear();
 				count++;
 				total = total + page.getResult().size();
-				//System.out.println(JSONUtil.serialize(page.getResult()));
-				if(!nextLinksSet.add(PageUtil.buildNextPageLink(page.getTimestamp()))) {
+				System.out.println(JSONUtil.serialize(page.getResult()));
+				/*if(!nextLinksSet.add(PageUtil.buildNextPageLink(page.getTimestamp()))) {
 					System.out.println("Duplicate Links");
 				}
-				System.out.println("Next --> " + PageUtil.buildNextPageLink(page.getTimestamp()));
+				System.out.println("Next --> " + PageUtil.buildNextPageLink(page.getTimestamp()));*/
 				System.out.println("*****************************************");
 				api = APIBuilder
 						.create(session.getBaseUrl())
 						.setAction(command)
 						.setUserName(session.getUserName())
 						.addApiParam(APIConstants.User.ID, session.getUserId())
-						.addApiParam(APIConstants.PageInfo.PAGE_LINK,
-								PageUtil.buildNextPageLink(page.getTimestamp())).build();
+						.addApiParam(APIConstants.PageInfo.PAGE_NO, page.getNextPageNo()).build();
 				page = (Pagination<JRssFeed>) api.execute();
 			}
 			

@@ -94,11 +94,11 @@ public class RandomFeedSelectionStrategy implements FeedSelectionStrategy {
 		while (j < len && feed == null) {
 			JRssFeed tmp = originalItems.get(rand);
 			if (validateSelectionInCache) {
-				String cacheKey = CACHE_KEY_PREFIX + tmp.getId();
+				String cacheKey = CACHE_KEY_PREFIX + tmp.getOgUrl();
 				if (!checkExistenceInCache(cacheKey)) {
 					feed = tmp;
 					long threeMonths = 30 * 24 * 60 * 60;
-					addEntryToCache(cacheKey, tmp.getId(), threeMonths);
+					addEntryToCache(cacheKey, tmp.getOgUrl(), threeMonths);
 				} else {
 					int nextRand = Math.abs(new Random().nextInt()) % len;
 					while (nextRand != rand) {
