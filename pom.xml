@@ -20,6 +20,7 @@
 		<spring.version>4.1.6.RELEASE</spring.version>
 		<encoding>UTF-8</encoding>
 		<ektorp.version>1.4.2</ektorp.version>
+		<httpclient.version>4.5.4</httpclient.version>
 		<packpack.release>3.0</packpack.release>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<artifacts.directory>${project.build.directory}/artifacts</artifacts.directory>
@@ -78,7 +79,7 @@
 		<module>oauth</module>
 		<module>markup-gen</module>
 		<module>api</module>
-		<!--module>ml-api</module-->
+		<module>ml-api</module>
 		<module>api-client-java</module>
 		<!--module>news-reader</module>
 		<module>load-master</module-->

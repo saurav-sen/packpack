@@ -1,4 +1,4 @@
-package com.pack.pack.rest.api;
+package com.pack.pack.ml.rest.api;
 
 import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
@@ -7,6 +7,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.dto.BookmarkDTO;
@@ -24,6 +27,9 @@ import com.squill.feed.web.model.JRssFeed;
 @Provider
 @Path("/bookmark")
 public class BookmarkResource {
+
+	private static final Logger LOG = LoggerFactory
+			.getLogger(BookmarkResource.class);
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)

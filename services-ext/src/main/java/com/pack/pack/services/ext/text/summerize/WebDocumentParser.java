@@ -73,6 +73,7 @@ public class WebDocumentParser {
 				return json;
 			}
 			String content = EntityUtils.toString(entity);
+			$LOG.debug("Parsing HTML");
 			WebDocument webDocument = parseHtml(content);
 			InputStream input = new ByteArrayInputStream(webDocument
 					.getFilteredHtml().getBytes());
@@ -86,6 +87,7 @@ public class WebDocumentParser {
 			 * BoilerpipeContentHandler handler2 = new BoilerpipeContentHandler(
 			 * textHandler, ArticleExtractor.getInstance());
 			 */
+			$LOG.debug("Parsing HTML using Boilerpipe Content Handler/AutoDetectParser");
 			parser.parse(input, handler2, metadata, context);
 
 			String article = textHandler.toString();
@@ -110,10 +112,14 @@ public class WebDocumentParser {
 
 			article = LanguageUtil.cleanHtmlInvisibleCharacters(article);
 
-			String ogImage = metadata.get("og:image");
+			String ogImage = webDocument.getImageUrl();
 			if (ogImage == null) {
-				ogImage = metadata.get("twitter:image");
+				ogImage = metadata.get("og:image");
+				if (ogImage == null) {
+					ogImage = metadata.get("twitter:image");
+				}
 			}
+			
 			json.setOgImage(ogImage);
 			String keywordsText = metadata.get("keywords");
 			if (keywordsText != null) {
@@ -133,25 +139,31 @@ public class WebDocumentParser {
 			json.setOgUrl(ogUrl);
 			json.setHrefSource(ogUrl);
 
-			String ogDescription = metadata.get("og:description");
+			String ogDescription = webDocument.getDescription();
 			if (ogDescription == null) {
-				ogDescription = metadata.get("twitter:description");
+				ogDescription = metadata.get("og:description");
+				if (ogDescription == null) {
+					ogDescription = metadata.get("twitter:description");
+					if (ogDescription == null) {
+						ogDescription = metadata.get("description");
+					}
+				}
 			}
-			if (ogDescription == null) {
-				ogDescription = metadata.get("description");
-			}
+			
 			json.setOgDescription(ogDescription);
 
 			json.setOgTitle(title);
 			if(webDocument.isSuccess()) {
+				$LOG.debug("Parsing HTML was successful");
 				json.setFullArticleText(article);
 
 				Summarizer summarizer = new Summarizer();
 				String summaryText = summarizer.Summarize(article, 3);
 
 				json.setArticleSummaryText(summaryText);
+			} else if($LOG.isDebugEnabled()){
+				$LOG.debug("Parsing HTML was didn't go well");
 			}
-
 		} catch (FileNotFoundException e) {
 			$LOG.error(e.getMessage(), e);
 		} catch (IOException e) {
@@ -181,7 +193,7 @@ public class WebDocumentParser {
 		for (int i = 0; i < len; i++) {
 			for (int j = len - 1; j >= i; j--) {
 				String text1 = wordMatrix[i][j].trim();
-				if (elementText.contains(text1)
+				if (elementText.replaceAll("[^a-zA-Z0-9\\s]", "").contains(text1)
 				/* || text1.contains(elementText) */) {
 					float percentageMatch = (float) text1.length()
 							/ (float) entireSentence.length();
@@ -216,7 +228,7 @@ public class WebDocumentParser {
 					wordMatrix[i][j] = "";
 				} else {
 					desc.append(words.get(j));
-					wordMatrix[i][j] = desc.toString();
+					wordMatrix[i][j] = desc.toString().replaceAll("[^a-zA-Z0-9\\s]", "");
 					desc.append(" ");
 				}
 			}
@@ -228,6 +240,7 @@ public class WebDocumentParser {
 			Element element = itr.next();
 			String text = element.text().replaceAll("\\s+", " ")
 					.replaceAll("\\xA0", " ");
+			$LOG.debug(text);
 			if (checkMatch(wordMatrix, text)) {
 				if (tagName == null) {
 					tagName = element.tagName();
@@ -453,8 +466,11 @@ public class WebDocumentParser {
 
 	private WebDocument parseHtml(String html) throws IOException {
 		Document doc = Jsoup.parse(html);
+		$LOG.debug("Removing Comments");
 		removeComments(doc);
+		$LOG.debug("Removing JS Skripts");
 		removeScripts(doc);
+		$LOG.debug("Removing CSS Style links");
 		removeStyleLinks(doc);
 		String title = readOgTilte(doc);
 		String description = readOgDescription(doc);
@@ -464,10 +480,12 @@ public class WebDocumentParser {
 		WebElement primaryElement = findPrimaryElement(doc, description,
 				keywordsList);
 		if (primaryElement == null) {
+			$LOG.debug("Failed to get primary element based upon description");
 			return new WebDocument(title, description, imageUrl, doc);
 		}
 		Element majorElement = primaryElement.getPrimaryElement();
 		if (majorElement == null) {
+			$LOG.debug("Failed to get primary/major element based upon description");
 			return new WebDocument(title, description, imageUrl, doc);
 		}
 
@@ -477,11 +495,14 @@ public class WebDocumentParser {
 			h1Element = h1Elements.get(0);
 		}
 		if (h1Element == null) {
+			$LOG.debug("No <h1> tag found");
 			return new WebDocument(title, description, imageUrl, doc);
 		}
 
+		$LOG.debug("Trying to find LCA");
 		Element _LCA = findLowestCommonAncestor(majorElement, h1Element);
 		if (_LCA == null) {
+			$LOG.debug("Failed to compute LCA node");
 			return new WebDocument(title, description, imageUrl, doc);
 		}
 
@@ -494,6 +515,7 @@ public class WebDocumentParser {
 			element.remove();
 		}
 
+		$LOG.debug("Cleaning up unrelated Sub Trees");
 		cleanUpUnrelatedSubTrees(doc.body(), _LCA);
 		cleanUpLCA(_LCA, majorElement);
 
@@ -504,13 +526,16 @@ public class WebDocumentParser {
 			elementsByTag.remove();
 		}
 
+		$LOG.debug("Removing headers");
 		removeHeaders(doc);
+		$LOG.debug("Removing footers");
 		removeFooters(doc);
 
 		html = "<html><body>" + _LCA.html() + "</body></html>";
+		$LOG.trace("Final HTML to parse = ");
 		Document document = Jsoup.parse(html);
-		$LOG.debug(document.text());
-		$LOG.debug(document.outerHtml());
+		$LOG.trace(document.text());
+		$LOG.trace(document.outerHtml());
 
 		return new WebDocument(title, description, imageUrl, document).setSuccess(true);
 	}

@@ -107,8 +107,8 @@ class FeedReaderApi extends BaseAPI {
 		HttpEntity jsonBody = new StringEntity(json, UTF_8);
 		POST.setEntity(jsonBody);
 		HttpResponse response = client.execute(POST);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				JRssFeed.class);
+		String respBody = EntityUtils.toString(response.getEntity());
+		return JSONUtil.deserialize(respBody, JRssFeed.class);
 	}
 
 	private class Invoker implements ApiInvoker {

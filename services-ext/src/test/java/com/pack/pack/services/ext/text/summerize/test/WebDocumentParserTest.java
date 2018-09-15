@@ -19,7 +19,7 @@ public class WebDocumentParserTest {
 	public void test() throws PackPackException {
 		JRssFeed json = null;
 		json = new WebDocumentParser()
-				.parse("https://content.magicbricks.com/property-news/apartment-sizes-shrink-in-7-major-cities-in-5-years/101039.html?fromSite=toi&utm_source=toi&utm_medium=referral&utm_campaign=toi-mb-whitelabe");
+				.parse("https://timesofindia.indiatimes.com/city/hyderabad/eye-of-the-matter-25-in-hyderabad-suffer-blurred-vision/articleshow/65816961.cms");
 		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil
 				.serialize(json)));
 
