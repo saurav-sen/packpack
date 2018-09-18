@@ -197,8 +197,7 @@ public class AllInOneAITaskExecutor {
 					$LOG.debug("No notification message could be calculated yet");
 				}
 			}
-			conceptVsFeedsMap.clear();
-			conceptVsFeedsMap = null; // Enable GC to destroy
+			
 			/*IFeedUploader feedUploader = currentWebSite.getFeedUploader();
 			if(feedUploader != null) {
 				feedUploader.uploadBulk(rssFeeds);
@@ -207,6 +206,9 @@ public class AllInOneAITaskExecutor {
 		} catch (Exception e) {
 			$LOG.error(e.getMessage(), e);
 			//return feedsMap;
+		} finally {
+			conceptVsFeedsMap.clear();
+			conceptVsFeedsMap = null; // Enable GC to destroy
 		}
 	}
 	

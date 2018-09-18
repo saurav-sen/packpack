@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
@@ -50,6 +51,15 @@ public class SpiderSessionFactory {
 		@Override
 		public synchronized void refresh() {
 			crawledCount = new Count();
+			Iterator<Map<String, Object>> itr = attrMap.values().iterator();
+			while(itr.hasNext()) {
+				Map<String, Object> next = itr.next();
+				if(next != null) {
+					next.clear();
+				}
+			}
+			attrMap.clear();
+			notificationMessages.clear();
 		}
 		
 		@Override
