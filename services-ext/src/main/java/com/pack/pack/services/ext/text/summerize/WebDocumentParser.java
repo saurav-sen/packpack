@@ -157,13 +157,20 @@ public class WebDocumentParser {
 				$LOG.debug("Parsing HTML was successful");
 				json.setFullArticleText(article);
 
-				Summarizer summarizer = new Summarizer();
+				/*Summarizer summarizer = new Summarizer();
 				String summaryText = summarizer.Summarize(article, 3);
 
-				json.setArticleSummaryText(summaryText);
+				json.setArticleSummaryText(summaryText);*/
 			} else if($LOG.isDebugEnabled()){
-				$LOG.debug("Parsing HTML was didn't go well");
+				$LOG.debug("Parsing HTML didn't go well");
 			}
+
+			Summarizer summarizer = new Summarizer();
+			String summaryText = summarizer.Summarize(article, 3);
+
+			json.setArticleSummaryText(summaryText);
+			
+			
 		} catch (FileNotFoundException e) {
 			$LOG.error(e.getMessage(), e);
 		} catch (IOException e) {
@@ -183,13 +190,14 @@ public class WebDocumentParser {
 		return json;
 	}
 
-	private boolean checkMatch(String[][] wordMatrix, String elementText) {
+	private MatchRank checkMatch(String[][] wordMatrix, String elementText) {
 		elementText = elementText.trim();
 		int len = wordMatrix.length; // This is a SQUARE matrix
 		String entireSentence = wordMatrix[0][len - 1];
 		if (elementText.isEmpty()
 				|| elementText.length() < entireSentence.length())
-			return false;
+			return MatchRank.NO_MATCH;
+		StringBuilder partialMatches = new StringBuilder();
 		for (int i = 0; i < len; i++) {
 			for (int j = len - 1; j >= i; j--) {
 				String text1 = wordMatrix[i][j].trim();
@@ -197,13 +205,36 @@ public class WebDocumentParser {
 				/* || text1.contains(elementText) */) {
 					float percentageMatch = (float) text1.length()
 							/ (float) entireSentence.length();
-					if (percentageMatch > 0.4f) {
-						return true;
+					if (percentageMatch > 0.6f) {
+						return MatchRank.HIGH;
+					} else if (percentageMatch > 0.4f && percentageMatch < 0.6f) {
+						return MatchRank.MEDIUM;
+					} else if (!partialMatches.toString().contains(text1)) {
+						String[] words = text1.split(" ");
+						for(String word : words) {
+							if (!partialMatches.toString().contains(word)) {
+								partialMatches.append(word);
+								partialMatches.append(" ");
+							}
+						}
 					}
 				}
 			}
 		}
-		return false;
+		if(partialMatches.toString().isEmpty())
+			return MatchRank.NO_MATCH;
+		float percentageMatch = (float) partialMatches.length()
+				/ (float) entireSentence.length();
+		if (percentageMatch > 0.6f) {
+			return MatchRank.HIGH;
+		} else if (percentageMatch > 0.4f && percentageMatch < 0.6f) {
+			return MatchRank.MEDIUM;
+		}
+		return MatchRank.LOW;
+	}
+	
+	private enum MatchRank {
+		NO_MATCH, LOW, MEDIUM, HIGH
 	}
 
 	private WebElement findPrimaryElementByDescription(Document doc,
@@ -241,7 +272,12 @@ public class WebDocumentParser {
 			String text = element.text().replaceAll("\\s+", " ")
 					.replaceAll("\\xA0", " ");
 			$LOG.debug(text);
-			if (checkMatch(wordMatrix, text)) {
+			MatchRank matchRank = checkMatch(wordMatrix, text);
+			switch (matchRank) {
+			case NO_MATCH:
+				break;
+			case HIGH:
+			case MEDIUM:
 				if (tagName == null) {
 					tagName = element.tagName();
 					primaryElement = element;
@@ -266,6 +302,12 @@ public class WebDocumentParser {
 						primaryElementDepth = newDepth;
 					}
 				}
+				break;
+			case LOW:
+				if(primaryElement != null && element.parents().contains(primaryElement)) {
+					primaryElement = null;
+				}
+				break;
 			}
 		}
 
@@ -446,8 +488,12 @@ public class WebDocumentParser {
 		String p2Path = p2PathSequence[i];
 		while (p1Path.equals(p2Path)) {
 			i++;
-			if (i >= p1PathSequence.length || i >= p2PathSequence.length)
+			if (i >= p1PathSequence.length || i >= p2PathSequence.length) // Not a bug this is intentional
 				return root;
+			/*if (i >= p1PathSequence.length)
+				return el1;
+			else if (i >= p2PathSequence.length)
+				return el2;*/
 			p1Path = p1PathSequence[i];
 			p2Path = p2PathSequence[i];
 		}
@@ -505,6 +551,8 @@ public class WebDocumentParser {
 			$LOG.debug("Failed to compute LCA node");
 			return new WebDocument(title, description, imageUrl, doc);
 		}
+		
+		title = h1Element.text();
 
 		Elements siblingElements = siblingElements(_LCA);
 		Iterator<Element> itr = siblingElements.iterator();
