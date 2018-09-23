@@ -25,6 +25,7 @@ import com.pack.pack.util.SystemPropertyUtil;
 import com.squill.og.crawler.ICrawlable;
 import com.squill.og.crawler.IWebCrawlable;
 import com.squill.og.crawler.IWebSite;
+import com.squill.og.crawler.Sample;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.internal.AppContext;
 import com.squill.og.crawler.internal.WebApiImpl;

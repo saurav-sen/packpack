@@ -13,6 +13,11 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +55,11 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 	
 	private static final String CONTENT_TYPE_HEADER = "Content-Type";
 	private static final String APPLICATION_JSON = "application/json";*/
+	
+	public static final String CONTENT_TYPE_HEADER = "Content-Type";
+	public static final String APPLICATION_JSON = "application/json";
+	
+	protected static final String UTF_8 = "UTF-8";
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(DefaultOgFeedUploader.class);
@@ -245,6 +255,24 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		//RssFeedUtil.uploadNewsFeeds(rssFeeds, ttl, batchId, true);
 		
 		RssFeedUtil.uploadNewsFeeds(rssFeeds, ttl, System.currentTimeMillis(), true);
+		
+		if(SystemPropertyUtil.isUploadToProd()) {
+			String json = JSONUtil.serialize(rssFeeds);
+			HttpPost POST = new HttpPost("http://api.squill.in/api/feeds");
+			POST.addHeader("Authorization", "f651b01535824fdc8a7f9fb231bdae38");
+			POST.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
+			
+			HttpEntity jsonBody = new StringEntity(json, UTF_8);
+			POST.setEntity(jsonBody);
+			
+			DefaultHttpClient client = new DefaultHttpClient();
+			HttpResponse response = client.execute(POST);
+			if(response.getStatusLine().getStatusCode() == 200) {
+				LOG.info("Successfully Uploaded to Production");
+			} else {
+				LOG.error("Failed to Upload to Production");
+			}
+		}
 		
 		IWebLinkTrackerService webLinkTrackerService = webCrawlable.getTrackerService();
 		List<JRssFeed> feeds = rssFeeds.getFeeds();

@@ -17,12 +17,15 @@ public class WebDocument {
 	private Document document;
 
 	private boolean success = false;
+	
+	private String sourceUrl;
 
-	WebDocument(String title, String description, String imageUrl,
+	WebDocument(String title, String description, String imageUrl, String sourceUrl,
 			Document document) {
 		this.title = title;
 		this.description = description;
 		this.imageUrl = imageUrl;
+		this.sourceUrl = sourceUrl;
 		this.document = document;
 		setSuccess(false);
 	}
@@ -73,5 +76,9 @@ public class WebDocument {
 
 	Document getDocument() {
 		return document;
+	}
+
+	public String getSourceUrl() {
+		return sourceUrl;
 	}
 }

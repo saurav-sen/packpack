@@ -29,6 +29,7 @@ import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.ext.email.SmtpMessage;
 import com.pack.pack.services.ext.email.SmtpTLSMessageService;
+import com.pack.pack.services.ext.text.summerize.WebDocumentParser;
 import com.pack.pack.util.RssFeedUtil;
 import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JRssFeedType;
@@ -161,6 +162,10 @@ public class SupportEmailSpider implements Spider {
 		JRssFeedType feedType = resolveFeedType(subject);
 		feed.setOgType(feedType.name());
 		feed.setFeedType(feedType.name());
+		if(feedType != JRssFeedType.REFRESHMENT) {
+			feed = new WebDocumentParser().parseHtmlPayload(htmlContent);
+			feed.setFeedType(feedType.name());
+		}
 		return feed;
 	}
 

@@ -6,7 +6,7 @@ import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -25,6 +25,11 @@ public class WebDocumentParserTest {
 	@Test
 	public void test() throws PackPackException {
 		JRssFeed json = null;
+		json = new WebDocumentParser()
+				.parse("https://www.newscientist.com/article/mg23931960-200-10-mysteries-of-the-universe-how-did-it-all-begin/");
+		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
+		Assert.assertTrue(json.getFullArticleText() != null);
+		
 		json = new WebDocumentParser()
 				.parse("https://qz.com/quartzy/1392005/malaysias-1mdb-scandal-the-hollywood-celebrities-connected-to-jho-low/");
 		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));

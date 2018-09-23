@@ -35,6 +35,13 @@ public class TestWorkflow {
 		List<Future<?>> list = new LinkedList<Future<?>>();
 		while(count < initialNumOfSessions) {
 			Future<?> f = executors.submit(new TestExecutor(new TestSession(count, BASE_URL, BASE_URL_2)));
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			count++;
 			list.add(f);
 		}
 		long endTime = System.currentTimeMillis();
@@ -72,6 +79,8 @@ public class TestWorkflow {
 				}
 			}
 		}
+		
+		System.out.println("DONE");
 	}
 	
 	private class TestExecutor implements Runnable {
@@ -83,15 +92,17 @@ public class TestWorkflow {
 		}
 		
 		public void run() {
-			try {
-				new TestSessionExecutor().execute(session);
-			} catch (Exception e) {
-				e.printStackTrace();
+			for (int i = 0; i < 1000; i++) {
+				try {
+					new TestSessionExecutor().execute(session);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		};
 	}
 
 	public static void main(String[] args) {
-		new TestWorkflow(200, 20, 2000, 2).execute();
+		new TestWorkflow(100, 50, 500, 2).execute();
 	}
 }

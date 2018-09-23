@@ -75,6 +75,21 @@ public class Startup {
 			}
 		}));
 	}
+	
+	/*public static void main(String[] args) {
+		try {
+			HttpClient c = new DefaultHttpClient();
+			HttpGet GET = new HttpGet("https://newsapi.org/v1/articles?source=talksport&apiKey=f651b01535824fdc8a7f9fb231bdae38");
+			HttpResponse response = c.execute(GET);
+			if(response.getStatusLine().getStatusCode() == 200) {
+				System.out.println("Succeeded #1");
+			}
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}*/
 
 	private void startApp() throws Exception {
 		try {
@@ -189,7 +204,7 @@ public class Startup {
 				throw new RuntimeException(e);
 			}
 		}
-
+		
 		private NewsFeeds readFromSource(String newsSource)
 				throws ClientProtocolException, IOException, PackPackException {
 			HttpClient client = new DefaultHttpClient();

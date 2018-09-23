@@ -106,7 +106,7 @@ public final class SystemPropertyUtil {
 	
 	private static final String EXTERNAL_SHARED_LINK_REFRESHMENT_BASE_URL = "external.shared.link.refreshment.base.url";
 	
-	public static final String DOMAIN_BASE_URL_DEFAULT = "http://www.squill.co.in/";
+	public static final String DOMAIN_BASE_URL_DEFAULT = "http://www.squill.in/";
 	
 	//private static final String EXTERNAL_SHARED_LINK_BASE_URL_DEFAULT = DOMAIN_BASE_URL_DEFAULT + "news/public/ext";
 	
@@ -120,6 +120,8 @@ public final class SystemPropertyUtil {
 	private static final String DEFAULT_ARCHIVE_FOLDER = "archive/";
 	private static final String DEFAULT_ARCHIVE_HTML_FOLDER = "html";
 	private static final String DEFAULT_ARCHIVE_REFRESHMENT_FOLDER = "refreshment";
+	
+	private static final String UPLOAD_TO_PROD = "upload.to.production";
 	
 	private SystemPropertyUtil() {
 	}
@@ -283,6 +285,17 @@ public final class SystemPropertyUtil {
 
 	public static boolean isProductionEnvironment() {
 		String propertyValue = getPropertyValue(PRODUCTION_ENVIRONMENT);
+		if (propertyValue == null || propertyValue.trim().isEmpty())
+			return false;
+		try {
+			return Boolean.parseBoolean(propertyValue.trim());
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	
+	public static boolean isUploadToProd() {
+		String propertyValue = getPropertyValue(UPLOAD_TO_PROD);
 		if (propertyValue == null || propertyValue.trim().isEmpty())
 			return false;
 		try {

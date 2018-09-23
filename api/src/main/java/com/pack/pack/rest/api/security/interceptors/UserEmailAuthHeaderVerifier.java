@@ -12,6 +12,7 @@ import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.StatusType;
 import com.pack.pack.oauth.OAuthConstants;
 import com.pack.pack.oauth.registry.TokenRegistry;
+import com.pack.pack.rest.api.FeedUploadResource;
 import com.pack.pack.rest.web.util.SystemInfo;
 
 /**
@@ -52,6 +53,10 @@ public class UserEmailAuthHeaderVerifier implements ContainerRequestFilter {
 			}*/
 			if(path.endsWith("user") && requestContext.getMethod().equals(HttpMethod.POST)) {
 				allow = true;				
+			}
+		} else if (path.endsWith("feeds") || path.endsWith("feeds/")) {
+			if(!FeedUploadResource.API_KEY.equals(token)) {
+				allow = false;
 			}
 		}
 		if (!allow) {

@@ -1,9 +1,7 @@
 package com.pack.pack.services.ext.text.summerize;
 
-import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -17,12 +15,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
-import org.apache.tika.exception.TikaException;
-import org.apache.tika.metadata.Metadata;
-import org.apache.tika.parser.AutoDetectParser;
-import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.html.BoilerpipeContentHandler;
-import org.apache.tika.sax.BodyContentHandler;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -33,14 +25,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 
 import com.pack.pack.services.ext.HttpRequestExecutor;
 import com.pack.pack.util.LanguageUtil;
 import com.squill.feed.web.model.JRssFeed;
-
-import de.l3s.boilerpipe.extractors.LargestContentExtractor;
 
 /**
  * 
@@ -58,7 +46,7 @@ public class WebDocumentParser {
 
 	private static final Logger $LOG = LoggerFactory
 			.getLogger(WebDocumentParser.class);
-
+	
 	public JRssFeed parse(String url) {
 		JRssFeed json = new JRssFeed();
 		try {
@@ -73,9 +61,19 @@ public class WebDocumentParser {
 				return json;
 			}
 			String content = EntityUtils.toString(entity);
+			json = parseHtmlPayload(content);
+		} catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException | IOException e) {
+			$LOG.error(e.getMessage(), e);
+		}
+		return json;
+	}
+
+	public JRssFeed parseHtmlPayload(String content) {
+		JRssFeed json = new JRssFeed();
+		try {
 			$LOG.debug("Parsing HTML");
 			WebDocument webDocument = parseHtml(content);
-			InputStream input = new ByteArrayInputStream(webDocument
+			/*InputStream input = new ByteArrayInputStream(webDocument
 					.getFilteredHtml().getBytes());
 			ContentHandler textHandler = new BodyContentHandler();
 			Metadata metadata = new Metadata();
@@ -83,27 +81,25 @@ public class WebDocumentParser {
 			ParseContext context = new ParseContext();
 			BoilerpipeContentHandler handler2 = new BoilerpipeContentHandler(
 					textHandler, LargestContentExtractor.getInstance());
-			/*
-			 * BoilerpipeContentHandler handler2 = new BoilerpipeContentHandler(
-			 * textHandler, ArticleExtractor.getInstance());
-			 */
 			$LOG.debug("Parsing HTML using Boilerpipe Content Handler/AutoDetectParser");
 			parser.parse(input, handler2, metadata, context);
 
-			String article = textHandler.toString();
+			String article = textHandler.toString();*/
+			String article = Jsoup.parse(new String(webDocument.getFilteredHtml()
+					.getBytes())).body().text();
 			if (article == null || article.trim().isEmpty()) {
 				article = webDocument.getDocument().body().text();
 			}
 
 			String title = webDocument.getTitle();
-			if (title == null) {
+			/*if (title == null) {
 				title = metadata.get("title");
 				String ogTitle = metadata.get("og:title");
 				if (ogTitle != null) {
 					article.replaceAll(ogTitle.trim(), "");
 					title = ogTitle;
 				}
-			}
+			}*/
 
 			if (title != null) {
 				title = LanguageUtil.cleanHtmlInvisibleCharacters(title);
@@ -113,34 +109,35 @@ public class WebDocumentParser {
 			article = LanguageUtil.cleanHtmlInvisibleCharacters(article);
 
 			String ogImage = webDocument.getImageUrl();
-			if (ogImage == null) {
+			/*if (ogImage == null) {
 				ogImage = metadata.get("og:image");
 				if (ogImage == null) {
 					ogImage = metadata.get("twitter:image");
 				}
-			}
+			}*/
 			
 			json.setOgImage(ogImage);
-			String keywordsText = metadata.get("keywords");
+			/*String keywordsText = metadata.get("keywords");
 			if (keywordsText != null) {
 				String[] keywords = keywordsText.split(",");
 				for (String keyword : keywords) {
 					json.getKeywords().add(keyword.trim());
 				}
-			}
+			}*/
 
-			String ogUrl = metadata.get("og:url");
+			String ogUrl = webDocument.getSourceUrl();
+			/*String ogUrl = metadata.get("og:url");
 			if (ogUrl == null) {
 				ogUrl = metadata.get("twitter:url");
 			}
 			if (ogUrl == null) {
 				ogUrl = url;
-			}
+			}*/
 			json.setOgUrl(ogUrl);
 			json.setHrefSource(ogUrl);
 
 			String ogDescription = webDocument.getDescription();
-			if (ogDescription == null) {
+			/*if (ogDescription == null) {
 				ogDescription = metadata.get("og:description");
 				if (ogDescription == null) {
 					ogDescription = metadata.get("twitter:description");
@@ -148,7 +145,7 @@ public class WebDocumentParser {
 						ogDescription = metadata.get("description");
 					}
 				}
-			}
+			}*/
 			
 			json.setOgDescription(ogDescription);
 
@@ -171,19 +168,7 @@ public class WebDocumentParser {
 			json.setArticleSummaryText(summaryText);
 			
 			
-		} catch (FileNotFoundException e) {
-			$LOG.error(e.getMessage(), e);
 		} catch (IOException e) {
-			$LOG.error(e.getMessage(), e);
-		} catch (SAXException e) {
-			$LOG.error(e.getMessage(), e);
-		} catch (TikaException e) {
-			$LOG.error(e.getMessage(), e);
-		} catch (KeyManagementException e) {
-			$LOG.error(e.getMessage(), e);
-		} catch (NoSuchAlgorithmException e) {
-			$LOG.error(e.getMessage(), e);
-		} catch (KeyStoreException e) {
 			$LOG.error(e.getMessage(), e);
 		}
 
@@ -395,6 +380,18 @@ public class WebDocumentParser {
 			}
 		}
 	}
+	
+	private String readOgUrl(Document doc) {
+		String url = null;
+		Elements metaOgUrl = doc.select("meta[property=og:url]");
+		if (metaOgUrl == null) {
+			metaOgUrl = doc.select("meta[property=twitter:url]");
+		}
+		if (metaOgUrl != null) {
+			url = metaOgUrl.attr("content");
+		}
+		return url;
+	}
 
 	private String readOgTilte(Document doc) {
 		String title = null;
@@ -457,7 +454,7 @@ public class WebDocumentParser {
 		return keywordsList;
 	}
 
-	private Element findLowestCommonAncestor(Element el1, Element el2) {
+	private Element findLowestCommonAncestor(Element el1, Element el2, Element treeBaseRoot) {
 		Element p1 = el1;
 		Element p2 = el2;
 		if (p1 == null || p2 == null) {
@@ -507,32 +504,121 @@ public class WebDocumentParser {
 			p1 = p1.parent();
 			count--;
 		}
+		
+		// Check if article exists above the hierarchy
+		Element tmp = p1.parent();
+		while (tmp != null && !tmp.equals(treeBaseRoot)) {
+			if ("article".equals(tmp.tagName())) {
+				String role = tmp.attr("role");
+				if (role != null
+						&& (role.equalsIgnoreCase("main") || role
+								.equalsIgnoreCase("content"))) {
+					p1 = tmp;
+					break;
+				}
+			}
+			tmp = tmp.parent();
+		}
+		
 		return p1;
 	}
+	
+	private AmpHtml parseAmpHtml(Document doc, String description) throws Exception {
+		Elements elements = doc.getElementsByTag("link");
+		if(elements != null && !elements.isEmpty()) {
+			Iterator<Element> itr = elements.iterator();
+			while(itr.hasNext()) {
+				Element element = itr.next();
+				String rel = element.attr("rel");
+				if(rel == null)
+					continue;
+				if("amphtml".equalsIgnoreCase(rel.trim())) {
+					String href = element.attr("href");
+					if(href != null && !href.trim().isEmpty()) {
+						HttpGet GET = new HttpGet(href);
+						HttpResponse response = new HttpRequestExecutor().GET(GET);
+						int statusCode = response.getStatusLine().getStatusCode();
+						if (statusCode == 200) {
+							HttpEntity entity = response.getEntity();
+							if (entity != null) {
+								String html = EntityUtils.toString(entity);
+								$LOG.debug("Parsing HTML");
+								return new AmpHtml(html, href);
+							}
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	private class AmpHtml {
+		
+		private String html;
+		
+		private String sourceUrl;
+		
+		private AmpHtml(String html, String sourceUrl) {
+			this.html = html;
+			this.sourceUrl = sourceUrl;
+		}
 
+		private String getHtml() {
+			return html;
+		}
+
+		private String getSourceUrl() {
+			return sourceUrl;
+		}
+	}
+	
 	private WebDocument parseHtml(String html) throws IOException {
+		return doParseHtml(html, false);
+	}
+
+	private WebDocument doParseHtml(String html, boolean isAmpHtmlLink) throws IOException {
 		Document doc = Jsoup.parse(html);
+		
+		String title = readOgTilte(doc);
+		String description = readOgDescription(doc);
+		String imageUrl = readOgImage(doc);
+		List<String> keywordsList = readKeywordsList(doc);
+		String ogUrl = readOgUrl(doc);
+		
+		if (!isAmpHtmlLink) {
+			try {
+				AmpHtml ampHtml = parseAmpHtml(doc, description);
+				if (ampHtml != null) {
+					String html2 = ampHtml.getHtml();
+					if (html2 != null && !html2.trim().isEmpty()) {
+						doc = Jsoup.parse(html2);
+						return new WebDocument(title, description, imageUrl,
+								ampHtml.getSourceUrl(), doc).setSuccess(true);
+					}
+				}
+			} catch (Exception e) {
+				$LOG.error(e.getMessage(), e);
+			}
+		}
+		
 		$LOG.debug("Removing Comments");
 		removeComments(doc);
 		$LOG.debug("Removing JS Skripts");
 		removeScripts(doc);
 		$LOG.debug("Removing CSS Style links");
 		removeStyleLinks(doc);
-		String title = readOgTilte(doc);
-		String description = readOgDescription(doc);
-		String imageUrl = readOgImage(doc);
-		List<String> keywordsList = readKeywordsList(doc);
 
 		WebElement primaryElement = findPrimaryElement(doc, description,
 				keywordsList);
 		if (primaryElement == null) {
 			$LOG.debug("Failed to get primary element based upon description");
-			return new WebDocument(title, description, imageUrl, doc);
+			return new WebDocument(title, description, imageUrl, ogUrl, doc);
 		}
 		Element majorElement = primaryElement.getPrimaryElement();
 		if (majorElement == null) {
 			$LOG.debug("Failed to get primary/major element based upon description");
-			return new WebDocument(title, description, imageUrl, doc);
+			return new WebDocument(title, description, imageUrl, ogUrl, doc);
 		}
 
 		Element h1Element = null;
@@ -542,14 +628,14 @@ public class WebDocumentParser {
 		}
 		if (h1Element == null) {
 			$LOG.debug("No <h1> tag found");
-			return new WebDocument(title, description, imageUrl, doc);
+			return new WebDocument(title, description, imageUrl, ogUrl, doc);
 		}
 
 		$LOG.debug("Trying to find LCA");
-		Element _LCA = findLowestCommonAncestor(majorElement, h1Element);
+		Element _LCA = findLowestCommonAncestor(majorElement, h1Element, doc.body());
 		if (_LCA == null) {
 			$LOG.debug("Failed to compute LCA node");
-			return new WebDocument(title, description, imageUrl, doc);
+			return new WebDocument(title, description, imageUrl, ogUrl, doc);
 		}
 		
 		title = h1Element.text();
@@ -585,7 +671,7 @@ public class WebDocumentParser {
 		$LOG.trace(document.text());
 		$LOG.trace(document.outerHtml());
 
-		return new WebDocument(title, description, imageUrl, document).setSuccess(true);
+		return new WebDocument(title, description, imageUrl, ogUrl, document).setSuccess(true);
 	}
 
 	private void cleanUpLCA(Element lca, Element majorElement) {

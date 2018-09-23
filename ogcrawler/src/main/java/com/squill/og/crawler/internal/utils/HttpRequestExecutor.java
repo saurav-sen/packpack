@@ -1,7 +1,14 @@
 package com.squill.og.crawler.internal.utils;
 
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.List;
+
+import javax.net.ssl.SSLContext;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -9,19 +16,28 @@ import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.config.RequestConfig.Builder;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.protocol.ClientContext;
-import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.DecompressingHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.LaxRedirectStrategy;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
 
 import com.squill.og.crawler.model.WebSpiderTracker;
@@ -33,18 +49,47 @@ import com.squill.og.crawler.model.WebSpiderTracker;
  */
 public class HttpRequestExecutor {
 
-	@SuppressWarnings("deprecation")
-	private DefaultHttpClient newClient() {
-		DefaultHttpClient client = new DefaultHttpClient();
-		SSLSocketFactory socketFactory = (SSLSocketFactory) client
-				.getConnectionManager().getSchemeRegistry().get("https")
-				.getSchemeSocketFactory();
-		socketFactory
-				.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-		return client;
+	private HttpClient newClient() {
+		try {
+			HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();
+			httpClientBuilder.setRedirectStrategy(new LaxRedirectStrategy());
+
+			SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null,
+					new TrustStrategy() {
+						public boolean isTrusted(X509Certificate[] arg0, String arg1)
+								throws CertificateException {
+							return true;
+						}
+					}).build();
+			httpClientBuilder.setSSLContext(sslContext);
+
+			// HostnameVerifier hostnameVerifier =
+			// SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
+
+			SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(
+					sslContext, NoopHostnameVerifier.INSTANCE);
+			Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder
+					.<ConnectionSocketFactory> create()
+					.register("http",
+							PlainConnectionSocketFactory.getSocketFactory())
+					.register("https", sslSocketFactory).build();
+
+			PoolingHttpClientConnectionManager connMgr = new PoolingHttpClientConnectionManager(
+					socketFactoryRegistry);
+			httpClientBuilder.setConnectionManager(connMgr);
+
+			HttpClient httpClient = httpClientBuilder.build();
+			return httpClient;
+		} catch (KeyManagementException e) {
+			throw new RuntimeException(e);
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException(e);
+		} catch (KeyStoreException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
-	@SuppressWarnings("deprecation")
+	/*@SuppressWarnings("deprecation")
 	private DecompressingHttpClient newDecompressingHttpClient() {
 		DecompressingHttpClient client = new DecompressingHttpClient(new DefaultHttpClient());
 		SSLSocketFactory socketFactory = (SSLSocketFactory) client
@@ -53,14 +98,14 @@ public class HttpRequestExecutor {
 		socketFactory
 				.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
 		return client;
-	}
+	}*/
 	
 	public HttpResponse GET(HttpGet GET, boolean needDecompression)
 			throws ClientProtocolException, IOException {
 		HttpClient client = newClient();
-		if(needDecompression) {
+		/*if(needDecompression) {
 			client = newDecompressingHttpClient();
-		}
+		}*/
 		return client.execute(GET);
 	}
 
@@ -71,13 +116,13 @@ public class HttpRequestExecutor {
 	
 	public HttpResponse GET(HttpGet GET, HttpContext HTTP_CONTEXT)
 			throws ClientProtocolException, IOException {
-		DefaultHttpClient client = newClient();
+		HttpClient client = newClient();
 		return client.execute(GET, HTTP_CONTEXT);
 	}
 
 	public String GET0(String link, String domainName) throws ParseException,
 			IOException {
-		DefaultHttpClient client = newClient();
+		HttpClient client = newClient();
 		HttpGet get = new HttpGet(link);
 		HttpResponse response = client.execute(get);
 		int responseCode = response.getStatusLine().getStatusCode();
@@ -132,10 +177,14 @@ public class HttpRequestExecutor {
 	}
 
 	public String GET(String link, WebSpiderTracker info) throws Exception {
-		DefaultHttpClient client = newClient();
-		HttpParams params = client.getParams();
+		HttpClient client = newClient();
+		Builder configBuilder = RequestConfig.custom();
+		configBuilder.setConnectionRequestTimeout(200000);
+		configBuilder.setConnectTimeout(200000);
+		configBuilder.setSocketTimeout(200000);
+		/*HttpParams params = client.getParams();
 		HttpConnectionParams.setConnectionTimeout(params, 200000);
-		HttpConnectionParams.setSoTimeout(params, 200000);
+		HttpConnectionParams.setSoTimeout(params, 200000);*/
 		HttpGet GET = new HttpGet(link);
 		if (info != null) {
 			String lastModifiedSince = info.getLastModifiedSince();

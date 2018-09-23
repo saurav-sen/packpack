@@ -4,6 +4,8 @@
  * */
 package com.pack.pack.services.ext.text.summerize;
 
+import static com.pack.pack.services.ext.text.summerize.STOP_WORDS.STOP_WORDS;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -11,10 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-
-import static com.pack.pack.services.ext.text.summerize.STOP_WORDS.STOP_WORDS;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 public class Summarizer {
 	
