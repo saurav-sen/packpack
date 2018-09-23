@@ -31,6 +31,9 @@ public class WebDocument {
 	}
 
 	public String getTitle() {
+		if(title == null || title.trim().isEmpty()) {
+			return null;
+		}
 		return title;
 	}
 
@@ -67,10 +70,16 @@ public class WebDocument {
 	}
 
 	public String getImageUrl() {
+		if(imageUrl == null || imageUrl.trim().isEmpty()) {
+			return null;
+		}
 		return imageUrl;
 	}
 
 	public String getDescription() {
+		if(description == null || description.trim().isEmpty()) {
+			return null;
+		}
 		return description;
 	}
 

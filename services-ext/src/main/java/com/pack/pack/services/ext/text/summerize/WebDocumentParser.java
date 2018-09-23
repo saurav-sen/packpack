@@ -19,6 +19,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -328,7 +329,17 @@ public class WebDocumentParser {
 	}
 
 	private boolean isLeaf(Node node) {
-		return node.childNodes().isEmpty();
+		if(node.childNodes().isEmpty()) {
+			return true;
+		}
+		Iterator<Node> itr = node.childNodes().iterator();
+		while(itr.hasNext()) {
+			Node next = itr.next();
+			if(next instanceof Element) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private Elements siblingElements(Element el) {
@@ -384,11 +395,23 @@ public class WebDocumentParser {
 	private String readOgUrl(Document doc) {
 		String url = null;
 		Elements metaOgUrl = doc.select("meta[property=og:url]");
-		if (metaOgUrl == null) {
+		if (metaOgUrl == null || metaOgUrl.isEmpty()) {
 			metaOgUrl = doc.select("meta[property=twitter:url]");
 		}
-		if (metaOgUrl != null) {
+		if (metaOgUrl == null || metaOgUrl.isEmpty()) {
+			metaOgUrl = doc.select("meta[name=og:url]");
+		}
+		if (metaOgUrl == null || metaOgUrl.isEmpty()) {
+			metaOgUrl = doc.select("meta[name=twitter:url]");
+		}
+		if (metaOgUrl != null && !metaOgUrl.isEmpty()) {
 			url = metaOgUrl.attr("content");
+			if(url == null || url.trim().isEmpty()) {
+				url = metaOgUrl.attr("content");
+			}
+		}
+		if(url == null || url.trim().isEmpty()) {
+			return null;
 		}
 		return url;
 	}
@@ -396,14 +419,32 @@ public class WebDocumentParser {
 	private String readOgTilte(Document doc) {
 		String title = null;
 		Elements metaOgTitle = doc.select("meta[property=og:title]");
-		if (metaOgTitle == null) {
+		if (metaOgTitle == null || metaOgTitle.isEmpty()) {
 			metaOgTitle = doc.select("meta[property=twitter:title]");
 		}
-		if (metaOgTitle == null) {
+		if (metaOgTitle == null || metaOgTitle.isEmpty()) {
+			metaOgTitle = doc.select("meta[name=og:title]");
+		}
+		if (metaOgTitle == null || metaOgTitle.isEmpty()) {
+			metaOgTitle = doc.select("meta[name=twitter:title]");
+		}
+		if (metaOgTitle == null || metaOgTitle.isEmpty()) {
 			metaOgTitle = doc.select("meta[property=title]");
 		}
-		if (metaOgTitle != null) {
+		if (metaOgTitle == null || metaOgTitle.isEmpty()) {
+			Elements els = doc.head().getElementsByTag("title");
+			if(els != null && !els.isEmpty()) {
+				return els.get(0).text();
+			}
+		}
+		if (metaOgTitle != null && !metaOgTitle.isEmpty()) {
 			title = metaOgTitle.attr("content");
+			if(title == null) {
+				title = metaOgTitle.attr("value");
+			}
+		}
+		if(title == null || title.trim().isEmpty()) {
+			return null;
 		}
 		return title;
 	}
@@ -412,15 +453,29 @@ public class WebDocumentParser {
 		String description = null;
 		Elements metaOgDescription = doc
 				.select("meta[property=og:description]");
-		if (metaOgDescription == null) {
+		if (metaOgDescription == null || metaOgDescription.isEmpty()) {
 			metaOgDescription = doc
 					.select("meta[property=twitter:description]");
 		}
-		if (metaOgDescription == null) {
+		if (metaOgDescription == null || metaOgDescription.isEmpty()) {
+			metaOgDescription = doc
+					.select("meta[name=og:description]");
+		}
+		if (metaOgDescription == null || metaOgDescription.isEmpty()) {
+			metaOgDescription = doc
+					.select("meta[name=twitter:description]");
+		}
+		if (metaOgDescription == null || metaOgDescription.isEmpty()) {
 			metaOgDescription = doc.select("meta[property=description]");
 		}
-		if (metaOgDescription != null) {
+		if (metaOgDescription != null && !metaOgDescription.isEmpty()) {
 			description = metaOgDescription.attr("content");
+			if(description == null) {
+				description = metaOgDescription.attr("value");
+			}
+		}
+		if(description == null || description.trim().isEmpty()) {
+			return null;
 		}
 		description = LanguageUtil.cleanHtmlInvisibleCharacters(description);
 		return description;
@@ -430,12 +485,26 @@ public class WebDocumentParser {
 		String imageUrl = null;
 		Elements metaOgImage = doc
 				.select("meta[property=og:image]");
-		if (metaOgImage == null) {
+		if (metaOgImage == null || metaOgImage.isEmpty()) {
 			metaOgImage = doc
 					.select("meta[property=twitter:image]");
 		}
-		if (metaOgImage != null) {
+		if (metaOgImage == null || metaOgImage.isEmpty()) {
+			metaOgImage = doc
+					.select("meta[name=og:image]");
+		}
+		if (metaOgImage == null || metaOgImage.isEmpty()) {
+			metaOgImage = doc
+					.select("meta[name=twitter:image]");
+		}
+		if (metaOgImage != null && !metaOgImage.isEmpty()) {
 			imageUrl = metaOgImage.attr("content");
+			if(imageUrl == null) {
+				imageUrl = metaOgImage.attr("value");
+			}
+		}
+		if(imageUrl == null || imageUrl.trim().isEmpty()) {
+			return null;
 		}
 		imageUrl = LanguageUtil.cleanHtmlInvisibleCharacters(imageUrl);
 		return imageUrl;
@@ -592,9 +661,45 @@ public class WebDocumentParser {
 				if (ampHtml != null) {
 					String html2 = ampHtml.getHtml();
 					if (html2 != null && !html2.trim().isEmpty()) {
-						doc = Jsoup.parse(html2);
+						Document doc1 = Jsoup.parse(html2);
+						String title1 = readOgTilte(doc1);
+						String description1 = readOgDescription(doc1);
+						String imageUrl1 = readOgImage(doc1);
+						if(title1 != null && !title1.trim().isEmpty()) {
+							title = title1;
+						}
+						if(description1 != null && !description1.trim().isEmpty()) {
+							description = description1;
+						}
+						if(imageUrl1 != null && !imageUrl1.trim().isEmpty()) {
+							imageUrl = imageUrl1;
+						}
+						if(imageUrl == null || imageUrl.trim().isEmpty()) {
+							Elements images = doc1.getElementsByTag("img");
+							if(images != null && !images.isEmpty()) {
+								String imgSrc = images.get(0).attr("src");
+								if(imgSrc != null && !imgSrc.trim().isEmpty()) {
+									imageUrl = imgSrc;
+								}
+							}
+						}
+						if(imageUrl == null || imageUrl.trim().isEmpty()) {
+							Elements images = doc.getElementsByTag("img");
+							if(images != null && !images.isEmpty()) {
+								String imgSrc = images.get(0).attr("src");
+								if(imgSrc != null && !imgSrc.trim().isEmpty()) {
+									imageUrl = imgSrc;
+								}
+							}
+						}
+						/*removeComments(doc1);
+						removeScripts(doc1);
+						removeStyleLinks(doc1);
 						return new WebDocument(title, description, imageUrl,
-								ampHtml.getSourceUrl(), doc).setSuccess(true);
+								ampHtml.getSourceUrl(), doc1).setSuccess(true);*/
+						ogUrl = ampHtml.getSourceUrl();
+						
+						doc = doc1;
 					}
 				}
 			} catch (Exception e) {
@@ -629,6 +734,8 @@ public class WebDocumentParser {
 		if (h1Element == null) {
 			$LOG.debug("No <h1> tag found");
 			return new WebDocument(title, description, imageUrl, ogUrl, doc);
+		} else {
+			title = h1Element.text();
 		}
 
 		$LOG.debug("Trying to find LCA");
@@ -639,6 +746,16 @@ public class WebDocumentParser {
 		}
 		
 		title = h1Element.text();
+		
+		if(imageUrl == null) {
+			Elements images = _LCA.getElementsByTag("img");
+			if(images != null && !images.isEmpty()) {
+				String imgSrc = images.get(0).attr("src");
+				if(imgSrc != null && !imgSrc.trim().isEmpty()) {
+					imageUrl = imgSrc;
+				}
+			}
+		}
 
 		Elements siblingElements = siblingElements(_LCA);
 		Iterator<Element> itr = siblingElements.iterator();
@@ -709,7 +826,7 @@ public class WebDocumentParser {
 					continue;
 				subTree.remove();
 			}
-
+			
 			if (majorParent != null) {
 				itr = lca.children().iterator();
 				if (itr.hasNext()) {
@@ -729,6 +846,25 @@ public class WebDocumentParser {
 							if (elements == null || elements.isEmpty()) {
 								subTree.remove();
 							}
+						}
+					}
+				}
+			}
+		}
+		
+		if (isLeaf(majorElement)) {
+			String tagName0 = majorElement.tagName();
+			if(tagName0 == null)
+				return;
+			Elements allElements = lca.getAllElements();
+			if (allElements != null && !allElements.isEmpty()) {
+				Iterator<Element> itr = allElements.iterator();
+				while (itr.hasNext()) {
+					Element el = itr.next();
+					if (isLeaf(el)) {
+						String tagName1 = el.tagName();
+						if (!tagName0.equalsIgnoreCase(tagName1)) {
+							el.remove();
 						}
 					}
 				}

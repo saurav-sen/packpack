@@ -32,7 +32,7 @@ public class AddBookmarkTest {
 		session.setUserName(session.getUserName());
 		JUser user = new UserInfoTest().getUserInfo(session);
 		session.setUserId(user.getId());
-		String webLink = "https://timesofindia.indiatimes.com/city/hyderabad/eye-of-the-matter-25-in-hyderabad-suffer-blurred-vision/articleshow/65816961.cms";
+		String webLink = "https://phys.org/news/2018-09-japan-space-robots-asteroid-survey.html";
 		new AddBookmarkTest().test(session, webLink);
 	}
 }

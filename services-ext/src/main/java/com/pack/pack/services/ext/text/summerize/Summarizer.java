@@ -162,7 +162,7 @@ public class Summarizer {
 				+ System.getProperty("line.separator")
 				+ System.getProperty("line.separator");*/
 		summary = summary + " " + firstSentence
-				+ System.getProperty("line.separator");
+				+ "." + System.getProperty("line.separator");
 
 		for (String sentence : sentences)// foreach string sentence in sentences
 											// list
@@ -174,11 +174,15 @@ public class Summarizer {
 						+ System.getProperty("line.separator")
 						+ System.getProperty("line.separator");*/
 				summary = summary + " " + sentence
-						+ System.getProperty("line.separator");
+						+ "." + System.getProperty("line.separator");
 			}
 		}
 		//return summary;
 		//System.out.println(StringEscapeUtils.escapeHtml(summary));
-		return StringEscapeUtils.escapeJava(summary);
+		return StringEscapeUtils.escapeJava(summary.trim());
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(System.getProperty("line.separator")+"a");
 	}
 }

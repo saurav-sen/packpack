@@ -25,12 +25,18 @@ public class WebDocumentParserTest {
 	@Test
 	public void test() throws PackPackException {
 		JRssFeed json = null;
+		
+		json = new WebDocumentParser()
+				.parse("https://phys.org/news/2018-09-japan-space-robots-asteroid-survey.html");
+		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
+		Assert.assertTrue(json.getFullArticleText() != null);
+
 		json = new WebDocumentParser()
 				.parse("https://www.newscientist.com/article/mg23931960-200-10-mysteries-of-the-universe-how-did-it-all-begin/");
 		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
 		Assert.assertTrue(json.getFullArticleText() != null);
 		
-		json = new WebDocumentParser()
+		/*json = new WebDocumentParser()
 				.parse("https://qz.com/quartzy/1392005/malaysias-1mdb-scandal-the-hollywood-celebrities-connected-to-jho-low/");
 		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
 		Assert.assertTrue(json.getFullArticleText() != null);
@@ -56,7 +62,7 @@ public class WebDocumentParserTest {
 		json = new WebDocumentParser()
 				.parse("https://qz.com/india/1370598/google-amazon-and-paytm-want-to-invest-in-indias-future-retail/");
 		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
-		Assert.assertTrue(json.getFullArticleText() != null);
+		Assert.assertTrue(json.getFullArticleText() != null);*/
 	}
 	
 	public static void main(String[] args) throws IOException {

@@ -32,7 +32,17 @@ public class TextSummarization {
 		StringBuilder builder = new StringBuilder();
 		List<String> sentences2 = getSentences();
 		for (String text : sentences2) {
-			builder.append(text);
+			int len = text.length();
+			int indexOf = text.trim().indexOf(":");
+			if(indexOf > 0 && (len / indexOf) >= 8) {
+				if(indexOf < len-2) {
+					text = text.substring(indexOf+1);
+				}
+			}
+			builder.append(text.trim());
+			if(!text.trim().endsWith(".")) {
+				builder.append(".");
+			}
 			builder.append("\n");
 		}
 		return builder.toString();
