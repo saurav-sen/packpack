@@ -14,4 +14,6 @@ public interface RSSConstants {
 	public static final String OG_URL = "og:url"; //$NON-NLS-1$
 	
 	public static final long DEFAULT_TTL_WEB_TRACKING_INFO = 3 * 24 * 60 * 60; // 3 Days in Seconds
+	
+	public static final long DEFAULT_TTL_HEADERS_MEMENTO = 6 * 60 * 60; // 6 Hours in Seconds
 }

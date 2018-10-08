@@ -20,7 +20,7 @@ public final class AylienArticleTextSummarizer {
 			.getLogger(AylienArticleTextSummarizer.class);
 
 	private String resolveAylienRequestUrl_GET(String url) {
-		return NLPApiConstants.AYLIEN_SUMMARY_API_URL + "?" + "sentences_number=" + 4 + "&" + "url="
+		return NLPApiConstants.AYLIEN_SUMMARY_API_URL + "?" + "sentences_number=" + 3 + "&" + "url="
 				+ url;
 	}
 

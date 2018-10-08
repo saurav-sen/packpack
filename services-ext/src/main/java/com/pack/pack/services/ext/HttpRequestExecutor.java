@@ -20,9 +20,11 @@ import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.ssl.SSLContextBuilder;
 
 /**
@@ -60,6 +62,14 @@ public class HttpRequestExecutor {
 		PoolingHttpClientConnectionManager connMgr = new PoolingHttpClientConnectionManager(
 				socketFactoryRegistry);
 		httpClientBuilder.setConnectionManager(connMgr);
+		
+		/*BasicCookieStore cookieStore = new BasicCookieStore();
+	    BasicClientCookie cookie = new BasicClientCookie("", "");
+	    cookie.setDomain("timesofindia.indiatimes.com");
+	    cookie.setPath("/");
+	    cookieStore.addCookie(cookie);
+	    
+		httpClientBuilder.setDefaultCookieStore(cookieStore);*/
 
 		HttpClient httpClient = httpClientBuilder.build();
 		return httpClient;

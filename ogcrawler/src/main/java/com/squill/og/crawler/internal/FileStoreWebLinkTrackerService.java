@@ -18,11 +18,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.squill.feed.web.model.JRssFeedType;
 import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.app.SystemPropertyKeys;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.EncryptionUtil;
 import com.squill.og.crawler.internal.utils.JSONUtil;
+import com.squill.og.crawler.model.DocumentHeadersMemento;
 import com.squill.og.crawler.model.WebSpiderTracker;
 import com.squill.services.exception.OgCrawlException;
 
@@ -138,6 +140,19 @@ public class FileStoreWebLinkTrackerService implements IWebLinkTrackerService {
 			LOG.error(e.getMessage(), e);
 			return null;
 		}
+	}
+	
+	@Override
+	public DocumentHeadersMemento getPreviousSessionMemento(JRssFeedType type) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public void flushNewHeadersMemento(DocumentHeadersMemento headersMemento,
+			JRssFeedType type) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override

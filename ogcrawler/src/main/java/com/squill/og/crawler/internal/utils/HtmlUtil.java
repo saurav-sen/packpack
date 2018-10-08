@@ -55,13 +55,13 @@ public class HtmlUtil {
 		if (text == null) {
 			return text;
 		}
-		return LanguageUtil.foldToASCII(text);
-		//return LanguageUtil.foldToASCII(text.replaceAll("[^\\x00-\\x7F]", ""));
+		//return LanguageUtil.foldToASCII(text);
+		return LanguageUtil.foldToASCII(text.replaceAll("[^\\x00-\\x7F]", ""));
 	}
 	
 	/*public static void main(String[] args) {
 		System.out.println("লোকাল নেটওয়ার্কে চ্যাটিং পপম্যাসেঞ্জার দিয়ে");
-		System.out.println(cleanUTFCharacters("লোকাল নেটওয়ার্কে চ্যাটিং পপম্যাসেঞ্জার দিয়ে"));
+		System.out.println(cleanUTFCharacters("লোকাল নেটওয়ার্কে চ্যাটিং পপম্যাসেঞ্জার দিয়ে."));
 	}*/
 
 	public static JRssFeed parse4mHtml(String htmlContent) {

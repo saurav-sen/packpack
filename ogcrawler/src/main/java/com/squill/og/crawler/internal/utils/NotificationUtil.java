@@ -31,7 +31,7 @@ public class NotificationUtil {
 	}
 	
 	/*public static void main(String[] args) throws PackPackException {
-		broadcastNewRSSFeedUploadSummary("Congress-led Bharat bandh fuels Opposition fire against Centre");
+		broadcastNewRSSFeedUploadSummary("Bofors case: Delhi court to hear CBI plea");
 	}*/
 
 	public static void broadcastNewRSSFeedUploadSummary(String notification)

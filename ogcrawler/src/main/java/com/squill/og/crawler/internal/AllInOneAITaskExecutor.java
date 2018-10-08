@@ -12,6 +12,7 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pack.pack.util.LanguageUtil;
 import com.squill.feed.web.model.JConcept;
 import com.squill.feed.web.model.JGeoTag;
 import com.squill.feed.web.model.JRssFeed;
@@ -148,6 +149,9 @@ public class AllInOneAITaskExecutor {
 						domainUrl = resolveDomainUrl(feed.getOgUrl());
 					}
 					
+					feed.setOgTitle(feed.getOgTitle().replace("Times Of India", ""));
+					feed.setOgTitle(feed.getOgTitle().replace("TOI", ""));
+					
 					executeDocumentSummarization(info, feed, webCrawlable,
 							isNew);
 					executeArticleExtractor(info, feed, webCrawlable, isNew);
@@ -234,6 +238,7 @@ public class AllInOneAITaskExecutor {
 					String summaryText = summaryTextWithLengthConstraint(response
 							.extractedAllSummary(false));
 					summaryText = HtmlUtil.cleanUTFCharacters(summaryText);
+					//LanguageUtil.getWords(sentence)
 					String fullText = HtmlUtil.cleanUTFCharacters(response.getText());
 					feed.setArticleSummaryText(summaryText);
 					feed.setFullArticleText(fullText);

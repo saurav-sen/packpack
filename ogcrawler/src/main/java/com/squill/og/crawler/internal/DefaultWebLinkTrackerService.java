@@ -19,11 +19,14 @@ import com.lambdaworks.redis.RedisClient;
 import com.lambdaworks.redis.api.StatefulRedisConnection;
 import com.lambdaworks.redis.api.sync.RedisCommands;
 import com.pack.pack.util.SystemPropertyUtil;
+import com.squill.feed.web.model.JRssFeedType;
 import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.EncryptionUtil;
 import com.squill.og.crawler.internal.utils.JSONUtil;
+import com.squill.og.crawler.model.DocumentHeadersMemento;
 import com.squill.og.crawler.model.WebSpiderTracker;
+import com.squill.og.crawler.rss.RSSConstants;
 import com.squill.services.exception.OgCrawlException;
 
 /**
@@ -190,6 +193,68 @@ public class DefaultWebLinkTrackerService implements IWebLinkTrackerService {
 				sync.close();
 			}
 		}*/
+	}
+	
+	private DocumentHeadersMemento headersMemento;
+	
+	private boolean isMementoTriedLoading = false;
+	
+	@Override
+	public DocumentHeadersMemento getPreviousSessionMemento(JRssFeedType type) {
+		if(type == null)
+			return null;
+		
+		if(headersMemento != null) {
+			return headersMemento;
+		}
+		
+		if(isMementoTriedLoading) {
+			return null;
+		}
+		
+		RedisCommands<String, String> sync = null;
+		try {
+			String key = "MEMENTO_HEADER_" + type.name();
+			if (!isKeyExists(key)) {
+				LOG.debug("Headers memento doesn't exist for type = " + type.name());
+				return null;
+			}
+			sync = sync();
+			String json = sync.get(key);
+			headersMemento = JSONUtil.deserialize(json, DocumentHeadersMemento.class, true);
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+			LOG.debug("Deserialization of previously stored headers memento failed for type = " + type.name());
+			return null;
+		} finally {
+			isMementoTriedLoading = true;
+			/*if (sync != null) {
+				sync.close();
+			}*/
+		}
+		return headersMemento;
+	}
+	
+	@Override
+	public void flushNewHeadersMemento(DocumentHeadersMemento headersMemento, JRssFeedType type) {
+		if(headersMemento == null || type == null)
+			return;
+		
+		RedisCommands<String, String> sync = null;
+		try {
+			String key = "MEMENTO_HEADER_" + type.name();
+			sync = sync();
+			String json = JSONUtil.serialize(headersMemento);
+			sync.setex(key, RSSConstants.DEFAULT_TTL_HEADERS_MEMENTO, json);
+			this.headersMemento = headersMemento;
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+		} /*finally {
+			if (sync != null) {
+				sync.close();
+			}
+		}*/
+		
 	}
 	
 	private boolean isKeyExists(String key) {

@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.squill.og.crawler.hooks.IArticleTextExtractor;
 import com.squill.og.crawler.hooks.IArticleTextSummarizer;
 import com.squill.og.crawler.rss.LogTags;
 import com.squill.services.exception.OgCrawlException;

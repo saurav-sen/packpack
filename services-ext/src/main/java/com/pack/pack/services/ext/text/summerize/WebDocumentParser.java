@@ -135,7 +135,12 @@ public class WebDocumentParser {
 				ogUrl = url;
 			}*/
 			json.setOgUrl(ogUrl);
-			json.setHrefSource(ogUrl);
+			
+			String inputUrl = webDocument.getInputUrl();
+			if(inputUrl == null || inputUrl.trim().isEmpty()) {
+				inputUrl = ogUrl;
+			}
+			json.setHrefSource(inputUrl);
 
 			String ogDescription = webDocument.getDescription();
 			/*if (ogDescription == null) {
@@ -648,12 +653,13 @@ public class WebDocumentParser {
 
 	private WebDocument doParseHtml(String html, boolean isAmpHtmlLink) throws IOException {
 		Document doc = Jsoup.parse(html);
-		
+		//$LOG.debug(doc.body().text());
 		String title = readOgTilte(doc);
 		String description = readOgDescription(doc);
 		String imageUrl = readOgImage(doc);
 		List<String> keywordsList = readKeywordsList(doc);
 		String ogUrl = readOgUrl(doc);
+		String inputUrl = ogUrl;
 		
 		if (!isAmpHtmlLink) {
 			try {
@@ -718,12 +724,12 @@ public class WebDocumentParser {
 				keywordsList);
 		if (primaryElement == null) {
 			$LOG.debug("Failed to get primary element based upon description");
-			return new WebDocument(title, description, imageUrl, ogUrl, doc);
+			return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc);
 		}
 		Element majorElement = primaryElement.getPrimaryElement();
 		if (majorElement == null) {
 			$LOG.debug("Failed to get primary/major element based upon description");
-			return new WebDocument(title, description, imageUrl, ogUrl, doc);
+			return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc);
 		}
 
 		Element h1Element = null;
@@ -733,7 +739,7 @@ public class WebDocumentParser {
 		}
 		if (h1Element == null) {
 			$LOG.debug("No <h1> tag found");
-			return new WebDocument(title, description, imageUrl, ogUrl, doc);
+			return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc);
 		} else {
 			title = h1Element.text();
 		}
@@ -742,7 +748,7 @@ public class WebDocumentParser {
 		Element _LCA = findLowestCommonAncestor(majorElement, h1Element, doc.body());
 		if (_LCA == null) {
 			$LOG.debug("Failed to compute LCA node");
-			return new WebDocument(title, description, imageUrl, ogUrl, doc);
+			return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc);
 		}
 		
 		title = h1Element.text();
@@ -788,7 +794,7 @@ public class WebDocumentParser {
 		$LOG.trace(document.text());
 		$LOG.trace(document.outerHtml());
 
-		return new WebDocument(title, description, imageUrl, ogUrl, document).setSuccess(true);
+		return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, document).setSuccess(true);
 	}
 
 	private void cleanUpLCA(Element lca, Element majorElement) {

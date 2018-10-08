@@ -19,13 +19,16 @@ public class WebDocument {
 	private boolean success = false;
 	
 	private String sourceUrl;
+	
+	private String inputUrl;
 
-	WebDocument(String title, String description, String imageUrl, String sourceUrl,
-			Document document) {
+	WebDocument(String title, String description, String imageUrl,
+			String sourceUrl, String inputUrl, Document document) {
 		this.title = title;
 		this.description = description;
 		this.imageUrl = imageUrl;
 		this.sourceUrl = sourceUrl;
+		this.inputUrl = inputUrl;
 		this.document = document;
 		setSuccess(false);
 	}
@@ -89,5 +92,9 @@ public class WebDocument {
 
 	public String getSourceUrl() {
 		return sourceUrl;
+	}
+	
+	public String getInputUrl() {
+		return inputUrl;
 	}
 }
