@@ -13,6 +13,74 @@ public final class LanguageUtil {
 
 	private LanguageUtil() {
 	}
+	
+	public static String[][] prepareWordMatrix(String sentence) {
+		sentence = sentence.replaceAll("\\s+", " ").replaceAll("\\xA0",
+				" ");
+		List<String> words = LanguageUtil.getWords(sentence);
+		int len = words.size();
+		String[][] wordMatrix = new String[len][len];
+		for (int i = 0; i < len; i++) {
+			StringBuilder desc = new StringBuilder();
+			for (int j = 0; j < len; j++) {
+				if (j < i) {
+					wordMatrix[i][j] = "";
+				} else {
+					desc.append(words.get(j));
+					wordMatrix[i][j] = desc.toString().replaceAll("[^a-zA-Z0-9\\s]", "");
+					desc.append(" ");
+				}
+			}
+		}
+		return wordMatrix;
+	}
+	
+	public static Similarity calculateSimilarity(String[][] wordMatrix, String sentence) {
+		sentence = sentence.trim();
+		int len = wordMatrix.length; // This is a SQUARE matrix
+		String entireSentence = wordMatrix[0][len - 1];
+		if (sentence.isEmpty()
+				|| sentence.length() < entireSentence.length())
+			return Similarity.NO_MATCH;
+		StringBuilder partialMatches = new StringBuilder();
+		for (int i = 0; i < len; i++) {
+			for (int j = len - 1; j >= i; j--) {
+				String text1 = wordMatrix[i][j].trim();
+				if (sentence.replaceAll("[^a-zA-Z0-9\\s]", "").contains(text1)
+				/* || text1.contains(elementText) */) {
+					float percentageMatch = (float) text1.length()
+							/ (float) entireSentence.length();
+					if (percentageMatch > 0.6f) {
+						return Similarity.HIGH;
+					} else if (percentageMatch > 0.4f && percentageMatch < 0.6f) {
+						return Similarity.MEDIUM;
+					} else if (!partialMatches.toString().contains(text1)) {
+						String[] words = text1.split(" ");
+						for(String word : words) {
+							if (!partialMatches.toString().contains(word)) {
+								partialMatches.append(word);
+								partialMatches.append(" ");
+							}
+						}
+					}
+				}
+			}
+		}
+		if(partialMatches.toString().isEmpty())
+			return Similarity.NO_MATCH;
+		float percentageMatch = (float) partialMatches.length()
+				/ (float) entireSentence.length();
+		if (percentageMatch > 0.6f) {
+			return Similarity.HIGH;
+		} else if (percentageMatch > 0.4f && percentageMatch < 0.6f) {
+			return Similarity.MEDIUM;
+		}
+		return Similarity.LOW;
+	}
+	
+	public enum Similarity {
+		NO_MATCH, LOW, MEDIUM, HIGH
+	}
 
 	public static List<String> getWords(String sentence) {
 		List<String> words = new ArrayList<String>();
