@@ -1,9 +1,5 @@
 package com.squill.og.crawler.internal;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -18,13 +14,13 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.pack.pack.services.exception.PackPackException;
+import com.pack.pack.services.ext.article.comparator.ArticleInfo;
+import com.pack.pack.services.ext.article.comparator.TitleBasedArticleComparator;
 import com.pack.pack.util.RssFeedUtil;
 import com.pack.pack.util.SystemPropertyUtil;
 import com.squill.feed.web.model.JRssFeed;
@@ -34,6 +30,7 @@ import com.squill.og.crawler.IWebCrawlable;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
+import com.squill.og.crawler.internal.utils.ArchiveUtil;
 import com.squill.og.crawler.internal.utils.HtmlUtil;
 import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.og.crawler.internal.utils.NotificationUtil;
@@ -117,25 +114,19 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		map.put(webCrawlable.getUniqueId(), readFeeds(list));
 		if (webCrawlable.isUploadIndependently()) {
 			try {
-				uploadBulk(map, session.getBatchId(), webCrawlable);
+				uploadBulk(map, session, webCrawlable);
 			} catch (Exception e) {
 				LOG.error(e.getMessage(), e);
 			}
 		} else if (count == 0) {
 			try {
-				uploadBulk(map, session.getBatchId(), webCrawlable);
+				uploadBulk(map, session, webCrawlable);
 			} catch (Exception e) {
 				LOG.error(e.getMessage(), e);
 			}
 		}
 		
-		try {
-			while(session.hashMoreNotificationMessages()) {
-				NotificationUtil.broadcastNewRSSFeedUploadSummary(session.getTopNotificationMessage());
-			}
-		} catch (PackPackException e) {
-			LOG.error(e.getMessage(), e);
-		}
+		session.fireTopNotificationIfAny();
 	}
 	
 	protected List<JRssFeed> readFeeds(List<WebSpiderTracker> list) {
@@ -163,92 +154,74 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		return allFeeds;
 	}
 	
-	private JRssFeeds storeInArchive(String id, List<JRssFeed> list) {
-		JRssFeeds c = new JRssFeeds();
-		LOG.debug("storeInArchive(String id, List<JRssFeed> list)");
-		try {
-			String filePath = resolveArchiveFilePath(id);
-			File file = new File(filePath);
-			if(!file.exists()) {
-				c.getFeeds().addAll(list);
-				String json = JSONUtil.serialize(c);
-				LOG.debug("Writing to file @ " + filePath);
-				Files.write(Paths.get(filePath), json.getBytes(), StandardOpenOption.CREATE);
-			} else {
-				String json = new String(Files.readAllBytes(Paths.get(filePath)), "UTF-8");
-				c = JSONUtil.deserialize(json, JRssFeeds.class, true);
-				c.getFeeds().addAll(list);
-				json = JSONUtil.serialize(c);
-				LOG.debug("Writing to file @ " + filePath);
-				Files.write(Paths.get(filePath), json.getBytes(), StandardOpenOption.WRITE);
-			}
-		} catch (Exception e) {
-			LOG.error("Failed storing in archive :: " + e.getMessage(), e);
-		}
-		return c;
-	}
-	
-	private String resolveArchiveFilePath(String id) {
-		DateTime dateTime = new DateTime();
-		int day = dateTime.getDayOfMonth();
-		int month = dateTime.getMonthOfYear();
-		int year = dateTime.getYear();
-		String dirPath = SystemPropertyUtil.getDefaultArchiveFolder();
-		File file = new File(dirPath);
-		if(!file.exists()) {
-			file.mkdir();
-		}
-		dirPath = dirPath + id;
-		StringBuilder fileName = new StringBuilder(dirPath).append("-");
-		if(day < 10) {
-			fileName.append("0");
-		}
-		fileName.append(String.valueOf(day));
-		fileName.append("-");
-		if(month < 10) {
-			fileName.append("0");
-		}
-		fileName.append(String.valueOf(month));
-		fileName.append("-");
-		fileName.append(String.valueOf(year));
-		fileName.append(".json");
-		return fileName.toString();
-	}
-	
-	private Map<String, List<JRssFeed>> storeInArchive(Map<String, List<JRssFeed>> map) {
-		Map<String, List<JRssFeed>> result = new HashMap<String, List<JRssFeed>>();
-		LOG.debug("Storing in archive");
-		Iterator<String> itr = map.keySet().iterator();
-		while(itr.hasNext()) {
-			String id = itr.next();
-			List<JRssFeed> list = map.get(id);
-			if(list.isEmpty())
-				continue;
-			JRssFeeds c = storeInArchive(id, list);
-			if(c != null) {
-				result.put(id, c.getFeeds());
-			}
-		}
-		return result;
-	}
-
-	private void uploadBulk(Map<String, List<JRssFeed>> map, long batchId, IWebCrawlable webCrawlable) throws Exception {
+	private void uploadBulk(Map<String, List<JRssFeed>> map, ISpiderSession session, IWebCrawlable webCrawlable) throws Exception {
 		if(!ServiceIdResolver.isUploadMode()) {
 			LOG.debug("Not running in Upload Mode, ignoring upload");
 			return;
 		}
+		//long batchId = session.getBatchId();
 		if(LOG.isDebugEnabled()) {
 			JRssFeeds rssFeeds = adapt(map);
 			LOG.debug("Total feeds to be uploaded without backlog = " + rssFeeds.getFeeds().size());
 		}
 		dataCleanUp(map);
-		storeInArchive(map);
+		ArchiveUtil.storeInArchive(map);
 		//map = storeInArchive(map);
 		JRssFeeds rssFeeds = adapt(map);
 		LOG.info("Uploading news feeds: Total = " + rssFeeds.getFeeds().size());
 		TTL ttl = new TTL();
 		ttl.setTime((short) 1);
 		ttl.setUnit(TimeUnit.DAYS);
+		
+		List<String> notificationMessages = new ArrayList<String>();
+		{
+			// [START] :: Check for duplicates to remove from upload list & also to generate notification.
+			List<JRssFeed> list = rssFeeds.getFeeds();
+			List<ArticleInfo> articles = new ArrayList<ArticleInfo>();
+			for(JRssFeed l : list) {
+				ArticleInfo article = new ArticleInfo(l.getOgTitle(), null);
+				article.setReferenceObject(l);
+				articles.add(article);
+			}
+			int len = articles.size() - 1;
+			Object OBJECT = new Object();
+			Map<Integer, Object> tmp = new HashMap<Integer, Object>();
+			Map<Integer, List<Integer>> probableDuplicates = new TitleBasedArticleComparator().findProbableDuplicates(articles);
+			if(probableDuplicates != null && !probableDuplicates.isEmpty()) {
+				Iterator<Integer> itr = probableDuplicates.keySet().iterator();
+				while(itr.hasNext()) {
+					int index = itr.next();
+					if(tmp.containsKey(index))
+						continue;
+					List<Integer> indices = probableDuplicates.get(index);
+					if(indices != null && !indices.isEmpty()) {
+						for(int i : indices) {
+							if(i < 0 || i > len)
+								continue;
+							ArticleInfo article = articles.get(i);
+							JRssFeed f = (JRssFeed)(article.getReferenceObject());
+							if(f == null)
+								continue;
+							list.remove(f);
+							tmp.put(i, OBJECT);
+							if(notificationMessages.isEmpty()) {
+								notificationMessages.add("NEWS: " + f.getOgTitle());
+							}
+							LOG.info("Duplicate Detected " + f.getOgTitle());
+						}
+					}
+				}
+			}
+			
+			articles.clear();
+			articles = null;
+			tmp.clear();
+			tmp = null;
+			probableDuplicates.clear();
+			probableDuplicates = null;
+			OBJECT = null;
+			// [END] :: Check for duplicates to remove from upload list & also to generate notification.
+		}
 		
 		HtmlUtil.generateNewsFeedsHtmlPages(rssFeeds);
 		
@@ -288,10 +261,23 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 			webLinkTrackerService.upsertCrawledInfo(link, info, RSSConstants.DEFAULT_TTL_WEB_TRACKING_INFO, false);
 		}
 		
-		if (!feeds.isEmpty()) {
-			JRssFeed f = feeds.get(Math.abs(new Random().nextInt())
-					% feeds.size());
-			NotificationUtil.broadcastNewRSSFeedUploadSummary(f.getOgTitle());
+		if (notificationMessages.isEmpty()
+				&& ((System.currentTimeMillis() - LocalData.INSTANCE
+						.getLastNotifiedTimestamp()) > (2 * 60 * 60 * 1000))) {
+			if (!feeds.isEmpty()) {
+				JRssFeed f = feeds.get(Math.abs(new Random().nextInt())
+						% feeds.size());
+				notificationMessages.add(f.getOgTitle());
+			}
+		}
+		
+		if(session.hashMoreNotificationMessages()) {
+			return;
+		}
+		
+		for (String notificationMessage : notificationMessages) {
+			NotificationUtil.broadcastNewRSSFeedUploadSummary(notificationMessage);
+			LocalData.INSTANCE.setLastNotifiedTimestamp(System.currentTimeMillis());
 		}
 	}
 	

@@ -1,5 +1,7 @@
 package com.squill.og.crawler.hooks;
 
+import java.util.List;
+
 import com.squill.feed.web.model.JRssFeeds;
 import com.squill.og.crawler.IWebCrawlable;
 
@@ -29,9 +31,9 @@ public interface ISpiderSession {
 	
 	public void incrementCrawledCount(int incCountBy);
 	
-	public void addNotificationMessage(String message);
+	public void addNotificationMessage(String message, List<?> metaInfoList);
 	
-	public String getTopNotificationMessage();
+	public void fireTopNotificationIfAny();
 	
 	public boolean hashMoreNotificationMessages();
 	

@@ -19,6 +19,30 @@ import org.springframework.stereotype.Component;
 @Lazy
 @Scope("singleton")
 public class TitleBasedArticleComparator {
+	
+	public boolean checkIsProbableDuplicate(ArticleInfo src, ArticleInfo tgt) {
+		return new ArticleInfoMatcher().isEQUAL(src, tgt);
+	}
+	
+	public List<ArticleInfo> checkProbableDuplicates(ArticleInfo src,
+			List<ArticleInfo> tgtList) throws Exception {
+		List<ArticleInfo> result = new LinkedList<ArticleInfo>();
+		int len = tgtList.size();
+		for (int i = 0; i < len; i++) {
+			ArticleInfo tgt = tgtList.get(i);
+			if (tgt.isMatchFound())
+				continue;
+			if(src.equals(tgt))
+				continue;
+			if (new ArticleInfoMatcher().isEQUAL(src, tgt)) {
+				//result.add(src);
+				result.add(tgt);
+				return result;
+			}
+		}
+
+		return result;
+	}
 
 	public Map<Integer, List<Integer>> findProbableDuplicates(
 			List<ArticleInfo> articles, boolean verbose) throws Exception {

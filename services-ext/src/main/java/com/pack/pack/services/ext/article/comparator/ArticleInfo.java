@@ -22,9 +22,11 @@ public class ArticleInfo {
 	private boolean matchFound;
 
 	private String articleId;
+	
+	private Object referenceObject;
 
 	public ArticleInfo(String originalText, String articleId) {
-		this.originalText = originalText;
+		this.originalText = originalText.replaceAll(Pattern.quote("- Times of India"), "").toLowerCase().trim();
 		this.articleId = articleId;
 	}
 
@@ -75,5 +77,50 @@ public class ArticleInfo {
 
 	public String getArticleId() {
 		return articleId;
+	}
+
+	public Object getReferenceObject() {
+		return referenceObject;
+	}
+
+	public void setReferenceObject(Object referenceObject) {
+		this.referenceObject = referenceObject;
+	}
+	
+	@Override
+	public String toString() {
+		return originalText;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj == null)
+			return false;
+		if(obj instanceof ArticleInfo) {
+			ArticleInfo articleInfo = (ArticleInfo)obj;
+			Object ref1 = articleInfo.getReferenceObject();
+			if(referenceObject != null && ref1 != null) {
+				return referenceObject.equals(ref1);
+			}
+			if(referenceObject == null && ref1 == null) {
+				return this.equals(obj);
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		StringBuilder code = new StringBuilder(this.getClass().getName());
+		if(referenceObject != null) {
+			code.append("_");
+			code.append(referenceObject.getClass().getName());
+			code.append("_");
+			code.append(referenceObject.toString());
+		} else {
+			code.append("_");
+			code.append(originalText);
+		}
+		return code.toString().hashCode();
 	}
 }

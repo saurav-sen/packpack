@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
@@ -15,11 +16,18 @@ import org.slf4j.LoggerFactory;
 
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.services.exception.PackPackException;
+import com.pack.pack.services.ext.article.comparator.ArticleInfo;
+import com.pack.pack.services.ext.article.comparator.TitleBasedArticleComparator;
 import com.squill.feed.web.model.JRssFeeds;
 import com.squill.og.crawler.IWebCrawlable;
 import com.squill.og.crawler.SpiderSession;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.ISpiderSession;
+import com.squill.og.crawler.internal.utils.ArchiveUtil;
+import com.squill.og.crawler.internal.utils.CircularQueue;
+import com.squill.og.crawler.internal.utils.HtmlUtil;
+import com.squill.og.crawler.internal.utils.NotificationUtil;
+import com.squill.og.crawler.internal.utils.NotifyMsg;
 
 public class SpiderSessionFactory {
 	
@@ -42,10 +50,13 @@ public class SpiderSessionFactory {
 		
 		private long startTime = 0;
 		
-		private Queue<String> notificationMessages = new LinkedList<String>();
+		private CircularQueue<NotifyMsg> notificationMessages = new CircularQueue<NotifyMsg>();
+		
+		private Queue<String> notificationMessageTexts = new LinkedList<String>();
 		
 		private SpiderSessionImpl(IFeedUploader feedUploader) {
 			super(feedUploader);
+			notificationMessages = ArchiveUtil.loadNotificationMemento();
 		}
 		
 		@Override
@@ -59,22 +70,75 @@ public class SpiderSessionFactory {
 				}
 			}
 			attrMap.clear();
+			notificationMessageTexts.clear();
 			notificationMessages.clear();
+			notificationMessages = ArchiveUtil.loadNotificationMemento();
+		}
+		
+		private boolean checkIsDuplicate(NotifyMsg src) {
+			TitleBasedArticleComparator comparator = new TitleBasedArticleComparator();
+			Iterator<NotifyMsg> itr = notificationMessages.iterator();
+			ArticleInfo srcInfo = new ArticleInfo(HtmlUtil.cleanUTFCharacters(src.getMsg()), null);
+			while(itr.hasNext()) {
+				NotifyMsg tgt = itr.next();
+				ArticleInfo tgtInfo = new ArticleInfo(HtmlUtil.cleanUTFCharacters(tgt.getMsg()), null);
+				if(comparator.checkIsProbableDuplicate(srcInfo, tgtInfo)) {
+					return true;
+				}
+			}
+			return false;
 		}
 		
 		@Override
-		public void addNotificationMessage(String message) {
-			notificationMessages.offer(message);
+		public void addNotificationMessage(String message, List<?> metaInfoList) {
+			NotifyMsg msg = new NotifyMsg();
+			msg.setMsg(message);
+			msg.setTimestamp(System.currentTimeMillis());
+			if(!checkIsDuplicate(msg)) {
+				notificationMessages.offer(msg);
+				if(metaInfoList != null && !metaInfoList.isEmpty()) {
+					for(Object obj : metaInfoList) {
+						msg.getExtraInfoList().add(obj.toString());
+					}
+				}
+				ArchiveUtil.storeNotificationMemento(notificationMessages);
+				notificationMessageTexts.offer(message);
+			}
+		}
+		
+		private String getTopNotificationMessage() {
+			NotifyMsg msg = notificationMessages.peek();
+			if(msg != null && !msg.isExpired()) {
+				msg.setExpired(true);
+				ArchiveUtil.storeNotificationMemento(notificationMessages);
+				String msgText = notificationMessageTexts.poll();
+				if(msgText != null) {
+					return msgText;
+				}
+			}
+			return null;
 		}
 		
 		@Override
-		public String getTopNotificationMessage() {
-			return notificationMessages.poll();
+		public void fireTopNotificationIfAny() {
+			try {
+				while(hashMoreNotificationMessages()) {
+					String msg = getTopNotificationMessage();
+					if(msg != null) {
+						NotificationUtil.broadcastNewRSSFeedUploadSummary(msg);
+					}
+				}
+			} catch (PackPackException e) {
+				LOG.error(e.getMessage(), e);
+			}
 		}
 		
 		@Override
-		public boolean hashMoreNotificationMessages() {	
-			return notificationMessages.peek() != null;
+		public boolean hashMoreNotificationMessages() {
+			NotifyMsg msg = notificationMessages.peek();
+			if(msg == null)
+				return false;
+			return !msg.isExpired();
 		}
 
 		@Override

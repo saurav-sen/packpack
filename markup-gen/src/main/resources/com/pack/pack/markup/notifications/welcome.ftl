@@ -44,9 +44,7 @@
     }
 
     h1 {
-      font-size: 24px;
-      font-weight: normal;
-      line-height: 24px;
+      font-weight: bold;
     }
 
     body,
@@ -205,7 +203,7 @@
                 <table cellpadding="0" cellspacing="0" class="force-full-width">
                   <tr>
                    <td height="60" valign="top" class="header-cell">
-                      <img width="50" height="50" src="http://www.squill.co.in/logo/squill.png" alt="logo">
+                      <img width="50" height="50" src="http://www.squill.in/logo/squill.png" alt="logo">
                     </td>
                   </tr>
                   <tr>
@@ -216,11 +214,14 @@
 						<td height="36" class="em_height">&nbsp;</td>
 					  </tr>
 					  <tr>
-						<td valign="middle" align="center"><img src="http://www.squill.co.in/images/welcome_banner.jpg" width="510" height="325" alt="WELCOME" style="display:block; font-family:Arial, sans-serif; font-size:25px; line-height:325px; color:#c27cbb;max-width:510px;" class="em_full_img" border="0" /></td>
+						<td valign="middle" align="center"><img src="http://www.squill.in/images/welcome_banner.jpg" width="510" height="325" alt="WELCOME" style="display:block; font-family:Arial, sans-serif; font-size:25px; line-height:325px; color:#c27cbb;max-width:510px;" class="em_full_img" border="0" /></td>
 					  </tr>
                         <tr>
                           <td valign="top" style="padding-bottom:15px; background-color:#ffffff;">
-                            <h1>Welcome to SQUILL</h1>
+                            <br/>
+                            <h1>Verification Code: ${OTP}</h1>
+                            <br/>
+                            <h3>Welcome to SQUILL</h3>
                           </td>
                         </tr>
                         <tr>

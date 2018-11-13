@@ -38,6 +38,7 @@ import com.squill.feed.web.model.TTL;
 import com.squill.og.crawler.Spider;
 import com.squill.og.crawler.internal.utils.HtmlUtil;
 import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
+import com.squill.og.crawler.internal.utils.NotificationUtil;
 
 /**
  * 
@@ -132,6 +133,7 @@ public class SupportEmailSpider implements Spider {
 			}
 			emailStore.close();
 
+			String notificationMessage = null;
 			Iterator<String> itr = linkVsSubject.keySet().iterator();
 			while (itr.hasNext()) {
 				String link = itr.next();
@@ -139,7 +141,11 @@ public class SupportEmailSpider implements Spider {
 				JRssFeed feed = read(subject, link);
 				if (feed == null)
 					continue;
+				notificationMessage = feed.getOgTitle();
 				feeds.add(feed);
+			}
+			if(notificationMessage != null && !notificationMessage.trim().isEmpty()) {
+				NotificationUtil.broadcastNewRSSFeedUploadSummary(notificationMessage);
 			}
 		} catch (Exception e) {
 			$LOG.error("Failed Polling messages from GMAIL support email.",

@@ -9,7 +9,7 @@
     </Properties>
     
     <!-- Articles -->
-    <WebCrawler id="qz.com" domainUrl="https://qz.com/" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true" uploadIndependently="true">
+    <!--WebCrawler id="qz.com" domainUrl="https://qz.com/" flushFrequency="50" thresholdFrequency="10" robotRulesExists="true" uploadIndependently="true">
         <name>Quartz</name>
         <description>Quartz India</description>
         <linkFilter>
@@ -49,7 +49,7 @@
 	        <resolver>defaultArticleTextSummarizer</resolver>
 	    </articleSummarizer>
         <scheduler initialDelay="0" periodicDelay="1" timeUnit="DAYS"/>
-    </WebCrawler>
+    </WebCrawler-->
     
     <ApiReader id="newsapi.org" uploadIndependently="true" checkDuplicate="false">
         <name>NewsApi.Org</name>

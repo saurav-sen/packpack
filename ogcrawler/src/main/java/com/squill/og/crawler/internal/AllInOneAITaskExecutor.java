@@ -2,17 +2,17 @@ package com.squill.og.crawler.internal;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.pack.pack.util.LanguageUtil;
+import com.pack.pack.services.ext.article.comparator.ArticleInfo;
+import com.pack.pack.services.ext.article.comparator.TitleBasedArticleComparator;
 import com.squill.feed.web.model.JConcept;
 import com.squill.feed.web.model.JGeoTag;
 import com.squill.feed.web.model.JRssFeed;
@@ -26,6 +26,7 @@ import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.hooks.ITaxonomyResolver;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
+import com.squill.og.crawler.internal.utils.ArchiveUtil;
 import com.squill.og.crawler.internal.utils.FeedClassifierUtil;
 import com.squill.og.crawler.internal.utils.HtmlUtil;
 import com.squill.og.crawler.model.WebSpiderTracker;
@@ -47,7 +48,53 @@ public class AllInOneAITaskExecutor {
 		this.session = session;
 	}
 	
+	private void preProcess(Map<String, List<JRssFeed>> feedsMap, IWebCrawlable webCrawlable) {
+		// Remove Duplicates
+		if(feedsMap == null || feedsMap.isEmpty())
+			return;
+		List<JRssFeed> list = ArchiveUtil.getFeedsUploadedFromArchive(webCrawlable.getUniqueId());
+		if(list == null || list.isEmpty())
+			return;
+		List<ArticleInfo> tgtList = new ArrayList<ArticleInfo>();
+		for(JRssFeed l : list) {
+			ArticleInfo tgt = new ArticleInfo(l.getOgTitle(), null);
+			tgt.setReferenceObject(l);
+			tgtList.add(tgt);
+		}
+		TitleBasedArticleComparator comparator = new TitleBasedArticleComparator();
+		Iterator<String> itr = feedsMap.keySet().iterator();
+		while(itr.hasNext()) {
+			String key = itr.next();
+			List<JRssFeed> srcList = feedsMap.get(key);
+			if(srcList == null || srcList.isEmpty())
+				continue;
+			Iterator<JRssFeed> itrSrc = srcList.iterator();
+			while(itrSrc.hasNext()) {
+				JRssFeed f = itrSrc.next();
+				ArticleInfo src = new ArticleInfo(f.getOgTitle(), null);
+				src.setReferenceObject(f);
+				try {
+					List<ArticleInfo> probableDuplicates = comparator.checkProbableDuplicates(src, tgtList);
+					if(probableDuplicates != null && !probableDuplicates.isEmpty()) {
+						String notificationMessage = HtmlUtil.cleanUTFCharacters(f.getOgTitle());
+						$LOG.debug("About to add notification message for send in session queue = "
+								+ notificationMessage);
+						if (!session.hashMoreNotificationMessages()) {
+							session.addNotificationMessage(notificationMessage, probableDuplicates);
+						} else {
+							$LOG.debug("But, crawling session has more notification messages, thereby skipping");
+						}
+						itrSrc.remove();
+					}
+				} catch (Exception e) {
+					$LOG.error(e.getMessage(), e);
+				}
+			}
+		}
+	}
+	
 	public void executeTasks(Map<String, List<JRssFeed>> feedsMap, IWebCrawlable webCrawlable) {
+		preProcess(feedsMap, webCrawlable);
 		executeAITasks(feedsMap, session, webCrawlable);
 	}
 
@@ -73,37 +120,37 @@ public class AllInOneAITaskExecutor {
 		IWebLinkTrackerService webLinkTrackerService = webCrawlable.getTrackerService();
 
 		try {
-			String notificationMessage = null;
-			String randomNotificationMessage = null;
+			//String notificationMessage = null;
+			//String randomNotificationMessage = null;
 			if(feedsMap.isEmpty()) {
 				$LOG.debug("Feeds Map Received is EMPTY, skipping AI workflow requests completely.");
 				return;
 			}
-			int random = Math.abs(new Random().nextInt()) % (feedsMap.keySet().size());
-			int count = 0;
+			/*int random = Math.abs(new Random().nextInt()) % (feedsMap.keySet().size());
+			int count = 0;*/
 			Iterator<String> itr = feedsMap.keySet().iterator();
 			while(itr.hasNext()) {
 				String key = itr.next();
-				count++;
+				//count++;
 				List<JRssFeed> feeds = feedsMap.get(key);
 				if(feeds == null)
 					continue;
-				int randomCount = 0;
+				/*int randomCount = 0;
 				int randomIndex = -1;
 				if(count == random) {
 					randomIndex = Math.abs(new Random().nextInt()) % feeds.size();
-				}
+				}*/
 				$LOG.debug("Total Feeds from " + key + " is = " + feeds.size());
 				Iterator<JRssFeed> feedsItr = feeds.iterator();
 				while(feedsItr.hasNext()) {
 					JRssFeed feed = feedsItr.next();
 					feed.setOgTitle(HtmlUtil.cleanUTFCharacters(feed.getOgTitle()));
-					if(randomIndex >= 0) {
+					/*if(randomIndex >= 0) {
 						if(randomCount == randomIndex) {
 							randomNotificationMessage = feed.getOgTitle();
 						}
 						randomCount++;
-					}
+					}*/
 					feed.setOgType(feed.getFeedType());
 					String link = feed.getOgUrl();
 					WebSpiderTracker info = webLinkTrackerService.getTrackedInfo(link);
@@ -165,7 +212,7 @@ public class AllInOneAITaskExecutor {
 							RSSConstants.DEFAULT_TTL_WEB_TRACKING_INFO,
 							false);
 					
-					if (!session.hashMoreNotificationMessages()) {
+					/*if (!session.hashMoreNotificationMessages()) {
 						List<JConcept> concepts = feed.getConcepts();
 						if (notificationMessage == null && concepts != null
 								&& !concepts.isEmpty()) {
@@ -182,13 +229,13 @@ public class AllInOneAITaskExecutor {
 								}
 							}
 						}
-					}
+					}*/
 				}
 			}
-			if(notificationMessage == null) {
+			/*if(notificationMessage == null) {
 				notificationMessage = randomNotificationMessage;
-			}
-			if (notificationMessage != null) {
+			}*/
+			/*if (notificationMessage != null) {
 				$LOG.debug("About to add notification message for send in session queue = "
 						+ notificationMessage);
 				if (!session.hashMoreNotificationMessages()) {
@@ -200,7 +247,7 @@ public class AllInOneAITaskExecutor {
 				if (!session.hashMoreNotificationMessages()) {
 					$LOG.debug("No notification message could be calculated yet");
 				}
-			}
+			}*/
 			
 			/*IFeedUploader feedUploader = currentWebSite.getFeedUploader();
 			if(feedUploader != null) {

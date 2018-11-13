@@ -7,6 +7,7 @@
 
     <property scope="system" name="defaultLevel" value="info" />
     <property scope="system" name="defaultAppender" value="FILE_APPENDER" />
+    <property scope="system" name="defaultAppender_1" value="FILE_APPENDER_1" />
     <property scope="system" name="defaultPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n" />
     
     <appender name="FILE_APPENDER" class="ch.qos.logback.classic.sift.SiftingAppender">
@@ -33,6 +34,38 @@
 					<MaxIndex>100</MaxIndex>
 				</rollingPolicy-->
 		
+				<!-- <triggeringPolicy
+					class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+					<MaxFileSize>1GB</MaxFileSize>
+				</triggeringPolicy> -->
+			</appender>
+		</sift>
+	</appender>
+	
+    <appender name="FILE_APPENDER_1" class="ch.qos.logback.classic.sift.SiftingAppender">
+ 
+         <discriminator>
+			<key>logFile1</key>
+			<defaultValue>articleCheck</defaultValue>
+		  </discriminator>
+ 
+		  <sift>
+			<appender name="FILE-${logFile1}" class="ch.qos.logback.core.rolling.RollingFileAppender">
+				<layout class="ch.qos.logback.classic.PatternLayout">
+					<Pattern>%d{MMM-dd-yyyy HH:mm:ss} [%level] %logger{36} - %msg%n
+					</Pattern>
+				</layout>
+				<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+					<fileNamePattern>../logs/${logFile1}.%d{yyyy-MM-dd}.log</fileNamePattern>
+					<maxHistory>60</maxHistory>
+				</rollingPolicy>
+				
+				<!--rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+					<FileNamePattern>../logs/rest-api.%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+					<MinIndex>1</MinIndex>
+					<MaxIndex>100</MaxIndex>
+				</rollingPolicy-->
+		
 				<triggeringPolicy
 					class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
 					<MaxFileSize>1GB</MaxFileSize>
@@ -49,6 +82,10 @@
 	
 	 <logger name="com.squill.og.crawler" level="debug" additivity="false">
             <appender-ref ref="${defaultAppender}" />
+     </logger>
+     
+	 <logger name="com.pack.pack.services.ext.article.comparator" level="debug" additivity="false">
+            <appender-ref ref="${defaultAppender_1}" />
      </logger>
 
 	<logger name="ogCrawler" level="${defaultLevel}"

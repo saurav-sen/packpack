@@ -61,7 +61,7 @@ import freemarker.template.TemplateException;
 @Path("/user")
 public class UserResource {
 
-	private Logger LOG = LoggerFactory.getLogger(UserResource.class);
+	private static final Logger LOG = LoggerFactory.getLogger(UserResource.class);
 	
 	private static final String SIGNUP_VERIFIER = "signup_code_";
 	private static final String PASSWD_RESET_VERIFIER = "passwd_reset_";
@@ -223,6 +223,10 @@ public class UserResource {
 			LOG.error("Error Sending Welcome Mail", e);
 		}
 	}
+	
+	/*public static void main(String[] args) {
+		sendWelcomeMail("Saurav Sen", "sourabhnits@gmail.com", "776677");
+	}*/
 
 	/*@POST
 	@CompressRead
