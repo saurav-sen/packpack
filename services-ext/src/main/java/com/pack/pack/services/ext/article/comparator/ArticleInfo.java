@@ -14,6 +14,8 @@ import com.pack.pack.util.LanguageUtil;
 public class ArticleInfo {
 
 	private String originalText;
+	
+	private String rawText;
 
 	private String textWithoutStopWords;
 
@@ -26,7 +28,9 @@ public class ArticleInfo {
 	private Object referenceObject;
 
 	public ArticleInfo(String originalText, String articleId) {
-		this.originalText = originalText.replaceAll(Pattern.quote("- Times of India"), "").toLowerCase().trim();
+		String text = originalText.replaceAll(Pattern.quote("- Times of India"), "").trim();
+		this.rawText = text;
+		this.originalText = text.toLowerCase();
 		this.articleId = articleId;
 	}
 
@@ -122,5 +126,13 @@ public class ArticleInfo {
 			code.append(originalText);
 		}
 		return code.toString().hashCode();
+	}
+
+	public String getRawText() {
+		return rawText;
+	}
+
+	public void setRawText(String rawText) {
+		this.rawText = rawText;
 	}
 }

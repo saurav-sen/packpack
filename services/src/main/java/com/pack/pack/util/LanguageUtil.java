@@ -35,7 +35,7 @@ public final class LanguageUtil {
 		return wordMatrix;
 	}
 	
-	public static Similarity calculateSimilarity(String[][] wordMatrix, String sentence) {
+	public static Similarity calculateSimilarity(String[][] wordMatrix, String sentence, String rawSentenceUnModifiedSrc, String rawSentenceUnModifiedTgt) {
 		sentence = sentence.trim();
 		int len = wordMatrix.length; // This is a SQUARE matrix
 		String entireSentence = wordMatrix[0][len - 1];
@@ -46,7 +46,8 @@ public final class LanguageUtil {
 		for (int i = 0; i < len; i++) {
 			for (int j = len - 1; j >= i; j--) {
 				String text1 = wordMatrix[i][j].trim();
-				if (sentence.replaceAll("[^a-zA-Z0-9\\s]", "").contains(text1)
+				String sentence1 = sentence.replaceAll("[^a-zA-Z0-9\\s]", "");
+				if (sentence1.contains(text1 + " ") || sentence1.contains(" " + text1)
 				/* || text1.contains(elementText) */) {
 					float percentageMatch = (float) text1.length()
 							/ (float) entireSentence.length();
@@ -74,12 +75,52 @@ public final class LanguageUtil {
 			return Similarity.HIGH;
 		} else if (percentageMatch > 0.4f && percentageMatch < 0.6f) {
 			return Similarity.MEDIUM;
+		} else {
+			// Check for proper noun match
+			int absoluteNounMatch = 0;
+			String[] partiallyMatchedTokens = partialMatches.toString().split(" ");
+			int totalTokens = partiallyMatchedTokens.length;
+			if(totalTokens < 2) {
+				return Similarity.LOW;
+			}
+			for(String partiallyMatchedToken : partiallyMatchedTokens) {
+				if(partiallyMatchedToken.length() < 3) // This may be some junk here
+					continue;
+				String partiallyMatchedTokenUppercase = partiallyMatchedToken.toUpperCase();
+				if (partiallyMatchedTokenUppercase
+						.equals(partiallyMatchedToken)) // Ignore this is not
+														// noun (like 29, 6.0
+														// etc... not names)
+					continue;
+				if ((rawSentenceUnModifiedSrc.contains(" "
+						+ partiallyMatchedTokenUppercase)
+						|| rawSentenceUnModifiedSrc
+								.contains(partiallyMatchedTokenUppercase + " "))
+						|| (rawSentenceUnModifiedTgt.contains(" "
+								+ partiallyMatchedTokenUppercase)
+						|| rawSentenceUnModifiedTgt
+								.contains(partiallyMatchedTokenUppercase + " "))) {
+					absoluteNounMatch++;
+				}
+			}
+			if(absoluteNounMatch < 2) {
+				return Similarity.LOW;
+			}
+			percentageMatch = (float) absoluteNounMatch
+					/ (float) totalTokens;
+			if (percentageMatch > 0.7f) {
+				return Similarity.DERIVED_HIGH;
+			} else if (percentageMatch > 0.5f && percentageMatch < 0.7f) {
+				return Similarity.DERIVED_MEDIUM;
+			} else if(percentageMatch > 0.3f && percentageMatch < 0.5f) {
+				return Similarity.DERIVED_LOW;
+			}
 		}
-		return Similarity.LOW;
+		return Similarity.NO_MATCH;
 	}
 	
 	public enum Similarity {
-		NO_MATCH, LOW, MEDIUM, HIGH
+		NO_MATCH, LOW, MEDIUM, HIGH, DERIVED_HIGH, DERIVED_MEDIUM, DERIVED_LOW
 	}
 
 	public static List<String> getWords(String sentence) {

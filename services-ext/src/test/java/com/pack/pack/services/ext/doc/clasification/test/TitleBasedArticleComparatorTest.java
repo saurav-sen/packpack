@@ -15,8 +15,38 @@ import com.squill.feed.web.model.JRssFeeds;
 
 public class TitleBasedArticleComparatorTest {
 
-	public static void main(String[] args) throws Exception {
+	/*public static void main(String[] args) throws Exception {
 		new TitleBasedArticleComparatorTest().doExecute();
+	}*/
+	
+	public static void main(String[] args) {
+		ArticleInfo src = new ArticleInfo("Dead in cars and homes: Northern California fire toll at 42", null);
+		ArticleInfo tgt = new ArticleInfo("Death toll in California wildfire jumps to 42", null);
+		System.out.println(new TitleBasedArticleComparator().checkIsProbableDuplicate(src, tgt));
+		
+		src = new ArticleInfo("Rajnikanth hints Modi is more powerful than Opposition", null);
+		tgt = new ArticleInfo("Rajnikanth clarifies his remark on BJP, says party is dangerous for opposition - Times of India", null);
+		System.out.println(new TitleBasedArticleComparator().checkIsProbableDuplicate(src, tgt));
+		
+		src = new ArticleInfo("Isro begins countdown for GSLV MkIII - GSAT-29 mission - Times of India", null);
+		tgt = new ArticleInfo("Red letter day: Paan stain eraser wins students a US award - Times of India", null);
+		System.out.println(new TitleBasedArticleComparator().checkIsProbableDuplicate(src, tgt));
+		
+		src = new ArticleInfo("ISRO successfully launches communication satellite GSAT-29", null);
+		tgt = new ArticleInfo("Isros GSLV-MkIII-D2 rocket places GSAT-29 in orbit; mission success gives Isro boast before Chandrayaan-2 and manned mission - Times of India", null);
+		System.out.println(new TitleBasedArticleComparator().checkIsProbableDuplicate(src, tgt));
+		
+		src = new ArticleInfo("Justice Dept. Defends Legality of Trumps Appointment of Acting Attorney General", null);
+		tgt = new ArticleInfo("I dont lie, says Dassault CEO", null);
+		System.out.println(new TitleBasedArticleComparator().checkIsProbableDuplicate(src, tgt));
+		
+		src = new ArticleInfo("U.K. Cabinet Backs Theresa May’s Brexit Plan", null);
+		tgt = new ArticleInfo("SC to review Sabarimala verdict in Jan, no bar on women till then", null);
+		System.out.println(new TitleBasedArticleComparator().checkIsProbableDuplicate(src, tgt));
+		
+		src = new ArticleInfo("BJP blocking name change of West Bengal: Mamata Banerjee", null);
+		tgt = new ArticleInfo("Sajjad Lone could be BJPs choice for next Jammu & Kashmir CM", null);
+		System.out.println(new TitleBasedArticleComparator().checkIsProbableDuplicate(src, tgt));
 	}
 
 	private void doExecute() throws Exception {
