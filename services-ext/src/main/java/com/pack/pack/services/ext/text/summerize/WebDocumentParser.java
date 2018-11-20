@@ -1,13 +1,14 @@
 package com.pack.pack.services.ext.text.summerize;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -19,7 +20,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
-import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,14 +93,6 @@ public class WebDocumentParser {
 			}
 
 			String title = webDocument.getTitle();
-			/*if (title == null) {
-				title = metadata.get("title");
-				String ogTitle = metadata.get("og:title");
-				if (ogTitle != null) {
-					article.replaceAll(ogTitle.trim(), "");
-					title = ogTitle;
-				}
-			}*/
 
 			if (title != null) {
 				title = LanguageUtil.cleanHtmlInvisibleCharacters(title);
@@ -108,15 +100,9 @@ public class WebDocumentParser {
 			}
 
 			article = LanguageUtil.cleanHtmlInvisibleCharacters(article);
+			article = article.replaceAll("\\s+", " ").replaceAll("\\t+", " ").replaceAll("\\n+", "\n").replaceAll("\\r+", "\r");
 
 			String ogImage = webDocument.getImageUrl();
-			/*if (ogImage == null) {
-				ogImage = metadata.get("og:image");
-				if (ogImage == null) {
-					ogImage = metadata.get("twitter:image");
-				}
-			}*/
-			
 			json.setOgImage(ogImage);
 			/*String keywordsText = metadata.get("keywords");
 			if (keywordsText != null) {
@@ -127,13 +113,6 @@ public class WebDocumentParser {
 			}*/
 
 			String ogUrl = webDocument.getSourceUrl();
-			/*String ogUrl = metadata.get("og:url");
-			if (ogUrl == null) {
-				ogUrl = metadata.get("twitter:url");
-			}
-			if (ogUrl == null) {
-				ogUrl = url;
-			}*/
 			json.setOgUrl(ogUrl);
 			
 			String inputUrl = webDocument.getInputUrl();
@@ -143,16 +122,6 @@ public class WebDocumentParser {
 			json.setHrefSource(inputUrl);
 
 			String ogDescription = webDocument.getDescription();
-			/*if (ogDescription == null) {
-				ogDescription = metadata.get("og:description");
-				if (ogDescription == null) {
-					ogDescription = metadata.get("twitter:description");
-					if (ogDescription == null) {
-						ogDescription = metadata.get("description");
-					}
-				}
-			}*/
-			
 			json.setOgDescription(ogDescription);
 
 			json.setOgTitle(title);
@@ -171,9 +140,7 @@ public class WebDocumentParser {
 			Summarizer summarizer = new Summarizer();
 			String summaryText = summarizer.Summarize(article, 3);
 
-			json.setArticleSummaryText(summaryText);
-			
-			
+			json.setArticleSummaryText(summaryText.replaceAll("\\s+", " ").replaceAll("\\t+", " ").replaceAll("\\n+", " ").replaceAll("\\r+", " "));
 		} catch (IOException e) {
 			$LOG.error(e.getMessage(), e);
 		}
@@ -192,7 +159,8 @@ public class WebDocumentParser {
 		for (int i = 0; i < len; i++) {
 			for (int j = len - 1; j >= i; j--) {
 				String text1 = wordMatrix[i][j].trim();
-				if (elementText.replaceAll("[^a-zA-Z0-9\\s]", "").contains(text1)
+				String str = elementText.replaceAll("[^a-zA-Z0-9\\s]", "");
+				if (str.contains(text1 + " ") || str.contains(" " + text1)
 				/* || text1.contains(elementText) */) {
 					float percentageMatch = (float) text1.length()
 							/ (float) entireSentence.length();
@@ -232,10 +200,11 @@ public class WebDocumentParser {
 			String description) {
 		String tagName = null;
 		Element primaryElement = null;
+		boolean isPrimaryElementHighMatched = false;
 		String primaryElementClassName = null;
 		int primaryElementDepth = 0;
 
-		if (description == null)
+		if (description == null || description.trim().isEmpty())
 			return null;
 
 		description = description.replaceAll("\\s+", " ").replaceAll("\\xA0",
@@ -256,6 +225,9 @@ public class WebDocumentParser {
 			}
 		}
 
+		String junk_detect_className = "squill_junk_detect";
+		
+		List<MarkedElement> markedElements = new LinkedList<MarkedElement>();
 		Elements allElements = doc.body().getAllElements();
 		Iterator<Element> itr = allElements.iterator();
 		while (itr.hasNext()) {
@@ -266,6 +238,9 @@ public class WebDocumentParser {
 			MatchRank matchRank = checkMatch(wordMatrix, text);
 			switch (matchRank) {
 			case NO_MATCH:
+				if(primaryElement != null && element.parents().contains(primaryElement)) {
+					element.addClass(junk_detect_className);
+				}
 				break;
 			case HIGH:
 			case MEDIUM:
@@ -296,20 +271,82 @@ public class WebDocumentParser {
 				break;
 			case LOW:
 				if(primaryElement != null && element.parents().contains(primaryElement)) {
+					markedElements.add(new MarkedElement(primaryElement, primaryElementDepth));
 					primaryElement = null;
+					tagName = null;
+					primaryElementDepth = 0;
 				}
 				break;
 			}
 		}
 
-		if (tagName == null) {
-			return null;
+		if (primaryElement == null || tagName == null) {
+			if(markedElements.isEmpty()) {
+				return null;
+			}
+			float meanDepth = 0;
+			for(MarkedElement markedElement : markedElements) {
+				meanDepth = meanDepth + markedElement.getDepth();
+			}
+			meanDepth = meanDepth / markedElements.size();
+			double variance = 0;
+			for(MarkedElement markedElement : markedElements) {
+				float diff = (markedElement.getDepth() - meanDepth);
+				variance = variance + diff * diff;
+			}
+			variance = variance / markedElements.size();
+			int SD = (int) Math.sqrt(variance);
+			Iterator<MarkedElement> itr1 = markedElements.iterator();
+			while(itr1.hasNext()) {
+				MarkedElement markedElement = itr1.next();
+				int diff = (int) Math.abs(markedElement.getDepth() - meanDepth);
+				if(diff > SD) {
+					itr1.remove();
+				}
+			}
+			
+			MarkedElement elWithMinHtml = null;
+			int size = -1;
+			for(MarkedElement markedElement : markedElements) {
+				if(elWithMinHtml == null) {
+					elWithMinHtml = markedElement;
+					size = elWithMinHtml.getEl().getAllElements().size();
+				} else if(markedElement.getEl().getAllElements().size() < size) {
+					elWithMinHtml = markedElement;
+					size = elWithMinHtml.getEl().getAllElements().size();
+				}
+			}
+			
+			primaryElement = elWithMinHtml.getEl();
+			tagName = primaryElement.tagName();
+			
+			primaryElement.getElementsByClass(junk_detect_className).remove();
 		}
 
 		return new WebElement().setPrimaryElement(primaryElement)
 				.setPrimaryElementClassName(primaryElementClassName)
 				.setPrimaryElementDepth(primaryElementDepth)
 				.setTagName(tagName);
+	}
+	
+	private class MarkedElement {
+		
+		private Element el;
+		
+		private int depth;
+		
+		private MarkedElement(Element el, int depth) {
+			this.el = el;
+			this.depth = depth;
+		}
+
+		private Element getEl() {
+			return el;
+		}
+
+		private int getDepth() {
+			return depth;
+		}
 	}
 
 	private WebElement findPrimaryElement(Document doc, String description,

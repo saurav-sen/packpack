@@ -109,7 +109,7 @@ public class WebSpiderService {
 			{
 				Spider emailSpider = SpiderFactory.INSTANCE
 						.createSupportEmailSpider();
-				Future<?> future = pool.scheduleAtFixedRate(emailSpider, 0, 30,
+				Future<?> future = pool.scheduleAtFixedRate(emailSpider, 0, 25,
 						TimeUnit.MINUTES);
 				list.add(future);
 			}

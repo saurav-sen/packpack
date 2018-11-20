@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +37,11 @@ import com.squill.og.crawler.text.summarizer.ArticleText;
 import com.squill.og.crawler.text.summarizer.TextSummarization;
 import com.squill.services.exception.OgCrawlException;
 
+/**
+ * 
+ * @author Saurav
+ *
+ */
 public class AllInOneAITaskExecutor {
 	
 	private static final Logger $LOG = LoggerFactory.getLogger(AllInOneAITaskExecutor.class);
@@ -48,10 +54,86 @@ public class AllInOneAITaskExecutor {
 		this.session = session;
 	}
 	
-	private void preProcess(Map<String, List<JRssFeed>> feedsMap, IWebCrawlable webCrawlable) {
-		// Remove Duplicates
-		if(feedsMap == null || feedsMap.isEmpty())
-			return;
+	private void removeDuplicatesPresentInTheMap(Map<String, List<JRssFeed>> feedsMap) {
+		/**
+		 * START: Check/Remove for duplicates in the map containing currently crawled feedsMap.
+		 */
+		Map<String, List<JRssFeed>> duplicateFeedsMap = new HashMap<String, List<JRssFeed>>();
+		List<JRssFeed> list = new LinkedList<JRssFeed>();
+		Iterator<String>  itr = feedsMap.keySet().iterator();
+		while(itr.hasNext()) {
+			String key = itr.next();
+			List<JRssFeed> list2 = feedsMap.get(key);
+			if(list2 == null || list2.isEmpty())
+				continue;
+			list.addAll(list2);
+		}
+		List<ArticleInfo>  tgtList = new ArrayList<ArticleInfo>();
+		for(JRssFeed l : list) {
+			ArticleInfo tgt = new ArticleInfo(l.getOgTitle(), null);
+			tgt.setReferenceObject(l);
+			tgtList.add(tgt);
+		}
+		TitleBasedArticleComparator comparator = new TitleBasedArticleComparator();
+		itr = feedsMap.keySet().iterator();
+		while(itr.hasNext()) {
+			String key = itr.next();
+			List<JRssFeed> srcList = feedsMap.get(key);
+			if(srcList == null || srcList.isEmpty())
+				continue;
+			for(JRssFeed f : srcList) {
+				ArticleInfo src = new ArticleInfo(f.getOgTitle(), null);
+				src.setReferenceObject(f);
+				try {
+					List<ArticleInfo> probableDuplicates = comparator.checkProbableDuplicates(src, tgtList);
+					if(probableDuplicates != null && !probableDuplicates.isEmpty()) {
+						String notificationMessage = HtmlUtil.cleanUTFCharacters(f.getOgTitle());
+						$LOG.debug("About to add notification message for send in session queue = "
+								+ notificationMessage);
+						if (!session.hashMoreNotificationMessages()) {
+							session.addNotificationMessage(notificationMessage, probableDuplicates);
+						} else {
+							$LOG.debug("But, crawling session has more notification messages, thereby skipping");
+						}
+						List<JRssFeed> toDelete = duplicateFeedsMap.get(key);
+						if(toDelete == null) {
+							toDelete = new LinkedList<JRssFeed>();
+							duplicateFeedsMap.put(key, toDelete);
+						}
+						toDelete.add(f);
+					}
+				} catch (Exception e) {
+					$LOG.error(e.getMessage(), e);
+				}
+			}
+		}
+		itr = duplicateFeedsMap.keySet().iterator();
+		while(itr.hasNext()) {
+			String key = itr.next();
+			List<JRssFeed> values = feedsMap.get(key);
+			if(values == null || values.isEmpty())
+				continue;
+			List<JRssFeed> toDelete = duplicateFeedsMap.get(key);
+			if(toDelete == null || toDelete.isEmpty())
+				continue;
+			for(JRssFeed d : toDelete) {
+				boolean remove = values.remove(d);
+				if(remove) {
+					$LOG.debug("Remove Successful : " + d.getOgTitle());
+				} else {
+					$LOG.debug("Remove Failed : " + d.getOgTitle());
+				}
+			}
+		}
+		/**
+		 * END: Check/Remove for duplicates in the map containing currently crawled feedsMap.
+		 */
+	}
+	
+	private void removeDuplicatesCompareWithOldUploads(Map<String, List<JRssFeed>> feedsMap, IWebCrawlable webCrawlable) {
+		/**
+		 * START: Check/Remove for duplicates with previously loaded information stored under archive for the day.
+		 */
 		List<JRssFeed> list = ArchiveUtil.getFeedsUploadedFromArchive(webCrawlable.getUniqueId());
 		if(list == null || list.isEmpty())
 			return;
@@ -91,6 +173,32 @@ public class AllInOneAITaskExecutor {
 				}
 			}
 		}
+		
+		/**
+		 * END: Check/Remove for duplicates with previously loaded information stored under archive for the day.
+		 */
+	}
+	
+	private void preProcess(Map<String, List<JRssFeed>> feedsMap, IWebCrawlable webCrawlable) {
+		// Remove Duplicates
+		if(feedsMap == null || feedsMap.isEmpty())
+			return;
+		
+		removeDuplicatesPresentInTheMap(feedsMap);
+		
+		Iterator<String> itr = feedsMap.keySet().iterator();
+		while(itr.hasNext()) {
+			String key = itr.next();
+			List<JRssFeed> list = feedsMap.get(key);
+			if(list == null || list.isEmpty()) {
+				itr.remove();
+			}
+		}
+		
+		if(feedsMap.isEmpty())
+			return;
+		
+		removeDuplicatesCompareWithOldUploads(feedsMap, webCrawlable);
 	}
 	
 	public void executeTasks(Map<String, List<JRssFeed>> feedsMap, IWebCrawlable webCrawlable) {

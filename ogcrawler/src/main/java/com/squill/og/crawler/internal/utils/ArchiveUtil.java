@@ -26,6 +26,8 @@ public final class ArchiveUtil {
 	private static final Logger LOG = LoggerFactory
 			.getLogger(ArchiveUtil.class);
 	
+	public static final String DEFAULT_ID = "newsapi.org";
+	
 	private ArchiveUtil() {
 	}
 	

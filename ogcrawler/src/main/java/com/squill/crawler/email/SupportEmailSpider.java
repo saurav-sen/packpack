@@ -1,5 +1,7 @@
 package com.squill.crawler.email;
 
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -18,7 +20,6 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Store;
-import javax.mail.internet.InternetAddress;
 import javax.mail.search.FlagTerm;
 import javax.mail.search.SearchTerm;
 
@@ -27,6 +28,8 @@ import org.slf4j.LoggerFactory;
 
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.services.exception.PackPackException;
+import com.pack.pack.services.ext.article.comparator.ArticleInfo;
+import com.pack.pack.services.ext.article.comparator.TitleBasedArticleComparator;
 import com.pack.pack.services.ext.email.SmtpMessage;
 import com.pack.pack.services.ext.email.SmtpTLSMessageService;
 import com.pack.pack.services.ext.text.summerize.WebDocumentParser;
@@ -36,6 +39,7 @@ import com.squill.feed.web.model.JRssFeedType;
 import com.squill.feed.web.model.JRssFeeds;
 import com.squill.feed.web.model.TTL;
 import com.squill.og.crawler.Spider;
+import com.squill.og.crawler.internal.utils.ArchiveUtil;
 import com.squill.og.crawler.internal.utils.HtmlUtil;
 import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
 import com.squill.og.crawler.internal.utils.NotificationUtil;
@@ -163,9 +167,14 @@ public class SupportEmailSpider implements Spider {
 	}
 
 	private JRssFeed read(String subject, String link) throws Exception {
+		if(link == null || link.trim().isEmpty() || !isValidUrl(link)) {
+			return null;
+		}
 		String htmlContent = new HttpRequestExecutor().GET(link, null);
 		JRssFeed feed = HtmlUtil.parse4mHtml(htmlContent);
-		JRssFeedType feedType = resolveFeedType(subject);
+		JRssFeedType feedType = resolveFeedType(subject, link);
+		if(feedType == null)
+			return null;
 		feed.setOgType(feedType.name());
 		feed.setFeedType(feedType.name());
 		if(feedType != JRssFeedType.REFRESHMENT) {
@@ -174,34 +183,78 @@ public class SupportEmailSpider implements Spider {
 		}
 		return feed;
 	}
+	
+	private boolean isValidUrl(String link) {
+		try {
+			new URL(link.trim());
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	
+	private boolean isRefreshmentLink(String link) {
+		try {
+			URL url = new URL(link);
+			String host = url.getHost();
+			if ("youtu.be".equalsIgnoreCase(host)
+					|| "youtube.com".equalsIgnoreCase(host)
+					|| "www.youtu.be".equalsIgnoreCase(host)
+					|| "www.youtube.com".equalsIgnoreCase(host)) {
+				return true;
+			}
+		} catch (Exception e) {
+			$LOG.error(e.getMessage(), e);
+		}
+		return false;
+	}
 
-	private JRssFeedType resolveFeedType(String subject) {
-		if (subject == null || subject.trim().isEmpty())
-			return JRssFeedType.REFRESHMENT;
+	private JRssFeedType resolveFeedType(String subject, String link) {
+		boolean isRefreshmentLink = isRefreshmentLink(link);
+		if (subject == null || subject.trim().isEmpty()) {
+			if(isRefreshmentLink) {
+				return JRssFeedType.REFRESHMENT;
+			} else if(link != null && !link.trim().isEmpty()) {
+				return JRssFeedType.NEWS;
+			}
+			return null;
+		}
+		JRssFeedType feedType = null;
 		subject = subject.trim();
 		if (subject.equalsIgnoreCase("SCIENCE")
 				|| subject.equalsIgnoreCase("TECHNOLOGY")
 				|| subject.equalsIgnoreCase("SCIENCE AND TECHNOLOGY")
 				|| subject.equalsIgnoreCase("SCIENCE & TECHNOLOGY")) {
-			return JRssFeedType.NEWS_SCIENCE_TECHNOLOGY;
+			feedType = JRssFeedType.NEWS_SCIENCE_TECHNOLOGY;
 		} else if (subject.equalsIgnoreCase("SPORTS")) {
-			return JRssFeedType.NEWS_SPORTS;
+			feedType = JRssFeedType.NEWS_SPORTS;
 		} else if (subject.equalsIgnoreCase("ARTICLE")) {
-			return JRssFeedType.ARTICLE;
+			feedType = JRssFeedType.ARTICLE;
 		} else if (subject.equalsIgnoreCase("NEWS")
 				|| subject.equalsIgnoreCase("POLITICS")
 				|| subject.equalsIgnoreCase("CRIME")
 				|| subject.equalsIgnoreCase("SOCIAL")
 				|| subject.equalsIgnoreCase("WEATHER")
 				|| subject.equalsIgnoreCase("DISTASTER")) {
-			return JRssFeedType.NEWS;
+			feedType = JRssFeedType.NEWS;
+		} else if(isRefreshmentLink) {
+			feedType = JRssFeedType.REFRESHMENT;
+		} else {
+			feedType = JRssFeedType.NEWS;
 		}
-		return JRssFeedType.REFRESHMENT;
+		if(feedType == JRssFeedType.REFRESHMENT && !isRefreshmentLink) {
+			feedType = JRssFeedType.NEWS;
+		}
+		if(feedType != JRssFeedType.REFRESHMENT && isRefreshmentLink) {
+			feedType = JRssFeedType.REFRESHMENT;
+		}
+		return feedType;
 	}
 
 	private void uploadNewFeeds(List<JRssFeed> feeds) {
 		if (feeds == null || feeds.isEmpty())
 			return;
+
 		JRssFeeds newsFeeds = new JRssFeeds();
 		JRssFeeds refrehmentFeeds = new JRssFeeds();
 		for (JRssFeed feed : feeds) {
@@ -234,6 +287,40 @@ public class SupportEmailSpider implements Spider {
 			} catch (PackPackException e) {
 				$LOG.error(e.getMessage(), e);
 			}
+			
+			List<JRssFeed> list = ArchiveUtil.getFeedsUploadedFromArchive(ArchiveUtil.DEFAULT_ID);
+			if(list == null || list.isEmpty())
+				return;
+			List<ArticleInfo> tgtList = new ArrayList<ArticleInfo>();
+			for(JRssFeed l : list) {
+				ArticleInfo tgt = new ArticleInfo(l.getOgTitle(), null);
+				tgt.setReferenceObject(l);
+				tgtList.add(tgt);
+			}
+			
+			TitleBasedArticleComparator comparator = new TitleBasedArticleComparator();
+			List<JRssFeed> newsFeedsList = newsFeeds.getFeeds();
+			Iterator<JRssFeed> itr = newsFeedsList.iterator();
+			while(itr.hasNext()) {
+				JRssFeed newsFeed = itr.next();
+				if(!JRssFeedType.NEWS.name().equals(newsFeed.getFeedType()))
+					continue;
+				ArticleInfo src = new ArticleInfo(newsFeed.getOgTitle(), null);
+				src.setReferenceObject(newsFeed);
+				try {
+					List<ArticleInfo> probableDuplicates = comparator.checkProbableDuplicates(src, tgtList);
+					if(probableDuplicates != null && !probableDuplicates.isEmpty()) {
+						itr.remove();
+					}
+				} catch (Exception e) {
+					$LOG.error(e.getMessage(), e);
+				}
+			}
+			
+			Map<String, List<JRssFeed>> map = new HashMap<String, List<JRssFeed>>();
+			map.put(ArchiveUtil.DEFAULT_ID, newsFeedsList);
+			ArchiveUtil.storeInArchive(map);
+			HtmlUtil.generateNewsFeedsHtmlPages(newsFeeds);
 			RssFeedUtil.uploadNewsFeeds(newsFeeds, ttl, batchId, true);
 		}
 	}

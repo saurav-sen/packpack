@@ -26,6 +26,11 @@ public class WebDocumentParserTest {
 	public void test() throws PackPackException {
 		JRssFeed json = null;
 		
+		json = new WebDocumentParser()
+				.parse("https://www.boomlive.in/cyclonegaja-old-video-of-waves-engulfing-bridge-resurfaces-as-rameswaram/");
+		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
+		Assert.assertTrue(json.getFullArticleText() != null);	
+		
 		/*json = new WebDocumentParser()
 				.parse("https://timesofindia.indiatimes.com/india/472-Maoist-surrendered-this-year-highest-in-3-years-Govt/articleshow/45276053.cms");
 		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
@@ -45,7 +50,11 @@ public class WebDocumentParserTest {
 				.parse("https://www.newscientist.com/article/mg23931960-200-10-mysteries-of-the-universe-how-did-it-all-begin/");
 		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
 		Assert.assertTrue(json.getFullArticleText() != null);
-		
+
+		json = new WebDocumentParser()
+				.parse("https://beautypageants.indiatimes.com/miss-international/i-was-molested-by-a-priest/articleshow/66604021.cms");
+		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
+		Assert.assertTrue(json.getFullArticleText() != null);
 		/*json = new WebDocumentParser()
 				.parse("http://forums.makingmoneywithandroid.com/marketing-methods/31813-cpimobi-scam-alert.html");
 		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));

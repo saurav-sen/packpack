@@ -47,6 +47,14 @@ public class TitleBasedArticleComparatorTest {
 		src = new ArticleInfo("BJP blocking name change of West Bengal: Mamata Banerjee", null);
 		tgt = new ArticleInfo("Sajjad Lone could be BJPs choice for next Jammu & Kashmir CM", null);
 		System.out.println(new TitleBasedArticleComparator().checkIsProbableDuplicate(src, tgt));
+		
+		src = new ArticleInfo("Delhi: Chilli powder thrown at CM Arvind Kejriwal inside secretariat - Times of India", null);
+		tgt = new ArticleInfo("Man throws red chilli powder at Arvind Kejriwal in Delhi Secretariat", null);
+		System.out.println(new TitleBasedArticleComparator().checkIsProbableDuplicate(src, tgt));
+		
+		src = new ArticleInfo("Stock Markets Slide Is Flashing a Warning About the Economy", null);
+		tgt = new ArticleInfo("These 5 Tech Stocks Combined Have Lost More Than $800 Billion in Market Value", null);
+		System.out.println(new TitleBasedArticleComparator().checkIsProbableDuplicate(src, tgt));
 	}
 
 	private void doExecute() throws Exception {

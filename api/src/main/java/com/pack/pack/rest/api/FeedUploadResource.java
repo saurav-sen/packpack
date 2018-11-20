@@ -60,7 +60,7 @@ public class FeedUploadResource {
 			JRssFeeds rssFeeds = JSONUtil.deserialize(json, JRssFeeds.class, true);
 			HtmlUtil.generateNewsFeedsHtmlPages(rssFeeds);
 			RssFeedUtil.uploadNewsFeeds(rssFeeds, ttl, System.currentTimeMillis(), true);
-			status.setInfo("Failed");
+			status.setInfo("Success");
 			status.setStatus(StatusType.OK);
 		} catch (Exception e) {
 			$LOG.error(e.getMessage(), e);
