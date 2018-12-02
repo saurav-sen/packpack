@@ -263,7 +263,7 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		
 		if (notificationMessages.isEmpty()
 				&& ((System.currentTimeMillis() - LocalData.INSTANCE
-						.getLastNotifiedTimestamp()) > (2 * 60 * 60 * 1000))) {
+						.getLastNotifiedTimestamp()) > (6 * 60 * 60 * 1000))) {
 			if (!feeds.isEmpty()) {
 				JRssFeed f = feeds.get(Math.abs(new Random().nextInt())
 						% feeds.size());
