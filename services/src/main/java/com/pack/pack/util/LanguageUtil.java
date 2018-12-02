@@ -4,6 +4,8 @@ import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.vdurmont.emoji.EmojiParser;
+
 /**
  * 
  * @author Saurav
@@ -139,9 +141,14 @@ public final class LanguageUtil {
 
 		return words;
 	}
+	
+	public static void main(String[] args) {
+		System.out.println(cleanHtmlInvisibleCharacters("   "));
+	}
 
 	public static String cleanHtmlInvisibleCharacters(String text) {
-		return foldToASCII(text.replaceAll("\\s+", " ").replaceAll("\\xA0", " "));
+		//Pattern p = Pattern.compile("(?:\uD83C[\uDF00-\uDFFF])|(?:\uD83D[\uDC00-\uDDFF])");
+		return foldToASCII(EmojiParser.removeAllEmojis(text.replaceAll("\\s+", " ").replaceAll("\\xA0", " ")));
 	}
 	
 	public static String foldToASCII(String inputText) {

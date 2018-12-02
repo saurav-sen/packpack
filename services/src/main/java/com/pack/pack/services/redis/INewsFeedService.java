@@ -20,6 +20,13 @@ public interface INewsFeedService {
 	 * @throws PackPackException
 	 */
 	public List<JRssFeed> getAllFeeds() throws PackPackException;
+	
+	/**
+	 * 
+	 * @return
+	 * @throws PackPackException
+	 */
+	public List<JRssFeed> getAllOpinionsFeeds() throws PackPackException;
 
 	/**
 	 * 
@@ -38,6 +45,15 @@ public interface INewsFeedService {
 	 * @throws PackPackException
 	 */
 	public Pagination<JRssFeed> getAllSportsNewsRssFeeds(String userId, int pageNo) throws PackPackException;
+	
+	/**
+	 * 
+	 * @param userId
+	 * @param pageNo
+	 * @return
+	 * @throws PackPackException
+	 */
+	public Pagination<JRssFeed> getAllOpinionRssFeeds(String userId, int pageNo) throws PackPackException;
 	
 	/**
 	 * 

@@ -11,7 +11,6 @@ import javax.ws.rs.ext.Provider;
 import com.pack.pack.model.web.JStatus;
 import com.pack.pack.model.web.StatusType;
 import com.pack.pack.oauth.OAuthConstants;
-import com.pack.pack.oauth.registry.TokenRegistry;
 import com.pack.pack.rest.api.FeedUploadResource;
 import com.pack.pack.rest.web.util.SystemInfo;
 
@@ -25,6 +24,8 @@ public class UserEmailAuthHeaderVerifier implements ContainerRequestFilter {
 	
 	/*private static final String PASSWD_RESET_LINK_PATTERN = "passwd/reset";*/
 	private static final String SIGNUP_CODE_LINK_PATTERN = "signup/code";
+	
+	private static final String OPINIONS_UPLOAD_URL_END_PATTERN = "opinions";
 	
 	private static final String SHARED_URL_TYPE = "/sh/";
 
@@ -45,7 +46,9 @@ public class UserEmailAuthHeaderVerifier implements ContainerRequestFilter {
 				&& !path.contains(SystemInfo.VALIDATE_USER_NAME_WEB_URL)
 				/*&& !path.contains(PASSWD_RESET_LINK_PATTERN)*/
 				&& !path.contains(SIGNUP_CODE_LINK_PATTERN)
-				&& !path.contains(SHARED_URL_TYPE)) {
+				&& !path.contains(SHARED_URL_TYPE)
+				&& !path.trim().endsWith(OPINIONS_UPLOAD_URL_END_PATTERN)
+				&& !path.trim().endsWith(OPINIONS_UPLOAD_URL_END_PATTERN + "/")) {
 			if (isTokenEmpty) {
 				allow = false;
 			} /*else {
@@ -55,6 +58,12 @@ public class UserEmailAuthHeaderVerifier implements ContainerRequestFilter {
 				allow = true;				
 			}
 		} else if (path.endsWith("feeds") || path.endsWith("feeds/")) {
+			if(!FeedUploadResource.API_KEY.equals(token)) {
+				allow = false;
+			}
+		} else if (path.trim().endsWith(OPINIONS_UPLOAD_URL_END_PATTERN)
+				|| path.trim().endsWith(OPINIONS_UPLOAD_URL_END_PATTERN + "/")
+				&& requestContext.getMethod().equals(HttpMethod.POST)) {
 			if(!FeedUploadResource.API_KEY.equals(token)) {
 				allow = false;
 			}

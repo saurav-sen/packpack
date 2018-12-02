@@ -9,16 +9,27 @@ import static com.pack.pack.services.ext.text.summerize.STOP_WORDS.STOP_WORDS;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
+import com.pack.pack.util.LanguageUtil;
+import com.pack.pack.util.SystemPropertyUtil;
+
 public class Summarizer {
 	
+	private ISentenceFinder sentenceFinder;
+	
 	public Summarizer() {
-	}// default constructor
+		this(new DefaultSentenceFinder(SystemPropertyUtil.getOpenNlpConfDir()));
+	}
+	
+	public Summarizer(ISentenceFinder sentenceFinder) {
+		this.sentenceFinder = sentenceFinder;
+	}
 
 	private Map<String, Integer> getWordCounts(String text) {
 		Map<String, Integer> allWords = new HashMap<String, Integer>();
@@ -76,35 +87,7 @@ public class Summarizer {
 	}
 
 	private String[] getSentences(String text) {
-		text = text.replace("Mr.", "Mr").replace("Ms.", "Ms")
-				.replace("Dr.", "Dr").replace("Jan.", "Jan")
-				.replace("Feb.", "Feb").replace("Mar.", "Mar")
-				.replace("Apr.", "Apr").replace("Jun.", "Jun")
-				.replace("Jul.", "Jul").replace("Aug.", "Aug")
-				.replace("Sep.", "Sep").replace("Spet.", "Sept")
-				.replace("Oct.", "Oct").replace("Nov.", "Nov")
-				.replace("Dec.", "Dec").replace("St.", "St")
-				.replace("Prof.", "Prof").replace("Mrs.", "Mrs")
-				.replace("Gen.", "Gen").replace("Corp.", "Corp")
-				.replace("Mrs.", "Mrs").replace("Sr.", "Sr")
-				.replace("Jr.", "Jr").replace("cm.", "cm")
-				.replace("Ltd.", "Ltd").replace("Col.", "Col")
-				.replace("vs.", "vs").replace("Capt.", "Capt")
-				.replace("Univ.", "University").replace("Sgt.", "Sgt")
-				.replace("ft.", "ft").replace("in.", "in")
-				.replace("Ave.", "Ave").replace("Univ.", "University")
-				.replace("Lt.", "Lt").replace("etc.", "etc")
-				.replace("mm.", "mm").replace("\n\n", "").replace("\n", "")
-				.replace("\r", "");
-		// solved! now fix alphabet letters like A. B. etc...use a regex
-		text = text.replaceAll("([A-Z])\\.", "$1");
-
-		// split using ., !, ?, and omit decimal numbers
-		String pattern = "(?<!\\d)\\.(?!\\d)|(?<=\\d)\\.(?!\\d)|(?<!\\d)\\.(?=\\d)";
-		Pattern pt = Pattern.compile(pattern);
-
-		String[] sentences = pt.split(text);
-		return sentences;
+		return sentenceFinder.findSentences(text);
 	}
 
 	private String search(String[] sentences, String word) {
@@ -146,7 +129,7 @@ public class Summarizer {
 		firstSentence = firstSentence.replaceAll(datePatternString, "");
 
 		// select up to maxSummarySize sentences, so create a List<String>
-		List<String> setSummarySentences = new ArrayList<String>();
+		Set<String> setSummarySentences = new HashSet<String>();
 		for (String word : sorted)// foreach string in the sorted list
 		{
 			String first_matching_sentence = search(sentences, word);
@@ -158,11 +141,8 @@ public class Summarizer {
 		}
 		// construct the summary size out of select sentences
 		String summary = "";
-		/*summary = summary + "? " + firstSentence
-				+ System.getProperty("line.separator")
-				+ System.getProperty("line.separator");*/
-		summary = summary + " " + firstSentence
-				+ "." + System.getProperty("line.separator");
+		/*summary = summary + " " + firstSentence
+				+ "." + System.getProperty("line.separator");*/
 
 		for (String sentence : sentences)// foreach string sentence in sentences
 											// list
@@ -170,16 +150,14 @@ public class Summarizer {
 			if (setSummarySentences.contains(sentence)) {
 				// produce each sentence with a bullet point and good amounts of
 				// spacing
-				/*summary = summary + "? " + sentence
-						+ System.getProperty("line.separator")
-						+ System.getProperty("line.separator");*/
-				summary = summary + " " + sentence
-						+ "." + System.getProperty("line.separator");
+				summary = summary + " " + sentence + ". ";
+				/*summary = summary + " " + sentence
+						+ "." + System.getProperty("line.separator");*/
 			}
 		}
 		//return summary;
 		//System.out.println(StringEscapeUtils.escapeHtml(summary));
-		return StringEscapeUtils.escapeJava(summary.trim());
+		return LanguageUtil.cleanHtmlInvisibleCharacters(StringEscapeUtils.unescapeJava(summary.trim()));
 	}
 	
 	public static void main(String[] args) {

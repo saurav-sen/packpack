@@ -22,7 +22,7 @@ import com.squill.og.crawler.hooks.IHtmlContentHandler;
 import com.squill.og.crawler.hooks.ILinkFilter;
 import com.squill.og.crawler.hooks.ITaxonomyResolver;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
-import com.squill.og.crawler.internal.utils.CoreConstants;
+import com.squill.og.crawler.internal.utils.CoreConstants2;
 import com.squill.og.crawler.linkfilters.DailyFixedSizeLinkFilter;
 import com.squill.og.crawler.model.ArticleSummarizer;
 import com.squill.og.crawler.model.ContentHandler;
@@ -231,7 +231,7 @@ public class WebsiteImpl implements IWebSite {
 			String preClassifiedType = contentHandlerDef.getPreClassifiedType();
 			if (preClassifiedType != null) {
 				contentHandler.addMetaInfo(
-						CoreConstants.PRE_CLASSIFIED_FEED_TYPE,
+						CoreConstants2.PRE_CLASSIFIED_FEED_TYPE,
 						preClassifiedType);
 			}
 		}

@@ -211,6 +211,7 @@ public class RssFeedRepositoryService {
 			NoSuchAlgorithmException {
 		StringBuilder newsKeys = new StringBuilder();
 		StringBuilder sportsKeys = new StringBuilder();
+		StringBuilder opinionKeys = new StringBuilder();
 		StringBuilder scienceAndTechnologyKeys = new StringBuilder();
 		StringBuilder articleKeys = new StringBuilder();
 		for(RSSFeed feed : feeds) {
@@ -228,6 +229,9 @@ public class RssFeedRepositoryService {
 				} else if(RssFeedType.ARTICLE.name().equalsIgnoreCase(feed.getFeedType())) {
 					articleKeys.append(key);
 					articleKeys.append(";");
+				} else if(RssFeedType.OPINION.name().equalsIgnoreCase(feed.getFeedType())) {
+					opinionKeys.append(key);
+					opinionKeys.append(";");
 				}
 			}
 		}
@@ -247,6 +251,13 @@ public class RssFeedRepositoryService {
 					+ RssFeedUtil.resolvePrefix(RssFeedType.NEWS_SPORTS.name())
 					+ batchId;
 			sync.setex(setKey, ttlSeconds, sportsKeys.toString());
+		}
+		
+		if (!opinionKeys.toString().isEmpty()) {
+			setKey = SET_KEY_PREFIX
+					+ RssFeedUtil.resolvePrefix(RssFeedType.OPINION.name())
+					+ batchId;
+			sync.setex(setKey, ttlSeconds, opinionKeys.toString());
 		}
 
 		if (!scienceAndTechnologyKeys.toString().isEmpty()) {
@@ -356,6 +367,14 @@ public class RssFeedRepositoryService {
 				RssFeedUtil.resolvePrefix(JRssFeedType.NEWS_SPORTS.name()),
 				pageNo);
 	}
+	
+	public Pagination<RSSFeed> getOpinionFeeds(int pageNo)
+			throws PackPackException {
+		$_LOG.trace("Getting Opinion Feeds");
+		return getAllUpdatedFeeds(
+				RssFeedUtil.resolvePrefix(JRssFeedType.OPINION.name()),
+				pageNo);
+	}
 
 	public Pagination<RSSFeed> getScienceAndTechnologyNewsFeeds(int pageNo)
 			throws PackPackException {
@@ -377,6 +396,8 @@ public class RssFeedRepositoryService {
 				+ RssFeedUtil.resolvePrefix(JRssFeedType.NEWS.name()));
 		cleanupRangeKeys0(SET_KEY_PREFIX
 				+ RssFeedUtil.resolvePrefix(JRssFeedType.NEWS_SPORTS.name()));
+		cleanupRangeKeys0(SET_KEY_PREFIX
+				+ RssFeedUtil.resolvePrefix(JRssFeedType.OPINION.name()));
 		cleanupRangeKeys0(SET_KEY_PREFIX
 				+ RssFeedUtil
 						.resolvePrefix(JRssFeedType.NEWS_SCIENCE_TECHNOLOGY

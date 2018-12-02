@@ -50,7 +50,7 @@ public class WebSpiderUtils {
 		String domainUrl = webSite.getDomainUrl();
 		webSite.enablePageLinkExtractor();
 		if(webSite.shouldCheckRobotRules()) {
-			BaseHttpFetcher fetcher = RobotUtils.createFetcher(CoreConstants.SQUILL_ROBOT, 1);
+			BaseHttpFetcher fetcher = RobotUtils.createFetcher(CoreConstants2.SQUILL_ROBOT, 1);
 			SimpleRobotRulesParser parser = new SimpleRobotRulesParser();
 			String url = domainUrl;
 			if(!url.endsWith("/")) {
@@ -105,7 +105,7 @@ public class WebSpiderUtils {
 		HttpGet GET = new HttpGet(siteMap);
 		HttpContext HTTP_CONTEXT = new BasicHttpContext();
 		HTTP_CONTEXT.setAttribute(CoreProtocolPNames.USER_AGENT, 
-				CoreConstants.SQUILL_ROBOT_USER_AGENT_STRING);
+				CoreConstants2.SQUILL_ROBOT_USER_AGENT_STRING);
 		HttpResponse response = new HttpRequestExecutor().GET(GET, HTTP_CONTEXT);
 		if(response.getStatusLine().getStatusCode() == 200) {
 			String content = EntityUtils.toString(response.getEntity());

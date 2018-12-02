@@ -42,7 +42,7 @@ public class OpenNlpSentenceDetector implements ISentenceDetector {
 			}
 		}
 	}
-
+	
 	@Override
 	public String[] detectSentences(String text) throws Exception {
 		if(detector == null) {

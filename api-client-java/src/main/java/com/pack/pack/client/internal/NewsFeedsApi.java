@@ -80,9 +80,9 @@ public class NewsFeedsApi extends BaseAPI {
 				}
 				int pageNo = (int) pageNoString;
 				return getAllFeeds(userId, pageNo, userName, source);
-			} else if (COMMAND.GET_ALL_SPORTS_NEWS_FEEDS.equals(action)) {
+			} else if (COMMAND.GET_ALL_OPINION_FEEDS.equals(action)) {
 				String userId = (String) params.get(APIConstants.User.ID);
-				String source = JRssFeedType.NEWS_SPORTS.name();
+				String source = JRssFeedType.OPINION.name();
 				Object pageNoString = params.get(APIConstants.PageInfo.PAGE_NO);
 				if (pageNoString == null) {
 					pageNoString = 0;

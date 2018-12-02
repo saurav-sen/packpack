@@ -15,7 +15,7 @@ import com.squill.og.crawler.DefaultNonAjaxLinkResolver;
 import com.squill.og.crawler.ILinkResolver;
 import com.squill.og.crawler.IRobotScope;
 import com.squill.og.crawler.IWebSite;
-import com.squill.og.crawler.internal.utils.CoreConstants;
+import com.squill.og.crawler.internal.utils.CoreConstants2;
 
 /**
  * 
@@ -60,19 +60,19 @@ public class PageLinkExtractor {
 		Iterator<Element> itr = linkResolver.resolveCrawlableElements(document, htmlPage);
 		while (itr.hasNext()) {
 			Element linkElement = itr.next();
-			String link = linkElement.attr(CoreConstants.HREF);
+			String link = linkElement.attr(CoreConstants2.HREF);
 			if (link == null)
 				continue;
 			if(jsEngine != null) {
-				if (link.startsWith(CoreConstants.JAVA_SCRIPT + CoreConstants.COLON)) {
-					int index = link.indexOf(CoreConstants.JAVA_SCRIPT
-							+ CoreConstants.COLON);
+				if (link.startsWith(CoreConstants2.JAVA_SCRIPT + CoreConstants2.COLON)) {
+					int index = link.indexOf(CoreConstants2.JAVA_SCRIPT
+							+ CoreConstants2.COLON);
 					link = link.substring(index + 1);
 					link = linkResolver.resolveLink(link, jsEngine, linkElement, document);
-				} else if (link.startsWith(CoreConstants.JAVA_SCRIPT
-						+ CoreConstants.SEMICOLON)) {
-					int index = link.indexOf(CoreConstants.JAVA_SCRIPT
-							+ CoreConstants.SEMICOLON);
+				} else if (link.startsWith(CoreConstants2.JAVA_SCRIPT
+						+ CoreConstants2.SEMICOLON)) {
+					int index = link.indexOf(CoreConstants2.JAVA_SCRIPT
+							+ CoreConstants2.SEMICOLON);
 					link = link.substring(index + 1);
 					link = linkResolver.resolveLink(link, jsEngine, linkElement, document);
 				}

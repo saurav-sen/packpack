@@ -59,6 +59,24 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 				.resolvePrefix(JRssFeedType.REFRESHMENT.name()) + "*");
 		list.addAll(ModelConverter.convertAllRssFeeds(page.getResult(), false,
 				false));
+		
+		page = repositoryService.getAllFeedsInStore(RssFeedUtil
+				.resolvePrefix(JRssFeedType.OPINION.name()) + "*");
+		list.addAll(ModelConverter.convertAllRssFeeds(page.getResult(), false,
+				false));
+		return list;
+	}
+	
+	@Override
+	public List<JRssFeed> getAllOpinionsFeeds() throws PackPackException {
+		List<JRssFeed> list = new ArrayList<JRssFeed>();
+		RssFeedRepositoryService repositoryService = ServiceRegistry.INSTANCE
+				.findService(RssFeedRepositoryService.class);
+		Pagination<RSSFeed> page = repositoryService
+				.getAllFeedsInStore(RssFeedUtil
+						.resolvePrefix(JRssFeedType.OPINION.name()) + "*");
+		list.addAll(ModelConverter.convertAllRssFeeds(page.getResult(), false,
+				false));
 		return list;
 	}
 	
@@ -79,6 +97,12 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 	public Pagination<JRssFeed> getAllSportsNewsRssFeeds(String userId,
 			int pageNo) throws PackPackException {
 		return getAllRssFeeds(JRssFeedType.NEWS_SPORTS, userId, pageNo);
+	}
+	
+	@Override
+	public Pagination<JRssFeed> getAllOpinionRssFeeds(String userId,
+			int pageNo) throws PackPackException {
+		return getAllRssFeeds(JRssFeedType.OPINION, userId, pageNo);
 	}
 
 	@Override
@@ -107,7 +131,7 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 		List<JRssFeed> feeds = page.getResult();
 		result.addAll(feeds);
 		while (result != null && nextPageNo > 0
-				&& result.isEmpty()) {
+				&& result.size() < 4) {
 			pageNo++;
 			$_LOG.info("Reading from next pageNo = " + pageNo);
 			Pagination<JRssFeed> page0 = getAllRssFeeds0(type, userId, pageNo);
@@ -142,6 +166,9 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 			break;
 		case NEWS_SPORTS:
 			page = repositoryService.getSportsNewsFeeds(pageNo);
+			break;
+		case OPINION:
+			page = repositoryService.getOpinionFeeds(pageNo);
 			break;
 		case NEWS_SCIENCE_TECHNOLOGY:
 			page = repositoryService.getScienceAndTechnologyNewsFeeds(pageNo);

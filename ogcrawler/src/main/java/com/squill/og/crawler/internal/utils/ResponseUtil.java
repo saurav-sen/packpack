@@ -36,17 +36,17 @@ public class ResponseUtil {
 	
 	public static HtmlPage getParseableHtml(String hostURLPrefix, String html, String pageLink, IContentFilter filter) throws ClientProtocolException, IOException {
 		Document document = Jsoup.parse(html);
-		document.head().getElementsByTag(CoreConstants.STYLE_TAG).remove();
-		document.head().getElementsByTag(CoreConstants.LINK_TAG).remove();
-		document.body().getElementsByTag(CoreConstants.STYLE_TAG).remove();
-		document.body().getElementsByTag(CoreConstants.LINK_TAG).remove();
+		document.head().getElementsByTag(CoreConstants2.STYLE_TAG).remove();
+		document.head().getElementsByTag(CoreConstants2.LINK_TAG).remove();
+		document.body().getElementsByTag(CoreConstants2.STYLE_TAG).remove();
+		document.body().getElementsByTag(CoreConstants2.LINK_TAG).remove();
 		Invocable jsEngine = null;
 		if(!filter.ignoreJSLinks()) {
 			downloadScriptsInline(hostURLPrefix, document);
 			jsEngine = initializeJSEngine(document);
 		}
-		document.head().getElementsByTag(CoreConstants.SCRIPT_TAG).remove();
-		document.body().getElementsByTag(CoreConstants.SCRIPT_TAG).remove();
+		document.head().getElementsByTag(CoreConstants2.SCRIPT_TAG).remove();
+		document.body().getElementsByTag(CoreConstants2.SCRIPT_TAG).remove();
 		String htmlContent = document.body().html();
 		String link = "";
 		if(pageLink != null) {
@@ -62,30 +62,30 @@ public class ResponseUtil {
 	
 	public static HtmlPage getParseableHtml(String html, String pageLink) throws ClientProtocolException, IOException {
 		Document document = Jsoup.parse(html);
-		document.head().getElementsByTag(CoreConstants.STYLE_TAG).remove();
-		Elements linkElements = document.head().getElementsByTag(CoreConstants.LINK_TAG);
+		document.head().getElementsByTag(CoreConstants2.STYLE_TAG).remove();
+		Elements linkElements = document.head().getElementsByTag(CoreConstants2.LINK_TAG);
 		if(linkElements != null && !linkElements.isEmpty()) {
 			for(int i=0; i<linkElements.size(); i++) {
 				Element linkElement = linkElements.get(i);
 				String linkType = linkElement.attr("type");
-				if(CoreConstants.TEXT_CSS_LINK_TYPE.equalsIgnoreCase(linkType)) {
+				if(CoreConstants2.TEXT_CSS_LINK_TYPE.equalsIgnoreCase(linkType)) {
 					linkElement.remove();
 				}
 			}
 		}
-		document.body().getElementsByTag(CoreConstants.STYLE_TAG).remove();
-		linkElements = document.body().getElementsByTag(CoreConstants.LINK_TAG);
+		document.body().getElementsByTag(CoreConstants2.STYLE_TAG).remove();
+		linkElements = document.body().getElementsByTag(CoreConstants2.LINK_TAG);
 		if(linkElements != null && !linkElements.isEmpty()) {
 			for(int i=0; i<linkElements.size(); i++) {
 				Element linkElement = linkElements.get(i);
 				String linkType = linkElement.attr("type");
-				if(CoreConstants.TEXT_CSS_LINK_TYPE.equalsIgnoreCase(linkType)) {
+				if(CoreConstants2.TEXT_CSS_LINK_TYPE.equalsIgnoreCase(linkType)) {
 					linkElement.remove();
 				}
 			}
 		}
-		document.head().getElementsByTag(CoreConstants.SCRIPT_TAG).remove();
-		document.body().getElementsByTag(CoreConstants.SCRIPT_TAG).remove();
+		document.head().getElementsByTag(CoreConstants2.SCRIPT_TAG).remove();
+		document.body().getElementsByTag(CoreConstants2.SCRIPT_TAG).remove();
 		String htmlContent = document.html();
 		String link = "";
 		if(pageLink != null) {
@@ -100,7 +100,7 @@ public class ResponseUtil {
 	}
 	
 	private static Invocable initializeJSEngine(Document document) {
-		Elements scripts = document.head().getElementsByTag(CoreConstants.SCRIPT_TAG);
+		Elements scripts = document.head().getElementsByTag(CoreConstants2.SCRIPT_TAG);
 		StringBuilder jsScript = new StringBuilder();
 		if(scripts != null && !scripts.isEmpty()) {
 			for(Element script : scripts) {
@@ -109,7 +109,7 @@ public class ResponseUtil {
 			}
 		}
 		jsScript.append("\n");
-		scripts = document.body().getElementsByTag(CoreConstants.SCRIPT_TAG);
+		scripts = document.body().getElementsByTag(CoreConstants2.SCRIPT_TAG);
 		if(scripts != null && !scripts.isEmpty()) {
 			for(Element script : scripts) {
 				jsScript.append(script.html());
@@ -132,22 +132,22 @@ public class ResponseUtil {
 	}
 	
 	private static void downloadScriptsInline(String hostURLPrefix, Document document) throws ClientProtocolException, IOException {
-		Elements scripts = document.head().getElementsByTag(CoreConstants.SCRIPT_TAG);
+		Elements scripts = document.head().getElementsByTag(CoreConstants2.SCRIPT_TAG);
 		downloadScriptsInline(hostURLPrefix, scripts);
-		scripts = document.body().getElementsByTag(CoreConstants.SCRIPT_TAG);
+		scripts = document.body().getElementsByTag(CoreConstants2.SCRIPT_TAG);
 		downloadScriptsInline(hostURLPrefix, scripts);
 	}
 	
 	private static void downloadScriptsInline(String hostURLPrefix, Elements scripts) throws ClientProtocolException, IOException {
 		if(scripts != null && !scripts.isEmpty()) {
 			for(Element script : scripts) {
-				String scriptType = script.attr(CoreConstants.SCRIPT_TYPE);
-				if(scriptType != null && !scriptType.equalsIgnoreCase(CoreConstants.JAVA_SCRIPT_TYPE)) {
+				String scriptType = script.attr(CoreConstants2.SCRIPT_TYPE);
+				if(scriptType != null && !scriptType.equalsIgnoreCase(CoreConstants2.JAVA_SCRIPT_TYPE)) {
 					String language = script.attr("language");
 					if(language == null || language.trim().equals(""))
 						continue;
 				}
-				String link = script.attr(CoreConstants.SCRIPT_SRC);
+				String link = script.attr(CoreConstants2.SCRIPT_SRC);
 				if(link != null && !link.trim().equals("")) {
 					if(link.startsWith("/")) {
 						String s = hostURLPrefix;
@@ -177,7 +177,7 @@ public class ResponseUtil {
 		if (responseCode >= 200 && responseCode < 300) { // OK
 			String scriptBody = getResponseBodyContent(response);
 			script.appendText(scriptBody);
-			script.removeAttr(CoreConstants.SCRIPT_SRC);
+			script.removeAttr(CoreConstants2.SCRIPT_SRC);
 		}
 	}
 }

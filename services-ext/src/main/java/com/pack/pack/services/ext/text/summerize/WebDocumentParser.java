@@ -6,7 +6,6 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,6 +15,8 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
+import org.apache.tika.mime.MimeType;
+import org.apache.tika.mime.MimeTypes;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -63,6 +64,11 @@ public class WebDocumentParser {
 			}
 			String content = EntityUtils.toString(entity);
 			json = parseHtmlPayload(content);
+			if (json != null
+					&& (json.getOgUrl() == null || json.getOgUrl().trim()
+							.isEmpty())) {
+				json.setOgUrl(url);
+			}
 		} catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException | IOException e) {
 			$LOG.error(e.getMessage(), e);
 		}
@@ -140,7 +146,13 @@ public class WebDocumentParser {
 			Summarizer summarizer = new Summarizer();
 			String summaryText = summarizer.Summarize(article, 3);
 
-			json.setArticleSummaryText(summaryText.replaceAll("\\s+", " ").replaceAll("\\t+", " ").replaceAll("\\n+", " ").replaceAll("\\r+", " "));
+			if(summaryText == null || summaryText.trim().isEmpty()) {
+				json.setArticleSummaryText(ogDescription);
+			} else {
+				json.setArticleSummaryText(summaryText.replaceAll("\\s+", " ")
+						.replaceAll("\\t+", " ").replaceAll("\\n+", " ")
+						.replaceAll("\\r+", " "));
+			}
 		} catch (IOException e) {
 			$LOG.error(e.getMessage(), e);
 		}
@@ -254,11 +266,14 @@ public class WebDocumentParser {
 					primaryElement = element;
 					primaryElementClassName = primaryElement.className();
 					primaryElementDepth = depth(primaryElement, doc);
-					return new WebElement()
-							.setPrimaryElement(primaryElement)
-							.setPrimaryElementClassName(primaryElementClassName)
-							.setPrimaryElementDepth(primaryElementDepth)
-							.setTagName(tagName);
+					if (!isHeaderElement(element)) {
+						return new WebElement()
+								.setPrimaryElement(primaryElement)
+								.setPrimaryElementClassName(
+										primaryElementClassName)
+								.setPrimaryElementDepth(primaryElementDepth)
+								.setTagName(tagName);
+					}
 				} else {
 					int newDepth = depth(element, doc);
 					if (newDepth > primaryElementDepth) {
@@ -382,6 +397,15 @@ public class WebDocumentParser {
 			}
 		}
 		return true;
+	}
+	
+	private boolean isHeaderElement(Element el) {
+		if(el == null)
+			return false;
+		String tagName = el.tagName();
+		if(tagName == null)
+			return false;
+		return tagName.toLowerCase().startsWith("h");
 	}
 
 	private Elements siblingElements(Element el) {
@@ -980,6 +1004,8 @@ public class WebDocumentParser {
 
 	private void cleanUpUnrelatedSubTrees(Element root, Element subTree) {
 		if (root == null || subTree == null)
+			return;
+		if(root == subTree)
 			return;
 		Elements parents = subTree.parents();
 		if (parents == null || parents.isEmpty())

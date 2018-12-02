@@ -11,5 +11,6 @@ public enum RssFeedType {
 	NEWS,
 	NEWS_SCIENCE_TECHNOLOGY,
 	NEWS_SPORTS,
+	OPINION,
 	ARTICLE;
 }

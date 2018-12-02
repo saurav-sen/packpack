@@ -123,6 +123,10 @@ public final class SystemPropertyUtil {
 	
 	private static final String UPLOAD_TO_PROD = "upload.to.production";
 	
+	private static final String OPEN_NLP_CONF_DIR = "open.nlp.conf.dir";
+	
+	private static String defaultOpenNlpConfDir = null;
+	
 	private SystemPropertyUtil() {
 	}
 
@@ -414,5 +418,16 @@ public final class SystemPropertyUtil {
 	public static String getRedisURI() {
 		String uri = getPropertyValue(REDIS_URI_KEY);
 		return uri != null ? uri : REDIS_URI_DEFAULT_VALUE;
+	}
+	
+	public static String getOpenNlpConfDir() {
+		String path = getPropertyValue(OPEN_NLP_CONF_DIR);
+		if(path == null || path.trim().isEmpty())
+			return defaultOpenNlpConfDir;
+		return path;
+	}
+
+	public static void setDefaultOpenNlpConfDir(String defaultOpenNlpConfDir) {
+		SystemPropertyUtil.defaultOpenNlpConfDir = defaultOpenNlpConfDir;
 	}
 }

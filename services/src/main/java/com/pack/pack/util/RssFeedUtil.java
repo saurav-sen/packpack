@@ -45,6 +45,9 @@ public class RssFeedUtil {
 			if (newFeeds != null && !newFeeds.isEmpty()) {
 				size = newFeeds.size();
 				// TTL ttl = new TTL();
+				if(ttl == null) {
+					ttl = new TTL();
+				}
 				ttl.setTime((short) 2);
 				ttl.setUnit(TimeUnit.DAYS);
 				IRefreshmentFeedService service = ServiceRegistry.INSTANCE
@@ -73,6 +76,9 @@ public class RssFeedUtil {
 			if (newFeeds != null && !newFeeds.isEmpty()) {
 				// TTL ttl = new TTL();
 				size = newFeeds.size();
+				if(ttl == null) {
+					ttl = new TTL();
+				}
 				ttl.setTime((short) 1);
 				ttl.setUnit(TimeUnit.DAYS);
 				INewsFeedService service = ServiceRegistry.INSTANCE
@@ -84,6 +90,32 @@ public class RssFeedUtil {
 				}
 			}
 			LOG.info("Successfully uploaded News " + list.size() + " out of " + size + " feeds in DB");
+		} catch (PackPackException e) {
+			LOG.error(e.getErrorCode() + "::" + e.getMessage(), e);
+		}
+	}
+	
+	public static void uploadOpinionFeed(JRssFeed feed, TTL ttl, long batchId,
+			boolean sendNotification) {
+		LOG.info("Trying to upload Opinion");
+		try {
+			if (feed != null) {
+				if(ttl == null) {
+					ttl = new TTL();
+					ttl.setTime((short) 7);
+					ttl.setUnit(TimeUnit.DAYS);
+				}
+				List<JRssFeed> list = new LinkedList<JRssFeed>();
+				list.add(feed);
+				INewsFeedService service = ServiceRegistry.INSTANCE
+						.findCompositeService(INewsFeedService.class);
+				boolean f = service.upload(list, ttl, batchId);
+				if (f) {
+					LOG.info("Successfully uploaded Opinion " + feed.getOgTitle());
+				} else {
+					LOG.info("Failed to upload Opinion " + feed.getOgTitle());
+				}
+			}			
 		} catch (PackPackException e) {
 			LOG.error(e.getErrorCode() + "::" + e.getMessage(), e);
 		}
@@ -111,6 +143,8 @@ public class RssFeedUtil {
 			return JRssFeedType.NEWS_SPORTS.name() + "_";
 		} else if (RssFeedType.ARTICLE.name().equalsIgnoreCase(feedType)) {
 			return JRssFeedType.ARTICLE.name() + "_";
+		} else if (RssFeedType.OPINION.name().equalsIgnoreCase(feedType)) {
+			return JRssFeedType.OPINION.name() + "_";
 		}
 		return "Feeds_";
 	}

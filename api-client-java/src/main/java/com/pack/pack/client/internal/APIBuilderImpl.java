@@ -67,7 +67,7 @@ public class APIBuilderImpl extends APIBuilder {
 			api = new APIWrapper(new RefreshmentFeedsApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
 		} else if(action == COMMAND.GET_ALL_NEWS_FEEDS
-				|| action == COMMAND.GET_ALL_SPORTS_NEWS_FEEDS
+				|| action == COMMAND.GET_ALL_OPINION_FEEDS
 				|| action == COMMAND.GET_ALL_SCIENCE_AND_TECHNOLOGY_NEWS_FEEDS
 				|| action == COMMAND.GET_ALL_ARTICLES_FEEDS) {
 			api = new APIWrapper(new NewsFeedsApi(baseUrl));

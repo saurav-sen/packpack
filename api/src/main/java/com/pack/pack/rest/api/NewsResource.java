@@ -68,6 +68,10 @@ public class NewsResource {
 			INewsFeedService service = ServiceRegistry.INSTANCE
 					.findCompositeService(INewsFeedService.class);
 			return service.getArticleNewsRssFeeds(userId, pageNo);
+		} else if(JRssFeedType.OPINION.name().equals(source)) {
+			INewsFeedService service = ServiceRegistry.INSTANCE
+					.findCompositeService(INewsFeedService.class);
+			return service.getAllOpinionRssFeeds(userId, pageNo);
 		}
 		return emptyResponse();
 	}

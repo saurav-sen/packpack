@@ -129,13 +129,13 @@ public class HttpRequestExecutor {
 		while (responseCode == 302 || responseCode == 303) {
 			CookieStore cookieStore = new BasicCookieStore();
 			String suffix = response.getFirstHeader(
-					CoreConstants.LOCATION_HTTP_HEADER).getValue();
+					CoreConstants2.LOCATION_HTTP_HEADER).getValue();
 			/*
 			 * get = new HttpGet(CoreConstants.HTTP + domainName + "/" + part +
 			 * "/" + suffix);
 			 */
-			get = new HttpGet(CoreConstants.HTTP + domainName + "/" + suffix);
-			String cookies = response.getFirstHeader(CoreConstants.SET_COOKIE)
+			get = new HttpGet(CoreConstants2.HTTP + domainName + "/" + suffix);
+			String cookies = response.getFirstHeader(CoreConstants2.SET_COOKIE)
 					.getValue();
 			String[] split = cookies.split(";");
 
@@ -191,23 +191,23 @@ public class HttpRequestExecutor {
 			if (lastModifiedSince != null
 					&& !lastModifiedSince.trim().isEmpty()) {
 				GET.addHeader(
-						CoreConstants.IF_MODIFIED_SINCE_CACHE_CONTROL_HEADER,
+						CoreConstants2.IF_MODIFIED_SINCE_CACHE_CONTROL_HEADER,
 						lastModifiedSince);
 			}
 		}
 		HttpContext HTTP_CONTEXT = new BasicHttpContext();
 		HTTP_CONTEXT.setAttribute(CoreProtocolPNames.USER_AGENT,
-				CoreConstants.SQUILL_ROBOT_USER_AGENT_STRING);
+				CoreConstants2.SQUILL_ROBOT_USER_AGENT_STRING);
 		HttpResponse response = client.execute(GET, HTTP_CONTEXT);
 		int statusCode = response.getStatusLine().getStatusCode();
 		if (statusCode == 304) {
 			// Not Modified based upon "If-Modified-Since" header flag set in
 			// the request.
-			return CoreConstants.SKIP;
+			return CoreConstants2.SKIP;
 		} else if (statusCode == 200) {
 			if (info != null) {
 				Header lastModified = response
-						.getLastHeader(CoreConstants.LAST_MODIFIED_CACHE_CONTROL_HEADER);
+						.getLastHeader(CoreConstants2.LAST_MODIFIED_CACHE_CONTROL_HEADER);
 				if (lastModified != null) {
 					info.setLastModifiedSince(lastModified.getValue());
 				}

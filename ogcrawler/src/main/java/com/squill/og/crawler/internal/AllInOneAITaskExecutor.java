@@ -462,17 +462,19 @@ public class AllInOneAITaskExecutor {
 			ISentenceDetector sentenceDetector = AppContext.INSTANCE
 					.findService("openNlpSentenceDetector",
 							ISentenceDetector.class);
+			String suffix = "";
 			String[] sentences = sentenceDetector.detectSentences(summaryText);
 			StringBuilder text = new StringBuilder();
 			for (String sentence : sentences) {
 				if (numOfWords >= 110) {
+					suffix = " ... ";
 					break;
 				}
 				String[] words = sentenceDetector.tokenize(sentence);
 				numOfWords = numOfWords + words.length;
 				text.append(sentence);
 			}
-			result = text.toString();
+			result = text.toString() + suffix;
 		} catch (Exception e) {
 			$LOG.debug(e.getMessage(), e);
 		}

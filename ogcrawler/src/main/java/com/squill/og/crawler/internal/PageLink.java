@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.squill.og.crawler.ILink;
 import com.squill.og.crawler.IWebSite;
-import com.squill.og.crawler.internal.utils.CoreConstants;
+import com.squill.og.crawler.internal.utils.CoreConstants2;
 import com.squill.og.crawler.internal.utils.HtmlUtil;
 
 
@@ -45,7 +45,7 @@ public class PageLink implements ILink {
 
 	public String getLink() {
 		String hyperlink = link.replaceAll(" ", "%20");
-		if(hyperlink.startsWith(CoreConstants.HTTP) || hyperlink.startsWith(CoreConstants.HTTPS)) {
+		if(hyperlink.startsWith(CoreConstants2.HTTP) || hyperlink.startsWith(CoreConstants2.HTTPS)) {
 			return hyperlink;
 		}
 		if(parent == null)

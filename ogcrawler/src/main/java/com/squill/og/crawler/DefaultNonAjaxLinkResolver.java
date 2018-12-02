@@ -12,7 +12,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.squill.og.crawler.internal.HtmlPage;
-import com.squill.og.crawler.internal.utils.CoreConstants;
+import com.squill.og.crawler.internal.utils.CoreConstants2;
 
 
 /**
@@ -119,7 +119,7 @@ public class DefaultNonAjaxLinkResolver implements ILinkResolver {
 	@Override
 	public Iterator<Element> resolveCrawlableElements(Document dom, HtmlPage htmlPage) {
 		Elements elementsByTag = dom.body().getElementsByTag(
-				CoreConstants.HYPERLINK_ELEMENT_TAG_NAME);
+				CoreConstants2.HYPERLINK_ELEMENT_TAG_NAME);
 		return elementsByTag.iterator();
 	}
 }

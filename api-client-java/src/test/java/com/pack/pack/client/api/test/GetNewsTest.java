@@ -93,7 +93,7 @@ public class GetNewsTest extends BaseTest {
 	public void execute(TestSession session) throws Exception {
 		super.execute(session);
 		test(session, COMMAND.GET_ALL_NEWS_FEEDS);
-		test(session, COMMAND.GET_ALL_SPORTS_NEWS_FEEDS);
+		test(session, COMMAND.GET_ALL_OPINION_FEEDS);
 		test(session, COMMAND.GET_ALL_SCIENCE_AND_TECHNOLOGY_NEWS_FEEDS);
 		test(session, COMMAND.GET_ALL_ARTICLES_FEEDS);
 	}
@@ -107,7 +107,7 @@ public class GetNewsTest extends BaseTest {
 		JUser user = new UserInfoTest().getUserInfo(session);
 		session.setUserId(user.getId());
 		int total = test.test(session, COMMAND.GET_ALL_NEWS_FEEDS);
-		total = total + test.test(session, COMMAND.GET_ALL_SPORTS_NEWS_FEEDS);
+		total = total + test.test(session, COMMAND.GET_ALL_OPINION_FEEDS);
 		total = total + test.test(session, COMMAND.GET_ALL_SCIENCE_AND_TECHNOLOGY_NEWS_FEEDS);
 		total = total + test.test(session, COMMAND.GET_ALL_ARTICLES_FEEDS);
 		System.out.println("Grand Total = " + total);

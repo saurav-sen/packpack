@@ -18,7 +18,7 @@ import com.squill.feed.web.model.JRssFeed;
 import com.squill.og.crawler.ILink;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
 import com.squill.og.crawler.hooks.ISpiderSession;
-import com.squill.og.crawler.internal.utils.CoreConstants;
+import com.squill.og.crawler.internal.utils.CoreConstants2;
 
 /**
  * 
@@ -110,7 +110,7 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 		feed.setHrefSource(hrefUrl);
 		feed.setOgType(type);
 		
-		String preClassifiedFeedType = (String) getMetaInfo(CoreConstants.PRE_CLASSIFIED_FEED_TYPE);
+		String preClassifiedFeedType = (String) getMetaInfo(CoreConstants2.PRE_CLASSIFIED_FEED_TYPE);
 		if (preClassifiedFeedType != null) {
 			feed.setFeedType(preClassifiedFeedType);
 		}

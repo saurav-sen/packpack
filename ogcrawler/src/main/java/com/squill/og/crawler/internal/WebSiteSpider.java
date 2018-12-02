@@ -22,7 +22,7 @@ import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
 import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
-import com.squill.og.crawler.internal.utils.CoreConstants;
+import com.squill.og.crawler.internal.utils.CoreConstants2;
 import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
 import com.squill.og.crawler.internal.utils.ResponseUtil;
 import com.squill.og.crawler.internal.utils.WebSpiderUtils;
@@ -156,7 +156,7 @@ public class WebSiteSpider implements Spider {
 				tracker.upsertCrawledInfo(url, info,
 						RSSConstants.DEFAULT_TTL_WEB_TRACKING_INFO, false);
 				
-				if(CoreConstants.SKIP.equalsIgnoreCase(html)) {
+				if(CoreConstants2.SKIP.equalsIgnoreCase(html)) {
 					continue;
 				}
 				

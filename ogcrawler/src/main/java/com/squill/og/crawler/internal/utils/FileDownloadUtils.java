@@ -50,7 +50,7 @@ public class FileDownloadUtils {
 	public static void downloadAttachment(HttpResponse response, String fileName, String downloadHomeDir) throws Exception {
 		InputStream input = null;
 		OutputStream output = null;
-		byte[] buffer = new byte[CoreConstants.BLOCK_SIZE];
+		byte[] buffer = new byte[CoreConstants2.BLOCK_SIZE];
 
 		File downloadDir = new File(downloadHomeDir);
 		if (!downloadDir.exists()) {
