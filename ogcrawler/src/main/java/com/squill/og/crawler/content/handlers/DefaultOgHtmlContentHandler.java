@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -83,11 +82,11 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 			description = pageDescription;
 		}
 
-		String type = null;
+		/*String type = null;
 		Elements metaOgType = doc.select("meta[property=og:type]");
 		if (metaOgType != null) {
 			type = metaOgType.attr("content");
-		}
+		}*/
 
 		String imageUrl = null;
 		Elements metaOgImage = doc.select("meta[property=og:image]");
@@ -108,7 +107,7 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 		feed.setOgImage(imageUrl);
 		feed.setOgUrl(hrefUrl);
 		feed.setHrefSource(hrefUrl);
-		feed.setOgType(type);
+		//feed.setOgType(type);
 		
 		String preClassifiedFeedType = (String) getMetaInfo(CoreConstants2.PRE_CLASSIFIED_FEED_TYPE);
 		if (preClassifiedFeedType != null) {

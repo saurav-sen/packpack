@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.pack.pack.util.SystemPropertyUtil;
 import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JRssFeeds;
+import com.squill.feed.web.model.UploadType;
 
 public final class ArchiveUtil {
 
@@ -27,6 +28,8 @@ public final class ArchiveUtil {
 			.getLogger(ArchiveUtil.class);
 	
 	public static final String DEFAULT_ID = "newsapi.org";
+	
+	public static final int DEFAULT_MAX_TIME_DIFF_IN_HOURS = 6; // 6 Hours
 	
 	private ArchiveUtil() {
 	}
@@ -132,9 +135,22 @@ public final class ArchiveUtil {
 		return c;
 	}
 	
+	public static List<JRssFeed> getFeedsUploadedFromArchive() {
+		return getFeedsUploadedFromArchive(DEFAULT_ID);
+	}
+	
 	public static List<JRssFeed> getFeedsUploadedFromArchive(String id) {
+		return getFeedsUploadedFromArchive(id, DEFAULT_MAX_TIME_DIFF_IN_HOURS);
+	}
+	
+	public static List<JRssFeed> getFeedsUploadedFromArchive(String id, int maxTimeDiffInHours) {
+		return getFeedsUploadedFromArchive(id, maxTimeDiffInHours, null);
+	}
+	
+	public static List<JRssFeed> getFeedsUploadedFromArchive(String id, int maxTimeDiffInHours, UploadType uploadType) {
 		List<JRssFeed> result = new LinkedList<JRssFeed>();
 		try {
+			long cTime = System.currentTimeMillis();
 			String filePath = resolveArchiveFilePath(id);
 			File file = new File(filePath);
 			if (file.exists()) {
@@ -142,7 +158,23 @@ public final class ArchiveUtil {
 						Files.readAllBytes(Paths.get(filePath)), "UTF-8");
 				JRssFeeds c = JSONUtil.deserialize(json, JRssFeeds.class, true);
 				if (c != null) {
-					result.addAll(c.getFeeds());
+					Iterator<JRssFeed> itr = c.getFeeds().iterator();
+					while(itr.hasNext()) {
+						JRssFeed feed = itr.next();
+						if (uploadType != null) {
+							String ogType = feed.getOgType();
+							UploadType uploadType2 = UploadType.resolve(ogType);
+							if(uploadType != uploadType2)
+								continue;
+						}						
+						long uTime = feed.getUploadTime();
+						long diff = cTime - uTime;
+						diff = Math.abs(diff);
+						int hours = (int) (diff / (1000 * 60 * 60));
+						if(hours <= maxTimeDiffInHours) {
+							result.add(feed);
+						}
+					}
 				}
 			}
 		} catch (Exception e) {

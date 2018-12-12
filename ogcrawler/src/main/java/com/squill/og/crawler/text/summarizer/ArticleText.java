@@ -5,6 +5,8 @@ public class ArticleText {
 	private String title;
 	
 	private String article;
+	
+	private String htmlSnippet;
 
 	public String getTitle() {
 		return title;
@@ -20,5 +22,13 @@ public class ArticleText {
 
 	public void setArticle(String article) {
 		this.article = article;
+	}
+
+	public String getHtmlSnippet() {
+		return htmlSnippet;
+	}
+
+	public void setHtmlSnippet(String htmlSnippet) {
+		this.htmlSnippet = htmlSnippet;
 	}
 }

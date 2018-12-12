@@ -8,9 +8,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.dto.BookmarkDTO;
 import com.pack.pack.services.exception.PackPackException;
@@ -28,8 +25,8 @@ import com.squill.feed.web.model.JRssFeed;
 @Path("/bookmark")
 public class BookmarkResource {
 
-	private static final Logger LOG = LoggerFactory
-			.getLogger(BookmarkResource.class);
+	/*private static final Logger LOG = LoggerFactory
+			.getLogger(BookmarkResource.class);*/
 
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -38,6 +35,6 @@ public class BookmarkResource {
 		BookmarkDTO dto = JSONUtil.deserialize(json, BookmarkDTO.class, true);
 		WebDocumentParser parser = ServiceRegistry.INSTANCE
 				.findService(WebDocumentParser.class);
-		return parser.parse(dto.getHyperlink());
+		return parser.parseHttpUrl(dto.getHyperlink());
 	}
 }

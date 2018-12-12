@@ -103,11 +103,11 @@ public class HtmlUtil {
 			description = pageDescription;
 		}
 
-		String type = null;
+		/*String type = null;
 		Elements metaOgType = doc.select("meta[property=og:type]");
 		if (metaOgType != null) {
 			type = metaOgType.attr("content");
-		}
+		}*/
 
 		String imageUrl = null;
 		Elements metaOgImage = doc.select("meta[property=og:image]");
@@ -127,7 +127,7 @@ public class HtmlUtil {
 		feed.setOgImage(imageUrl);
 		feed.setOgUrl(hrefUrl);
 		feed.setHrefSource(hrefUrl);
-		feed.setOgType(type);
+		//feed.setOgType(type);
 		
 		try {
 			URL url = new URL(hrefUrl);

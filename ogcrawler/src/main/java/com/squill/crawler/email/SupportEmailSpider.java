@@ -38,6 +38,7 @@ import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JRssFeedType;
 import com.squill.feed.web.model.JRssFeeds;
 import com.squill.feed.web.model.TTL;
+import com.squill.feed.web.model.UploadType;
 import com.squill.og.crawler.Spider;
 import com.squill.og.crawler.internal.utils.ArchiveUtil;
 import com.squill.og.crawler.internal.utils.HtmlUtil;
@@ -288,7 +289,10 @@ public class SupportEmailSpider implements Spider {
 				$LOG.error(e.getMessage(), e);
 			}
 			
-			List<JRssFeed> list = ArchiveUtil.getFeedsUploadedFromArchive(ArchiveUtil.DEFAULT_ID);
+			List<JRssFeed> list = ArchiveUtil.getFeedsUploadedFromArchive(
+					ArchiveUtil.DEFAULT_ID,
+					ArchiveUtil.DEFAULT_MAX_TIME_DIFF_IN_HOURS,
+					UploadType.MANUAL);
 			if(list == null || list.isEmpty())
 				return;
 			List<ArticleInfo> tgtList = new ArrayList<ArticleInfo>();
@@ -311,6 +315,8 @@ public class SupportEmailSpider implements Spider {
 					List<ArticleInfo> probableDuplicates = comparator.checkProbableDuplicates(src, tgtList);
 					if(probableDuplicates != null && !probableDuplicates.isEmpty()) {
 						itr.remove();
+					} else {
+						newsFeed.setOgType(UploadType.MANUAL.name());
 					}
 				} catch (Exception e) {
 					$LOG.error(e.getMessage(), e);
@@ -324,4 +330,13 @@ public class SupportEmailSpider implements Spider {
 			RssFeedUtil.uploadNewsFeeds(newsFeeds, ttl, batchId, true);
 		}
 	}
+	
+	/*public static void main(String[] args) {
+		long diff = 1544182708955L - 1544146708739L;
+		diff = Math.abs(diff);
+		int hours = (int) (diff / (1000 * 60 * 60));
+		System.out.println(hours);
+		System.out.println(new DateTime(1544182708955L).toString());
+		System.out.println(new DateTime(1544146708739L).toString());
+	}*/
 }

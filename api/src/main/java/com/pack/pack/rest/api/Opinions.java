@@ -33,6 +33,7 @@ import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JRssFeedType;
 import com.squill.feed.web.model.JRssFeeds;
 import com.squill.feed.web.model.TTL;
+import com.squill.feed.web.model.UploadType;
 
 /**
  * 
@@ -103,12 +104,14 @@ public class Opinions {
 			if(url != null && !url.trim().isEmpty() && (title == null || title.trim().isEmpty())) {
 				String htmlContent = new HttpRequestExecutor().GET(url);
 				f0 = HtmlUtil.parse4mHtml(htmlContent);
+				f0.setOgType(UploadType.MANUAL.name());
 				feed.setOgTitle(f0.getOgTitle());
 			}
 			if(url != null && !url.trim().isEmpty() && (content == null || content.trim().isEmpty())) {
 				if(f0 == null) {
 					String htmlContent = new HttpRequestExecutor().GET(url);
 					f0 = HtmlUtil.parse4mHtml(htmlContent);
+					f0.setOgType(UploadType.MANUAL.name());
 				}
 				feed.setArticleSummaryText(f0.getOgDescription());
 				feed.setOgDescription("");
@@ -120,6 +123,7 @@ public class Opinions {
 				if(f0 == null) {
 					String htmlContent = new HttpRequestExecutor().GET(url);
 					f0 = HtmlUtil.parse4mHtml(htmlContent);
+					f0.setOgType(UploadType.MANUAL.name());
 				}
 				feed.setOgImage(f0.getOgImage());
 			}

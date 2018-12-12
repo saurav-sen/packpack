@@ -50,6 +50,8 @@ public class RSSFeed /*extends CouchDbDocument*/{
 	
 	private String fullArticleText;
 	
+	private String htmlSnippet;
+	
 	private List<GeoTag> geoTags;
 	
 	private List<SemanticElement> concepts;
@@ -266,5 +268,13 @@ public class RSSFeed /*extends CouchDbDocument*/{
 
 	public void setSquillUrl(String squillUrl) {
 		this.squillUrl = squillUrl;
+	}
+
+	public String getHtmlSnippet() {
+		return htmlSnippet;
+	}
+
+	public void setHtmlSnippet(String htmlSnippet) {
+		this.htmlSnippet = htmlSnippet;
 	}
 }

@@ -6,5 +6,5 @@ import com.squill.services.exception.OgCrawlException;
 public interface IArticleTextExtractor {
 
 	public ArticleText extractArticle(String url, String title,
-			String description) throws OgCrawlException;
+			String description, String summaryText) throws OgCrawlException;
 }

@@ -18,6 +18,7 @@ import com.squill.feed.web.model.JConcept;
 import com.squill.feed.web.model.JGeoTag;
 import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JTaxonomy;
+import com.squill.feed.web.model.UploadType;
 import com.squill.og.crawler.IWebCrawlable;
 import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.hooks.GeoLocation;
@@ -202,8 +203,12 @@ public class AllInOneAITaskExecutor {
 	}
 	
 	public void executeTasks(Map<String, List<JRssFeed>> feedsMap, IWebCrawlable webCrawlable) {
+		executeTasks(feedsMap, webCrawlable, UploadType.AUTOMATIC);
+	}
+	
+	public void executeTasks(Map<String, List<JRssFeed>> feedsMap, IWebCrawlable webCrawlable, UploadType ogType) {
 		preProcess(feedsMap, webCrawlable);
-		executeAITasks(feedsMap, session, webCrawlable);
+		executeAITasks(feedsMap, session, webCrawlable, ogType);
 	}
 
 	private String classifyFeedType(JRssFeed feed) {
@@ -224,7 +229,7 @@ public class AllInOneAITaskExecutor {
 		}
 	}
 	
-	private void executeAITasks(Map<String, List<JRssFeed>> feedsMap, ISpiderSession session, IWebCrawlable webCrawlable) {
+	private void executeAITasks(Map<String, List<JRssFeed>> feedsMap, ISpiderSession session, IWebCrawlable webCrawlable, UploadType ogType) {
 		IWebLinkTrackerService webLinkTrackerService = webCrawlable.getTrackerService();
 
 		try {
@@ -259,7 +264,7 @@ public class AllInOneAITaskExecutor {
 						}
 						randomCount++;
 					}*/
-					feed.setOgType(feed.getFeedType());
+					feed.setOgType(UploadType.AUTOMATIC.name());
 					String link = feed.getOgUrl();
 					WebSpiderTracker info = webLinkTrackerService.getTrackedInfo(link);
 					if(session.isThresholdReached()) {
@@ -290,7 +295,8 @@ public class AllInOneAITaskExecutor {
 					if(oldFeed != null) {
 						if(oldFeed.getFeedType() == null) {
 							oldFeed.setFeedType(feed.getFeedType());
-							oldFeed.setOgType(feed.getOgType());
+							//oldFeed.setOgType(feed.getOgType());
+							oldFeed.setOgType(UploadType.AUTOMATIC.name());
 							webLinkTrackerService.upsertCrawledInfo(link, info,
 									RSSConstants.DEFAULT_TTL_WEB_TRACKING_INFO, false);
 						}
@@ -304,8 +310,15 @@ public class AllInOneAITaskExecutor {
 						domainUrl = resolveDomainUrl(feed.getOgUrl());
 					}
 					
+					feed.setOgTitle(feed.getOgTitle().replace("Times of India", ""));					
 					feed.setOgTitle(feed.getOgTitle().replace("Times Of India", ""));
 					feed.setOgTitle(feed.getOgTitle().replace("TOI", ""));
+					
+					String uploadType = UploadType.AUTOMATIC.name();
+					if(ogType != null) {
+						uploadType = UploadType.MANUAL.name();
+					}
+					feed.setOgType(uploadType);
 					
 					executeDocumentSummarization(info, feed, webCrawlable,
 							isNew);
@@ -429,19 +442,32 @@ public class AllInOneAITaskExecutor {
 				}
 				ArticleText response = articleTextExtractor.extractArticle(
 						feed.getOgUrl(), feed.getOgTitle(),
-						feed.getOgDescription());
+						feed.getOgDescription(), feed.getArticleSummaryText());
 				if (response != null) {
-					String fullText = HtmlUtil.cleanUTFCharacters(response
-							.getArticle());
-					String title = response.getTitle();
-					if (title != null && !title.trim().isEmpty()) {
-						title = HtmlUtil.cleanUTFCharacters(title);
-						feed.setOgTitle(title);
-						info.setTitle(title);
+					String article = response.getArticle();
+					if(article != null && !article.trim().isEmpty()) {
+						String fullText = HtmlUtil.cleanUTFCharacters(article);
+						String title = response.getTitle();
+						if (title != null && !title.trim().isEmpty()) {
+							title = HtmlUtil.cleanUTFCharacters(title);
+							feed.setOgTitle(title);
+							info.setTitle(title);
+						}
+						if (fullText != null && !fullText.trim().isEmpty()) {
+							feed.setFullArticleText(fullText);
+							info.setFullArticleText(fullText);
+						}
 					}
-					if (fullText != null && !fullText.trim().isEmpty()) {
-						feed.setFullArticleText(fullText);
-						info.setFullArticleText(fullText);
+					String htmlSnippet = response.getHtmlSnippet();
+					if(htmlSnippet != null && !htmlSnippet.trim().isEmpty()) {
+						String title = response.getTitle();
+						if (title != null && !title.trim().isEmpty()) {
+							title = HtmlUtil.cleanUTFCharacters(title);
+							feed.setOgTitle(title);
+							info.setTitle(title);
+						}
+						feed.setHtmlSnippet(htmlSnippet);
+						info.setHtmlSnippet(htmlSnippet);
 					}
 				}
 			}

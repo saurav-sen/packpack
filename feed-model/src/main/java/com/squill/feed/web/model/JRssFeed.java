@@ -32,6 +32,8 @@ public class JRssFeed {
 	
 	private String fullArticleText;
 	
+	private String htmlSnippet;
+	
 	private List<JGeoTag> geoTags;
 	
 	private List<JConcept> concepts;
@@ -256,5 +258,13 @@ public class JRssFeed {
 
 	public void setKeywords(List<String> keywords) {
 		this.keywords = keywords;
+	}
+
+	public String getHtmlSnippet() {
+		return htmlSnippet;
+	}
+
+	public void setHtmlSnippet(String htmlSnippet) {
+		this.htmlSnippet = htmlSnippet;
 	}
 }

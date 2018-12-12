@@ -27,6 +27,8 @@ public class WebSpiderTracker {
 	
 	private String fullArticleText;
 	
+	private String htmlSnippet;
+	
 	private List<JGeoTag> geoTags;
 	
 	private List<JTaxonomy> taxonomies;
@@ -156,5 +158,13 @@ public class WebSpiderTracker {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	public String getHtmlSnippet() {
+		return htmlSnippet;
+	}
+
+	public void setHtmlSnippet(String htmlSnippet) {
+		this.htmlSnippet = htmlSnippet;
 	}
 }

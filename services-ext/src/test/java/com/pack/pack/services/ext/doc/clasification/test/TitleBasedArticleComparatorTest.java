@@ -20,8 +20,12 @@ public class TitleBasedArticleComparatorTest {
 	}*/
 	
 	public static void main(String[] args) {
-		ArticleInfo src = new ArticleInfo("Dead in cars and homes: Northern California fire toll at 42", null);
-		ArticleInfo tgt = new ArticleInfo("Death toll in California wildfire jumps to 42", null);
+		ArticleInfo src = new ArticleInfo("Telangana, Rajasthan all set to vote today", null);
+		ArticleInfo tgt = new ArticleInfo("56% Voting In Telangana, Rajasthan At 59% Till 3 pm: 10 Points", null);
+		System.out.println(new TitleBasedArticleComparator().checkIsProbableDuplicate(src, tgt));
+		
+		src = new ArticleInfo("Dead in cars and homes: Northern California fire toll at 42", null);
+		tgt = new ArticleInfo("Death toll in California wildfire jumps to 42", null);
 		System.out.println(new TitleBasedArticleComparator().checkIsProbableDuplicate(src, tgt));
 		
 		src = new ArticleInfo("Rajnikanth hints Modi is more powerful than Opposition", null);

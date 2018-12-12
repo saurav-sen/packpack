@@ -15,8 +15,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
-import org.apache.tika.mime.MimeType;
-import org.apache.tika.mime.MimeTypes;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -49,7 +47,21 @@ public class WebDocumentParser {
 	private static final Logger $LOG = LoggerFactory
 			.getLogger(WebDocumentParser.class);
 	
-	public JRssFeed parse(String url) {
+	private boolean strictSuccessMode = false;
+	
+	public WebDocumentParser() {
+		this(false);
+	}
+	
+	public WebDocumentParser(boolean strictSuccessMode) {
+		this.strictSuccessMode = strictSuccessMode;
+	}
+	
+	public JRssFeed parseHttpUrl(String url) {
+		return parseHttpUrl(url, null, true);
+	}
+	
+	public JRssFeed parseHttpUrl(String url, String placeHolderText, boolean summerize) {
 		JRssFeed json = new JRssFeed();
 		try {
 			HttpGet GET = new HttpGet(url);
@@ -63,7 +75,7 @@ public class WebDocumentParser {
 				return json;
 			}
 			String content = EntityUtils.toString(entity);
-			json = parseHtmlPayload(content);
+			json = parseHtmlPayload(content, placeHolderText, summerize);
 			if (json != null
 					&& (json.getOgUrl() == null || json.getOgUrl().trim()
 							.isEmpty())) {
@@ -74,12 +86,20 @@ public class WebDocumentParser {
 		}
 		return json;
 	}
-
+	
 	public JRssFeed parseHtmlPayload(String content) {
+		return parseHtmlPayload(content, null, true);
+	}
+	
+	public JRssFeed parseHtmlPayload(String content, boolean summerize) {
+		return parseHtmlPayload(content, null, summerize);
+	}
+
+	public JRssFeed parseHtmlPayload(String content, String placeHolder, boolean summerize) {
 		JRssFeed json = new JRssFeed();
 		try {
 			$LOG.debug("Parsing HTML");
-			WebDocument webDocument = parseHtml(content);
+			WebDocument webDocument = parseHtml(content, placeHolder);
 			/*InputStream input = new ByteArrayInputStream(webDocument
 					.getFilteredHtml().getBytes());
 			ContentHandler textHandler = new BodyContentHandler();
@@ -134,24 +154,30 @@ public class WebDocumentParser {
 			if(webDocument.isSuccess()) {
 				$LOG.debug("Parsing HTML was successful");
 				json.setFullArticleText(article);
+				json.setHtmlSnippet(webDocument.getExtractedHtmlSnippet());
 
 				/*Summarizer summarizer = new Summarizer();
 				String summaryText = summarizer.Summarize(article, 3);
 
 				json.setArticleSummaryText(summaryText);*/
-			} else if($LOG.isDebugEnabled()){
+			} else {
 				$LOG.debug("Parsing HTML didn't go well");
+				if(strictSuccessMode){
+					return null;
+				}
 			}
 
-			Summarizer summarizer = new Summarizer();
-			String summaryText = summarizer.Summarize(article, 3);
+			if(summerize) {
+				Summarizer summarizer = new Summarizer();
+				String summaryText = summarizer.Summarize(article, 3);
 
-			if(summaryText == null || summaryText.trim().isEmpty()) {
-				json.setArticleSummaryText(ogDescription);
-			} else {
-				json.setArticleSummaryText(summaryText.replaceAll("\\s+", " ")
-						.replaceAll("\\t+", " ").replaceAll("\\n+", " ")
-						.replaceAll("\\r+", " "));
+				if(summaryText == null || summaryText.trim().isEmpty()) {
+					json.setArticleSummaryText(ogDescription);
+				} else {
+					json.setArticleSummaryText(summaryText.replaceAll("\\s+", " ")
+							.replaceAll("\\t+", " ").replaceAll("\\n+", " ")
+							.replaceAll("\\r+", " "));
+				}
 			}
 		} catch (IOException e) {
 			$LOG.error(e.getMessage(), e);
@@ -708,15 +734,19 @@ public class WebDocumentParser {
 		}
 	}
 	
-	private WebDocument parseHtml(String html) throws IOException {
-		return doParseHtml(html, false);
+	private WebDocument parseHtml(String html, String placeHolder) throws IOException {
+		return doParseHtml(html, placeHolder, false);
 	}
 
-	private WebDocument doParseHtml(String html, boolean isAmpHtmlLink) throws IOException {
+	private WebDocument doParseHtml(String html, String placeHolder, boolean isAmpHtmlLink) throws IOException {
 		Document doc = Jsoup.parse(html);
 		//$LOG.debug(doc.body().text());
 		String title = readOgTilte(doc);
-		String description = readOgDescription(doc);
+		String description = placeHolder;
+		if(description == null || description.trim().isEmpty()) {
+			description = readOgDescription(doc);
+		}
+		//String description = readOgDescription(doc);
 		String imageUrl = readOgImage(doc);
 		List<String> keywordsList = readKeywordsList(doc);
 		String ogUrl = readOgUrl(doc);
@@ -785,12 +815,12 @@ public class WebDocumentParser {
 				keywordsList);
 		if (primaryElement == null) {
 			$LOG.debug("Failed to get primary element based upon description");
-			return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc);
+			return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc, null);
 		}
 		Element majorElement = primaryElement.getPrimaryElement();
 		if (majorElement == null) {
 			$LOG.debug("Failed to get primary/major element based upon description");
-			return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc);
+			return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc, null);
 		}
 
 		Element h1Element = null;
@@ -800,7 +830,7 @@ public class WebDocumentParser {
 		}
 		if (h1Element == null) {
 			$LOG.debug("No <h1> tag found");
-			return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc);
+			return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc, null);
 		} else {
 			title = h1Element.text();
 		}
@@ -809,7 +839,7 @@ public class WebDocumentParser {
 		Element _LCA = findLowestCommonAncestor(majorElement, h1Element, doc.body());
 		if (_LCA == null) {
 			$LOG.debug("Failed to compute LCA node");
-			return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc);
+			return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc, null);
 		}
 		
 		title = h1Element.text();
@@ -855,7 +885,7 @@ public class WebDocumentParser {
 		$LOG.trace(document.text());
 		$LOG.trace(document.outerHtml());
 
-		return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, document).setSuccess(true);
+		return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, document, _LCA.outerHtml()).setSuccess(true);
 	}
 
 	private void cleanUpLCA(Element lca, Element majorElement) {

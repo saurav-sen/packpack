@@ -103,11 +103,11 @@ public class HtmlUtil {
 			description = pageDescription;
 		}
 
-		String type = null;
+		/*String type = null;
 		Elements metaOgType = doc.select("meta[property=og:type]");
 		if (metaOgType != null) {
 			type = metaOgType.attr("content");
-		}
+		}*/
 
 		String imageUrl = null;
 		Elements metaOgImage = doc.select("meta[property=og:image]");
@@ -127,7 +127,7 @@ public class HtmlUtil {
 		feed.setOgImage(imageUrl);
 		feed.setOgUrl(hrefUrl);
 		feed.setHrefSource(hrefUrl);
-		feed.setOgType(type);
+		//feed.setOgType(type);
 		
 		try {
 			URL url = new URL(hrefUrl);
@@ -406,6 +406,7 @@ public class HtmlUtil {
 
 	private static String generateFullTextPage(JRssFeed feed)
 			throws PackPackException {
+		boolean resetImageToNULL = false;
 		try {
 			Markup markup = new Markup();
 			String ogImage = feed.getOgImage();
@@ -420,6 +421,7 @@ public class HtmlUtil {
 					baseUrl = baseUrl + SystemPropertyUtil.URL_SEPARATOR;
 				}
 				ogImage = baseUrl + "SquillShare.jpg";
+				resetImageToNULL = true;
 				feed.setOgImage(ogImage);
 			}
 			MarkupGenerator.INSTANCE.generateMarkup(feed, markup);
@@ -429,6 +431,10 @@ public class HtmlUtil {
 			$_LOG.error(e.getMessage(), e);
 			throw new PackPackException(ErrorCodes.PACK_ERR_61,
 					"Failed Generating Proxy Page for Shared Link", e);
+		} finally {
+			if(resetImageToNULL) {
+				feed.setOgImage(null);
+			}
 		}
 	}
 

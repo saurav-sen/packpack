@@ -30,38 +30,38 @@ public class WebDocumentParserTest {
 		SystemPropertyUtil.setDefaultOpenNlpConfDir("D:\\Saurav\\packpack\\ogcrawler\\src\\conf");
 		
 		json = new WebDocumentParser()
-				.parse("https://goo.gl/images/eD7vMa");
+				.parseHttpUrl("https://goo.gl/images/eD7vMa");
 		$LOG.info(json.getArticleSummaryText());
 		$LOG.info(json.getFullArticleText());
 		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
 		Assert.assertTrue(json.getOgTitle() != null);
 		
-		json = new WebDocumentParser().parse("http://www.fortworthastro.com/images/bigdipperdirections.gif");
+		json = new WebDocumentParser().parseHttpUrl("http://www.fortworthastro.com/images/bigdipperdirections.gif");
 		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
 		
 		json = new WebDocumentParser()
-				.parse("https://www.financialexpress.com/money/half-of-indias-atms-may-shut-down-by-march-heres-why/1388841/");
+				.parseHttpUrl("https://www.financialexpress.com/money/half-of-indias-atms-may-shut-down-by-march-heres-why/1388841/");
 		$LOG.info(json.getArticleSummaryText());
 		$LOG.info(json.getFullArticleText());
 		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
 		Assert.assertTrue(json.getFullArticleText() != null);
 		
 		json = new WebDocumentParser()
-				.parse("https://www.news18.com/news/buzz/2611-mumbai-indians-pay-tribute-to-undying-spirit-of-city-on-tenth-anniversary-of-terror-attacks-1950577.html");
+				.parseHttpUrl("https://www.news18.com/news/buzz/2611-mumbai-indians-pay-tribute-to-undying-spirit-of-city-on-tenth-anniversary-of-terror-attacks-1950577.html");
 		$LOG.info(json.getArticleSummaryText());
 		$LOG.info(json.getFullArticleText());
 		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
 		Assert.assertTrue(json.getFullArticleText() != null);
 		
 		json = new WebDocumentParser()
-				.parse("https://www.ndtv.com/india-news/jet-airways-passenger-detained-at-kolkata-airport-he-was-reportedly-heard-threatening-to-blow-up-the-1953322");
+				.parseHttpUrl("https://www.ndtv.com/india-news/jet-airways-passenger-detained-at-kolkata-airport-he-was-reportedly-heard-threatening-to-blow-up-the-1953322");
 		$LOG.info(json.getArticleSummaryText());
 		$LOG.info(json.getFullArticleText());
 		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
 		Assert.assertTrue(json.getFullArticleText() != null);
 		
 		json = new WebDocumentParser()
-				.parse("https://www.boomlive.in/cyclonegaja-old-video-of-waves-engulfing-bridge-resurfaces-as-rameswaram/");
+				.parseHttpUrl("https://www.boomlive.in/cyclonegaja-old-video-of-waves-engulfing-bridge-resurfaces-as-rameswaram/");
 		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
 		Assert.assertTrue(json.getFullArticleText() != null);	
 		
@@ -81,12 +81,12 @@ public class WebDocumentParserTest {
 		Assert.assertTrue(json.getFullArticleText() != null);*/
 		
 		json = new WebDocumentParser()
-				.parse("https://www.newscientist.com/article/mg23931960-200-10-mysteries-of-the-universe-how-did-it-all-begin/");
+				.parseHttpUrl("https://www.newscientist.com/article/mg23931960-200-10-mysteries-of-the-universe-how-did-it-all-begin/");
 		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
 		Assert.assertTrue(json.getFullArticleText() != null);
 
 		json = new WebDocumentParser()
-				.parse("https://beautypageants.indiatimes.com/miss-international/i-was-molested-by-a-priest/articleshow/66604021.cms");
+				.parseHttpUrl("https://beautypageants.indiatimes.com/miss-international/i-was-molested-by-a-priest/articleshow/66604021.cms");
 		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
 		Assert.assertTrue(json.getFullArticleText() != null);
 		/*json = new WebDocumentParser()

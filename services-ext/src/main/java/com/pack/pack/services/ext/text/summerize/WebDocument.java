@@ -21,15 +21,19 @@ public class WebDocument {
 	private String sourceUrl;
 	
 	private String inputUrl;
+	
+	private String extractedHtmlSnippet;
 
 	WebDocument(String title, String description, String imageUrl,
-			String sourceUrl, String inputUrl, Document document) {
+			String sourceUrl, String inputUrl, Document document,
+			String extractedHtmlSnippet) {
 		this.title = title;
 		this.description = description;
 		this.imageUrl = imageUrl;
 		this.sourceUrl = sourceUrl;
 		this.inputUrl = inputUrl;
 		this.document = document;
+		this.extractedHtmlSnippet = extractedHtmlSnippet;
 		setSuccess(false);
 	}
 
@@ -96,5 +100,9 @@ public class WebDocument {
 	
 	public String getInputUrl() {
 		return inputUrl;
+	}
+
+	public String getExtractedHtmlSnippet() {
+		return extractedHtmlSnippet;
 	}
 }
