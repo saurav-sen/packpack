@@ -25,7 +25,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import org.xml.sax.SAXException;
 
+import com.kohlschutter.boilerpipe.BoilerpipeProcessingException;
 import com.pack.pack.services.ext.HttpRequestExecutor;
 import com.pack.pack.util.LanguageUtil;
 import com.squill.feed.web.model.JRssFeed;
@@ -49,37 +51,77 @@ public class WebDocumentParser {
 	
 	private boolean strictSuccessMode = false;
 	
+	private String url;
+	
+	private String payload;
+	
+	private boolean isUrlBasedProcessing;
+	
+	private String placeHolderText;
+	
+	private boolean summerize;
+	
 	public WebDocumentParser() {
-		this(false);
+		this(null, null);
 	}
 	
-	public WebDocumentParser(boolean strictSuccessMode) {
+	public WebDocumentParser(String url) {
+		this(url, null);
+	}
+	
+	public WebDocumentParser(String url, String payload) {
+		this(url, null, null, true, false);
+	}
+	
+	public WebDocumentParser(String url, String payload, String placeHolderText, boolean summerize, boolean strictSuccessMode) {
+		this.url = url;
+		this.payload = payload;
+		this.placeHolderText = placeHolderText;
+		this.summerize = summerize;
 		this.strictSuccessMode = strictSuccessMode;
+		this.isUrlBasedProcessing = (url != null && !url.trim().isEmpty());
 	}
 	
-	public JRssFeed parseHttpUrl(String url) {
-		return parseHttpUrl(url, null, true);
+	public WebDocumentParser setUrl(String url) {
+		this.url = url;
+		return this;
 	}
 	
-	public JRssFeed parseHttpUrl(String url, String placeHolderText, boolean summerize) {
+	public JRssFeed parse() {
 		JRssFeed json = new JRssFeed();
 		try {
-			HttpGet GET = new HttpGet(url);
-			HttpResponse response = new HttpRequestExecutor().GET(GET);
-			int statusCode = response.getStatusLine().getStatusCode();
-			if (statusCode != 200) {
-				return json;
+			String content = this.payload;
+			if (this.isUrlBasedProcessing) {
+				HttpGet GET = new HttpGet(url);
+				HttpResponse response = new HttpRequestExecutor().GET(GET);
+				int statusCode = response.getStatusLine().getStatusCode();
+				if (statusCode != 200) {
+					return json;
+				}
+				HttpEntity entity = response.getEntity();
+				if (entity == null) {
+					return json;
+				}
+				if (entity.getContentType().getValue().toLowerCase()
+						.contains("image")) {
+					json.setOgImage(url);
+					json.setOgUrl(url);
+					json.setHrefSource(url);
+					return json;
+				}
+				content = EntityUtils.toString(entity);
 			}
-			HttpEntity entity = response.getEntity();
-			if (entity == null) {
-				return json;
-			}
-			String content = EntityUtils.toString(entity);
 			json = parseHtmlPayload(content, placeHolderText, summerize);
 			if (json != null
 					&& (json.getOgUrl() == null || json.getOgUrl().trim()
 							.isEmpty())) {
 				json.setOgUrl(url);
+			}
+			
+			if (json != null
+					&& (json.getHrefSource() == null || json.getHrefSource().trim()
+							.isEmpty())) {
+				json.setHrefSource(url);
 			}
 		} catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException | IOException e) {
 			$LOG.error(e.getMessage(), e);
@@ -91,82 +133,89 @@ public class WebDocumentParser {
 		return parseHtmlPayload(content, null, true);
 	}
 	
-	public JRssFeed parseHtmlPayload(String content, boolean summerize) {
-		return parseHtmlPayload(content, null, summerize);
-	}
-
-	public JRssFeed parseHtmlPayload(String content, String placeHolder, boolean summerize) {
+	private JRssFeed parseHtmlPayload(String content, String placeHolder, boolean summerize) {
 		JRssFeed json = new JRssFeed();
+		String article = "";
+		String ogDescription = "";
 		try {
 			$LOG.debug("Parsing HTML");
 			WebDocument webDocument = parseHtml(content, placeHolder);
-			/*InputStream input = new ByteArrayInputStream(webDocument
-					.getFilteredHtml().getBytes());
-			ContentHandler textHandler = new BodyContentHandler();
-			Metadata metadata = new Metadata();
-			AutoDetectParser parser = new AutoDetectParser();
-			ParseContext context = new ParseContext();
-			BoilerpipeContentHandler handler2 = new BoilerpipeContentHandler(
-					textHandler, LargestContentExtractor.getInstance());
-			$LOG.debug("Parsing HTML using Boilerpipe Content Handler/AutoDetectParser");
-			parser.parse(input, handler2, metadata, context);
-
-			String article = textHandler.toString();*/
-			String article = Jsoup.parse(new String(webDocument.getFilteredHtml()
-					.getBytes())).body().text();
-			if (article == null || article.trim().isEmpty()) {
-				article = webDocument.getDocument().body().text();
-			}
-
-			String title = webDocument.getTitle();
-
-			if (title != null) {
-				title = LanguageUtil.cleanHtmlInvisibleCharacters(title);
-				article.replaceAll(title.trim(), "");
-			}
-
-			article = LanguageUtil.cleanHtmlInvisibleCharacters(article);
-			article = article.replaceAll("\\s+", " ").replaceAll("\\t+", " ").replaceAll("\\n+", "\n").replaceAll("\\r+", "\r");
-
-			String ogImage = webDocument.getImageUrl();
-			json.setOgImage(ogImage);
-			/*String keywordsText = metadata.get("keywords");
-			if (keywordsText != null) {
-				String[] keywords = keywordsText.split(",");
-				for (String keyword : keywords) {
-					json.getKeywords().add(keyword.trim());
+			if(!webDocument.isSuccess() && !webDocument.isCompatible()) {
+				/*InputStream input = new ByteArrayInputStream(webDocument
+						.getFilteredHtml().getBytes());
+				ContentHandler textHandler = new BodyContentHandler();
+				Metadata metadata = new Metadata();
+				AutoDetectParser parser = new AutoDetectParser();
+				ParseContext context = new ParseContext();
+				BoilerpipeContentHandler handler2 = new BoilerpipeContentHandler(
+						textHandler, LargestContentExtractor.getInstance());
+				$LOG.debug("Parsing HTML using Boilerpipe Content Handler/AutoDetectParser");
+				try {
+					parser.parse(input, handler2, metadata, context);
+				} catch (SAXException e) {
+					throw new RuntimeException(e.getMessage(), e);
+				} catch (TikaException e) {
+					throw new RuntimeException(e.getMessage(), e);
 				}
-			}*/
 
-			String ogUrl = webDocument.getSourceUrl();
-			json.setOgUrl(ogUrl);
-			
-			String inputUrl = webDocument.getInputUrl();
-			if(inputUrl == null || inputUrl.trim().isEmpty()) {
-				inputUrl = ogUrl;
-			}
-			json.setHrefSource(inputUrl);
-
-			String ogDescription = webDocument.getDescription();
-			json.setOgDescription(ogDescription);
-
-			json.setOgTitle(title);
-			if(webDocument.isSuccess()) {
-				$LOG.debug("Parsing HTML was successful");
-				json.setFullArticleText(article);
-				json.setHtmlSnippet(webDocument.getExtractedHtmlSnippet());
-
-				/*Summarizer summarizer = new Summarizer();
-				String summaryText = summarizer.Summarize(article, 3);
-
-				json.setArticleSummaryText(summaryText);*/
+				article = textHandler.toString();*/
 			} else {
-				$LOG.debug("Parsing HTML didn't go well");
-				if(strictSuccessMode){
-					return null;
+				article = Jsoup.parse(new String(webDocument.getFilteredHtml()
+						.getBytes())).body().text();
+				if (article == null || article.trim().isEmpty()) {
+					article = webDocument.getDocument().body().text();
+				}
+
+				String title = webDocument.getTitle();
+
+				if (title != null) {
+					title = LanguageUtil.cleanHtmlInvisibleCharacters(title);
+					article.replaceAll(title.trim(), "");
+				}
+
+				article = LanguageUtil.cleanHtmlInvisibleCharacters(article);
+				article = article.replaceAll("\\s+", " ").replaceAll("\\t+", " ").replaceAll("\\n+", "\n").replaceAll("\\r+", "\r");
+
+				String ogImage = webDocument.getImageUrl();
+				json.setOgImage(ogImage);
+				/*String keywordsText = metadata.get("keywords");
+				if (keywordsText != null) {
+					String[] keywords = keywordsText.split(",");
+					for (String keyword : keywords) {
+						json.getKeywords().add(keyword.trim());
+					}
+				}*/
+
+				String ogUrl = webDocument.getSourceUrl();
+				json.setOgUrl(ogUrl);
+				
+				String inputUrl = webDocument.getInputUrl();
+				if(inputUrl == null || inputUrl.trim().isEmpty()) {
+					inputUrl = ogUrl;
+				}
+				json.setHrefSource(inputUrl);
+
+				ogDescription = webDocument.getDescription();
+				json.setOgDescription(ogDescription);
+
+				json.setOgTitle(title);
+				if(webDocument.isSuccess()) {
+					$LOG.debug("Parsing HTML was successful");
+					json.setFullArticleText(article);
+					json.setHtmlSnippet(webDocument.getExtractedHtmlSnippet());
+
+					/*Summarizer summarizer = new Summarizer();
+					String summaryText = summarizer.Summarize(article, 3);
+
+					json.setArticleSummaryText(summaryText);*/
+				} else {
+					$LOG.debug("Parsing HTML didn't go well");
+					if(strictSuccessMode){
+						return null;
+					}
 				}
 			}
-
+			
 			if(summerize) {
 				Summarizer summarizer = new Summarizer();
 				String summaryText = summarizer.Summarize(article, 3);
@@ -181,57 +230,24 @@ public class WebDocumentParser {
 			}
 		} catch (IOException e) {
 			$LOG.error(e.getMessage(), e);
+		} catch (BoilerpipeProcessingException e) {
+			$LOG.error(e.getMessage(), e);
+		} catch (SAXException e) {
+			$LOG.error(e.getMessage(), e);
 		}
 
 		return json;
 	}
 
-	private MatchRank checkMatch(String[][] wordMatrix, String elementText) {
-		elementText = elementText.trim();
-		int len = wordMatrix.length; // This is a SQUARE matrix
-		String entireSentence = wordMatrix[0][len - 1];
-		if (elementText.isEmpty()
-				|| elementText.length() < entireSentence.length())
-			return MatchRank.NO_MATCH;
-		StringBuilder partialMatches = new StringBuilder();
-		for (int i = 0; i < len; i++) {
-			for (int j = len - 1; j >= i; j--) {
-				String text1 = wordMatrix[i][j].trim();
-				String str = elementText.replaceAll("[^a-zA-Z0-9\\s]", "");
-				if (str.contains(text1 + " ") || str.contains(" " + text1)
-				/* || text1.contains(elementText) */) {
-					float percentageMatch = (float) text1.length()
-							/ (float) entireSentence.length();
-					if (percentageMatch > 0.6f) {
-						return MatchRank.HIGH;
-					} else if (percentageMatch > 0.4f && percentageMatch < 0.6f) {
-						return MatchRank.MEDIUM;
-					} else if (!partialMatches.toString().contains(text1)) {
-						String[] words = text1.split(" ");
-						for(String word : words) {
-							if (!partialMatches.toString().contains(word)) {
-								partialMatches.append(word);
-								partialMatches.append(" ");
-							}
-						}
-					}
-				}
-			}
-		}
-		if(partialMatches.toString().isEmpty())
-			return MatchRank.NO_MATCH;
-		float percentageMatch = (float) partialMatches.length()
-				/ (float) entireSentence.length();
-		if (percentageMatch > 0.6f) {
-			return MatchRank.HIGH;
-		} else if (percentageMatch > 0.4f && percentageMatch < 0.6f) {
-			return MatchRank.MEDIUM;
-		}
-		return MatchRank.LOW;
-	}
-	
-	private enum MatchRank {
-		NO_MATCH, LOW, MEDIUM, HIGH
+	private WebElement findPrimaryElement(Document doc, String description,
+			List<String> keywordsList) {
+		WebElement result = findPrimaryElementByDescription(doc, description);
+		if (result != null)
+			return result;
+		/*
+		 * if (returnIfTagNameNotFound) { return null; }
+		 */
+		return null;
 	}
 
 	private WebElement findPrimaryElementByDescription(Document doc,
@@ -273,7 +289,7 @@ public class WebDocumentParser {
 			String text = element.text().replaceAll("\\s+", " ")
 					.replaceAll("\\xA0", " ");
 			$LOG.debug(text);
-			MatchRank matchRank = checkMatch(wordMatrix, text);
+			MatchRank matchRank = MatchRank.checkMatch(wordMatrix, text);
 			switch (matchRank) {
 			case NO_MATCH:
 				if(primaryElement != null && element.parents().contains(primaryElement)) {
@@ -286,13 +302,13 @@ public class WebDocumentParser {
 					tagName = element.tagName();
 					primaryElement = element;
 					primaryElementClassName = primaryElement.className();
-					primaryElementDepth = depth(primaryElement, doc);
-				} else if (isLeaf(element)) {
+					primaryElementDepth = WebDocumentUtil.depth(primaryElement, doc);
+				} else if (WebDocumentUtil.isLeaf(element)) {
 					tagName = element.tagName();
 					primaryElement = element;
 					primaryElementClassName = primaryElement.className();
-					primaryElementDepth = depth(primaryElement, doc);
-					if (!isHeaderElement(element)) {
+					primaryElementDepth = WebDocumentUtil.depth(primaryElement, doc);
+					if (!WebDocumentUtil.isHeaderElement(element)) {
 						return new WebElement()
 								.setPrimaryElement(primaryElement)
 								.setPrimaryElementClassName(
@@ -301,7 +317,7 @@ public class WebDocumentParser {
 								.setTagName(tagName);
 					}
 				} else {
-					int newDepth = depth(element, doc);
+					int newDepth = WebDocumentUtil.depth(element, doc);
 					if (newDepth > primaryElementDepth) {
 						tagName = element.tagName();
 						primaryElement = element;
@@ -370,320 +386,6 @@ public class WebDocumentParser {
 				.setTagName(tagName);
 	}
 	
-	private class MarkedElement {
-		
-		private Element el;
-		
-		private int depth;
-		
-		private MarkedElement(Element el, int depth) {
-			this.el = el;
-			this.depth = depth;
-		}
-
-		private Element getEl() {
-			return el;
-		}
-
-		private int getDepth() {
-			return depth;
-		}
-	}
-
-	private WebElement findPrimaryElement(Document doc, String description,
-			List<String> keywordsList) {
-		WebElement result = findPrimaryElementByDescription(doc, description);
-		if (result != null)
-			return result;
-		/*
-		 * if (returnIfTagNameNotFound) { return null; }
-		 */
-		return null;
-	}
-
-	private int depth(Element element, Element commonAncestor) {
-		int depth = 0;
-		Element el = element;
-		while (el != commonAncestor && el != null) {
-			depth++;
-			el = el.parent();
-		}
-		return depth;
-	}
-
-	private boolean isLeaf(Node node) {
-		if(node.childNodes().isEmpty()) {
-			return true;
-		}
-		Iterator<Node> itr = node.childNodes().iterator();
-		while(itr.hasNext()) {
-			Node next = itr.next();
-			if(next instanceof Element) {
-				return false;
-			}
-		}
-		return true;
-	}
-	
-	private boolean isHeaderElement(Element el) {
-		if(el == null)
-			return false;
-		String tagName = el.tagName();
-		if(tagName == null)
-			return false;
-		return tagName.toLowerCase().startsWith("h");
-	}
-
-	private Elements siblingElements(Element el) {
-		Element parent = el.parent();
-		if (parent == null)
-			return new Elements();
-		int size = parent.children().size();
-		if (size == 0)
-			return new Elements();
-		return el.siblingElements();
-	}
-
-	private void removeStyleLinks(Document doc) {
-		Elements elementsByTag = doc.getElementsByTag("style");
-		if (elementsByTag != null && !elementsByTag.isEmpty()) {
-			elementsByTag.remove();
-		}
-	}
-
-	private void removeScripts(Document doc) {
-		Elements elementsByTag = doc.getElementsByTag("script");
-		if (elementsByTag != null && !elementsByTag.isEmpty()) {
-			elementsByTag.remove();
-		}
-	}
-
-	private void removeHeaders(Document doc) {
-		Elements elementsByTag = doc.getElementsByTag("header");
-		if (elementsByTag != null && !elementsByTag.isEmpty()) {
-			elementsByTag.remove();
-		}
-	}
-
-	private void removeFooters(Document doc) {
-		Elements elementsByTag = doc.getElementsByTag("footer");
-		if (elementsByTag != null && !elementsByTag.isEmpty()) {
-			elementsByTag.remove();
-		}
-	}
-
-	private static void removeComments(Node node) {
-		for (int i = 0; i < node.childNodeSize();) {
-			Node child = node.childNode(i);
-			if (child.nodeName().equals("#comment"))
-				child.remove();
-			else {
-				removeComments(child);
-				i++;
-			}
-		}
-	}
-	
-	private String readOgUrl(Document doc) {
-		String url = null;
-		Elements metaOgUrl = doc.select("meta[property=og:url]");
-		if (metaOgUrl == null || metaOgUrl.isEmpty()) {
-			metaOgUrl = doc.select("meta[property=twitter:url]");
-		}
-		if (metaOgUrl == null || metaOgUrl.isEmpty()) {
-			metaOgUrl = doc.select("meta[name=og:url]");
-		}
-		if (metaOgUrl == null || metaOgUrl.isEmpty()) {
-			metaOgUrl = doc.select("meta[name=twitter:url]");
-		}
-		if (metaOgUrl != null && !metaOgUrl.isEmpty()) {
-			url = metaOgUrl.attr("content");
-			if(url == null || url.trim().isEmpty()) {
-				url = metaOgUrl.attr("content");
-			}
-		}
-		if(url == null || url.trim().isEmpty()) {
-			return null;
-		}
-		return url;
-	}
-
-	private String readOgTilte(Document doc) {
-		String title = null;
-		Elements metaOgTitle = doc.select("meta[property=og:title]");
-		if (metaOgTitle == null || metaOgTitle.isEmpty()) {
-			metaOgTitle = doc.select("meta[property=twitter:title]");
-		}
-		if (metaOgTitle == null || metaOgTitle.isEmpty()) {
-			metaOgTitle = doc.select("meta[name=og:title]");
-		}
-		if (metaOgTitle == null || metaOgTitle.isEmpty()) {
-			metaOgTitle = doc.select("meta[name=twitter:title]");
-		}
-		if (metaOgTitle == null || metaOgTitle.isEmpty()) {
-			metaOgTitle = doc.select("meta[property=title]");
-		}
-		if (metaOgTitle == null || metaOgTitle.isEmpty()) {
-			Elements els = doc.head().getElementsByTag("title");
-			if(els != null && !els.isEmpty()) {
-				return els.get(0).text();
-			}
-		}
-		if (metaOgTitle != null && !metaOgTitle.isEmpty()) {
-			title = metaOgTitle.attr("content");
-			if(title == null) {
-				title = metaOgTitle.attr("value");
-			}
-		}
-		if(title == null || title.trim().isEmpty()) {
-			return null;
-		}
-		return title;
-	}
-
-	private String readOgDescription(Document doc) {
-		String description = null;
-		Elements metaOgDescription = doc
-				.select("meta[property=og:description]");
-		if (metaOgDescription == null || metaOgDescription.isEmpty()) {
-			metaOgDescription = doc
-					.select("meta[property=twitter:description]");
-		}
-		if (metaOgDescription == null || metaOgDescription.isEmpty()) {
-			metaOgDescription = doc
-					.select("meta[name=og:description]");
-		}
-		if (metaOgDescription == null || metaOgDescription.isEmpty()) {
-			metaOgDescription = doc
-					.select("meta[name=twitter:description]");
-		}
-		if (metaOgDescription == null || metaOgDescription.isEmpty()) {
-			metaOgDescription = doc.select("meta[property=description]");
-		}
-		if (metaOgDescription != null && !metaOgDescription.isEmpty()) {
-			description = metaOgDescription.attr("content");
-			if(description == null) {
-				description = metaOgDescription.attr("value");
-			}
-		}
-		if(description == null || description.trim().isEmpty()) {
-			return null;
-		}
-		description = LanguageUtil.cleanHtmlInvisibleCharacters(description);
-		return description;
-	}
-	
-	private String readOgImage(Document doc) {
-		String imageUrl = null;
-		Elements metaOgImage = doc
-				.select("meta[property=og:image]");
-		if (metaOgImage == null || metaOgImage.isEmpty()) {
-			metaOgImage = doc
-					.select("meta[property=twitter:image]");
-		}
-		if (metaOgImage == null || metaOgImage.isEmpty()) {
-			metaOgImage = doc
-					.select("meta[name=og:image]");
-		}
-		if (metaOgImage == null || metaOgImage.isEmpty()) {
-			metaOgImage = doc
-					.select("meta[name=twitter:image]");
-		}
-		if (metaOgImage != null && !metaOgImage.isEmpty()) {
-			imageUrl = metaOgImage.attr("content");
-			if(imageUrl == null) {
-				imageUrl = metaOgImage.attr("value");
-			}
-		}
-		if(imageUrl == null || imageUrl.trim().isEmpty()) {
-			return null;
-		}
-		imageUrl = LanguageUtil.cleanHtmlInvisibleCharacters(imageUrl);
-		return imageUrl;
-	}
-
-	private List<String> readKeywordsList(Document doc) {
-		Elements metaOgKeywords = doc.select("meta[name=keywords]");
-		String keywordsText = metaOgKeywords.attr("content");
-		List<String> keywordsList = new ArrayList<String>();
-		if (keywordsText != null) {
-			String[] keywords = keywordsText.split(",");
-			for (String keyword : keywords) {
-				keywordsList.add(keyword.trim());
-			}
-		}
-		return keywordsList;
-	}
-
-	private Element findLowestCommonAncestor(Element el1, Element el2, Element treeBaseRoot) {
-		Element p1 = el1;
-		Element p2 = el2;
-		if (p1 == null || p2 == null) {
-			return null;
-		}
-		Element root = p1;
-		StringBuilder str = new StringBuilder();
-		while (p1 != null) {
-			root = p1;
-			str.append(p1.tagName());
-			p1 = p1.parent();
-			if (p1 != null) {
-				str.append(",");
-			}
-		}
-		String[] p1PathSequence = str.reverse().toString().split(",");
-		str = new StringBuilder();
-		while (p2 != null) {
-			str.append(p2.tagName());
-			p2 = p2.parent();
-			if (p2 != null) {
-				str.append(",");
-			}
-		}
-		String[] p2PathSequence = str.reverse().toString().split(",");
-		int i = 0;
-		String p1Path = p1PathSequence[i];
-		String p2Path = p2PathSequence[i];
-		while (p1Path.equals(p2Path)) {
-			i++;
-			if (i >= p1PathSequence.length || i >= p2PathSequence.length) // Not a bug this is intentional
-				return root;
-			/*if (i >= p1PathSequence.length)
-				return el1;
-			else if (i >= p2PathSequence.length)
-				return el2;*/
-			p1Path = p1PathSequence[i];
-			p2Path = p2PathSequence[i];
-		}
-		if (i == 0) {
-			return root;
-		}
-		int count = p1PathSequence.length - i;
-		i = p1PathSequence.length;
-		p1 = el1;
-		while (count > 0) {
-			p1 = p1.parent();
-			count--;
-		}
-		
-		// Check if article exists above the hierarchy
-		Element tmp = p1.parent();
-		while (tmp != null && !tmp.equals(treeBaseRoot)) {
-			if ("article".equals(tmp.tagName())) {
-				String role = tmp.attr("role");
-				if (role != null
-						&& (role.equalsIgnoreCase("main") || role
-								.equalsIgnoreCase("content"))) {
-					p1 = tmp;
-					break;
-				}
-			}
-			tmp = tmp.parent();
-		}
-		
-		return p1;
-	}
-	
 	private AmpHtml parseAmpHtml(Document doc, String description) throws Exception {
 		Elements elements = doc.getElementsByTag("link");
 		if(elements != null && !elements.isEmpty()) {
@@ -734,23 +436,27 @@ public class WebDocumentParser {
 		}
 	}
 	
-	private WebDocument parseHtml(String html, String placeHolder) throws IOException {
+	private WebDocument parseHtml(String html, String placeHolder) throws IOException, BoilerpipeProcessingException, SAXException {
 		return doParseHtml(html, placeHolder, false);
 	}
 
-	private WebDocument doParseHtml(String html, String placeHolder, boolean isAmpHtmlLink) throws IOException {
+	private WebDocument doParseHtml(String html, String placeHolder, boolean isAmpHtmlLink) throws IOException, BoilerpipeProcessingException, SAXException {
 		Document doc = Jsoup.parse(html);
 		//$LOG.debug(doc.body().text());
-		String title = readOgTilte(doc);
+		String title = WebDocumentUtil.readOgTilte(doc);
+		String tmpDescription = WebDocumentUtil.readOgDescription(doc);
+		String imageUrl = WebDocumentUtil.readOgImage(doc);
+		String ogUrl = WebDocumentUtil.readOgUrl(doc);
+		String inputUrl = ogUrl;
+		/*if(title == null && tmpDescription == null && imageUrl == null && ogUrl == null) {
+			return new WebDocument(title, tmpDescription, imageUrl, ogUrl, inputUrl, doc, null).setCompatible(false);
+		}*/
 		String description = placeHolder;
 		if(description == null || description.trim().isEmpty()) {
-			description = readOgDescription(doc);
+			description = tmpDescription;
 		}
 		//String description = readOgDescription(doc);
-		String imageUrl = readOgImage(doc);
-		List<String> keywordsList = readKeywordsList(doc);
-		String ogUrl = readOgUrl(doc);
-		String inputUrl = ogUrl;
+		List<String> keywordsList = WebDocumentUtil.readKeywordsList(doc);
 		
 		if (!isAmpHtmlLink) {
 			try {
@@ -759,9 +465,9 @@ public class WebDocumentParser {
 					String html2 = ampHtml.getHtml();
 					if (html2 != null && !html2.trim().isEmpty()) {
 						Document doc1 = Jsoup.parse(html2);
-						String title1 = readOgTilte(doc1);
-						String description1 = readOgDescription(doc1);
-						String imageUrl1 = readOgImage(doc1);
+						String title1 = WebDocumentUtil.readOgTilte(doc1);
+						String description1 = WebDocumentUtil.readOgDescription(doc1);
+						String imageUrl1 = WebDocumentUtil.readOgImage(doc1);
 						if(title1 != null && !title1.trim().isEmpty()) {
 							title = title1;
 						}
@@ -805,22 +511,34 @@ public class WebDocumentParser {
 		}
 		
 		$LOG.debug("Removing Comments");
-		removeComments(doc);
+		WebDocumentUtil.removeComments(doc);
 		$LOG.debug("Removing JS Skripts");
-		removeScripts(doc);
+		WebDocumentUtil.removeScripts(doc);
 		$LOG.debug("Removing CSS Style links");
-		removeStyleLinks(doc);
+		WebDocumentUtil.removeStyleLinks(doc);
+		
+		if (description == null || description.trim().isEmpty()) {
+			return BoilerpipeHtmlProcessor.newInstance().process(
+					html, doc.outerHtml(), title, description, imageUrl, ogUrl,
+					inputUrl, this.url);
+		}
 
 		WebElement primaryElement = findPrimaryElement(doc, description,
 				keywordsList);
 		if (primaryElement == null) {
 			$LOG.debug("Failed to get primary element based upon description");
-			return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc, null);
+			//return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc, null);
+			return BoilerpipeHtmlProcessor.newInstance().process(
+					html, doc.outerHtml(), title, description, imageUrl, ogUrl,
+					inputUrl, this.url);
 		}
 		Element majorElement = primaryElement.getPrimaryElement();
 		if (majorElement == null) {
 			$LOG.debug("Failed to get primary/major element based upon description");
-			return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc, null);
+			//return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc, null);
+			return BoilerpipeHtmlProcessor.newInstance().process(
+					html, doc.outerHtml(), title, description, imageUrl, ogUrl,
+					inputUrl, this.url);
 		}
 
 		Element h1Element = null;
@@ -830,16 +548,22 @@ public class WebDocumentParser {
 		}
 		if (h1Element == null) {
 			$LOG.debug("No <h1> tag found");
-			return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc, null);
+			//return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc, null);
+			return BoilerpipeHtmlProcessor.newInstance().process(
+					html, doc.outerHtml(), title, description, imageUrl, ogUrl,
+					inputUrl, this.url);
 		} else {
 			title = h1Element.text();
 		}
 
 		$LOG.debug("Trying to find LCA");
-		Element _LCA = findLowestCommonAncestor(majorElement, h1Element, doc.body());
+		Element _LCA = WebDocumentUtil.findLowestCommonAncestor(majorElement, h1Element, doc.body());
 		if (_LCA == null) {
 			$LOG.debug("Failed to compute LCA node");
-			return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc, null);
+			//return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc, null);
+			return BoilerpipeHtmlProcessor.newInstance().process(
+					html, doc.outerHtml(), title, description, imageUrl, ogUrl,
+					inputUrl, this.url);
 		}
 		
 		title = h1Element.text();
@@ -854,7 +578,7 @@ public class WebDocumentParser {
 			}
 		}
 
-		Elements siblingElements = siblingElements(_LCA);
+		Elements siblingElements = WebDocumentUtil.siblingElements(_LCA);
 		Iterator<Element> itr = siblingElements.iterator();
 		while (itr.hasNext()) {
 			Element element = itr.next();
@@ -875,9 +599,9 @@ public class WebDocumentParser {
 		}
 
 		$LOG.debug("Removing headers");
-		removeHeaders(doc);
+		WebDocumentUtil.removeHeaders(doc);
 		$LOG.debug("Removing footers");
-		removeFooters(doc);
+		WebDocumentUtil.removeFooters(doc);
 
 		html = "<html><body>" + _LCA.html() + "</body></html>";
 		$LOG.trace("Final HTML to parse = ");
@@ -949,7 +673,7 @@ public class WebDocumentParser {
 			}
 		}
 		
-		if (isLeaf(majorElement)) {
+		if (WebDocumentUtil.isLeaf(majorElement)) {
 			String tagName0 = majorElement.tagName();
 			if(tagName0 == null)
 				return;
@@ -958,7 +682,7 @@ public class WebDocumentParser {
 				Iterator<Element> itr = allElements.iterator();
 				while (itr.hasNext()) {
 					Element el = itr.next();
-					if (isLeaf(el)) {
+					if (WebDocumentUtil.isLeaf(el)) {
 						String tagName1 = el.tagName();
 						if (!tagName0.equalsIgnoreCase(tagName1)) {
 							el.remove();
@@ -1054,7 +778,7 @@ public class WebDocumentParser {
 			Element tree = itr.next();
 			if (subTree.equals(tree))
 				continue;
-			boolean remove = !(parentsList.contains(tree)) || isLeaf(tree);
+			boolean remove = !(parentsList.contains(tree)) || WebDocumentUtil.isLeaf(tree);
 			if (remove) {
 				tree.remove();
 			}
@@ -1066,75 +790,12 @@ public class WebDocumentParser {
 			Node tree = childNodes.get(i);
 			if (subTree.equals(tree))
 				continue;
-			boolean remove = !(parentsList.contains(tree)) || isLeaf(tree);
+			boolean remove = !(parentsList.contains(tree)) || WebDocumentUtil.isLeaf(tree);
 			if (remove) {
 				tree.remove();
 				size = size - 1;
 				i--;
 			}
-		}
-	}
-
-	private class WebElement {
-
-		private String tagName;
-
-		private Element primaryElement = null;
-
-		private String primaryElementClassName = null;
-
-		private int primaryElementDepth = -1;
-
-		public String getTagName() {
-			return tagName;
-		}
-
-		public WebElement setTagName(String tagName) {
-			this.tagName = tagName;
-			return this;
-		}
-
-		public Element getPrimaryElement() {
-			return primaryElement;
-		}
-
-		public WebElement setPrimaryElement(Element primaryElement) {
-			this.primaryElement = primaryElement;
-			return this;
-		}
-
-		public String getPrimaryElementClassName() {
-			return primaryElementClassName;
-		}
-
-		public WebElement setPrimaryElementClassName(
-				String primaryElementClassName) {
-			this.primaryElementClassName = primaryElementClassName;
-			return this;
-		}
-
-		public int getPrimaryElementDepth() {
-			return primaryElementDepth;
-		}
-
-		public WebElement setPrimaryElementDepth(int primaryElementDepth) {
-			this.primaryElementDepth = primaryElementDepth;
-			return this;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (obj != null && (obj instanceof WebElement)) {
-				WebElement w1 = (WebElement) obj;
-				return this.primaryElement.equals(w1.primaryElement)
-						&& this.tagName.equals(w1.tagName);
-			}
-			return false;
-		}
-
-		@Override
-		public int hashCode() {
-			return this.primaryElement.hashCode() + this.tagName.hashCode();
 		}
 	}
 }

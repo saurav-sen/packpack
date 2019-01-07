@@ -35,6 +35,6 @@ public class BookmarkResource {
 		BookmarkDTO dto = JSONUtil.deserialize(json, BookmarkDTO.class, true);
 		WebDocumentParser parser = ServiceRegistry.INSTANCE
 				.findService(WebDocumentParser.class);
-		return parser.parseHttpUrl(dto.getHyperlink());
+		return parser.setUrl(dto.getHyperlink()).parse();
 	}
 }

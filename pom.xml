@@ -74,6 +74,7 @@
 		<module>model</module>
 		<module>feed-model</module>
 		<module>common</module>
+		<module>boilerpipe</module>
 		<!--module>elastic-search</module-->
 		<module>services</module>
 		<module>services-ext</module>

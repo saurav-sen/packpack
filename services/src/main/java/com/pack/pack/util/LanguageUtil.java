@@ -2,6 +2,7 @@ package com.pack.pack.util;
 
 import java.text.BreakIterator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.vdurmont.emoji.EmojiParser;
@@ -153,8 +154,10 @@ public final class LanguageUtil {
 	
 	public static String foldToASCII(String inputText) {
 		char[] input = inputText.toCharArray();
-		char[] output = new char[input.length];
-		foldToASCII(input, 0, output, 0, input.length);
+		int outputLength = 3 * input.length;
+		char[] output = new char[outputLength];
+		outputLength = foldToASCII(input, 0, output, 0, input.length);
+		output = Arrays.copyOfRange(output, 0, outputLength);
 		return new String(output);
 	}
 

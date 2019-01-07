@@ -43,7 +43,7 @@ public class DefaultArticleTextSummarizer implements IArticleTextSummarizer {
 	public ArticleText extractArticle(String url, String title,
 			String description, String summaryText) throws OgCrawlException {
 		ArticleText articleText = null;
-		boolean success = false;
+		/*boolean success = false;
 		try {
 			String text = summaryText;
 			String openNlpConfDir = SystemPropertyUtil.getOpenNlpConfDir();
@@ -68,15 +68,29 @@ public class DefaultArticleTextSummarizer implements IArticleTextSummarizer {
 					articleText = new ArticleText();
 					articleText.setTitle(title);
 					articleText.setHtmlSnippet(htmlSnippet);
-					return articleText;
+					//return articleText;
 				}
 			}
 		} catch (Exception e1) {
 			LOG.error(e1.getMessage(), e1);
-		}
+		}*/
 		
 		try {
 			articleText = new AylienArticleTextExtractor().extract(url);
+			String text = articleText.getArticle();
+			String openNlpConfDir = SystemPropertyUtil.getOpenNlpConfDir();
+			if ((text == null || text.trim().isEmpty())
+					&& openNlpConfDir != null) {
+				String[] sentences = new DefaultSentenceFinder(openNlpConfDir)
+						.findSentences(text);
+				if (sentences != null && sentences.length > 0) {
+					text = sentences[0];
+				} else {
+					text = null;
+				}
+			}
+			/*articleText.setTitle(articleText1.getTitle());
+			articleText.setArticle(articleText1.getArticle());*/
 		} catch (ClientProtocolException e) {
 			LOG.error(LogTags.ARTICLE_EXTRACTION_ERROR + e.getMessage(), e);
 			throw new OgCrawlException("", e.getMessage(), e);
