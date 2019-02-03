@@ -86,6 +86,7 @@ public class WebDocumentParser {
 	
 	public WebDocumentParser setUrl(String url) {
 		this.url = url;
+		this.isUrlBasedProcessing = true;
 		return this;
 	}
 	
