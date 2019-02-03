@@ -261,7 +261,7 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 			webLinkTrackerService.upsertCrawledInfo(link, info, RSSConstants.DEFAULT_TTL_WEB_TRACKING_INFO, false);
 		}
 		
-		if (notificationMessages.isEmpty()
+		/*if (notificationMessages.isEmpty()
 				&& ((System.currentTimeMillis() - LocalData.INSTANCE
 						.getLastNotifiedTimestamp()) > (6 * 60 * 60 * 1000))) {
 			if (!feeds.isEmpty()) {
@@ -269,7 +269,7 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 						% feeds.size());
 				notificationMessages.add(f.getOgTitle());
 			}
-		}
+		}*/
 		
 		if(session.hashMoreNotificationMessages()) {
 			return;

@@ -121,7 +121,7 @@ public class SpiderSessionFactory {
 		
 		@Override
 		public void fireTopNotificationIfAny() {
-			try {
+			/*try {
 				while(hashMoreNotificationMessages()) {
 					String msg = getTopNotificationMessage();
 					if(msg != null) {
@@ -130,7 +130,7 @@ public class SpiderSessionFactory {
 				}
 			} catch (PackPackException e) {
 				LOG.error(e.getMessage(), e);
-			}
+			}*/
 		}
 		
 		@Override
