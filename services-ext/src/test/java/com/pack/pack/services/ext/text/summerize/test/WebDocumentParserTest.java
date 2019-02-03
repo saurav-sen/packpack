@@ -53,12 +53,28 @@ public class WebDocumentParserTest {
 				"http://blog.openshift.com/day-18-boilerpipe-article-extraction-for-java-developers/");
 
 		System.out.println(ArticleExtractor.INSTANCE.getText(url));*/
+		
+		json = new WebDocumentParser(
+				"https://qz.com/india/1533408/indigo-ceo-ronojoy-dutta-is-an-iit-and-united-airlines-alumnus/")
+				.parse();
+		$LOG.info(json.getArticleSummaryText());
+		$LOG.info(json.getFullArticleText());
+		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
+		Assert.assertTrue(json.getFullArticleText() != null);
+		
+		json = new WebDocumentParser(
+				"https://thewire.in/rights/sajjan-kumar-1984-violence-sikhs")
+				.parse();
+		$LOG.info(json.getArticleSummaryText());
+		$LOG.info(json.getFullArticleText());
+		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
+		Assert.assertTrue(json.getOgTitle() != null);
 
-	    PrintWriter out = new PrintWriter("D:/Saurav/boilerpipe/tmp/highlighted.html", "UTF-8");
+	   /* PrintWriter out = new PrintWriter("D:/Saurav/boilerpipe/tmp/highlighted.html", "UTF-8");
 	    out.println("<base href=\"" + "https://www.quora.com/What-is-the-use-of-replacing-one-party-with-an-earlier-party-that-was-replaced-for-the-same-reason-of-failure-and-incompetence-And-with-the-same-despised-leaders-do-elections-really-serve-the-purpose-What-can-be" + "\" >");
 	    out.println("<meta http-equiv=\"Content-Type\" content=\"text-html; charset=utf-8\" />");
 	    out.println(hh.process(new URL("https://www.quora.com/What-is-the-use-of-replacing-one-party-with-an-earlier-party-that-was-replaced-for-the-same-reason-of-failure-and-incompetence-And-with-the-same-despised-leaders-do-elections-really-serve-the-purpose-What-can-be"), extractor));
-		
+		*/
 		json = new WebDocumentParser(
 				"https://www.quora.com/What-is-the-use-of-replacing-one-party-with-an-earlier-party-that-was-replaced-for-the-same-reason-of-failure-and-incompetence-And-with-the-same-despised-leaders-do-elections-really-serve-the-purpose-What-can-be")
 				.parse();

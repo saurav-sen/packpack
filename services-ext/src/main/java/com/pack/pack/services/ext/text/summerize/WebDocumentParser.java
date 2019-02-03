@@ -45,7 +45,9 @@ public class WebDocumentParser {
 	// private static final boolean returnIfTagNameNotFound = true;
 
 	private static final String H1_TAG_NAME = "h1";
-
+	
+	private static final String H2_TAG_NAME = "h2";
+	
 	private static final Logger $LOG = LoggerFactory
 			.getLogger(WebDocumentParser.class);
 	
@@ -603,7 +605,7 @@ public class WebDocumentParser {
 		$LOG.debug("Removing footers");
 		WebDocumentUtil.removeFooters(doc);
 
-		html = "<html><body>" + _LCA.html() + "</body></html>";
+		html = "<html><head><script async src=\"https://cdn.ampproject.org/v0.js\"></script></head><body>" + _LCA.html() + "</body></html>";
 		$LOG.trace("Final HTML to parse = ");
 		Document document = Jsoup.parse(html);
 		$LOG.trace(document.text());
@@ -615,8 +617,13 @@ public class WebDocumentParser {
 	private void cleanUpLCA(Element lca, Element majorElement) {
 		String tagNameToConsiderOnly = null;
 		Set<String> cssClassesToConsider = null;
+		
+		if(lca == null || majorElement == null)
+			return;
+		
 		List<Node> childNodes = lca.childNodes();
 		Element majorParent = null;
+		
 		if (childNodes != null && !childNodes.isEmpty()
 				&& !childNodes.contains(majorElement)) {
 			Iterator<Element> itr = majorElement.parents().iterator();
@@ -639,13 +646,14 @@ public class WebDocumentParser {
 			Iterator<Element> itr = lca.children().iterator();
 			while (itr.hasNext()) {
 				Element subTree = itr.next();
-				if (H1_TAG_NAME.equals(subTree.tagName()))
+				if (H1_TAG_NAME.equals(subTree.tagName()) || H2_TAG_NAME.equals(subTree.tagName()))
 					continue;
 				if (tagNameToConsiderOnly.equals(subTree.tagName())
 						&& compareCssStyles(cssClassesToConsider,
 								subTree.classNames()))
 					continue;
-				subTree.remove();
+				//subTree.remove();
+				WebDocumentUtil.cleanUpHtmlTree(subTree);
 			}
 			
 			if (majorParent != null) {
@@ -656,7 +664,7 @@ public class WebDocumentParser {
 						xPath = majorParent.tagName() + " > " + xPath;
 						while (itr.hasNext()) {
 							Element subTree = itr.next();
-							if (H1_TAG_NAME.equals(subTree.tagName()))
+							if (H1_TAG_NAME.equals(subTree.tagName()) || H2_TAG_NAME.equals(subTree.tagName()))
 								continue;
 							if (isEQUAL(majorParent, subTree))
 								continue;
@@ -665,7 +673,8 @@ public class WebDocumentParser {
 							Document document = Jsoup.parse(html);
 							Elements elements = document.select(xPath);
 							if (elements == null || elements.isEmpty()) {
-								subTree.remove();
+								//subTree.remove();
+								WebDocumentUtil.cleanUpHtmlTree(subTree);
 							}
 						}
 					}
@@ -684,8 +693,14 @@ public class WebDocumentParser {
 					Element el = itr.next();
 					if (WebDocumentUtil.isLeaf(el)) {
 						String tagName1 = el.tagName();
-						if (!tagName0.equalsIgnoreCase(tagName1)) {
-							el.remove();
+						if (!tagName0.equalsIgnoreCase(tagName1)
+								&& !tagName1
+										.equalsIgnoreCase(WebDocumentUtil.IMG_TAG_NAME)
+								&& !tagName1
+										.equalsIgnoreCase(WebDocumentUtil.AMP_IMG_TAG_NAME)
+								&& !WebDocumentUtil.isChildOfHeaderElement(el)) {
+							// el.remove();
+							WebDocumentUtil.cleanUpHtmlTree(el);
 						}
 					}
 				}

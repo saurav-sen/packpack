@@ -1,9 +1,13 @@
 package com.pack.pack.services.ext.text.summerize;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
@@ -18,7 +22,158 @@ import com.pack.pack.util.LanguageUtil;
  */
 public class WebDocumentUtil {
 	
+	public static final String IMG_TAG_NAME = "img";
+	
+	public static final String AMP_IMG_TAG_NAME = "amp-img";
+	
+	private static final String FIGURE_TAG_NAME = "figure";
+	
+	private static final String SRC_ATTR_NAME = "src";
+	
 	private WebDocumentUtil() {
+	}
+	
+	static void cleanUpHtmlTree(Element subTree) {
+		// subTree.remove();
+		if(subTree == null)
+			return;
+
+		if(isLeaf(subTree)) {
+			String tagName = subTree.tagName();
+			if(IMG_TAG_NAME.equalsIgnoreCase(tagName)/* || IFRAME_TAG_NAME.equalsIgnoreCase(tagName)*/) {
+				if (subTree.hasAttr(SRC_ATTR_NAME)) {
+					String src = subTree.attr(SRC_ATTR_NAME);
+					if (src == null || src.trim().isEmpty()
+							|| !src.trim().startsWith("http")) {
+						subTree.remove();
+					} else if (AdBlocker.INSTANCE.isAdvertisement(src.trim())) {
+						subTree.remove();
+					}
+				} else {
+					subTree.remove();
+				}
+			} else if(!"h1".equalsIgnoreCase(tagName) && !"h2".equalsIgnoreCase(tagName)) {
+				subTree.remove();
+			}
+		} else {
+			Elements elements = subTree.getElementsByTag(IMG_TAG_NAME);
+			Iterator<Element> itr = elements.iterator();
+			Set<Node> parentsList = new HashSet<Node>();
+			while(itr.hasNext()) {
+				Element img = itr.next();
+				if(img.hasAttr(SRC_ATTR_NAME)) {
+					String src = img.attr(SRC_ATTR_NAME);
+					if(src == null || src.trim().isEmpty() || !src.trim().startsWith("http")) {
+						img.remove();
+					}
+					else if(AdBlocker.INSTANCE.isAdvertisement(src.trim())) {
+						img.remove();
+					} else {
+						Iterator<Element> itr1 = img.parents().iterator();
+						while(itr1.hasNext()) {
+							parentsList.add(itr1.next());
+						}
+					}
+				} else {
+					img.remove();
+				}
+			}
+			
+			elements = subTree.getElementsByTag(AMP_IMG_TAG_NAME);
+			itr = elements.iterator();
+			while(itr.hasNext()) {
+				Element img = itr.next();
+				if(img.hasAttr(SRC_ATTR_NAME)) {
+					String src = img.attr(SRC_ATTR_NAME);
+					if(src == null || src.trim().isEmpty() || !src.trim().startsWith("http")) {
+						img.remove();
+					}
+					else if(AdBlocker.INSTANCE.isAdvertisement(src.trim())) {
+						img.remove();
+					} else {
+						Iterator<Element> itr1 = img.parents().iterator();
+						while(itr1.hasNext()) {
+							parentsList.add(itr1.next());
+						}
+					}
+				} else {
+					img.remove();
+				}
+			}
+			
+			elements = subTree.getElementsByTag(FIGURE_TAG_NAME);
+			itr = elements.iterator();
+			while(itr.hasNext()) {
+				Element figure = itr.next();
+				if(figure.hasAttr(SRC_ATTR_NAME)) {
+					String src = figure.attr(SRC_ATTR_NAME);
+					if(src == null || src.trim().isEmpty() || !src.trim().startsWith("http")) {
+						figure.remove();
+					} else if(AdBlocker.INSTANCE.isAdvertisement(src.trim())) {
+						figure.remove();
+					}
+				} else {
+					Elements images = figure.getElementsByTag(IMG_TAG_NAME);
+					Iterator<Element> itr1 = images.iterator();
+					while(itr1.hasNext()) {
+						Element img = itr1.next();
+						String src = img.attr(SRC_ATTR_NAME);
+						if(src == null || src.trim().isEmpty() || !src.trim().startsWith("http")) {
+							img.remove();
+						}
+						else if(AdBlocker.INSTANCE.isAdvertisement(src.trim())) {
+							img.remove();
+						} else {
+							Iterator<Element> itr2 = figure.parents().iterator();
+							while(itr2.hasNext()) {
+								parentsList.add(itr2.next());
+							}
+						}
+					}
+				}
+			}
+			
+			elements = subTree.children();
+			itr = elements.iterator();
+			while(itr.hasNext()) {
+				Element element = itr.next();
+				if(!parentsList.contains(element)) {
+					if(element.getElementsByTag("h1").isEmpty() && element.getElementsByTag("h2").isEmpty()) {
+						element.remove();
+					}
+				}
+			}
+			
+			/*List<Node> nodes = subTree.childNodes();
+			Iterator<Node> itrNodes = nodes.iterator();
+			while(itrNodes.hasNext()) {
+				Node node = itrNodes.next();
+				if(!parentsList.contains(node)) {
+					node.remove();
+				}
+			}*/
+			
+			if(isEmpty(subTree)) {
+				subTree.remove();
+			}
+		}
+	}
+	
+	static boolean isEmpty(Element subTree) {
+		boolean noElements = false;
+		Elements elements = subTree.children();
+		if(elements == null || elements.isEmpty()) {
+			noElements = true;
+		}
+		boolean noNodes = false;
+		List<Node> childNodes = subTree.childNodes();
+		if(childNodes == null || childNodes.isEmpty()) {
+			noNodes = true;
+		}
+		if(noElements && noNodes) {
+			return true;
+		}
+		return false;
 	}
 
 	static int depth(Element element, Element commonAncestor) {
@@ -52,6 +207,29 @@ public class WebDocumentUtil {
 		if(tagName == null)
 			return false;
 		return tagName.toLowerCase().startsWith("h");
+	}
+	
+	private static boolean isHeaderElementH1H2(Element el) {
+		if (el == null)
+			return false;
+		String tagName = el.tagName();
+		if (tagName == null)
+			return false;
+		return tagName.equalsIgnoreCase("h1") || tagName.equalsIgnoreCase("h2");
+	}
+	
+	static boolean isChildOfHeaderElement(Element el) {
+		if(isHeaderElementH1H2(el)) {
+			return true;
+		}
+		Iterator<Element> itr = el.parents().iterator();
+		while(itr.hasNext()) {
+			Element elAncestor = itr.next();
+			if(isHeaderElementH1H2(elAncestor)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	static Elements siblingElements(Element el) {
