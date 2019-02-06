@@ -3,6 +3,7 @@ package com.pack.pack.services.redis.services;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ import com.pack.pack.util.EncryptionUtil;
 import com.pack.pack.util.ModelConverter;
 import com.pack.pack.util.SystemPropertyUtil;
 import com.squill.feed.web.model.JRssFeed;
+import com.squill.feed.web.model.JRssFeedType;
 import com.squill.feed.web.model.TTL;
 
 /**
@@ -60,6 +62,13 @@ public class RefreshmentFeedServiceImpl implements IRefreshmentFeedService {
 		List<RSSFeed> result = feeds;
 		List<JRssFeed> rows = ModelConverter.convertAllRssFeeds(result,
 				ignoreVideoFeeds, ignoreSlideShows);
+		Iterator<JRssFeed> itr = rows.iterator();
+		while(itr.hasNext()) {
+			JRssFeed feed = itr.next();
+			if(!JRssFeedType.REFRESHMENT.name().equalsIgnoreCase(feed.getOgType())) {
+				itr.remove();
+			}
+		}
 		/*if (!promotionalFeeds) {
 			Collections.sort(rows, new RssFeedComparator(userId));
 		} else {*/

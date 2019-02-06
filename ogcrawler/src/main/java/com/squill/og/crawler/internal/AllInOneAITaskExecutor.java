@@ -264,7 +264,8 @@ public class AllInOneAITaskExecutor {
 						}
 						randomCount++;
 					}*/
-					feed.setOgType(UploadType.AUTOMATIC.name());
+					feed.setOgType(feed.getFeedType());
+					feed.setUploadType(UploadType.AUTOMATIC.name());
 					String link = feed.getOgUrl();
 					WebSpiderTracker info = webLinkTrackerService.getTrackedInfo(link);
 					if(session.isThresholdReached()) {
@@ -295,8 +296,8 @@ public class AllInOneAITaskExecutor {
 					if(oldFeed != null) {
 						if(oldFeed.getFeedType() == null) {
 							oldFeed.setFeedType(feed.getFeedType());
-							//oldFeed.setOgType(feed.getOgType());
-							oldFeed.setOgType(UploadType.AUTOMATIC.name());
+							oldFeed.setOgType(feed.getOgType());
+							oldFeed.setUploadType(UploadType.AUTOMATIC.name());
 							webLinkTrackerService.upsertCrawledInfo(link, info,
 									RSSConstants.DEFAULT_TTL_WEB_TRACKING_INFO, false);
 						}
@@ -318,7 +319,7 @@ public class AllInOneAITaskExecutor {
 					if(ogType != null) {
 						uploadType = UploadType.MANUAL.name();
 					}
-					feed.setOgType(uploadType);
+					feed.setUploadType(uploadType);
 					
 					executeDocumentSummarization(info, feed, webCrawlable,
 							isNew);

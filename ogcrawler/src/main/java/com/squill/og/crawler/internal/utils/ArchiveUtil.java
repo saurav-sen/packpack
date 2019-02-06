@@ -162,7 +162,7 @@ public final class ArchiveUtil {
 					while(itr.hasNext()) {
 						JRssFeed feed = itr.next();
 						if (uploadType != null) {
-							String ogType = feed.getOgType();
+							String ogType = feed.getUploadType();
 							UploadType uploadType2 = UploadType.resolve(ogType);
 							if(uploadType != uploadType2)
 								continue;

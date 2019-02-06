@@ -23,6 +23,7 @@ import javax.mail.Store;
 import javax.mail.search.FlagTerm;
 import javax.mail.search.SearchTerm;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,6 +59,10 @@ public class SupportEmailSpider implements Spider {
 
 	private static final String SUPPORT_EMAIL_ADDR = "support@squill.co.in";
 	private static final String SUPPORT_EMAIL_PASSWORD = "P@$$w0rd4SQui11";
+	
+	private static final String POP3S = "pop3s";
+	
+	private static final String NOTIFY_FLAG = "SQUILL:NOTIFY";
 
 	private static Logger $LOG = LoggerFactory
 			.getLogger(SupportEmailSpider.class);
@@ -68,7 +73,7 @@ public class SupportEmailSpider implements Spider {
 		pop3TLSProperties.put("mail.pop3.port", "995");
 		pop3TLSProperties.put("mail.pop3.starttls.enable", "true");
 	}
-
+	
 	@Override
 	public void run() {
 		try {
@@ -78,14 +83,14 @@ public class SupportEmailSpider implements Spider {
 		}
 	}
 
-	private List<JRssFeed> pollMessagesIfAny() {
-		List<JRssFeed> feeds = new LinkedList<JRssFeed>();
+	private List<ParsedMessage> pollMessagesIfAny() {
+		List<ParsedMessage> feeds = new LinkedList<ParsedMessage>();
 		Store emailStore = null;
 		try {
 			Session emailSession = Session
 					.getDefaultInstance(pop3TLSProperties);
 
-			emailStore = emailSession.getStore("pop3s");
+			emailStore = emailSession.getStore(POP3S);
 			emailStore.connect(GMAIL_HOST, SUPPORT_EMAIL_ADDR,
 					SUPPORT_EMAIL_PASSWORD);
 			Folder inbox = emailStore.getFolder("INBOX");
@@ -94,6 +99,7 @@ public class SupportEmailSpider implements Spider {
 			inbox.open(Folder.READ_ONLY);
 			Message[] messages = inbox.search(searchTerm);
 			Map<String, String> linkVsSubject = new HashMap<String, String>();
+			Map<String, SmtpMessage> linkVsSmtpMessage = new HashMap<String, SmtpMessage>();
 			if (messages.length > 0) {
 				Set<String> registeredEmailPublishersList = EmailReaderUtil
 						.registeredEmailPublishersList();
@@ -118,39 +124,48 @@ public class SupportEmailSpider implements Spider {
 					$LOG.info("Received Message Subject = " + subject);
 					Set<String> extractedLinks = EmailReaderUtil
 							.extractLinks(message);
-					for (String extractedLink : extractedLinks) {
-						linkVsSubject.put(extractedLink, subject);
+					if(extractedLinks == null || extractedLinks.isEmpty()) {
+						String replyContent = "Sorry!!! "
+								+ displayName
+								+ ", SQUILL failed to read any web-link from your mail. "
+								+ "SQUILL hereby does apologize for the inconvenience caused to you.";
+						SmtpTLSMessageService.INSTANCE.sendMessage(new SmtpMessage(fromEmail, subject,
+								replyContent, false));
+						continue;
 					}
-
+					
+					SmtpMessage smtpMessage = null;
 					Address[] replyTo = message.getReplyTo();
 					if (replyTo != null && replyTo.length > 0) {
 						String replyContent = "Thank you very much " + displayName + " for contributing your valued content with SQUILL.";
-						/*String replyToAddr = InternetAddress.toString(message.getReplyTo());
-						index = replyToAddr.indexOf("<");*/
-						SmtpMessage smtpMessage = new SmtpMessage(
-								fromEmail,
-								subject, replyContent, false);
-						SmtpTLSMessageService.INSTANCE.sendMessage(smtpMessage);
+						smtpMessage = new SmtpMessage(fromEmail, subject,
+								replyContent, false);
 					} else {
 						$LOG.debug("No replyTo found in the Email Message, hence acknowledgement skipped.");
+					}
+					
+					for (String extractedLink : extractedLinks) {
+						linkVsSubject.put(extractedLink.trim(), subject);
+						linkVsSmtpMessage.put(extractedLink.trim(), smtpMessage);
 					}
 				}
 			}
 			emailStore.close();
 
-			String notificationMessage = null;
 			Iterator<String> itr = linkVsSubject.keySet().iterator();
 			while (itr.hasNext()) {
 				String link = itr.next();
 				String subject = linkVsSubject.get(link);
-				JRssFeed feed = read(subject, link);
-				if (feed == null)
+				SmtpMessage smtpMessage = linkVsSmtpMessage.get(link);
+				ParsedMessage parsedMessage = read(subject, link, smtpMessage);
+				if (parsedMessage == null)
 					continue;
-				notificationMessage = feed.getOgTitle();
-				feeds.add(feed);
-			}
-			if(notificationMessage != null && !notificationMessage.trim().isEmpty()) {
-				NotificationUtil.broadcastNewRSSFeedUploadSummary(notificationMessage);
+				if (subject.toUpperCase().trim().endsWith(NOTIFY_FLAG)) {
+					String notificationMessage = parsedMessage.getFeed()
+							.getOgTitle();
+					parsedMessage.setNotificationMessage(notificationMessage);
+				}
+				feeds.add(parsedMessage);
 			}
 		} catch (Exception e) {
 			$LOG.error("Failed Polling messages from GMAIL support email.",
@@ -166,8 +181,8 @@ public class SupportEmailSpider implements Spider {
 		}
 		return feeds;
 	}
-
-	private JRssFeed read(String subject, String link) throws Exception {
+	
+	private ParsedMessage read(String subject, String link, SmtpMessage smtpMessage) throws Exception {
 		if(link == null || link.trim().isEmpty() || !isValidUrl(link)) {
 			return null;
 		}
@@ -180,9 +195,17 @@ public class SupportEmailSpider implements Spider {
 		feed.setFeedType(feedType.name());
 		if(feedType != JRssFeedType.REFRESHMENT) {
 			feed = new WebDocumentParser().parseHtmlPayload(htmlContent);
+			feed.setOgType(feedType.name());
 			feed.setFeedType(feedType.name());
+			try {
+				$LOG.info("********************************************************************************************");
+				$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(feed)));
+				$LOG.info("********************************************************************************************");
+			} catch (Exception e) {
+				$LOG.error(e.getMessage(), e);
+			}
 		}
-		return feed;
+		return new ParsedMessage(feed, smtpMessage);
 	}
 	
 	private boolean isValidUrl(String link) {
@@ -252,17 +275,33 @@ public class SupportEmailSpider implements Spider {
 		return feedType;
 	}
 
-	private void uploadNewFeeds(List<JRssFeed> feeds) {
-		if (feeds == null || feeds.isEmpty())
+	private void uploadNewFeeds(List<ParsedMessage> parsedMessages) {
+		if (parsedMessages == null || parsedMessages.isEmpty())
 			return;
 
-		JRssFeeds newsFeeds = new JRssFeeds();
+		JRssFeeds otherFeeds = new JRssFeeds();
 		JRssFeeds refrehmentFeeds = new JRssFeeds();
-		for (JRssFeed feed : feeds) {
+		List<SmtpMessage> refreshmentSmtpMessages = new LinkedList<SmtpMessage>();
+		Map<String, SmtpMessage> linkVsSmtpMessage = new HashMap<String, SmtpMessage>();
+		Map<String, String> linkVsNotificationMsg = new HashMap<String, String>();
+		for (ParsedMessage parsedMessage : parsedMessages) {
+			JRssFeed feed = parsedMessage.getFeed();
+			SmtpMessage smtpMessage = parsedMessage.getSmtpMessage();
+			String notificationMsg = parsedMessage.getNotificationMessage();
 			if (JRssFeedType.REFRESHMENT.name().equals(feed.getFeedType())) {
 				refrehmentFeeds.getFeeds().add(feed);
+				if (smtpMessage != null) {
+					refreshmentSmtpMessages.add(smtpMessage);
+				}
 			} else {
-				newsFeeds.getFeeds().add(feed);
+				otherFeeds.getFeeds().add(feed);
+				if(smtpMessage != null && feed.getOgUrl() != null && !feed.getOgUrl().trim().isEmpty()) {
+					linkVsSmtpMessage.put(feed.getOgUrl(), smtpMessage);
+				}
+			}
+			
+			if(notificationMsg != null && !notificationMsg.trim().isEmpty()) {
+				linkVsNotificationMsg.put(feed.getOgUrl(), notificationMsg);
 			}
 		}
 		if (!refrehmentFeeds.getFeeds().isEmpty()) {
@@ -277,14 +316,17 @@ public class SupportEmailSpider implements Spider {
 			}
 			RssFeedUtil.uploadRefreshmentFeeds(refrehmentFeeds, ttl, batchId,
 					true);
+			for(SmtpMessage refreshmentSmtpMessage : refreshmentSmtpMessages) {
+				SmtpTLSMessageService.INSTANCE.sendMessage(refreshmentSmtpMessage);
+			}
 		}
-		if (!newsFeeds.getFeeds().isEmpty()) {
+		if (!otherFeeds.getFeeds().isEmpty()) {
 			TTL ttl = new TTL();
 			ttl.setTime((short) 1);
 			ttl.setUnit(TimeUnit.DAYS);
 			long batchId = System.currentTimeMillis();
 			try {
-				$LOG.debug("Uploading NEWS/OTHERS from Email: " + JSONUtil.serialize(newsFeeds));
+				$LOG.debug("Uploading NEWS/OTHERS from Email: " + JSONUtil.serialize(otherFeeds));
 			} catch (PackPackException e) {
 				$LOG.error(e.getMessage(), e);
 			}
@@ -303,20 +345,47 @@ public class SupportEmailSpider implements Spider {
 			}
 			
 			TitleBasedArticleComparator comparator = new TitleBasedArticleComparator();
-			List<JRssFeed> newsFeedsList = newsFeeds.getFeeds();
-			Iterator<JRssFeed> itr = newsFeedsList.iterator();
+			List<JRssFeed> otherFeedsList = otherFeeds.getFeeds();
+			Iterator<JRssFeed> itr = otherFeedsList.iterator();
 			while(itr.hasNext()) {
-				JRssFeed newsFeed = itr.next();
-				if(!JRssFeedType.NEWS.name().equals(newsFeed.getFeedType()))
+				JRssFeed otherFeed = itr.next();
+				if(!JRssFeedType.NEWS.name().equals(otherFeed.getFeedType()))
 					continue;
-				ArticleInfo src = new ArticleInfo(newsFeed.getOgTitle(), null);
-				src.setReferenceObject(newsFeed);
+				ArticleInfo src = new ArticleInfo(otherFeed.getOgTitle(), null);
+				src.setReferenceObject(otherFeed);
 				try {
 					List<ArticleInfo> probableDuplicates = comparator.checkProbableDuplicates(src, tgtList);
 					if(probableDuplicates != null && !probableDuplicates.isEmpty()) {
 						itr.remove();
+						SmtpMessage smtpMessage = linkVsSmtpMessage.get(otherFeed.getOgUrl());
+						if(smtpMessage != null) {
+							StringBuilder replyContent = new StringBuilder();
+							replyContent.append(smtpMessage.getContent());
+							replyContent.append(" But SQUILL feels Sorry!!! for not being able to upload your content i.e. ");
+							replyContent.append(otherFeed.getOgTitle());
+							replyContent.append(" @ ");
+							replyContent.append(otherFeed.getOgUrl());
+							replyContent.append(".");
+							replyContent.append(" Possibly because it matched with one of the following pre-uploaded content");
+							for(ArticleInfo probableDuplicate : probableDuplicates) {
+								Object referenceObject = probableDuplicate.getReferenceObject();
+								if(referenceObject == null || !(referenceObject instanceof JRssFeed))
+									continue;
+								JRssFeed referenceFeed = (JRssFeed) referenceObject;
+								replyContent.append(" ");
+								replyContent.append(referenceFeed.getOgTitle());
+								replyContent.append(" @ ");
+								replyContent.append(referenceFeed.getOgUrl());
+								replyContent.append("   ");
+							}
+							replyContent.append(". ");
+							replyContent.append("SQUILL hereby does apologize for the inconvenience caused to you.");
+							smtpMessage.setContent(replyContent.toString());
+							//linkVsSmtpMessage.remove(otherFeed.getOgUrl());
+						}
+						linkVsNotificationMsg.remove(otherFeed.getOgUrl());
 					} else {
-						newsFeed.setOgType(UploadType.MANUAL.name());
+						otherFeed.setUploadType(UploadType.MANUAL.name());
 					}
 				} catch (Exception e) {
 					$LOG.error(e.getMessage(), e);
@@ -324,19 +393,64 @@ public class SupportEmailSpider implements Spider {
 			}
 			
 			Map<String, List<JRssFeed>> map = new HashMap<String, List<JRssFeed>>();
-			map.put(ArchiveUtil.DEFAULT_ID, newsFeedsList);
+			map.put(ArchiveUtil.DEFAULT_ID, otherFeedsList);
 			ArchiveUtil.storeInArchive(map);
-			HtmlUtil.generateNewsFeedsHtmlPages(newsFeeds);
-			RssFeedUtil.uploadNewsFeeds(newsFeeds, ttl, batchId, true);
+			HtmlUtil.generateNewsFeedsHtmlPages(otherFeeds);
+			RssFeedUtil.uploadNewsFeeds(otherFeeds, ttl, batchId, true);
+			
+			Iterator<SmtpMessage> msgItr = linkVsSmtpMessage.values()
+					.iterator();
+			while (msgItr.hasNext()) {
+				SmtpMessage smtpMessage = msgItr.next();
+				SmtpTLSMessageService.INSTANCE.sendMessage(smtpMessage);
+			}
+			
+			Iterator<String> notifyItr = linkVsNotificationMsg.values()
+					.iterator();
+			while (notifyItr.hasNext()) {
+				String notificationMessage = notifyItr.next();
+				try {
+					if (notificationMessage != null
+							&& !notificationMessage.trim().isEmpty()) {
+						NotificationUtil
+								.broadcastNewRSSFeedUploadSummary(notificationMessage);
+					}
+				} catch (PackPackException e) {
+					$LOG.error(
+							"Failed Sending Notification:: " + e.getMessage(),
+							e);
+				}
+			}
 		}
 	}
 	
-	/*public static void main(String[] args) {
-		long diff = 1544182708955L - 1544146708739L;
-		diff = Math.abs(diff);
-		int hours = (int) (diff / (1000 * 60 * 60));
-		System.out.println(hours);
-		System.out.println(new DateTime(1544182708955L).toString());
-		System.out.println(new DateTime(1544146708739L).toString());
-	}*/
+	private class ParsedMessage {
+		
+		private final JRssFeed feed;
+		
+		private final SmtpMessage smtpMessage;
+		
+		private String notificationMessage;
+		
+		private ParsedMessage(JRssFeed feed, SmtpMessage smtpMessage) {
+			this.feed = feed;
+			this.smtpMessage = smtpMessage;
+		}
+
+		private JRssFeed getFeed() {
+			return feed;
+		}
+
+		private SmtpMessage getSmtpMessage() {
+			return smtpMessage;
+		}
+		
+		private String getNotificationMessage() {
+			return notificationMessage;
+		}
+		
+		private void setNotificationMessage(String notificationMessage) {
+			this.notificationMessage = notificationMessage;
+		}
+	}
 }

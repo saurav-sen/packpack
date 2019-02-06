@@ -106,10 +106,11 @@ public class GetNewsTest extends BaseTest {
 		session.setUserName(session.getUserName());
 		JUser user = new UserInfoTest().getUserInfo(session);
 		session.setUserId(user.getId());
-		int total = test.test(session, COMMAND.GET_ALL_NEWS_FEEDS);
+		int total = test.test(session, COMMAND.GET_ALL_REFRESHMENT_FEEDS);
+		/*int total = test.test(session, COMMAND.GET_ALL_NEWS_FEEDS);
 		total = total + test.test(session, COMMAND.GET_ALL_OPINION_FEEDS);
 		total = total + test.test(session, COMMAND.GET_ALL_SCIENCE_AND_TECHNOLOGY_NEWS_FEEDS);
-		total = total + test.test(session, COMMAND.GET_ALL_ARTICLES_FEEDS);
+		total = total + test.test(session, COMMAND.GET_ALL_ARTICLES_FEEDS);*/
 		System.out.println("Grand Total = " + total);
 	}
 }

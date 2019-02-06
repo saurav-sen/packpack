@@ -58,6 +58,8 @@ public class JRssFeed {
 	
 	private List<String> keywords;
 	
+	private String uploadType;
+	
 	public String getOgTitle() {
 		return ogTitle;
 	}
@@ -266,5 +268,13 @@ public class JRssFeed {
 
 	public void setHtmlSnippet(String htmlSnippet) {
 		this.htmlSnippet = htmlSnippet;
+	}
+
+	public String getUploadType() {
+		return uploadType;
+	}
+
+	public void setUploadType(String uploadType) {
+		this.uploadType = uploadType;
 	}
 }

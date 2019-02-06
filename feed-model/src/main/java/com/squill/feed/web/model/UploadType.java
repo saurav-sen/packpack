@@ -5,11 +5,11 @@ public enum UploadType {
 	AUTOMATIC,
 	MANUAL;
 	
-	public static UploadType resolve(String ogType) {
-		if(ogType == null)
+	public static UploadType resolve(String type) {
+		if(type == null)
 			return AUTOMATIC;
 		try {
-			UploadType uploadType = UploadType.valueOf(ogType.toUpperCase());
+			UploadType uploadType = UploadType.valueOf(type.toUpperCase());
 			return uploadType;
 		} catch (Exception e) {
 			return AUTOMATIC;

@@ -65,6 +65,8 @@ public class RSSFeed /*extends CouchDbDocument*/{
 	private String createdByUserId;
 	
 	private String squillUrl;
+	
+	private String uploadType;
 
 	public String getOgTitle() {
 		return ogTitle;
@@ -276,5 +278,13 @@ public class RSSFeed /*extends CouchDbDocument*/{
 
 	public void setHtmlSnippet(String htmlSnippet) {
 		this.htmlSnippet = htmlSnippet;
+	}
+
+	public String getUploadType() {
+		return uploadType;
+	}
+
+	public void setUploadType(String uploadType) {
+		this.uploadType = uploadType;
 	}
 }

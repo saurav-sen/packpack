@@ -34,8 +34,16 @@ public class SmtpMessage {
 	public String getContent() {
 		return content;
 	}
+	
+	public void setContent(String content) {
+		this.content = content;
+	}
 
 	public boolean isHtml() {
 		return isHtml;
+	}
+
+	public void setHtml(boolean isHtml) {
+		this.isHtml = isHtml;
 	}
 }
