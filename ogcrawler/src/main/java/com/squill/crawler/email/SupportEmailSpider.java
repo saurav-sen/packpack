@@ -197,6 +197,9 @@ public class SupportEmailSpider implements Spider {
 			feed = new WebDocumentParser().parseHtmlPayload(htmlContent);
 			feed.setOgType(feedType.name());
 			feed.setFeedType(feedType.name());
+			if(feed.getHtmlSnippet() != null && !feed.getHtmlSnippet().trim().isEmpty()) {
+				feed.setFullArticleText(feed.getHtmlSnippet());
+			}
 			try {
 				$LOG.info("********************************************************************************************");
 				$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(feed)));
