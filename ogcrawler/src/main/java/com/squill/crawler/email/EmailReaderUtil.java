@@ -63,13 +63,7 @@ public class EmailReaderUtil {
 		return registeredEmailPublishers;
 	}
 
-	public static Set<String> extractLinks(Message message)
-			throws MessagingException, IOException {
-		String textBody = getTextFromMessage(message);
-		return extractLinksFromTextBody(textBody);
-	}
-
-	private static Set<String> extractLinksFromTextBody(String textBody) {
+	public static Set<String> extractLinksFromTextBody(String textBody) {
 		Matcher matcher = REGEX.matcher(textBody);
 		Set<String> links = new HashSet<String>();
 		while (matcher.find()) {

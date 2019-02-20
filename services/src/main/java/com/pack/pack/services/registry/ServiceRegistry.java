@@ -8,6 +8,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.redis.RedisCacheService;
+import com.pack.pack.services.redis.RssFeedRepositoryService;
 
 /**
  * 
@@ -90,9 +91,13 @@ public class ServiceRegistry {
 	}
 
 	public void stop() {
-		RedisCacheService service = findService(RedisCacheService.class);
-		if (service != null) {
-			service.dispose();
+		RedisCacheService service0 = findService(RedisCacheService.class);
+		if (service0 != null) {
+			service0.dispose();
+		}
+		RssFeedRepositoryService service1 = findService(RssFeedRepositoryService.class);
+		if (service1 != null) {
+			service1.dispose();
 		}
 	}
 }

@@ -16,6 +16,7 @@ import com.pack.pack.common.util.JSONUtil;
 import com.pack.pack.model.web.dto.BookmarkDTO;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.ext.text.summerize.WebDocumentParser;
+import com.pack.pack.services.redis.IBookmarkTempStoreService;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.squill.feed.web.model.JRssFeed;
 
@@ -43,6 +44,9 @@ public class BookmarkResource {
 		if(feed.getHtmlSnippet() != null && !feed.getHtmlSnippet().trim().isEmpty()) {
 			feed.setFullArticleText(feed.getHtmlSnippet());
 		}
+		IBookmarkTempStoreService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IBookmarkTempStoreService.class);
+		service.storeNewBookmark(dto.getHyperlink(), feed);
 		$LOG.info("********************************************************************************************");
 		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(feed)));
 		$LOG.info("********************************************************************************************");

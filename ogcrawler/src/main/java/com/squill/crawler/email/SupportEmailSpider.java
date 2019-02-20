@@ -1,5 +1,6 @@
 package com.squill.crawler.email;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +35,8 @@ import com.pack.pack.services.ext.article.comparator.TitleBasedArticleComparator
 import com.pack.pack.services.ext.email.SmtpMessage;
 import com.pack.pack.services.ext.email.SmtpTLSMessageService;
 import com.pack.pack.services.ext.text.summerize.WebDocumentParser;
+import com.pack.pack.services.redis.IBookmarkTempStoreService;
+import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.RssFeedUtil;
 import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JRssFeedType;
@@ -82,7 +85,7 @@ public class SupportEmailSpider implements Spider {
 			$LOG.error(e.getMessage(), e);
 		}
 	}
-
+	
 	private List<ParsedMessage> pollMessagesIfAny() {
 		List<ParsedMessage> feeds = new LinkedList<ParsedMessage>();
 		Store emailStore = null;
@@ -122,24 +125,36 @@ public class SupportEmailSpider implements Spider {
 						continue;
 					}
 					$LOG.info("Received Message Subject = " + subject);
+					
+					String textBody = EmailReaderUtil
+							.getTextFromMessage(message);
 					Set<String> extractedLinks = EmailReaderUtil
-							.extractLinks(message);
+							.extractLinksFromTextBody(textBody);
+					
 					if(extractedLinks == null || extractedLinks.isEmpty()) {
-						String replyContent = "Sorry!!! "
-								+ displayName
-								+ ", SQUILL failed to read any web-link from your mail. "
-								+ "SQUILL hereby does apologize for the inconvenience caused to you.";
+						StringBuilder replyContent = new StringBuilder();
+						replyContent.append(textBody);
+						replyContent.append("\n");
+						replyContent.append("Sorry!!! ");
+						replyContent.append(displayName);
+						replyContent.append(", SQUILL failed to read any web-link from your mail. ");
+						replyContent.append("SQUILL hereby does apologize for the inconvenience caused to you.");
 						SmtpTLSMessageService.INSTANCE.sendMessage(new SmtpMessage(fromEmail, subject,
-								replyContent, false));
+								replyContent.toString(), false));
 						continue;
 					}
 					
 					SmtpMessage smtpMessage = null;
 					Address[] replyTo = message.getReplyTo();
 					if (replyTo != null && replyTo.length > 0) {
-						String replyContent = "Thank you very much " + displayName + " for contributing your valued content with SQUILL.";
+						StringBuilder replyContent = new StringBuilder();
+						replyContent.append(textBody);
+						replyContent.append("\n");
+						replyContent.append("Thank you very much ");
+						replyContent.append(displayName);
+						replyContent.append(" for contributing your valued content with SQUILL.");
 						smtpMessage = new SmtpMessage(fromEmail, subject,
-								replyContent, false);
+								replyContent.toString(), false);
 					} else {
 						$LOG.debug("No replyTo found in the Email Message, hence acknowledgement skipped.");
 					}
@@ -160,7 +175,7 @@ public class SupportEmailSpider implements Spider {
 				ParsedMessage parsedMessage = read(subject, link, smtpMessage);
 				if (parsedMessage == null)
 					continue;
-				if (subject.toUpperCase().trim().endsWith(NOTIFY_FLAG)) {
+				if (subject.toUpperCase().trim().contains(NOTIFY_FLAG) || smtpMessage.getContent().contains(NOTIFY_FLAG)) {
 					String notificationMessage = parsedMessage.getFeed()
 							.getOgTitle();
 					parsedMessage.setNotificationMessage(notificationMessage);
@@ -186,14 +201,23 @@ public class SupportEmailSpider implements Spider {
 		if(link == null || link.trim().isEmpty() || !isValidUrl(link)) {
 			return null;
 		}
-		String htmlContent = new HttpRequestExecutor().GET(link, null);
-		JRssFeed feed = HtmlUtil.parse4mHtml(htmlContent);
+		
+		IBookmarkTempStoreService service = ServiceRegistry.INSTANCE
+				.findCompositeService(IBookmarkTempStoreService.class);
+		JRssFeed feed = service.getStoredBookmarkIfAny(link);
+
+		String htmlContent = null;
+		if (feed == null) {
+			htmlContent = new HttpRequestExecutor().GET(link, null);
+			feed = HtmlUtil.parse4mHtml(htmlContent);
+		}
 		JRssFeedType feedType = resolveFeedType(subject, link);
-		if(feedType == null)
+		if (feedType == null)
 			return null;
+
 		feed.setOgType(feedType.name());
 		feed.setFeedType(feedType.name());
-		if(feedType != JRssFeedType.REFRESHMENT) {
+		if(feedType != JRssFeedType.REFRESHMENT && htmlContent != null) {
 			feed = new WebDocumentParser().parseHtmlPayload(htmlContent);
 			feed.setOgType(feedType.name());
 			feed.setFeedType(feedType.name());

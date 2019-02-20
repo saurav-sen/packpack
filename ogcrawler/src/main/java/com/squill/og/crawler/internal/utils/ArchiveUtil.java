@@ -29,7 +29,7 @@ public final class ArchiveUtil {
 	
 	public static final String DEFAULT_ID = "newsapi.org";
 	
-	public static final int DEFAULT_MAX_TIME_DIFF_IN_HOURS = 6; // 6 Hours
+	public static final int DEFAULT_MAX_TIME_DIFF_IN_HOURS = 24; // 6 Hours
 	
 	private ArchiveUtil() {
 	}
