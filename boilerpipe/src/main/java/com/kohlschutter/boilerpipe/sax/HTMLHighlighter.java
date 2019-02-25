@@ -157,7 +157,7 @@ public final class HTMLHighlighter {
 			final BoilerpipeExtractor extractor) throws IOException,
 			BoilerpipeProcessingException, SAXException {
 		final HTMLDocument htmlDoc = new HTMLDocument(content.getBytes(),
-				Charset.forName("Cp1252"));
+				Charset.forName("utf-8"));
 
 		final TextDocument doc = new BoilerpipeSAXInput(htmlDoc.toInputSource())
 				.getTextDocument();

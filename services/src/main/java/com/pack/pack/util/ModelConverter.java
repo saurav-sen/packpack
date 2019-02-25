@@ -93,6 +93,10 @@ public class ModelConverter {
 				rFeed.getGeoTags().add(convert(geoTag));
 			}
 		}
+		String htmlSnippet = rFeed.getHtmlSnippet();
+		if(htmlSnippet != null && !htmlSnippet.trim().isEmpty()) {
+			rFeed.setFullArticleText(htmlSnippet);
+		}
 		return rFeed;
 	}
 	

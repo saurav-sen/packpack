@@ -55,6 +55,38 @@ public class WebDocumentParserTest {
 		System.out.println(ArticleExtractor.INSTANCE.getText(url));*/
 		
 		json = new WebDocumentParser(
+				"https://www.nytimes.com/2019/02/23/style/weighted-blankets-sleep.html")
+				.parse();
+		$LOG.info(json.getArticleSummaryText());
+		$LOG.info(json.getFullArticleText());
+		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
+		Assert.assertTrue(json.getFullArticleText() != null);
+		
+		json = new WebDocumentParser(
+				"https://www.aljazeera.com/news/2019/02/lebanon-website-shames-employers-accused-maid-abuse-190221092631522.html")
+				.parse();
+		$LOG.info(json.getArticleSummaryText());
+		$LOG.info(json.getFullArticleText());
+		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
+		Assert.assertTrue(json.getFullArticleText() != null);
+		
+		json = new WebDocumentParser(
+				"https://www.aljazeera.com/news/2019/02/war-afghan-peace-talks-set-kick-doha-190225082154207.html")
+				.parse();
+		$LOG.info(json.getArticleSummaryText());
+		$LOG.info(json.getFullArticleText());
+		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
+		Assert.assertTrue(json.getFullArticleText() != null);
+		
+		json = new WebDocumentParser(
+				"https://timesofindia.indiatimes.com/india/kashmiri-youths-were-in-touch-with-pulwama-attack-mastermind/articleshow/68143847.cms")
+				.parse();
+		$LOG.info(json.getArticleSummaryText());
+		$LOG.info(json.getFullArticleText());
+		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
+		Assert.assertTrue(json.getFullArticleText() != null);
+		
+		json = new WebDocumentParser(
 				"https://qz.com/india/1533408/indigo-ceo-ronojoy-dutta-is-an-iit-and-united-airlines-alumnus/")
 				.parse();
 		$LOG.info(json.getArticleSummaryText());

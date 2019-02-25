@@ -437,7 +437,6 @@ public class AllInOneAITaskExecutor {
 			IArticleTextExtractor articleTextExtractor = webCrawlable
 					.getArticleTextExtractor();
 			if (articleTextExtractor != null) {
-				session.incrementCrawledCount(1);
 				if (session.isThresholdReached()) {
 					return false;
 				}
@@ -469,6 +468,13 @@ public class AllInOneAITaskExecutor {
 						}
 						feed.setHtmlSnippet(htmlSnippet);
 						info.setHtmlSnippet(htmlSnippet);
+					}
+					
+					if(response.isAylienBased()) {
+						session.incrementCrawledCount(1);
+						if (session.isThresholdReached()) {
+							return false;
+						}
 					}
 				}
 			}

@@ -7,6 +7,8 @@ enum MatchRank {
 	static MatchRank checkMatch(String[][] wordMatrix, String elementText) {
 		elementText = elementText.trim();
 		int len = wordMatrix.length; // This is a SQUARE matrix
+		if(len == 0)
+			return MatchRank.NO_MATCH;
 		String entireSentence = wordMatrix[0][len - 1];
 		if (elementText.isEmpty()
 				|| elementText.length() < entireSentence.length())

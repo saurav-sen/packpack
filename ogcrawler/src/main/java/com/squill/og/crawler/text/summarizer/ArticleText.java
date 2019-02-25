@@ -7,6 +7,8 @@ public class ArticleText {
 	private String article;
 	
 	private String htmlSnippet;
+	
+	private boolean aylienBased = true;
 
 	public String getTitle() {
 		return title;
@@ -30,5 +32,13 @@ public class ArticleText {
 
 	public void setHtmlSnippet(String htmlSnippet) {
 		this.htmlSnippet = htmlSnippet;
+	}
+
+	public boolean isAylienBased() {
+		return aylienBased;
+	}
+
+	public void setAylienBased(boolean aylienBased) {
+		this.aylienBased = aylienBased;
 	}
 }

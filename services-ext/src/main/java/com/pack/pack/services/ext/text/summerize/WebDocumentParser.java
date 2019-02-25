@@ -63,6 +63,8 @@ public class WebDocumentParser {
 	
 	private boolean summerize;
 	
+	private ParseMode parseMode;
+	
 	public WebDocumentParser() {
 		this(null, null);
 	}
@@ -82,6 +84,12 @@ public class WebDocumentParser {
 		this.summerize = summerize;
 		this.strictSuccessMode = strictSuccessMode;
 		this.isUrlBasedProcessing = (url != null && !url.trim().isEmpty());
+		this.parseMode = ParseMode.LIBERAL;
+	}
+	
+	public WebDocumentParser setParseMode(ParseMode parseMode) {
+		this.parseMode = parseMode;
+		return this;
 	}
 	
 	public WebDocumentParser setUrl(String url) {
@@ -126,10 +134,25 @@ public class WebDocumentParser {
 							.isEmpty())) {
 				json.setHrefSource(url);
 			}
-		} catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException | IOException e) {
+		} catch (Exception e) {
 			$LOG.error(e.getMessage(), e);
 		}
+		if(!validateContent(json)) {
+			return null;
+		}
 		return json;
+	}
+	
+	private boolean validateContent(JRssFeed json) {
+		String htmlSnippet = json.getHtmlSnippet();
+		if(htmlSnippet == null || htmlSnippet.trim().isEmpty())
+			return true;
+		Document doc = Jsoup.parse(htmlSnippet);
+		String text = doc.body().text().toLowerCase();
+		if(text.contains("cookies") && text.contains("privacy")) {
+			return false;
+		}
+		return true;
 	}
 	
 	public JRssFeed parseHtmlPayload(String content) {
@@ -143,79 +166,61 @@ public class WebDocumentParser {
 		try {
 			$LOG.debug("Parsing HTML");
 			WebDocument webDocument = parseHtml(content, placeHolder);
-			if(!webDocument.isSuccess() && !webDocument.isCompatible()) {
-				/*InputStream input = new ByteArrayInputStream(webDocument
-						.getFilteredHtml().getBytes());
-				ContentHandler textHandler = new BodyContentHandler();
-				Metadata metadata = new Metadata();
-				AutoDetectParser parser = new AutoDetectParser();
-				ParseContext context = new ParseContext();
-				BoilerpipeContentHandler handler2 = new BoilerpipeContentHandler(
-						textHandler, LargestContentExtractor.getInstance());
-				$LOG.debug("Parsing HTML using Boilerpipe Content Handler/AutoDetectParser");
-				try {
-					parser.parse(input, handler2, metadata, context);
-				} catch (SAXException e) {
-					throw new RuntimeException(e.getMessage(), e);
-				} catch (TikaException e) {
-					throw new RuntimeException(e.getMessage(), e);
-				}
+			if (!webDocument.isSuccess() && this.parseMode == ParseMode.STRICT) {
+				return null;
+			}
+			article = Jsoup.parse(new String(webDocument.getFilteredHtml()
+					.getBytes())).body().text();
+			if (article == null || article.trim().isEmpty()) {
+				article = webDocument.getDocument().body().text();
+			}
 
-				article = textHandler.toString();*/
+			String title = webDocument.getTitle();
+
+			if (title != null) {
+				title = LanguageUtil.cleanHtmlInvisibleCharacters(title);
+				article.replaceAll(title.trim(), "");
+			}
+
+			article = LanguageUtil.cleanHtmlInvisibleCharacters(article);
+			article = article.replaceAll("\\s+", " ").replaceAll("\\t+", " ").replaceAll("\\n+", "\n").replaceAll("\\r+", "\r");
+
+			String ogImage = webDocument.getImageUrl();
+			json.setOgImage(ogImage);
+			/*String keywordsText = metadata.get("keywords");
+			if (keywordsText != null) {
+				String[] keywords = keywordsText.split(",");
+				for (String keyword : keywords) {
+					json.getKeywords().add(keyword.trim());
+				}
+			}*/
+
+			String ogUrl = webDocument.getSourceUrl();
+			json.setOgUrl(ogUrl);
+			
+			String inputUrl = webDocument.getInputUrl();
+			if(inputUrl == null || inputUrl.trim().isEmpty()) {
+				inputUrl = ogUrl;
+			}
+			json.setHrefSource(inputUrl);
+
+			ogDescription = webDocument.getDescription();
+			json.setOgDescription(ogDescription);
+
+			json.setOgTitle(title);
+			if(webDocument.isSuccess()) {
+				$LOG.debug("Parsing HTML was successful");
+				json.setFullArticleText(article);
+				json.setHtmlSnippet(webDocument.getExtractedHtmlSnippet());
+
+				/*Summarizer summarizer = new Summarizer();
+				String summaryText = summarizer.Summarize(article, 3);
+
+				json.setArticleSummaryText(summaryText);*/
 			} else {
-				article = Jsoup.parse(new String(webDocument.getFilteredHtml()
-						.getBytes())).body().text();
-				if (article == null || article.trim().isEmpty()) {
-					article = webDocument.getDocument().body().text();
-				}
-
-				String title = webDocument.getTitle();
-
-				if (title != null) {
-					title = LanguageUtil.cleanHtmlInvisibleCharacters(title);
-					article.replaceAll(title.trim(), "");
-				}
-
-				article = LanguageUtil.cleanHtmlInvisibleCharacters(article);
-				article = article.replaceAll("\\s+", " ").replaceAll("\\t+", " ").replaceAll("\\n+", "\n").replaceAll("\\r+", "\r");
-
-				String ogImage = webDocument.getImageUrl();
-				json.setOgImage(ogImage);
-				/*String keywordsText = metadata.get("keywords");
-				if (keywordsText != null) {
-					String[] keywords = keywordsText.split(",");
-					for (String keyword : keywords) {
-						json.getKeywords().add(keyword.trim());
-					}
-				}*/
-
-				String ogUrl = webDocument.getSourceUrl();
-				json.setOgUrl(ogUrl);
-				
-				String inputUrl = webDocument.getInputUrl();
-				if(inputUrl == null || inputUrl.trim().isEmpty()) {
-					inputUrl = ogUrl;
-				}
-				json.setHrefSource(inputUrl);
-
-				ogDescription = webDocument.getDescription();
-				json.setOgDescription(ogDescription);
-
-				json.setOgTitle(title);
-				if(webDocument.isSuccess()) {
-					$LOG.debug("Parsing HTML was successful");
-					json.setFullArticleText(article);
-					json.setHtmlSnippet(webDocument.getExtractedHtmlSnippet());
-
-					/*Summarizer summarizer = new Summarizer();
-					String summaryText = summarizer.Summarize(article, 3);
-
-					json.setArticleSummaryText(summaryText);*/
-				} else {
-					$LOG.debug("Parsing HTML didn't go well");
-					if(strictSuccessMode){
-						return null;
-					}
+				$LOG.debug("Parsing HTML didn't go well");
+				if(strictSuccessMode){
+					return null;
 				}
 			}
 			
@@ -525,6 +530,8 @@ public class WebDocumentParser {
 					html, doc.outerHtml(), title, description, imageUrl, ogUrl,
 					inputUrl, this.url);
 		}
+		
+		String docOuterHtml = doc.outerHtml();
 
 		WebElement primaryElement = findPrimaryElement(doc, description,
 				keywordsList);
@@ -532,15 +539,26 @@ public class WebDocumentParser {
 			$LOG.debug("Failed to get primary element based upon description");
 			//return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc, null);
 			return BoilerpipeHtmlProcessor.newInstance().process(
-					html, doc.outerHtml(), title, description, imageUrl, ogUrl,
+					html, docOuterHtml, title, description, imageUrl, ogUrl,
 					inputUrl, this.url);
 		}
+		
 		Element majorElement = primaryElement.getPrimaryElement();
 		if (majorElement == null) {
 			$LOG.debug("Failed to get primary/major element based upon description");
 			//return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc, null);
 			return BoilerpipeHtmlProcessor.newInstance().process(
-					html, doc.outerHtml(), title, description, imageUrl, ogUrl,
+					html, docOuterHtml, title, description, imageUrl, ogUrl,
+					inputUrl, this.url);
+		}
+		
+		int majorElementTextLength = majorElement.text().length();
+		int descriptionLength = description.length();
+		if((majorElementTextLength / descriptionLength) < 4) {
+			$LOG.debug("Major Element identified is too less in size. Hence falling back to Boilerpipe strategy");
+			//return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc, null);
+			return BoilerpipeHtmlProcessor.newInstance().process(
+					html, docOuterHtml, title, description, imageUrl, ogUrl,
 					inputUrl, this.url);
 		}
 

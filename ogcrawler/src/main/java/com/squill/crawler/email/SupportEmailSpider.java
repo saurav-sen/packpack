@@ -1,6 +1,5 @@
 package com.squill.crawler.email;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,6 +35,7 @@ import com.pack.pack.services.ext.email.SmtpMessage;
 import com.pack.pack.services.ext.email.SmtpTLSMessageService;
 import com.pack.pack.services.ext.text.summerize.WebDocumentParser;
 import com.pack.pack.services.redis.IBookmarkTempStoreService;
+import com.pack.pack.services.redis.RedisCacheService;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.pack.pack.util.RssFeedUtil;
 import com.squill.feed.web.model.JRssFeed;
@@ -66,6 +66,10 @@ public class SupportEmailSpider implements Spider {
 	private static final String POP3S = "pop3s";
 	
 	private static final String NOTIFY_FLAG = "SQUILL:NOTIFY";
+	
+	private static final String DUPLICATE_MARKER_PREFIX = "TMP_";
+	private static final String FORCED_DUPLICATE_UPLOAD = "FORCED_DUPLICATE_UPLOAD";
+	private static final long duplicateRetentionTTL = 30 * 60; // 30 minutes
 
 	private static Logger $LOG = LoggerFactory
 			.getLogger(SupportEmailSpider.class);
@@ -271,29 +275,32 @@ public class SupportEmailSpider implements Spider {
 			return null;
 		}
 		JRssFeedType feedType = null;
-		subject = subject.trim();
-		if (subject.equalsIgnoreCase("SCIENCE")
-				|| subject.equalsIgnoreCase("TECHNOLOGY")
-				|| subject.equalsIgnoreCase("SCIENCE AND TECHNOLOGY")
-				|| subject.equalsIgnoreCase("SCIENCE & TECHNOLOGY")) {
-			feedType = JRssFeedType.NEWS_SCIENCE_TECHNOLOGY;
-		} else if (subject.equalsIgnoreCase("SPORTS")) {
-			feedType = JRssFeedType.NEWS_SPORTS;
-		} else if (subject.equalsIgnoreCase("ARTICLE")) {
-			feedType = JRssFeedType.ARTICLE;
-		} else if (subject.equalsIgnoreCase("NEWS")
-				|| subject.equalsIgnoreCase("POLITICS")
-				|| subject.equalsIgnoreCase("CRIME")
-				|| subject.equalsIgnoreCase("SOCIAL")
-				|| subject.equalsIgnoreCase("WEATHER")
-				|| subject.equalsIgnoreCase("DISTASTER")) {
-			feedType = JRssFeedType.NEWS;
-		} else if(isRefreshmentLink) {
+		if(isRefreshmentLink) {
 			feedType = JRssFeedType.REFRESHMENT;
-		} else {
-			feedType = JRssFeedType.NEWS;
 		}
-		if(feedType == JRssFeedType.REFRESHMENT && !isRefreshmentLink) {
+		subject = subject.trim();
+		String[] parts = subject.split("\\s");
+		int len = parts.length;
+		int i = 0;
+		while(feedType == null && i<len) {
+			String part = parts[i];
+			if (part.equalsIgnoreCase("SCIENCE")
+					|| part.equalsIgnoreCase("TECHNOLOGY")
+					|| part.equalsIgnoreCase("ARTICLE")) {
+				feedType = JRssFeedType.NEWS_SCIENCE_TECHNOLOGY;
+			} else if (part.equalsIgnoreCase("SPORTS")) {
+				feedType = JRssFeedType.NEWS_SPORTS;
+			} else if (part.equalsIgnoreCase("NEWS")
+					|| part.equalsIgnoreCase("POLITICS")
+					|| part.equalsIgnoreCase("CRIME")
+					|| part.equalsIgnoreCase("SOCIAL")
+					|| part.equalsIgnoreCase("WEATHER")
+					|| part.equalsIgnoreCase("DISTASTER")) {
+				feedType = JRssFeedType.NEWS;
+			}
+			i++;
+		}
+		if((feedType == null || feedType == JRssFeedType.REFRESHMENT) && !isRefreshmentLink) {
 			feedType = JRssFeedType.NEWS;
 		}
 		if(feedType != JRssFeedType.REFRESHMENT && isRefreshmentLink) {
@@ -371,6 +378,7 @@ public class SupportEmailSpider implements Spider {
 				tgtList.add(tgt);
 			}
 			
+			RedisCacheService redisCacheService = ServiceRegistry.INSTANCE.findService(RedisCacheService.class);
 			TitleBasedArticleComparator comparator = new TitleBasedArticleComparator();
 			List<JRssFeed> otherFeedsList = otherFeeds.getFeeds();
 			Iterator<JRssFeed> itr = otherFeedsList.iterator();
@@ -381,39 +389,60 @@ public class SupportEmailSpider implements Spider {
 				ArticleInfo src = new ArticleInfo(otherFeed.getOgTitle(), null);
 				src.setReferenceObject(otherFeed);
 				try {
-					List<ArticleInfo> probableDuplicates = comparator.checkProbableDuplicates(src, tgtList);
-					if(probableDuplicates != null && !probableDuplicates.isEmpty()) {
-						itr.remove();
-						SmtpMessage smtpMessage = linkVsSmtpMessage.get(otherFeed.getOgUrl());
-						if(smtpMessage != null) {
-							StringBuilder replyContent = new StringBuilder();
-							replyContent.append(smtpMessage.getContent());
-							replyContent.append(" But SQUILL feels Sorry!!! for not being able to upload your content i.e. ");
-							replyContent.append(otherFeed.getOgTitle());
-							replyContent.append(" @ ");
-							replyContent.append(otherFeed.getOgUrl());
-							replyContent.append(".");
-							replyContent.append(" Possibly because it matched with one of the following pre-uploaded content");
-							for(ArticleInfo probableDuplicate : probableDuplicates) {
-								Object referenceObject = probableDuplicate.getReferenceObject();
-								if(referenceObject == null || !(referenceObject instanceof JRssFeed))
-									continue;
-								JRssFeed referenceFeed = (JRssFeed) referenceObject;
-								replyContent.append(" ");
-								replyContent.append(referenceFeed.getOgTitle());
+					SmtpMessage smtpMessage = linkVsSmtpMessage.get(otherFeed.getOgUrl());
+					String forcedDuplicateUpload = redisCacheService
+							.getFromCache(
+									DUPLICATE_MARKER_PREFIX
+											+ smtpMessage.getReceipentEmailId()
+											+ "_" + otherFeed.getOgUrl(),
+									String.class);
+					if(!FORCED_DUPLICATE_UPLOAD.equals(forcedDuplicateUpload)) { // Checking if duplicate check is necessary or 
+																				 // if at all it needs to be forced to get uploaded.
+						List<ArticleInfo> probableDuplicates = comparator.checkProbableDuplicates(src, tgtList);
+						if(probableDuplicates != null && !probableDuplicates.isEmpty()) {
+							itr.remove();
+							if(smtpMessage != null) {
+								StringBuilder replyContent = new StringBuilder();
+								replyContent.append(smtpMessage.getContent());
+								replyContent.append(" But SQUILL feels Sorry!!! for not being able to upload your content i.e. ");
+								replyContent.append(otherFeed.getOgTitle());
 								replyContent.append(" @ ");
-								replyContent.append(referenceFeed.getOgUrl());
-								replyContent.append("   ");
+								replyContent.append(otherFeed.getOgUrl());
+								replyContent.append(".");
+								replyContent.append(" Possibly because it matched with one of the following pre-uploaded content");
+								for(ArticleInfo probableDuplicate : probableDuplicates) {
+									Object referenceObject = probableDuplicate.getReferenceObject();
+									if(referenceObject == null || !(referenceObject instanceof JRssFeed))
+										continue;
+									JRssFeed referenceFeed = (JRssFeed) referenceObject;
+									replyContent.append(" ");
+									replyContent.append(referenceFeed.getOgTitle());
+									replyContent.append(" @ ");
+									replyContent.append(referenceFeed.getOgUrl());
+									replyContent.append("   ");
+								}
+								replyContent.append(". ");
+								replyContent.append("SQUILL hereby does apologize for the inconvenience caused to you.");
+								smtpMessage.setContent(replyContent.toString());
+								redisCacheService.addToCache(
+										DUPLICATE_MARKER_PREFIX
+												+ smtpMessage.getReceipentEmailId()
+												+ "_" + otherFeed.getOgUrl(),
+										FORCED_DUPLICATE_UPLOAD, duplicateRetentionTTL); // Adding in cache for next 30 minutes, 
+																						 // if at all it needs to be forced to get uploaded.
+								//linkVsSmtpMessage.remove(otherFeed.getOgUrl());
 							}
-							replyContent.append(". ");
-							replyContent.append("SQUILL hereby does apologize for the inconvenience caused to you.");
-							smtpMessage.setContent(replyContent.toString());
-							//linkVsSmtpMessage.remove(otherFeed.getOgUrl());
+							linkVsNotificationMsg.remove(otherFeed.getOgUrl());
+						} else {
+							otherFeed.setUploadType(UploadType.MANUAL.name());
 						}
-						linkVsNotificationMsg.remove(otherFeed.getOgUrl());
 					} else {
+						redisCacheService
+								.removeFromCache(DUPLICATE_MARKER_PREFIX
+										+ smtpMessage.getReceipentEmailId()
+										+ "_" + otherFeed.getOgUrl());
 						otherFeed.setUploadType(UploadType.MANUAL.name());
-					}
+					}					
 				} catch (Exception e) {
 					$LOG.error(e.getMessage(), e);
 				}

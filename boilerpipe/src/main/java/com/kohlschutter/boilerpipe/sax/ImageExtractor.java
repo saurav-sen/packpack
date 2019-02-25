@@ -113,7 +113,7 @@ public final class ImageExtractor {
 	public List<Image> process(final String html,
 			final BoilerpipeExtractor extractor) throws IOException,
 			BoilerpipeProcessingException, SAXException {
-		final HTMLDocument htmlDoc = new HTMLDocument(html.getBytes(), Charset.forName("Cp1252"));
+		final HTMLDocument htmlDoc = new HTMLDocument(html.getBytes(), Charset.forName("utf-8"));
 
 		final TextDocument doc = new BoilerpipeSAXInput(htmlDoc.toInputSource())
 				.getTextDocument();

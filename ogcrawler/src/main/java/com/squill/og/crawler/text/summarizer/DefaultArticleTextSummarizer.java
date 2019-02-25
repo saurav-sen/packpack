@@ -1,6 +1,8 @@
 package com.squill.og.crawler.text.summarizer;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.apache.http.client.ClientProtocolException;
 import org.slf4j.Logger;
@@ -9,6 +11,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.pack.pack.services.ext.text.summerize.DefaultSentenceFinder;
+import com.pack.pack.services.ext.text.summerize.ParseMode;
 import com.pack.pack.services.ext.text.summerize.WebDocumentParser;
 import com.pack.pack.util.SystemPropertyUtil;
 import com.squill.feed.web.model.JRssFeed;
@@ -38,45 +41,37 @@ public class DefaultArticleTextSummarizer implements IArticleTextSummarizer {
 		LOG.info(LogTags.TEXT_SUMMARIZATION_SUCCESS + "Successfully summarized text");
 		return summarizedText;
 	}
+	
+	private boolean tryInHouse(String url) {
+		try {
+			URL urlNet = new URL(url);
+			return !urlNet.getHost().contains("aljazeera.com");// && !urlNet.getHost().contains("nytimes.com");
+		} catch (MalformedURLException e) {
+			return false;
+		}
+	}
 
 	@Override
 	public ArticleText extractArticle(String url, String title,
 			String description, String summaryText) throws OgCrawlException {
 		ArticleText articleText = null;
-		/*boolean success = false;
-		try {
-			String text = summaryText;
-			String openNlpConfDir = SystemPropertyUtil.getOpenNlpConfDir();
-			if ((text == null || text.trim().isEmpty())
-					&& openNlpConfDir != null) {
-				String[] sentences = new DefaultSentenceFinder(openNlpConfDir)
-						.findSentences(text);
-				if (sentences != null && sentences.length > 0) {
-					text = sentences[0];
-				} else {
-					text = null;
-				}
+		
+		if (tryInHouse(url)) {
+			JRssFeed json = new WebDocumentParser(url).setParseMode(
+					ParseMode.STRICT).parse();
+			if (json != null) {
+				articleText = new ArticleText();
+				articleText.setTitle(json.getOgTitle());
+				articleText.setArticle(json.getFullArticleText());
+				articleText.setHtmlSnippet(json.getHtmlSnippet());
+				articleText.setAylienBased(false);
+				return articleText;
 			}
-			if (text == null) {
-				text = description;
-			}
-			JRssFeed feed = new WebDocumentParser(true).parseHttpUrl(url, text, false);
-			if(feed != null) {
-				String htmlSnippet = feed.getHtmlSnippet();
-				success = (htmlSnippet != null && !htmlSnippet.trim().isEmpty());
-				if(success) {
-					articleText = new ArticleText();
-					articleText.setTitle(title);
-					articleText.setHtmlSnippet(htmlSnippet);
-					//return articleText;
-				}
-			}
-		} catch (Exception e1) {
-			LOG.error(e1.getMessage(), e1);
-		}*/
+		}
 		
 		try {
 			articleText = new AylienArticleTextExtractor().extract(url);
+			articleText.setAylienBased(true);
 			String text = articleText.getArticle();
 			String openNlpConfDir = SystemPropertyUtil.getOpenNlpConfDir();
 			if ((text == null || text.trim().isEmpty())
