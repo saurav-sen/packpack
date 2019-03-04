@@ -10,6 +10,9 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
@@ -30,7 +33,9 @@ class ResourceLoaderApi extends BaseAPI {
 
 	private InputStream loadResource(String url, int width, int height,
 			String userName) throws ClientProtocolException, IOException {
-		DefaultHttpClient client = new DefaultHttpClient();
+		HttpParams httpParams = new BasicHttpParams();
+		HttpConnectionParams.setConnectionTimeout(httpParams, 30000);
+		DefaultHttpClient client = new DefaultHttpClient(httpParams);
 		if (url.contains("?")) {
 			url = url + "&" + APIConstants.Image.WIDTH + "=" + width + "&"
 					+ APIConstants.Image.HEIGHT + "=" + height;
@@ -46,7 +51,9 @@ class ResourceLoaderApi extends BaseAPI {
 
 	private InputStream loadExternalResource(String url, String userName, boolean isIncludeOauthToken)
 			throws ClientProtocolException, IOException {
-		DefaultHttpClient client = new DefaultHttpClient();
+		HttpParams httpParams = new BasicHttpParams();
+		HttpConnectionParams.setConnectionTimeout(httpParams, 30000);
+		DefaultHttpClient client = new DefaultHttpClient(httpParams);
 		HttpGet GET = new HttpGet(url);
 		if (isIncludeOauthToken) {
 			GET.addHeader(AUTHORIZATION_HEADER, userName);
