@@ -67,6 +67,8 @@ public class RSSFeed /*extends CouchDbDocument*/{
 	private String squillUrl;
 	
 	private String uploadType;
+	
+	private boolean openDirectLink = false;
 
 	public String getOgTitle() {
 		return ogTitle;
@@ -286,5 +288,13 @@ public class RSSFeed /*extends CouchDbDocument*/{
 
 	public void setUploadType(String uploadType) {
 		this.uploadType = uploadType;
+	}
+
+	public boolean isOpenDirectLink() {
+		return openDirectLink;
+	}
+
+	public void setOpenDirectLink(boolean openDirectLink) {
+		this.openDirectLink = openDirectLink;
 	}
 }

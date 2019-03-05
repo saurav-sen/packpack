@@ -107,6 +107,8 @@ public class WebDocumentParser {
 				HttpResponse response = new HttpRequestExecutor().GET(GET);
 				int statusCode = response.getStatusLine().getStatusCode();
 				if (statusCode != 200) {
+					json.setOgUrl(url);
+					json.setHrefSource(url);
 					return json;
 				}
 				HttpEntity entity = response.getEntity();

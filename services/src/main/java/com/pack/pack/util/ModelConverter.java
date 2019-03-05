@@ -97,6 +97,7 @@ public class ModelConverter {
 		if(htmlSnippet != null && !htmlSnippet.trim().isEmpty()) {
 			rFeed.setFullArticleText(htmlSnippet);
 		}
+		rFeed.setOpenDirectLink(feed.isOpenDirectLink());
 		return rFeed;
 	}
 	
@@ -166,6 +167,7 @@ public class ModelConverter {
 				feed.getTaxonomies().add(convert(rTaxonomy));
 			}
 		}
+		feed.setOpenDirectLink(rFeed.isOpenDirectLink());
 		return feed;
 	}
 	

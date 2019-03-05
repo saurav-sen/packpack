@@ -55,6 +55,14 @@ public class WebDocumentParserTest {
 		System.out.println(ArticleExtractor.INSTANCE.getText(url));*/
 		
 		json = new WebDocumentParser(
+				"https://theprint.in/defence/first-satellite-images-show-likely-damage-to-jaish-balakot-camp-but-no-massive-destruction/201639/")
+				.parse();
+		$LOG.info(json.getArticleSummaryText());
+		$LOG.info(json.getFullArticleText());
+		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
+		Assert.assertTrue(json.getFullArticleText() != null);
+		
+		json = new WebDocumentParser(
 				"https://squillnews.quora.com/A-battle-of-citizenship-that-everyone-fought-in-Assam")
 				.parse();
 		$LOG.info(json.getArticleSummaryText());
