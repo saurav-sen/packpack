@@ -16,6 +16,8 @@ class WebElement {
 	private String primaryElementClassName = null;
 
 	private int primaryElementDepth = -1;
+	
+	private Element _LCA;
 
 	public String getTagName() {
 		return tagName;
@@ -66,5 +68,14 @@ class WebElement {
 	@Override
 	public int hashCode() {
 		return this.primaryElement.hashCode() + this.tagName.hashCode();
+	}
+
+	public Element get_LCA() {
+		return _LCA;
+	}
+
+	public WebElement set_LCA(Element _LCA) {
+		this._LCA = _LCA;
+		return this;
 	}
 }

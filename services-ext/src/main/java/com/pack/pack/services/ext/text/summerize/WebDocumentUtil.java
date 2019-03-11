@@ -1,9 +1,13 @@
 package com.pack.pack.services.ext.text.summerize;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.jsoup.nodes.Attribute;
@@ -481,4 +485,228 @@ public class WebDocumentUtil {
 		
 		return p1;
 	}
+	
+	static Element findLowestCommonAncestorStrict(Element el1, Element el2, Element treeBaseRoot) {
+		Element p1 = el1;
+		Element p2 = el2;
+		if (p1 == null || p2 == null) {
+			return null;
+		}
+		Element root = p1;
+		StringBuilder str = new StringBuilder();
+		while (p1 != null && p1 != treeBaseRoot) {
+			root = p1;
+			str.append(p1.tagName());
+			p1 = p1.parent();
+			if (p1 != null && p1 != treeBaseRoot) {
+				str.append(",");
+			}
+		}
+		String[] p1PathSequence = str.reverse().toString().split(",");
+		str = new StringBuilder();
+		while (p2 != null && p2 != treeBaseRoot) {
+			str.append(p2.tagName());
+			p2 = p2.parent();
+			if (p2 != null && p2 != treeBaseRoot) {
+				str.append(",");
+			}
+		}
+		String[] p2PathSequence = str.reverse().toString().split(",");
+		int i = 0;
+		String p1Path = p1PathSequence[i];
+		String p2Path = p2PathSequence[i];
+		while (p1Path.equals(p2Path)) {
+			i++;
+			if (i >= p1PathSequence.length || i >= p2PathSequence.length) // Not a bug this is intentional
+				break;
+			/*if (i >= p1PathSequence.length)
+				return el1;
+			else if (i >= p2PathSequence.length)
+				return el2;*/
+			p1Path = p1PathSequence[i];
+			p2Path = p2PathSequence[i];
+		}
+		if (i == 0) {
+			return root;
+		}
+		int count = p1PathSequence.length - i;
+		i = p1PathSequence.length;
+		p1 = el1;
+		while (count > 0) {
+			p1 = p1.parent();
+			count--;
+		}
+		
+		// Check if article exists above the hierarchy
+		Element tmp = p1.parent();
+		p1 = tmp;
+		while (tmp != null && !tmp.equals(treeBaseRoot)) {
+			if ("article".equals(tmp.tagName())) {
+				String role = tmp.attr("role");
+				if (role != null
+						&& (role.equalsIgnoreCase("main") || role
+								.equalsIgnoreCase("content"))) {
+					p1 = tmp;
+					break;
+				}
+			}
+			tmp = tmp.parent();
+		}
+		
+		return p1;
+	}
+	
+	/*private WebElement findPrimaryElementByDescription_test(Document doc,
+			String description) {
+		if (description == null || description.trim().isEmpty())
+			return null;
+
+		description = description.replaceAll("\\s+", " ").replaceAll("\\xA0",
+				" ");
+		List<String> words = LanguageUtil.getWords(description);
+		//int len = words.size();
+		Iterator<String> wItr = words.iterator();
+		while(wItr.hasNext()) {
+			String w = wItr.next();
+			if(STOP_WORDS.isStopWord(w)) {
+				wItr.remove();
+			}
+		}
+		String[] descriptionWordsArr = words.toArray(new String[words.size()]);
+
+		String junk_detect_className = "squill_junk_detect";
+		
+		Map<String, Integer> map = new HashMap<String, Integer>();
+		String maxCountElTypeStyle = null;
+		List<MarkedElement> markedElements = new LinkedList<MarkedElement>();
+		Elements allElements = doc.body().getAllElements();
+		Iterator<Element> itr = allElements.iterator();
+		while (itr.hasNext()) {
+			Element element = itr.next();
+			if (WebDocumentUtil.isHeaderElement(element))
+				continue;
+			String text = element.text().replaceAll("\\s+", " ")
+					.replaceAll("\\xA0", " ");
+			$LOG.debug(text);
+			words = LanguageUtil.getWords(text);
+			wItr = words.iterator();
+			while(wItr.hasNext()) {
+				String w = wItr.next();
+				if(STOP_WORDS.isStopWord(w)) {
+					wItr.remove();
+				}
+			}
+			String[] textWordsArr = words.toArray(new String[words.size()]);
+			
+			MatchRank matchRank = MatchRank.checkIntersection(descriptionWordsArr, textWordsArr);
+			switch (matchRank) {
+			case NO_MATCH:
+				if(!markedElements.isEmpty() && isAChildNode(element, markedElements)) {
+					element.addClass(junk_detect_className);
+				}
+				break;
+			case HIGH:
+			case MEDIUM:
+				MarkedElement markedElement = new MarkedElement(element, WebDocumentUtil.depth(element, doc.body()));
+				String elTypeStyle = markedElement.getClassName() + ":" + markedElement.getTagName();
+				int c = 0;
+				if(map.get(elTypeStyle) != null) {
+					c = map.get(elTypeStyle);
+				}
+				c++;
+				map.put(elTypeStyle, c);
+				if(maxCountElTypeStyle == null) {
+					maxCountElTypeStyle = elTypeStyle;
+				} else if(map.get(maxCountElTypeStyle) != null){
+					int c1 = map.get(maxCountElTypeStyle);
+					if(c1 < c) {
+						maxCountElTypeStyle = elTypeStyle;
+					}
+				}
+				markedElements.add(markedElement);
+				break;
+			case LOW:
+				break;
+			}
+		}
+
+		if(markedElements.isEmpty()) {
+			return null;
+		}
+		float meanDepth = 0;
+		for(MarkedElement markedElement : markedElements) {
+			meanDepth = meanDepth + markedElement.getDepth();
+		}
+		meanDepth = meanDepth / markedElements.size();
+		double variance = 0;
+		for(MarkedElement markedElement : markedElements) {
+			float diff = (markedElement.getDepth() - meanDepth);
+			variance = variance + diff * diff;
+		}
+		variance = variance / markedElements.size();
+		int SD = (int) Math.sqrt(variance);
+		Iterator<MarkedElement> itr1 = markedElements.iterator();
+		while(itr1.hasNext()) {
+			MarkedElement markedElement = itr1.next();
+			int diff = (int) Math.abs(markedElement.getDepth() - meanDepth);
+			if(diff > SD) {
+				itr1.remove();
+			}
+		}
+		
+		int maxOccurenceCount = 0;
+		Element maxOccurenceLCA = null;
+		Map<Element, Integer> identityMap = new IdentityHashMap<Element, Integer>();
+		for(int i=0; i<markedElements.size(); i++) {
+			Element el1 = markedElements.get(i).getEl();
+			for(int j=i+1; j<markedElements.size(); j++) {
+				Element el2 = markedElements.get(j).getEl();
+				Element _LCA = WebDocumentUtil.findLowestCommonAncestor(el1, el2, doc.body());
+				int count = 0;
+				if(identityMap.get(_LCA) != null) {
+					count = identityMap.get(_LCA);
+				}
+				count++;
+				identityMap.put(_LCA, count);
+				if(count > maxOccurenceCount) {
+					maxOccurenceCount = count;
+				}
+				maxOccurenceLCA = _LCA;
+			}
+		}
+		
+		/*MarkedElement elWithMinHtml = null;
+		float ratio = -1;
+		for(MarkedElement markedElement : markedElements) {
+			float r1 = ((float) (markedElement.getEl().getAllElements().size()) / (float) (markedElement.getEl().text().length()));
+			if(elWithMinHtml == null) {
+				elWithMinHtml = markedElement;
+				ratio = r1;
+			} else if(r1 < ratio) {
+				elWithMinHtml = markedElement;
+				ratio = r1;
+			}
+		}
+		
+		elWithMinHtml.getEl().getElementsByClass(junk_detect_className).remove();*/
+		/*
+		maxOccurenceLCA.getElementsByClass(junk_detect_className).remove();
+		MarkedElement primaryMarkedElement = new MarkedElement(maxOccurenceLCA,
+				WebDocumentUtil.depth(maxOccurenceLCA, doc.body()));
+		
+		Iterator<Element> itrEl = identityMap.keySet().iterator();
+		while(itrEl.hasNext()) {
+			Element el = itrEl.next();
+			if(el == maxOccurenceLCA)
+				continue;
+			if(el.parents().contains(maxOccurenceLCA) || maxOccurenceLCA.parents().contains(el))
+				continue;
+			el.remove();
+		}
+
+		return new WebElement().setPrimaryElement(primaryMarkedElement.getEl())
+				.setPrimaryElementClassName(primaryMarkedElement.getClassName())
+				.setPrimaryElementDepth(primaryMarkedElement.getDepth())
+				.setTagName(primaryMarkedElement.getTagName());
+	}*/
 }

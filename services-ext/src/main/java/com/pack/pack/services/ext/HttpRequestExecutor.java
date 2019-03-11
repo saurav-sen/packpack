@@ -86,9 +86,9 @@ public class HttpRequestExecutor {
 		
         //GET.setHeader("Referer", "");
 		String USER_AGENT = CoreConstants.SQUILL_ROBOT_USER_AGENT_STRING;
-		if(new java.net.URL(GET.getRequestLine().getUri()).getHost().endsWith("theprint.in")) {
+		//if(new java.net.URL(GET.getRequestLine().getUri()).getHost().endsWith("theprint.in")) {
 			USER_AGENT = "mozilla/5.0";
-		}
+		//}
         GET.setHeader("User-Agent", USER_AGENT);
         
 		return client.execute(GET);

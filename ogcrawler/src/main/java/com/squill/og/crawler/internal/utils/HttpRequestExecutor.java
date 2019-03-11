@@ -198,10 +198,10 @@ public class HttpRequestExecutor {
 		HttpContext HTTP_CONTEXT = new BasicHttpContext();
 		HTTP_CONTEXT.setAttribute(CoreProtocolPNames.USER_AGENT,
 				CoreConstants2.SQUILL_ROBOT_USER_AGENT_STRING);
-		if(new java.net.URL(GET.getRequestLine().getUri()).getHost().endsWith("theprint.in")) {
+		//if(new java.net.URL(GET.getRequestLine().getUri()).getHost().endsWith("theprint.in")) {
 			HTTP_CONTEXT.setAttribute(CoreProtocolPNames.USER_AGENT,
 					"mozilla/5.0");			
-		}
+		//}
 		HttpResponse response = client.execute(GET, HTTP_CONTEXT);
 		int statusCode = response.getStatusLine().getStatusCode();
 		if (statusCode == 304) {

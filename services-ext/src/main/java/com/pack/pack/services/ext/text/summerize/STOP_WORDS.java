@@ -1,11 +1,14 @@
 package com.pack.pack.services.ext.text.summerize;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 
  * @author Saurav
  *
  */
-public interface STOP_WORDS {
+public class STOP_WORDS {
 	
 	public static final String[] STOP_WORDS = new String[] { "a", "able",
 			"about", "after", "all", "also", "am", "an", "and", "any", "are",
@@ -101,6 +104,25 @@ public interface STOP_WORDS {
 			"whereby", "wherein", "whereupon", "wherever", "whether",
 			"whither", "whoever", "whole", "whose", "willing", "wish",
 			"within", "without", "wonder", "x", "y", "yes", "z", "zero" };
+	
+	private static final Object OBJ = new Object();
+	
+	private static final Map<String, Object> STOP_WORDS_LOOKUP = new HashMap<String, Object>();
+	
+	static {
+		for(int i=0; i<STOP_WORDS.length; i++) {
+			STOP_WORDS_LOOKUP.put(STOP_WORDS[i], OBJ);
+		}
+	}
+	
+	private STOP_WORDS() {
+	}
+	
+	public static final boolean isStopWord(String word) {
+		if(word == null)
+			return false;
+		return STOP_WORDS_LOOKUP.get(word.toLowerCase()) != null;
+	}
 
 	/*public static void main(String[] args) {
 		String[] stop_words = { "a","able","about","after","all","also","am",

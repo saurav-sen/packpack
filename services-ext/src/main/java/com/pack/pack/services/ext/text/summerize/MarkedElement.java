@@ -25,4 +25,12 @@ class MarkedElement {
 	int getDepth() {
 		return depth;
 	}
+
+	public String getClassName() {
+		return el.className();
+	}
+
+	public String getTagName() {
+		return el.tagName();
+	}
 }

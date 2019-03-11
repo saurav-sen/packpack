@@ -6,9 +6,12 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.http.HttpEntity;
@@ -31,6 +34,7 @@ import com.kohlschutter.boilerpipe.BoilerpipeProcessingException;
 import com.pack.pack.services.ext.HttpRequestExecutor;
 import com.pack.pack.util.LanguageUtil;
 import com.squill.feed.web.model.JRssFeed;
+import com.pack.pack.services.ext.text.summerize.STOP_WORDS;
 
 /**
  * 
@@ -259,7 +263,15 @@ public class WebDocumentParser {
 		 */
 		return null;
 	}
-
+	
+	private boolean isAChildNode(Element el, List<MarkedElement> markedElements) {
+		for(MarkedElement markedElement : markedElements) {
+			if(el.parents().contains(markedElement.getEl()))
+				return true;
+		}
+		return false;
+	}
+	
 	private WebElement findPrimaryElementByDescription(Document doc,
 			String description) {
 		String tagName = null;
@@ -318,7 +330,9 @@ public class WebDocumentParser {
 					primaryElement = element;
 					primaryElementClassName = primaryElement.className();
 					primaryElementDepth = WebDocumentUtil.depth(primaryElement, doc);
-					if (!WebDocumentUtil.isHeaderElement(element)) {
+					int majorElementTextLength = primaryElement.text().length();
+					int descriptionLength = description.length();
+					if (!WebDocumentUtil.isHeaderElement(element) && (majorElementTextLength / descriptionLength) > 4) {
 						return new WebElement()
 								.setPrimaryElement(primaryElement)
 								.setPrimaryElementClassName(
@@ -347,6 +361,7 @@ public class WebDocumentParser {
 			}
 		}
 
+		Element finalLCA = null;
 		if (primaryElement == null || tagName == null) {
 			if(markedElements.isEmpty()) {
 				return null;
@@ -388,12 +403,74 @@ public class WebDocumentParser {
 			tagName = primaryElement.tagName();
 			
 			primaryElement.getElementsByClass(junk_detect_className).remove();
+		} else {
+			int majorElementTextLength = primaryElement.text().length();
+			int descriptionLength = description.length();
+			if ((majorElementTextLength / descriptionLength) < 4) {
+				List<Element> list = new LinkedList<Element>();
+				list.add(primaryElement);
+				tagName = primaryElement.tagName();
+				primaryElementDepth = WebDocumentUtil.depth(primaryElement, doc.body());
+				primaryElementClassName = primaryElement.className();
+				itr = doc.body().getElementsByTag(tagName).iterator();
+				while(itr.hasNext()) {
+					Element el = itr.next();
+					if(el == primaryElement)
+						continue;
+					//int d = WebDocumentUtil.depth(el, doc.body());
+					String className = el.className();
+					if((className == null && primaryElementClassName == null) || className.equals(primaryElementClassName)) {
+						list.add(el);
+					}
+				}
+				
+				if(list.size() > 1) {
+					Element h1Element = null;
+					Elements h1Elements = doc.getElementsByTag(H1_TAG_NAME);
+					if (h1Elements != null && !h1Elements.isEmpty()) {
+						h1Element = h1Elements.get(0);
+					}
+					if (h1Element == null) {
+						$LOG.debug("No <h1> tag found");
+						//return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc, null);
+						return null;
+					}
+
+					$LOG.debug("Trying to find LCA");
+					Element lcaBase = WebDocumentUtil.findLowestCommonAncestor(primaryElement, h1Element, doc.body());
+					if(lcaBase == null)
+						return null;
+					
+					int minLCADepth = primaryElementDepth;
+					finalLCA = primaryElement; 
+					Map<Element, Integer> identityMap = new IdentityHashMap<Element, Integer>();
+					for(int i=0; i<list.size(); i++) {
+						Element el1 = list.get(i);
+						for(int j=i+1; j<list.size(); j++) {
+							Element el2 = list.get(j);
+							Element _LCA = WebDocumentUtil.findLowestCommonAncestorStrict(el1, el2, lcaBase);
+							if(_LCA == null)
+								continue;
+							int d = WebDocumentUtil.depth(_LCA, doc.body());
+							if(d <= minLCADepth) {
+								minLCADepth = d;
+								finalLCA = _LCA;
+							}
+						}
+					}
+					
+					primaryElement = finalLCA;
+					primaryElementClassName = primaryElement.className();
+					primaryElementDepth = minLCADepth;
+					tagName = finalLCA.tagName();
+				}
+			}
 		}
 
 		return new WebElement().setPrimaryElement(primaryElement)
 				.setPrimaryElementClassName(primaryElementClassName)
 				.setPrimaryElementDepth(primaryElementDepth)
-				.setTagName(tagName);
+				.setTagName(tagName).set_LCA(finalLCA);
 	}
 	
 	private AmpHtml parseAmpHtml(Document doc, String description) throws Exception {
@@ -580,13 +657,16 @@ public class WebDocumentParser {
 		}
 
 		$LOG.debug("Trying to find LCA");
-		Element _LCA = WebDocumentUtil.findLowestCommonAncestor(majorElement, h1Element, doc.body());
-		if (_LCA == null) {
-			$LOG.debug("Failed to compute LCA node");
-			//return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc, null);
-			return BoilerpipeHtmlProcessor.newInstance().process(
-					html, doc.outerHtml(), title, description, imageUrl, ogUrl,
-					inputUrl, this.url);
+		Element _LCA = primaryElement.get_LCA();
+		if(_LCA == null) {
+			_LCA = WebDocumentUtil.findLowestCommonAncestor(majorElement, h1Element, doc.body());
+			if (_LCA == null) {
+				$LOG.debug("Failed to compute LCA node");
+				//return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc, null);
+				return BoilerpipeHtmlProcessor.newInstance().process(
+						html, doc.outerHtml(), title, description, imageUrl, ogUrl,
+						inputUrl, this.url);
+			}
 		}
 		
 		title = h1Element.text();
