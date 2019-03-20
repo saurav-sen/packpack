@@ -54,8 +54,17 @@ public class WebDocumentParserTest {
 
 		System.out.println(ArticleExtractor.INSTANCE.getText(url));*/
 		
+		
 		json = new WebDocumentParser(
-				"https://www.siasat.com/news/hyderabad-witness-severe-heat-waves-summer-temperature-may-break-1966-record-1475147/")
+				"https://indianexpress.com/article/sports/football/la-liga/real-betis-vs-barcelona-lionel-messi-standing-ovation-video-5631269/")
+				.parse();
+		$LOG.info(json.getArticleSummaryText());
+		$LOG.info(json.getFullArticleText());
+		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
+		Assert.assertTrue(json.getFullArticleText() != null);
+		
+		json = new WebDocumentParser(
+				"https://www.nationalgeographic.com/animals/2019/03/psychology-of-why-people-enter-wild-animal-enclosures-at-zoos.html")
 				.parse();
 		$LOG.info(json.getArticleSummaryText());
 		$LOG.info(json.getFullArticleText());

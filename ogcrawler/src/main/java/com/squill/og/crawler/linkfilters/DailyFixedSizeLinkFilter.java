@@ -5,8 +5,8 @@ import org.slf4j.LoggerFactory;
 
 import com.squill.og.crawler.hooks.ILinkFilter;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
-import com.squill.og.crawler.internal.utils.DateTimeUtil;
 import com.squill.og.crawler.model.WebSpiderTracker;
+import com.squill.utils.DateTimeUtil;
 
 /**
  * 

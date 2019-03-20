@@ -6,19 +6,16 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pack.pack.services.redis.INewsFeedService;
 import com.pack.pack.services.registry.ServiceRegistry;
-import com.pack.pack.util.RssFeedUtil;
 import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JRssFeedType;
 import com.squill.feed.web.model.JRssFeeds;
-import com.squill.feed.web.model.TTL;
-import com.squill.og.crawler.internal.utils.HtmlUtil;
+import com.squill.utils.HtmlUtil;
 
 public class FeedStoreIntegrityCheckerTask implements Runnable {
 

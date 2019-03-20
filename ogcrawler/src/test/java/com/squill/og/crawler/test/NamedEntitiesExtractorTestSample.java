@@ -1,9 +1,9 @@
 package com.squill.og.crawler.test;
 
 import com.squill.og.crawler.app.SystemPropertyKeys;
-import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.og.crawler.named.entities.NamedEntities;
 import com.squill.og.crawler.named.entities.NamedEntitiesExtractor;
+import com.squill.utils.JSONUtil;
 
 public class NamedEntitiesExtractorTestSample {
 

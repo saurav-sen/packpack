@@ -7,6 +7,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -443,7 +444,9 @@ public class WebDocumentParser {
 					
 					int minLCADepth = primaryElementDepth;
 					finalLCA = primaryElement; 
+					Set<Element> set = new HashSet<Element>();
 					Map<Element, Integer> identityMap = new IdentityHashMap<Element, Integer>();
+					Map<Element, Set<Element>> identityMap2 = new IdentityHashMap<Element, Set<Element>>();
 					for(int i=0; i<list.size(); i++) {
 						Element el1 = list.get(i);
 						for(int j=i+1; j<list.size(); j++) {
@@ -453,15 +456,71 @@ public class WebDocumentParser {
 								continue;
 							int d = WebDocumentUtil.depth(_LCA, doc.body());
 							if(d <= minLCADepth) {
-								minLCADepth = d;
-								finalLCA = _LCA;
+								Integer c = identityMap.get(_LCA);
+								if(c == null) {
+									c = 0;
+								}
+								c++;
+								identityMap.put(_LCA, c);
+								set.add(_LCA);
+								Set<Element> childReference = identityMap2.get(_LCA);
+								if(childReference == null) {
+									childReference = new HashSet<Element>();
+									childReference.add(el1);
+									identityMap2.put(_LCA, childReference);
+								}
+								childReference.add(el2);
+								/*minLCADepth = d;
+								finalLCA = _LCA;*/
 							}
+						}
+					}
+					
+					int countMax = 0;
+					Iterator<Element> lcaItr = set.iterator();
+					while(lcaItr.hasNext()) {
+						Element _LCA = lcaItr.next();
+						Integer c = identityMap.get(_LCA);
+						if(c != null && c > countMax) {
+							countMax = c;
+							finalLCA = _LCA;
+						}
+					}
+					
+					Set<Element> set2 = identityMap2.get(finalLCA);
+					if(set2 != null && !set2.isEmpty()) {
+						Iterator<Element> setItr2 = set2.iterator();
+						while(setItr2.hasNext()) {
+							Element el = setItr2.next();
+							Element prevEl = el;
+							while(el.parent() != finalLCA && el.parent() != doc.body()) {
+								prevEl = el;
+								el = el.parent();
+							}
+							prevEl.attr("x-mark-retain-attr", "x-mark-retain-value");
+						}
+					}
+					Iterator<Element> children = finalLCA.children().iterator();
+					while(children.hasNext()) {
+						Element el = children.next();
+						String attr = el.attr("x-mark-retain-attr");
+						if(attr == null || !attr.equals("x-mark-retain-value")) {
+							children.remove();
+							el.remove();
+						}
+					}
+					
+					children = finalLCA.children().iterator();
+					while(children.hasNext()) {
+						Element el = children.next();
+						if(el.hasAttr("x-mark-retain-attr")) {
+							el.removeAttr("x-mark-retain-attr");
 						}
 					}
 					
 					primaryElement = finalLCA;
 					primaryElementClassName = primaryElement.className();
-					primaryElementDepth = minLCADepth;
+					primaryElementDepth = WebDocumentUtil.depth(primaryElement, doc.body());
 					tagName = finalLCA.tagName();
 				}
 			}
@@ -648,10 +707,6 @@ public class WebDocumentParser {
 		}
 		if (h1Element == null) {
 			$LOG.debug("No <h1> tag found");
-			//return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc, null);
-			return BoilerpipeHtmlProcessor.newInstance().process(
-					html, doc.outerHtml(), title, description, imageUrl, ogUrl,
-					inputUrl, this.url);
 		} else {
 			title = h1Element.text();
 		}
@@ -659,6 +714,11 @@ public class WebDocumentParser {
 		$LOG.debug("Trying to find LCA");
 		Element _LCA = primaryElement.get_LCA();
 		if(_LCA == null) {
+			if(h1Element == null) {
+				return BoilerpipeHtmlProcessor.newInstance().process(html,
+						doc.outerHtml(), title, description, imageUrl, ogUrl,
+						inputUrl, this.url);
+			}
 			_LCA = WebDocumentUtil.findLowestCommonAncestor(majorElement, h1Element, doc.body());
 			if (_LCA == null) {
 				$LOG.debug("Failed to compute LCA node");
@@ -669,7 +729,9 @@ public class WebDocumentParser {
 			}
 		}
 		
-		title = h1Element.text();
+		if(h1Element != null) {
+			title = h1Element.text();
+		}
 		
 		if(imageUrl == null) {
 			Elements images = _LCA.getElementsByTag("img");

@@ -1,4 +1,4 @@
-package com.squill.og.crawler.internal.utils;
+package com.squill.utils;
 
 import java.util.LinkedList;
 import java.util.List;

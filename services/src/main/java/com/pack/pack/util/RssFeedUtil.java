@@ -3,6 +3,7 @@ package com.pack.pack.util;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.joda.time.DateTime;
@@ -34,6 +35,13 @@ public class RssFeedUtil {
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(RssFeedUtil.class);
+	
+	public static void storeRecentFeedIds(Set<String> recentFeedIds)
+			throws PackPackException {
+		INewsFeedService service = ServiceRegistry.INSTANCE
+				.findCompositeService(INewsFeedService.class);
+		service.storeRecentFeedIds(recentFeedIds);
+	}
 
 	public static void uploadRefreshmentFeeds(JRssFeeds feeds, TTL ttl,
 			long batchId, boolean sendNotification) {
@@ -66,8 +74,9 @@ public class RssFeedUtil {
 		}
 	}
 
-	public static void uploadNewsFeeds(JRssFeeds feeds, TTL ttl, long batchId,
+	public static Set<String> uploadNewsFeeds(JRssFeeds feeds, TTL ttl, long batchId,
 			boolean sendNotification) {
+		Set<String> f = null;
 		LOG.info("Classification done. Uploading News feeds to DB");
 		try {
 			int size = 0;
@@ -83,20 +92,25 @@ public class RssFeedUtil {
 				ttl.setUnit(TimeUnit.DAYS);
 				INewsFeedService service = ServiceRegistry.INSTANCE
 						.findCompositeService(INewsFeedService.class);
-				boolean f = service.upload(feeds.getFeeds(), ttl, batchId);
+				f = service.upload(feeds.getFeeds(), ttl, batchId);
 				LOG.info("Uploaded News Feed = " + f);
-				if (f) {
+				if (f != null && !f.isEmpty()) {
 					list.addAll(feeds.getFeeds());
 				}
 			}
 			LOG.info("Successfully uploaded News " + list.size() + " out of " + size + " feeds in DB");
+			if(list.isEmpty()) {
+				f.clear();
+			}
 		} catch (PackPackException e) {
 			LOG.error(e.getErrorCode() + "::" + e.getMessage(), e);
 		}
+		return f;
 	}
 	
-	public static void uploadOpinionFeed(JRssFeed feed, TTL ttl, long batchId,
+	public static Set<String> uploadOpinionFeed(JRssFeed feed, TTL ttl, long batchId,
 			boolean sendNotification) {
+		Set<String> f = null;
 		LOG.info("Trying to upload Opinion");
 		try {
 			if (feed != null) {
@@ -109,8 +123,8 @@ public class RssFeedUtil {
 				list.add(feed);
 				INewsFeedService service = ServiceRegistry.INSTANCE
 						.findCompositeService(INewsFeedService.class);
-				boolean f = service.upload(list, ttl, batchId);
-				if (f) {
+				f = service.upload(list, ttl, batchId);
+				if (f != null && !f.isEmpty()) {
 					LOG.info("Successfully uploaded Opinion " + feed.getOgTitle());
 				} else {
 					LOG.info("Failed to upload Opinion " + feed.getOgTitle());
@@ -119,6 +133,7 @@ public class RssFeedUtil {
 		} catch (PackPackException e) {
 			LOG.error(e.getErrorCode() + "::" + e.getMessage(), e);
 		}
+		return f;
 	}
 
 	public static final String resolvePrefix(RSSFeed feed) {

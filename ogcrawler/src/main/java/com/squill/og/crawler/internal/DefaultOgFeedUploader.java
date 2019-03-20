@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.http.HttpEntity;
@@ -30,12 +30,12 @@ import com.squill.og.crawler.IWebCrawlable;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
-import com.squill.og.crawler.internal.utils.ArchiveUtil;
-import com.squill.og.crawler.internal.utils.HtmlUtil;
-import com.squill.og.crawler.internal.utils.JSONUtil;
-import com.squill.og.crawler.internal.utils.NotificationUtil;
 import com.squill.og.crawler.model.WebSpiderTracker;
 import com.squill.og.crawler.rss.RSSConstants;
+import com.squill.utils.ArchiveUtil;
+import com.squill.utils.HtmlUtil;
+import com.squill.utils.JSONUtil;
+import com.squill.utils.NotificationUtil;
 
 /**
  * 
@@ -227,7 +227,8 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 		
 		//RssFeedUtil.uploadNewsFeeds(rssFeeds, ttl, batchId, true);
 		
-		RssFeedUtil.uploadNewsFeeds(rssFeeds, ttl, System.currentTimeMillis(), true);
+		Set<String> recentFeedIds = RssFeedUtil.uploadNewsFeeds(rssFeeds, ttl, System.currentTimeMillis(), true);
+		RssFeedUtil.storeRecentFeedIds(recentFeedIds);
 		
 		if(SystemPropertyUtil.isUploadToProd()) {
 			String json = JSONUtil.serialize(rssFeeds);

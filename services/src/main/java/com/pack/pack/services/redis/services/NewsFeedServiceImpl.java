@@ -3,7 +3,9 @@ package com.pack.pack.services.redis.services;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Component;
 import com.pack.pack.model.RSSFeed;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.ShortenUrlInfo;
+import com.pack.pack.model.web.dto.FeedPublish;
 import com.pack.pack.services.exception.ErrorCodes;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.redis.INewsFeedService;
@@ -24,6 +27,7 @@ import com.pack.pack.util.RssFeedUtil;
 import com.pack.pack.util.SystemPropertyUtil;
 import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JRssFeedType;
+import com.squill.feed.web.model.JRssFeeds;
 import com.squill.feed.web.model.TTL;
 
 /**
@@ -203,10 +207,11 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 	}
 
 	@Override
-	public boolean upload(List<JRssFeed> feeds, TTL ttl, long batchId)
+	public Set<String> upload(List<JRssFeed> feeds, TTL ttl, long batchId)
 			throws PackPackException {
 		if (feeds == null || feeds.isEmpty())
-			return false;
+			return Collections.emptySet();
+		Set<String> allIds = new HashSet<String>();
 		try {
 			RssFeedRepositoryService service = ServiceRegistry.INSTANCE
 					.findService(RssFeedRepositoryService.class);
@@ -228,12 +233,93 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 					toUpdate.add(rssFeed);
 				}
 			}
-			service.uploadNewsFeed(toAdd, ttl, batchId, true);
-			service.uploadNewsFeed(toUpdate, ttl, batchId, false);
-			return true;
+			Set<String> ids = service.uploadNewsFeed(toAdd, ttl, batchId, true);
+			if(ids != null && !ids.isEmpty()) {
+				allIds.addAll(ids);
+			}
+			ids = service.uploadNewsFeed(toUpdate, ttl, batchId, false);
+			if(ids != null && !ids.isEmpty()) {
+				allIds.addAll(ids);
+			}
+			return allIds;
 		} catch (NoSuchAlgorithmException e) {
 			$_LOG.error(e.getMessage(), e);
 			throw new PackPackException(ErrorCodes.PACK_ERR_61, e.getMessage());
 		}
+	}
+	
+	@Override
+	public JRssFeed getFeedById(String id) throws PackPackException {
+		RssFeedRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(RssFeedRepositoryService.class);
+		return ModelConverter.convert(service.getFeedByKey(id));
+	}
+	
+	@Override
+	public boolean upload(FeedPublish feedPublish) throws PackPackException {
+		RssFeedRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(RssFeedRepositoryService.class);
+		String id = feedPublish.getId();
+		if(id == null || id.trim().isEmpty())
+			return false;
+		RSSFeed rssFeed = service.getFeedByKey(id);
+		if(rssFeed == null)
+			return false;
+		String titleText = feedPublish.getTitleText();
+		if(titleText != null && !titleText.trim().isEmpty()) {
+			rssFeed.setOgTitle(titleText);
+		}
+		String summaryText = feedPublish.getSummaryText();
+		if(summaryText != null && !summaryText.trim().isEmpty()) {
+			rssFeed.setArticleSummaryText(summaryText);
+			rssFeed.setOgDescription(summaryText);
+		}
+		rssFeed.setOpenDirectLink(feedPublish.isOpenDirectLink());
+		return service.updateFeed(id, rssFeed);
+	}
+	
+	@Override
+	public JRssFeed delete(String id) throws PackPackException {
+		if(id == null || id.trim().isEmpty())
+			return null;
+		RssFeedRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(RssFeedRepositoryService.class);
+		RSSFeed rssFeed = service.deleteFeedByKey(id);
+		if(rssFeed == null)
+			return null;
+		//rssFeed.setId(id);
+		return ModelConverter.convert(rssFeed);
+	}
+	
+	@Override
+	public void storeRecentFeedIds(Set<String> recentFeedIds)
+			throws PackPackException {
+		RssFeedRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(RssFeedRepositoryService.class);
+		service.storeRecentFeedIds(recentFeedIds);
+	}
+
+	@Override
+	public Set<String> getRecentFeedIds() throws PackPackException {
+		RssFeedRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(RssFeedRepositoryService.class);
+		return service.getRecentFeedIds();
+	}
+
+	@Override
+	public JRssFeeds getRecentAutoUploadFeeds() throws PackPackException {
+		RssFeedRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(RssFeedRepositoryService.class);
+		List<RSSFeed> feeds = service.getRecentAutoUploadFeeds();
+		JRssFeeds result = new JRssFeeds();
+		if (feeds == null || feeds.isEmpty())
+			return result;
+		for (RSSFeed feed : feeds) {
+			JRssFeed r = ModelConverter.convert(feed);
+			if (r == null)
+				continue;
+			result.getFeeds().add(r);
+		}
+		return result;
 	}
 }

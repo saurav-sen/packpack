@@ -5,10 +5,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.og.crawler.iptc.subjectcodes.SubjectCode;
 import com.squill.og.crawler.iptc.subjectcodes.SubjectCodeRelationship;
 import com.squill.og.crawler.iptc.subjectcodes.SubjectCodes;
+import com.squill.utils.JSONUtil;
 
 public class PrimaryIptcCodeIdentifier {
 	

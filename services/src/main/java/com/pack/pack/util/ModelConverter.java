@@ -68,6 +68,7 @@ public class ModelConverter {
 		if (feed == null)
 			return null;
 		JRssFeed rFeed = new JRssFeed();
+		rFeed.setId(feed.getId());
 		rFeed.setHrefSource(feed.getHrefSource());
 		rFeed.setOgDescription(feed.getOgDescription());
 		rFeed.setOgImage(feed.getOgImage());
@@ -129,6 +130,7 @@ public class ModelConverter {
 		if (rFeed == null)
 			return null;
 		RSSFeed feed = new RSSFeed();
+		feed.setId(rFeed.getId());
 		feed.setHrefSource(rFeed.getHrefSource());
 		feed.setOgDescription(rFeed.getOgDescription());
 		feed.setOgImage(rFeed.getOgImage());

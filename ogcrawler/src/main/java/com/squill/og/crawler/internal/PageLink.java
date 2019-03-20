@@ -6,7 +6,7 @@ import java.util.List;
 import com.squill.og.crawler.ILink;
 import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.internal.utils.CoreConstants2;
-import com.squill.og.crawler.internal.utils.HtmlUtil;
+import com.squill.utils.HtmlUtil;
 
 
 

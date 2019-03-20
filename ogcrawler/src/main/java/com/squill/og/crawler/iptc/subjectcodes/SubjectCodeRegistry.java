@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory;
 import com.squill.feed.web.model.JRssFeedType;
 import com.squill.feed.web.model.JTaxonomy;
 import com.squill.og.crawler.app.SystemPropertyKeys;
-import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.services.exception.OgCrawlException;
+import com.squill.utils.JSONUtil;
 
 public final class SubjectCodeRegistry {
 

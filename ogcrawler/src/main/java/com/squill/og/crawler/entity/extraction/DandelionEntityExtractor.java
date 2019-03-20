@@ -13,10 +13,10 @@ import org.slf4j.LoggerFactory;
 
 import com.squill.feed.web.model.JConcept;
 import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
-import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.og.crawler.internal.utils.ResponseUtil;
 import com.squill.og.crawler.rss.LogTags;
 import com.squill.og.crawler.text.summarizer.NLPApiConstants;
+import com.squill.utils.JSONUtil;
 
 public class DandelionEntityExtractor {
 	

@@ -44,10 +44,10 @@ import com.squill.feed.web.model.JRssFeeds;
 import com.squill.feed.web.model.TTL;
 import com.squill.feed.web.model.UploadType;
 import com.squill.og.crawler.Spider;
-import com.squill.og.crawler.internal.utils.ArchiveUtil;
-import com.squill.og.crawler.internal.utils.HtmlUtil;
 import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
-import com.squill.og.crawler.internal.utils.NotificationUtil;
+import com.squill.utils.ArchiveUtil;
+import com.squill.utils.HtmlUtil;
+import com.squill.utils.NotificationUtil;
 
 /**
  * 

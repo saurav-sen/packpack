@@ -52,6 +52,8 @@ public class RssFeedRepositoryService {
 	private static final Logger $_LOG = LoggerFactory
 			.getLogger(RssFeedRepositoryService.class);
 
+	private static final String RECENT_FEED_KEY = "RECENT_FEED";
+	
 	private static final String SET_KEY_PREFIX = "SET_";
 
 	private static final String LATEST_SCORE = "LATEST_SCORE";
@@ -206,9 +208,25 @@ public class RssFeedRepositoryService {
 		sync.set(setKey, stringBuilder.toString());
 	}
 	
-	public void uploadNewsFeed(List<RSSFeed> feeds, TTL ttl, long batchId,
+	public boolean updateFeed(String key, RSSFeed feed) throws PackPackException {
+		if(key == null || key.trim().isEmpty())
+			return false;
+		RedisCommands<String, String> sync = getSyncRedisCommands();
+		List<String> list = sync.keys(key);
+		if (list != null && !list.isEmpty()) {
+			long ttlSeconds = sync.ttl(key);
+			feed.setId(key);
+			String json = JSONUtil.serialize(feed);
+			sync.setex(key, ttlSeconds, json);
+			return true;
+		}
+		return false;
+	}
+	
+	public Set<String> uploadNewsFeed(List<RSSFeed> feeds, TTL ttl, long batchId,
 			boolean updatePaginationInfo) throws PackPackException,
 			NoSuchAlgorithmException {
+		Set<String> allKeys = new HashSet<String>();
 		StringBuilder newsKeys = new StringBuilder();
 		StringBuilder sportsKeys = new StringBuilder();
 		StringBuilder opinionKeys = new StringBuilder();
@@ -233,6 +251,7 @@ public class RssFeedRepositoryService {
 					opinionKeys.append(key);
 					opinionKeys.append(";");
 				}
+				allKeys.add(key);
 			}
 		}
 		
@@ -274,6 +293,7 @@ public class RssFeedRepositoryService {
 					+ batchId;
 			sync.setex(setKey, ttlSeconds, articleKeys.toString());
 		}
+		return allKeys;
 	}
 	
 	private Set<String> resolveKeysForPagination(
@@ -294,7 +314,6 @@ public class RssFeedRepositoryService {
 		RedisCommands<String, String> sync = getSyncRedisCommands();
 		long ttlSeconds = resolveTTL_InSeconds(ttl);
 		String key = RssFeedUtil.generateUploadKey(feed);
-		String json = JSONUtil.serialize(feed);
 
 		// Avoid duplicate HashValues here (Only for new entries)
 		if (updatePaginationInfo) {
@@ -323,6 +342,8 @@ public class RssFeedRepositoryService {
 		if (!updatePaginationInfo) {
 			ttlSeconds = sync.ttl(key);
 		}
+		feed.setId(key);
+		String json = JSONUtil.serialize(feed);
 		sync.setex(key, ttlSeconds, json);
 		if (updatePaginationInfo) {
 			$_LOG.info("Updating latest score");
@@ -456,6 +477,24 @@ public class RssFeedRepositoryService {
 		}
 		return finalRangesValue.toString();
 	}
+	
+	public RSSFeed getFeedByKey(String key) throws PackPackException {
+		RedisCommands<String, String> sync = getSyncRedisCommands();
+		String json = sync.get(key);
+		return JSONUtil.deserialize(json, RSSFeed.class, true);
+	}
+	
+	public RSSFeed deleteFeedByKey(String key) throws PackPackException {
+		RedisCommands<String, String> sync = getSyncRedisCommands();
+		String json = sync.get(key);
+		if(json == null)
+			return null;
+		RSSFeed rssFeed = JSONUtil.deserialize(json, RSSFeed.class, true);
+		if(rssFeed == null)
+			return null;
+		sync.del(key);
+		return rssFeed;
+	}
 
 	public Pagination<RSSFeed> getAllFeedsInStore(String keyPattern)
 			throws PackPackException {
@@ -537,6 +576,7 @@ public class RssFeedRepositoryService {
 					continue;
 				}
 				RSSFeed feed = JSONUtil.deserialize(json, RSSFeed.class, true);
+				feed.setId(key);
 				feeds.add(feed);
 			}
 			page = new Pagination<RSSFeed>();
@@ -551,6 +591,59 @@ public class RssFeedRepositoryService {
 		Pagination<RSSFeed> page = new Pagination<RSSFeed>();
 		page.setNextPageNo(-1);
 		return page;
+	}
+	
+	public void storeRecentFeedIds(Set<String> recentFeedIds) throws PackPackException {
+		if(recentFeedIds == null || recentFeedIds.isEmpty())
+			return;
+		RedisCommands<String, String> sync = getSyncRedisCommands();
+		StringBuilder value = new StringBuilder();
+		for(String recentFeedId : recentFeedIds) {
+			value.append(recentFeedId);
+			value.append(";");
+		}
+		long ttlSeconds = 2 * 60 * 60;
+		sync.setex(RECENT_FEED_KEY, ttlSeconds, value.toString());
+	}
+	
+	public Set<String> getRecentFeedIds() throws PackPackException {
+		RedisCommands<String, String> sync = getSyncRedisCommands();
+		String value = sync.get(RECENT_FEED_KEY);
+		if(value == null)
+			return Collections.emptySet();
+		String[] arr = value.split(";");
+		if(arr.length == 0)
+			return Collections.emptySet();
+		Set<String> recentFeedIds = new HashSet<String>();
+		for(String a : arr) {
+			recentFeedIds.add(a);
+		}
+		return recentFeedIds;
+	}
+	
+	public List<RSSFeed> getRecentAutoUploadFeeds() throws PackPackException {
+		RedisCommands<String, String> sync = getSyncRedisCommands();
+		String value = sync.get(RECENT_FEED_KEY);
+		if(value == null)
+			return Collections.emptyList();
+		String[] arr = value.split(";");
+		if(arr.length == 0)
+			return Collections.emptyList();
+		Set<String> recentFeedIds = new HashSet<String>();
+		for(String a : arr) {
+			recentFeedIds.add(a);
+		}
+		List<RSSFeed> feeds = new LinkedList<RSSFeed>();
+		for (String recentFeedId : recentFeedIds) {
+			String json = sync.get(recentFeedId);
+			if (json == null) {
+				continue;
+			}
+			RSSFeed feed = JSONUtil.deserialize(json, RSSFeed.class, true);
+			feed.setId(recentFeedId);
+			feeds.add(feed);
+		}
+		return feeds;
 	}
 
 	public void test() {

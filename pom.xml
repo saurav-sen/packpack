@@ -80,6 +80,7 @@
 		<module>services-ext</module>
 		<module>oauth</module>
 		<module>markup-gen</module>
+		<module>utils</module>
 		<module>api</module>
 		<module>ml-api</module>
 		<module>api-client-java</module>

@@ -23,11 +23,10 @@ import com.squill.og.crawler.IWebCrawlable;
 import com.squill.og.crawler.SpiderSession;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.ISpiderSession;
-import com.squill.og.crawler.internal.utils.ArchiveUtil;
-import com.squill.og.crawler.internal.utils.CircularQueue;
-import com.squill.og.crawler.internal.utils.HtmlUtil;
-import com.squill.og.crawler.internal.utils.NotificationUtil;
-import com.squill.og.crawler.internal.utils.NotifyMsg;
+import com.squill.utils.ArchiveUtil;
+import com.squill.utils.CircularQueue;
+import com.squill.utils.HtmlUtil;
+import com.squill.utils.NotifyMsg;
 
 public class SpiderSessionFactory {
 	

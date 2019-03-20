@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import com.squill.crawlercommons.robots.BaseRobotRules;
 import com.squill.crawlercommons.sitemaps.SiteMapNews;
 import com.squill.crawlercommons.sitemaps.SiteMapURL;
-import com.squill.og.crawler.internal.utils.DateTimeUtil;
+import com.squill.utils.DateTimeUtil;
 
 public abstract class AbstractRobotScope implements IRobotScope {
 

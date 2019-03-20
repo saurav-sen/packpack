@@ -3,6 +3,8 @@ package com.pack.pack.model;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 /**
  * 
@@ -69,6 +71,8 @@ public class RSSFeed /*extends CouchDbDocument*/{
 	private String uploadType;
 	
 	private boolean openDirectLink = false;
+	
+	private String id;
 
 	public String getOgTitle() {
 		return ogTitle;
@@ -296,5 +300,13 @@ public class RSSFeed /*extends CouchDbDocument*/{
 
 	public void setOpenDirectLink(boolean openDirectLink) {
 		this.openDirectLink = openDirectLink;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 }

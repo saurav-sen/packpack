@@ -1,5 +1,7 @@
 package com.pack.pack.client.api;
 
+import com.pack.pack.client.api.APIConstants.FeedPublishInfo;
+
 /**
  * 
  * @author Saurav
@@ -38,7 +40,16 @@ public enum COMMAND {
 										 * .User.PasswordReset.NEW_PASSWORD),
 										 */ISSUE_SIGNUP_VERIFIER(
 			APIConstants.User.Register.EMAIL, APIConstants.User.Register.NAME), PROCESS_BOOKMARK(
-			APIConstants.Bookmark.WEB_LINK, APIConstants.User.USERNAME);
+			APIConstants.Bookmark.WEB_LINK, APIConstants.User.USERNAME), PROCESS_LINK(
+			APIConstants.Bookmark.WEB_LINK, APIConstants.Device.DEVICE_ID), GET_ALL_UNPUBLISHED_NEWS_FEEDS(
+			APIConstants.Device.DEVICE_ID), GET_ALL_UNPUBLISHED_ARTICLE_FEEDS(
+			APIConstants.Device.DEVICE_ID), UPLOAD_UNPUBLISHED_FEED(
+			APIConstants.Device.DEVICE_ID, FeedPublishInfo.FEED_ID,
+			FeedPublishInfo.IS_NOTIFY, FeedPublishInfo.IS_OPEN_DIRECT_LINK,
+			FeedPublishInfo.SUMMARY_TEXT, FeedPublishInfo.TITLE_TEXT,
+			FeedPublishInfo.USE_EXTERNAL_SUMMARY_ALGO,
+			FeedPublishInfo.UPLOAD_TYPE), DELETE_UNPUBLISHED_FEED(
+			APIConstants.Device.DEVICE_ID, FeedPublishInfo.FEED_ID);
 
 	private String[] paramNames;
 

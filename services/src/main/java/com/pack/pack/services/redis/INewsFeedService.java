@@ -1,10 +1,13 @@
 package com.pack.pack.services.redis;
 
 import java.util.List;
+import java.util.Set;
 
 import com.pack.pack.model.web.Pagination;
+import com.pack.pack.model.web.dto.FeedPublish;
 import com.pack.pack.services.exception.PackPackException;
 import com.squill.feed.web.model.JRssFeed;
+import com.squill.feed.web.model.JRssFeeds;
 import com.squill.feed.web.model.TTL;
 
 /**
@@ -27,6 +30,22 @@ public interface INewsFeedService {
 	 * @throws PackPackException
 	 */
 	public List<JRssFeed> getAllOpinionsFeeds() throws PackPackException;
+	
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 * @throws PackPackException
+	 */
+	public JRssFeed getFeedById(String id) throws PackPackException;
+	
+	/**
+	 * 
+	 * @param feedPublish
+	 * @return
+	 * @throws PackPackException
+	 */
+	public boolean upload(FeedPublish feedPublish) throws PackPackException;
 
 	/**
 	 * 
@@ -78,13 +97,42 @@ public interface INewsFeedService {
 	 * @param feeds
 	 * @param ttl
 	 * @param batchId
+	 * @return -- List of keys/ids of the uploaded feeds
+	 * @throws PackPackException
+	 */
+	public Set<String> upload(List<JRssFeed> feeds, TTL ttl, long batchId) throws PackPackException;
+	
+	/**
+	 * 
+	 * @param recentFeedIds
+	 * @throws PackPackException
+	 */
+	public void storeRecentFeedIds(Set<String> recentFeedIds) throws PackPackException;
+	
+	/**
+	 * 
 	 * @return
 	 * @throws PackPackException
 	 */
-	public boolean upload(List<JRssFeed> feeds, TTL ttl, long batchId) throws PackPackException;
+	public Set<String> getRecentFeedIds() throws PackPackException;
+	
+	/**
+	 * 
+	 * @return
+	 * @throws PackPackException
+	 */
+	public JRssFeeds getRecentAutoUploadFeeds() throws PackPackException;
 	
 	/*
 	 * 
 	 */
 	public void cleanupExpiredPageInfos();
+	
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 * @throws PackPackException
+	 */
+	public JRssFeed delete(String id) throws PackPackException;
 }

@@ -1,4 +1,4 @@
-package com.squill.og.crawler.internal.utils;
+package com.squill.utils;
 
 import java.io.File;
 import java.io.IOException;

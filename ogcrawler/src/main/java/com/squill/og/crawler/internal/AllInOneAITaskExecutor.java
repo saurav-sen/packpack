@@ -28,15 +28,15 @@ import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.hooks.ITaxonomyResolver;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
-import com.squill.og.crawler.internal.utils.ArchiveUtil;
 import com.squill.og.crawler.internal.utils.FeedClassifierUtil;
-import com.squill.og.crawler.internal.utils.HtmlUtil;
 import com.squill.og.crawler.model.WebSpiderTracker;
 import com.squill.og.crawler.opennlp.ISentenceDetector;
 import com.squill.og.crawler.rss.RSSConstants;
 import com.squill.og.crawler.text.summarizer.ArticleText;
 import com.squill.og.crawler.text.summarizer.TextSummarization;
 import com.squill.services.exception.OgCrawlException;
+import com.squill.utils.ArchiveUtil;
+import com.squill.utils.HtmlUtil;
 
 /**
  * 
@@ -206,7 +206,7 @@ public class AllInOneAITaskExecutor {
 		executeTasks(feedsMap, webCrawlable, UploadType.AUTOMATIC);
 	}
 	
-	public void executeTasks(Map<String, List<JRssFeed>> feedsMap, IWebCrawlable webCrawlable, UploadType ogType) {
+	private void executeTasks(Map<String, List<JRssFeed>> feedsMap, IWebCrawlable webCrawlable, UploadType ogType) {
 		preProcess(feedsMap, webCrawlable);
 		executeAITasks(feedsMap, session, webCrawlable, ogType);
 	}

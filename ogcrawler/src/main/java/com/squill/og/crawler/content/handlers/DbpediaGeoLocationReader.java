@@ -28,8 +28,8 @@ import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.registry.ServiceRegistry;
 import com.squill.feed.web.model.JConcept;
 import com.squill.og.crawler.hooks.GeoLocation;
-import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.services.exception.OgCrawlException;
+import com.squill.utils.JSONUtil;
 
 public class DbpediaGeoLocationReader {
 	

@@ -23,10 +23,10 @@ import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.app.SystemPropertyKeys;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.EncryptionUtil;
-import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.og.crawler.model.DocumentHeadersMemento;
 import com.squill.og.crawler.model.WebSpiderTracker;
 import com.squill.services.exception.OgCrawlException;
+import com.squill.utils.JSONUtil;
 
 /**
  * 

@@ -36,6 +36,7 @@ import com.squill.og.crawler.IRobotScope;
 import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.internal.HtmlPage;
 import com.squill.og.crawler.internal.PageLinkExtractor;
+import com.squill.utils.HtmlUtil;
 
 /**
  * 

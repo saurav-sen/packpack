@@ -62,6 +62,8 @@ public class JRssFeed {
 	
 	private boolean openDirectLink = false;
 	
+	private String id;
+	
 	public String getOgTitle() {
 		return ogTitle;
 	}
@@ -286,5 +288,13 @@ public class JRssFeed {
 
 	public void setOpenDirectLink(boolean openDirectLink) {
 		this.openDirectLink = openDirectLink;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 }

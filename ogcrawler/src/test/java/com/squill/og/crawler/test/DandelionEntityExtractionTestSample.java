@@ -9,9 +9,9 @@ import org.slf4j.LoggerFactory;
 
 import com.squill.og.crawler.entity.extraction.ExtractedEntityResponse;
 import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
-import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.og.crawler.internal.utils.ResponseUtil;
 import com.squill.og.crawler.text.summarizer.NLPApiConstants;
+import com.squill.utils.JSONUtil;
 
 public class DandelionEntityExtractionTestSample {
 	

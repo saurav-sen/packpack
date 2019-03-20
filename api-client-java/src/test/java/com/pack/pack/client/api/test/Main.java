@@ -1,5 +1,8 @@
 package com.pack.pack.client.api.test;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 
 
@@ -12,7 +15,17 @@ public class Main {
 	public static final String PASSWORD = "password";*/
 	
 	
-	public static void main2(String[] args) throws Exception {
-		
+	public static void main(String[] args) throws Exception {
+		String str = "\"opbu\": \"https://docs.google.com/a/ciphercloud.co/picker\",\n" +
+				"                \"opru\": \"https://docs.google.com/relay.html\",\n" +
+				"                \"opdu\": true,\n" +
+				"                \"opccp\": false,\n" +
+				"                \"ophi\": \"kix\",\n" +
+				"                \"opst\": \"000770F203FFD4D8E9460322CF254E99241EF3B52A7FBBFEFB::1552644753362\",\n" +
+				"                \"opuci\": \"document\",\n" +
+				"                \"docs-to\": \"https://docs.google.com\"";
+		str = str.replaceAll("https://docs.google.com/",
+				"https://docs-google-com.qa.ciphercloud.in/");
+		System.out.println(str);
 	}
 }

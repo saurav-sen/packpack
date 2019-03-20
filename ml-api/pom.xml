@@ -21,6 +21,11 @@
         	<artifactId>services-ext</artifactId>
          	<version>${packpack.release}</version>          	
         </dependency>
+        <dependency>
+			<groupId>com.pack.pack</groupId>
+			<artifactId>utils</artifactId>
+			<version>${packpack.release}</version>
+		</dependency>
 		<!-- https://mvnrepository.com/artifact/nz.ac.waikato.cms.weka/weka-stable -->
 		<!--dependency>
 			<groupId>nz.ac.waikato.cms.weka</groupId>

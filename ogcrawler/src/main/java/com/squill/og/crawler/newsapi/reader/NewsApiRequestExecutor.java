@@ -28,8 +28,8 @@ import com.squill.feed.web.model.JRssFeeds;
 import com.squill.og.crawler.app.SystemPropertyKeys;
 import com.squill.og.crawler.hooks.IApiRequestExecutor;
 import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
-import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.services.exception.OgCrawlException;
+import com.squill.utils.JSONUtil;
 
 @Component("newsApiRequestExecutor")
 @Scope("prototype")

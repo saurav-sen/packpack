@@ -51,6 +51,29 @@ public interface APIConstants {
 		}
 	}
 	
+	public static interface Device {
+		public static final String DEVICE_ID = "deviceId";
+	}
+	
+	public static interface FeedPublishInfo {
+		public static final String TITLE_TEXT = "titleText";
+		public static final String SUMMARY_TEXT = "summaryText";
+		public static final String IS_OPEN_DIRECT_LINK = "isOpenDirectLink";
+		public static final String USE_EXTERNAL_SUMMARY_ALGO = "useExternalSummaryAlgo";
+		public static final String IS_NOTIFY = "isNotify";
+		public static final String FEED_ID = "feedId";
+		public static final String UPLOAD_TYPE = "type";
+	}
+	
+	public static interface FeedPublishType {
+		public static final String AUTO = "0";
+		public static final String MANUAL = "1";
+	}
+	
+	public static interface FeedDeleteInfo {
+		public static final String FEED_ID = "feedId";
+	}
+	
 	public static interface PageInfo {
 		public static final String PAGE_NO = "pageNo";
 	}

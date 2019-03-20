@@ -4,8 +4,8 @@ import com.lambdaworks.redis.RedisClient;
 import com.lambdaworks.redis.api.StatefulRedisConnection;
 import com.lambdaworks.redis.api.sync.RedisCommands;
 import com.squill.og.crawler.internal.utils.EncryptionUtil;
-import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.og.crawler.model.WebSpiderTracker;
+import com.squill.utils.JSONUtil;
 
 /**
  * 

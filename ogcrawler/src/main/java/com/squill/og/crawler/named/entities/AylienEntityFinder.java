@@ -9,10 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
-import com.squill.og.crawler.internal.utils.JSONUtil;
 import com.squill.og.crawler.internal.utils.ResponseUtil;
 import com.squill.og.crawler.text.summarizer.NLPApiConstants;
 import com.squill.services.exception.OgCrawlException;
+import com.squill.utils.JSONUtil;
 
 public class AylienEntityFinder {
 	
