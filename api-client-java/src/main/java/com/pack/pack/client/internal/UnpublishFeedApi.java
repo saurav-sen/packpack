@@ -50,7 +50,7 @@ public class UnpublishFeedApi extends BaseAPI {
 	private Pagination<JRssFeed> getAllUnpublishedFeeds(String deviceId,
 			int pageNo) throws Exception {
 		DefaultHttpClient client = new DefaultHttpClient();
-		String url = getBaseUrl() + "publish/unprovision/";
+		String url = getBaseUrl() + "publish/unprovision/page/" + pageNo;
 		HttpGet GET = new HttpGet(url);
 		GET.addHeader(AUTHORIZATION_HEADER, deviceId);
 		HttpResponse response = client.execute(GET);

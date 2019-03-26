@@ -125,10 +125,11 @@ public interface INewsFeedService {
 	
 	/**
 	 * 
+	 * @param pageNo
 	 * @return
 	 * @throws PackPackException
 	 */
-	public Pagination<JRssFeed> getUnprovisionUploadFeeds(String deviceId, int pageNo) throws PackPackException;
+	public Pagination<JRssFeed> getUnprovisionUploadFeeds(int pageNo) throws PackPackException;
 	
 	/**
 	 * 

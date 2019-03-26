@@ -42,8 +42,8 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 	private static final Logger $_LOG = LoggerFactory
 			.getLogger(NewsFeedServiceImpl.class);
 
-	//private static final int MINIMUM_PAGE_SIZE = 10;
-	
+	// private static final int MINIMUM_PAGE_SIZE = 10;
+
 	@Override
 	public List<JRssFeed> getAllFeeds() throws PackPackException {
 		List<JRssFeed> list = new ArrayList<JRssFeed>();
@@ -58,19 +58,19 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 				.resolvePrefix(JRssFeedType.ARTICLE.name()) + "*");
 		list.addAll(ModelConverter.convertAllRssFeeds(page.getResult(), true,
 				true));
-		
+
 		page = repositoryService.getAllFeedsInStore(RssFeedUtil
 				.resolvePrefix(JRssFeedType.REFRESHMENT.name()) + "*");
 		list.addAll(ModelConverter.convertAllRssFeeds(page.getResult(), false,
 				false));
-		
+
 		page = repositoryService.getAllFeedsInStore(RssFeedUtil
 				.resolvePrefix(JRssFeedType.OPINION.name()) + "*");
 		list.addAll(ModelConverter.convertAllRssFeeds(page.getResult(), false,
 				false));
 		return list;
 	}
-	
+
 	@Override
 	public List<JRssFeed> getAllOpinionsFeeds() throws PackPackException {
 		List<JRssFeed> list = new ArrayList<JRssFeed>();
@@ -83,7 +83,7 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 				false));
 		return list;
 	}
-	
+
 	@Override
 	public void cleanupExpiredPageInfos() {
 		RssFeedRepositoryService repositoryService = ServiceRegistry.INSTANCE
@@ -92,8 +92,8 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 	}
 
 	@Override
-	public Pagination<JRssFeed> getAllNewsRssFeeds(String userId,
-			int pageNo) throws PackPackException {
+	public Pagination<JRssFeed> getAllNewsRssFeeds(String userId, int pageNo)
+			throws PackPackException {
 		return getAllRssFeeds(JRssFeedType.NEWS, userId, pageNo);
 	}
 
@@ -102,10 +102,10 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 			int pageNo) throws PackPackException {
 		return getAllRssFeeds(JRssFeedType.NEWS_SPORTS, userId, pageNo);
 	}
-	
+
 	@Override
-	public Pagination<JRssFeed> getAllOpinionRssFeeds(String userId,
-			int pageNo) throws PackPackException {
+	public Pagination<JRssFeed> getAllOpinionRssFeeds(String userId, int pageNo)
+			throws PackPackException {
 		return getAllRssFeeds(JRssFeedType.OPINION, userId, pageNo);
 	}
 
@@ -117,14 +117,14 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 	}
 
 	@Override
-	public Pagination<JRssFeed> getArticleNewsRssFeeds(String userId,
-			int pageNo) throws PackPackException {
+	public Pagination<JRssFeed> getArticleNewsRssFeeds(String userId, int pageNo)
+			throws PackPackException {
 		return getAllRssFeeds(JRssFeedType.ARTICLE, userId, pageNo);
 	}
 
 	private Pagination<JRssFeed> getAllRssFeeds(JRssFeedType type,
 			String userId, int pageNo) throws PackPackException {
-		if(pageNo < 0) {
+		if (pageNo < 0) {
 			return endOfPageResponse();
 		}
 		List<JRssFeed> result = new ArrayList<JRssFeed>();
@@ -134,8 +134,7 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 		boolean needToIterate = false;
 		List<JRssFeed> feeds = page.getResult();
 		result.addAll(feeds);
-		while (result != null && nextPageNo > 0
-				&& result.size() < 4) {
+		while (result != null && nextPageNo > 0 && result.size() < 4) {
 			pageNo++;
 			$_LOG.info("Reading from next pageNo = " + pageNo);
 			Pagination<JRssFeed> page0 = getAllRssFeeds0(type, userId, pageNo);
@@ -217,28 +216,29 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 					.findService(RssFeedRepositoryService.class);
 			List<RSSFeed> toAdd = new ArrayList<RSSFeed>();
 			List<RSSFeed> toUpdate = new ArrayList<RSSFeed>();
-			for(JRssFeed feed : feeds) {
+			for (JRssFeed feed : feeds) {
 				if (feed.getShareableUrl() == null) {
 					boolean storeSharedFeed = false;
 					ShortenUrlInfo shortenUrlInfo = UrlShortener
 							.calculateShortenShareableUrl(feed,
-									SystemPropertyUtil.getExternalSharedLinkBaseUrl(),
+									SystemPropertyUtil
+											.getExternalSharedLinkBaseUrl(),
 									storeSharedFeed);
 					feed.setShareableUrl(shortenUrlInfo.getUrl());
 				}
 				RSSFeed rssFeed = ModelConverter.convert(feed);
-				if(!service.checkFeedExists(feed)) {
+				if (!service.checkFeedExists(feed)) {
 					toAdd.add(rssFeed);
 				} else {
 					toUpdate.add(rssFeed);
 				}
 			}
 			Set<String> ids = service.uploadNewsFeed(toAdd, ttl, batchId, true);
-			if(ids != null && !ids.isEmpty()) {
+			if (ids != null && !ids.isEmpty()) {
 				allIds.addAll(ids);
 			}
 			ids = service.uploadNewsFeed(toUpdate, ttl, batchId, false);
-			if(ids != null && !ids.isEmpty()) {
+			if (ids != null && !ids.isEmpty()) {
 				allIds.addAll(ids);
 			}
 			return allIds;
@@ -247,50 +247,50 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 			throw new PackPackException(ErrorCodes.PACK_ERR_61, e.getMessage());
 		}
 	}
-	
+
 	@Override
 	public JRssFeed getFeedById(String id) throws PackPackException {
 		RssFeedRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(RssFeedRepositoryService.class);
 		return ModelConverter.convert(service.getFeedByKey(id));
 	}
-	
+
 	@Override
 	public boolean upload(FeedPublish feedPublish) throws PackPackException {
 		RssFeedRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(RssFeedRepositoryService.class);
 		String id = feedPublish.getId();
-		if(id == null || id.trim().isEmpty())
+		if (id == null || id.trim().isEmpty())
 			return false;
 		RSSFeed rssFeed = service.getFeedByKey(id);
-		if(rssFeed == null)
+		if (rssFeed == null)
 			return false;
 		String titleText = feedPublish.getTitleText();
-		if(titleText != null && !titleText.trim().isEmpty()) {
+		if (titleText != null && !titleText.trim().isEmpty()) {
 			rssFeed.setOgTitle(titleText);
 		}
 		String summaryText = feedPublish.getSummaryText();
-		if(summaryText != null && !summaryText.trim().isEmpty()) {
+		if (summaryText != null && !summaryText.trim().isEmpty()) {
 			rssFeed.setArticleSummaryText(summaryText);
 			rssFeed.setOgDescription(summaryText);
 		}
 		rssFeed.setOpenDirectLink(feedPublish.isOpenDirectLink());
 		return service.updateFeed(id, rssFeed);
 	}
-	
+
 	@Override
 	public JRssFeed delete(String id) throws PackPackException {
-		if(id == null || id.trim().isEmpty())
+		if (id == null || id.trim().isEmpty())
 			return null;
 		RssFeedRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(RssFeedRepositoryService.class);
 		RSSFeed rssFeed = service.deleteFeedByKey(id);
-		if(rssFeed == null)
+		if (rssFeed == null)
 			return null;
-		//rssFeed.setId(id);
+		// rssFeed.setId(id);
 		return ModelConverter.convert(rssFeed);
 	}
-	
+
 	@Override
 	public void storeRecentFeedIds(Set<String> recentFeedIds)
 			throws PackPackException {
@@ -322,14 +322,14 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 		}
 		return result;
 	}
-	
+
 	@Override
-	public Pagination<JRssFeed> getUnprovisionUploadFeeds(String deviceId,
-			int pageNo) throws PackPackException {
+	public Pagination<JRssFeed> getUnprovisionUploadFeeds(int pageNo)
+			throws PackPackException {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
 	public Set<String> storeUnprovisionedFedds(List<JRssFeed> feeds, TTL ttl,
 			long batchId, String deviceId) throws PackPackException {
