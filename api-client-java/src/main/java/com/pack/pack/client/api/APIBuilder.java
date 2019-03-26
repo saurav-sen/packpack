@@ -24,6 +24,10 @@ public class APIBuilder {
 	public APIBuilder setUserName(String userName) {
 		throw new UnsupportedOperationException();
 	}
+	
+	public APIBuilder setDeviceId(String deviceId) {
+		throw new UnsupportedOperationException();
+	}
 
 	public API build() {
 		throw new UnsupportedOperationException();

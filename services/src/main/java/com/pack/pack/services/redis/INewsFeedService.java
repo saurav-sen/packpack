@@ -123,6 +123,24 @@ public interface INewsFeedService {
 	 */
 	public JRssFeeds getRecentAutoUploadFeeds() throws PackPackException;
 	
+	/**
+	 * 
+	 * @return
+	 * @throws PackPackException
+	 */
+	public Pagination<JRssFeed> getUnprovisionUploadFeeds(String deviceId, int pageNo) throws PackPackException;
+	
+	/**
+	 * 
+	 * @param feeds
+	 * @param ttl
+	 * @param batchId
+	 * @param deviceId
+	 * @return
+	 * @throws PackPackException
+	 */
+	public Set<String> storeUnprovisionedFedds(List<JRssFeed> feeds, TTL ttl, long batchId, String deviceId) throws PackPackException;
+	
 	/*
 	 * 
 	 */

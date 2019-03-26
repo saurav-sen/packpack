@@ -1,6 +1,7 @@
 package com.pack.pack.client.api;
 
 import com.pack.pack.client.api.APIConstants.FeedPublishInfo;
+import com.pack.pack.client.api.APIConstants.UnpublishedFeedPublishInfo;
 
 /**
  * 
@@ -40,16 +41,20 @@ public enum COMMAND {
 										 * .User.PasswordReset.NEW_PASSWORD),
 										 */ISSUE_SIGNUP_VERIFIER(
 			APIConstants.User.Register.EMAIL, APIConstants.User.Register.NAME), PROCESS_BOOKMARK(
-			APIConstants.Bookmark.WEB_LINK, APIConstants.User.USERNAME), PROCESS_LINK(
-			APIConstants.Bookmark.WEB_LINK, APIConstants.Device.DEVICE_ID), GET_ALL_UNPUBLISHED_NEWS_FEEDS(
-			APIConstants.Device.DEVICE_ID), GET_ALL_UNPUBLISHED_ARTICLE_FEEDS(
-			APIConstants.Device.DEVICE_ID), UPLOAD_UNPUBLISHED_FEED(
+			APIConstants.Bookmark.WEB_LINK, APIConstants.User.USERNAME), PROCESS_UNPUBLISHED_LINK(
+			APIConstants.Bookmark.WEB_LINK, APIConstants.Device.DEVICE_ID), GET_ALL_UNPUBLISHED_FEEDS(
+			APIConstants.Device.DEVICE_ID, APIConstants.PageInfo.PAGE_NO), GET_ALL_RECENT_NEWS_FEEDS(
+			APIConstants.Device.DEVICE_ID), EDIT_RECENT_NEWS_FEED(
 			APIConstants.Device.DEVICE_ID, FeedPublishInfo.FEED_ID,
 			FeedPublishInfo.IS_NOTIFY, FeedPublishInfo.IS_OPEN_DIRECT_LINK,
 			FeedPublishInfo.SUMMARY_TEXT, FeedPublishInfo.TITLE_TEXT,
-			FeedPublishInfo.USE_EXTERNAL_SUMMARY_ALGO,
-			FeedPublishInfo.UPLOAD_TYPE), DELETE_UNPUBLISHED_FEED(
-			APIConstants.Device.DEVICE_ID, FeedPublishInfo.FEED_ID);
+			FeedPublishInfo.USE_EXTERNAL_SUMMARY_ALGO), DELETE_RECENT_FEED(
+			APIConstants.Device.DEVICE_ID, FeedPublishInfo.FEED_ID),
+			UPLOAD_UNPUBLISHED_FEED(UnpublishedFeedPublishInfo.CONTENT, 
+					UnpublishedFeedPublishInfo.IS_NOTIFY, 
+					UnpublishedFeedPublishInfo.IS_OPEN_DIRECT_LINK, 
+					UnpublishedFeedPublishInfo.IS_CHECK_DUPLICATE,
+					UnpublishedFeedPublishInfo.FEED_TYPE);
 
 	private String[] paramNames;
 

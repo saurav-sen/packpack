@@ -15,5 +15,7 @@ public interface Configuration {
 	
 	public String getUserName();
 	
+	public String getDeviceId();
+	
 	public Map<String, Object> getApiParams();
 }

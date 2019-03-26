@@ -255,7 +255,7 @@ public class RssFeedRepositoryService {
 			}
 		}
 		
-		long ttlSeconds = 30 * 60 * 60 * 1000; // 30 Hours
+		long ttlSeconds = 30 * 60 * 60;// * 1000; // 30 Hours
 		RedisCommands<String, String> sync = getSyncRedisCommands();
 		String setKey = null;
 		if (!newsKeys.toString().isEmpty()) {
@@ -457,7 +457,7 @@ public class RssFeedRepositoryService {
 			set.add(Long.parseLong(range.trim()));
 		}
 		long first = -1;
-		long diff = 50 * 60 * 60 * 1000;
+		long diff = 50 * 60 * 60;// * 1000;
 		Iterator<Long> itr = set.iterator();
 		while (itr.hasNext()) {
 			Long v = itr.next();

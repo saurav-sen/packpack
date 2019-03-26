@@ -62,7 +62,14 @@ public interface APIConstants {
 		public static final String USE_EXTERNAL_SUMMARY_ALGO = "useExternalSummaryAlgo";
 		public static final String IS_NOTIFY = "isNotify";
 		public static final String FEED_ID = "feedId";
-		public static final String UPLOAD_TYPE = "type";
+	}
+	
+	public static interface UnpublishedFeedPublishInfo {
+		public static final String CONTENT = "content";
+		public static final String IS_OPEN_DIRECT_LINK = "isOpenDirectLink";
+		public static final String IS_NOTIFY = "isNotify";
+		public static final String IS_CHECK_DUPLICATE = "isCheckDuplicate";
+		public static final String FEED_TYPE = "feedType";
 	}
 	
 	public static interface FeedPublishType {

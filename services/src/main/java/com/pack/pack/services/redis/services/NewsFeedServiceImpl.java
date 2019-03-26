@@ -322,4 +322,18 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 		}
 		return result;
 	}
+	
+	@Override
+	public Pagination<JRssFeed> getUnprovisionUploadFeeds(String deviceId,
+			int pageNo) throws PackPackException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public Set<String> storeUnprovisionedFedds(List<JRssFeed> feeds, TTL ttl,
+			long batchId, String deviceId) throws PackPackException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

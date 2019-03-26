@@ -15,7 +15,7 @@ import com.pack.pack.client.api.COMMAND;
 public class APIBuilderImpl extends APIBuilder {
 
 	private ConfigurationImpl config;
-	
+
 	private String baseUrl;
 
 	public APIBuilderImpl(String baseUrl) {
@@ -38,6 +38,12 @@ public class APIBuilderImpl extends APIBuilder {
 		return this;
 	}
 
+	@Override
+	public APIBuilder setDeviceId(String deviceId) {
+		config.deviceId = deviceId;
+		return this;
+	}
+
 	public API build() {
 		APIWrapper api = null;
 		COMMAND action = config.action;
@@ -46,13 +52,12 @@ public class APIBuilderImpl extends APIBuilder {
 				|| action == COMMAND.SEARCH_USER_BY_NAME
 				|| action == COMMAND.EDIT_USER_CATEGORIES
 				|| action == COMMAND.GET_USER_CATEGORIES
-				/*|| action == COMMAND.SIGN_IN */
-				|| action == COMMAND.SIGN_OUT
-				|| action == COMMAND.SIGN_UP
+				/* || action == COMMAND.SIGN_IN */
+				|| action == COMMAND.SIGN_OUT || action == COMMAND.SIGN_UP
 				|| action == COMMAND.UPLOAD_USER_PROFILE_PICTURE
 				|| action == COMMAND.UPDATE_USER_SETTINGS
 				|| action == COMMAND.ISSUE_PASSWD_RESET_LINK
-				/*|| action == COMMAND.RESET_USER_PASSWD*/
+				/* || action == COMMAND.RESET_USER_PASSWD */
 				|| action == COMMAND.ISSUE_SIGNUP_VERIFIER) {
 			api = new APIWrapper(new UserManagementApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
@@ -63,23 +68,33 @@ public class APIBuilderImpl extends APIBuilder {
 				|| action == COMMAND.LOAD_EXTERNAL_RESOURCE) {
 			api = new APIWrapper(new ResourceLoaderApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
-		} else if(action == COMMAND.GET_ALL_REFRESHMENT_FEEDS) {
+		} else if (action == COMMAND.GET_ALL_REFRESHMENT_FEEDS) {
 			api = new APIWrapper(new RefreshmentFeedsApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
-		} else if(action == COMMAND.GET_ALL_NEWS_FEEDS
+		} else if (action == COMMAND.GET_ALL_NEWS_FEEDS
 				|| action == COMMAND.GET_ALL_OPINION_FEEDS
 				|| action == COMMAND.GET_ALL_SCIENCE_AND_TECHNOLOGY_NEWS_FEEDS
 				|| action == COMMAND.GET_ALL_ARTICLES_FEEDS) {
 			api = new APIWrapper(new NewsFeedsApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
-		} else if(action == COMMAND.SYNC_TIME
+		} else if (action == COMMAND.SYNC_TIME
 				|| action == COMMAND.VALIDATE_USER_NAME
 				|| action == COMMAND.ANDROID_APK_URL) {
 			api = new APIWrapper(new PublicApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
-		} else if(action == COMMAND.CRAWL_FEED
+		} else if (action == COMMAND.CRAWL_FEED
 				|| action == COMMAND.PROCESS_BOOKMARK) {
 			api = new APIWrapper(new FeedReaderApi(baseUrl));
+			api.getInvoker().setConfiguration(config);
+		} else if (action == COMMAND.GET_ALL_UNPUBLISHED_FEEDS
+				|| action == COMMAND.PROCESS_UNPUBLISHED_LINK
+				|| action == COMMAND.UPLOAD_UNPUBLISHED_FEED) {
+			api = new APIWrapper(new UnpublishFeedApi(baseUrl));
+			api.getInvoker().setConfiguration(config);
+		} else if (action == COMMAND.GET_ALL_RECENT_NEWS_FEEDS
+				|| action == COMMAND.EDIT_RECENT_NEWS_FEED
+				|| action == COMMAND.DELETE_RECENT_FEED) {
+			api = new APIWrapper(new RecentAutoPublishedFeedsApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
 		}
 		return api;
@@ -93,6 +108,8 @@ public class APIBuilderImpl extends APIBuilder {
 
 		private String userName;
 
+		private String deviceId;
+
 		@Override
 		public COMMAND getAction() {
 			return action;
@@ -101,6 +118,11 @@ public class APIBuilderImpl extends APIBuilder {
 		@Override
 		public String getUserName() {
 			return userName;
+		}
+
+		@Override
+		public String getDeviceId() {
+			return deviceId;
 		}
 
 		@Override

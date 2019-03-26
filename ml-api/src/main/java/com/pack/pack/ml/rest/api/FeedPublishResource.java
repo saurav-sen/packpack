@@ -57,8 +57,18 @@ public class FeedPublishResource {
 			.getLogger(FeedPublishResource.class);
 	
 	@GET
+	@Path("recent")
 	@Produces(MediaType.APPLICATION_JSON)
 	public JRssFeeds getRecentAutoUploadFeeds() throws PackPackException {
+		INewsFeedService service = ServiceRegistry.INSTANCE
+				.findCompositeService(INewsFeedService.class);
+		return service.getRecentAutoUploadFeeds();
+	}
+	
+	@GET
+	@Path("unprovision")
+	@Produces(MediaType.APPLICATION_JSON)
+	public JRssFeeds getUnpublishedUploadFeeds() throws PackPackException {
 		INewsFeedService service = ServiceRegistry.INSTANCE
 				.findCompositeService(INewsFeedService.class);
 		return service.getRecentAutoUploadFeeds();
