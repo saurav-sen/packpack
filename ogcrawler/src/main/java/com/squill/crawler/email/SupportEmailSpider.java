@@ -369,8 +369,9 @@ public class SupportEmailSpider implements Spider {
 					ArchiveUtil.DEFAULT_ID,
 					ArchiveUtil.DEFAULT_MAX_TIME_DIFF_IN_HOURS,
 					UploadType.MANUAL);
-			if(list == null || list.isEmpty())
-				return;
+			if(list == null) {
+				list = Collections.emptyList();
+			}
 			List<ArticleInfo> tgtList = new ArrayList<ArticleInfo>();
 			for(JRssFeed l : list) {
 				ArticleInfo tgt = new ArticleInfo(l.getOgTitle(), null);
