@@ -13,6 +13,9 @@
 				<element name="ApiReader" type="tns:ApiReader" maxOccurs="unbounded"
 					minOccurs="0">
 				</element>
+				<element name="RssFeedReader" type="tns:RssFeedReader" maxOccurs="unbounded"
+					minOccurs="0">
+				</element>
 				<element name="webLinkTracker" type="tns:WebTracker"
 					maxOccurs="1" minOccurs="0"></element>
 				<element name="feedUploader" type="tns:FeedUploader"
@@ -57,6 +60,8 @@
 				maxOccurs="1" minOccurs="0" />
 			<element name="linkFilter" type="tns:LinkFilter" maxOccurs="1"
 				minOccurs="0"></element>
+			<element name="feedHandler" type="tns:FeedHandler" maxOccurs="1"
+				minOccurs="0"></element>
 			<element name="scheduler" type="tns:scheduler" maxOccurs="1"
 				minOccurs="1"></element>
 		</sequence>
@@ -86,6 +91,8 @@
 				maxOccurs="1" minOccurs="0" />
 			<element name="linkFilter" type="tns:LinkFilter" maxOccurs="1"
 				minOccurs="0"></element>
+			<element name="feedHandler" type="tns:FeedHandler" maxOccurs="1"
+				minOccurs="0"></element>
 			<element name="scheduler" type="tns:scheduler" maxOccurs="1"
 				minOccurs="1"></element>
 		</sequence>
@@ -93,6 +100,34 @@
 		<attribute name="uploadIndependently" type="boolean" use="required"></attribute>
 		<attribute name="checkDuplicate" type="boolean" use="required"></attribute>
 		<attribute name="preClassifiedType" type="string" use="optional"></attribute>
+	</complexType>
+	
+	<complexType name="RssFeedReader">
+		<sequence>
+			<element name="name" type="string" maxOccurs="1" minOccurs="1" />
+			<element name="description" type="string" maxOccurs="1"
+				minOccurs="1" />
+			<element name="webLinkTracker" type="tns:WebTracker"
+				maxOccurs="1" minOccurs="0"></element>
+			<element name="apiRequestExecutor" type="tns:ApiRequestExecutor"
+				maxOccurs="1" minOccurs="1" />
+			<element name="geoTagResolver" type="tns:GeoTagResolver"
+				maxOccurs="1" minOccurs="0" />
+			<element name="taxonomyClassifier" type="tns:TaxonomyClassifier"
+				maxOccurs="1" minOccurs="0" />
+			<element name="articleSummarizer" type="tns:ArticleSummarizer"
+				maxOccurs="1" minOccurs="0" />
+			<element name="linkFilter" type="tns:LinkFilter" maxOccurs="1"
+				minOccurs="0"></element>
+			<element name="feedHandler" type="tns:FeedHandler" maxOccurs="1"
+				minOccurs="0"></element>
+			<element name="scheduler" type="tns:scheduler" maxOccurs="1"
+				minOccurs="1"></element>
+		</sequence>
+		<attribute name="id" type="string" use="required"></attribute>
+		<attribute name="uploadIndependently" type="boolean" use="required"></attribute>
+		<attribute name="checkDuplicate" type="boolean" use="required"></attribute>
+		<attribute name="rssFeedUrl" type="string" use="required"></attribute>
 	</complexType>
 	
 	<complexType name="ApiRequestExecutor">
@@ -108,6 +143,13 @@
 				minOccurs="1" />
 		</sequence>
 		<attribute name="preClassifiedType" type="string" use="optional"></attribute>
+	</complexType>
+	
+	<complexType name="FeedHandler">
+		<sequence>
+			<element name="handler" type="string" maxOccurs="1"
+				minOccurs="1" />
+		</sequence>
 	</complexType>
 
 	<complexType name="FeedUploader">

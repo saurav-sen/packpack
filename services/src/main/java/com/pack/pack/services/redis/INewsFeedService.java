@@ -136,11 +136,18 @@ public interface INewsFeedService {
 	 * @param feeds
 	 * @param ttl
 	 * @param batchId
-	 * @param deviceId
 	 * @return
 	 * @throws PackPackException
 	 */
-	public Set<String> storeUnprovisionedFedds(List<JRssFeed> feeds, TTL ttl, long batchId, String deviceId) throws PackPackException;
+	public Set<String> storeUnprovisionedFeeds(List<JRssFeed> feeds, TTL ttl, long batchId) throws PackPackException;
+	
+	/**
+	 * 
+	 * @param feed
+	 * @return
+	 * @throws PackPackException
+	 */
+	public boolean publishUnprovisionedFeed(JRssFeed feed) throws PackPackException;
 	
 	/*
 	 * 

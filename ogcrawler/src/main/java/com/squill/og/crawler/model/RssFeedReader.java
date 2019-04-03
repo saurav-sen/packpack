@@ -16,12 +16,12 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for ApiReader complex type.
+ * <p>Java class for RssFeedReader complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="ApiReader">
+ * &lt;complexType name="RssFeedReader">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
@@ -39,7 +39,7 @@ import javax.xml.bind.annotation.XmlType;
  *       &lt;attribute name="id" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="uploadIndependently" use="required" type="{http://www.w3.org/2001/XMLSchema}boolean" />
  *       &lt;attribute name="checkDuplicate" use="required" type="{http://www.w3.org/2001/XMLSchema}boolean" />
- *       &lt;attribute name="preClassifiedType" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="rssFeedUrl" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -48,7 +48,7 @@ import javax.xml.bind.annotation.XmlType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "ApiReader", propOrder = {
+@XmlType(name = "RssFeedReader", propOrder = {
     "name",
     "description",
     "webLinkTracker",
@@ -60,7 +60,7 @@ import javax.xml.bind.annotation.XmlType;
     "feedHandler",
     "scheduler"
 })
-public class ApiReader {
+public class RssFeedReader {
 
     @XmlElement(required = true)
     protected String name;
@@ -82,8 +82,8 @@ public class ApiReader {
     protected boolean uploadIndependently;
     @XmlAttribute(name = "checkDuplicate", required = true)
     protected boolean checkDuplicate;
-    @XmlAttribute(name = "preClassifiedType")
-    protected String preClassifiedType;
+    @XmlAttribute(name = "rssFeedUrl", required = true)
+    protected String rssFeedUrl;
 
     /**
      * Gets the value of the name property.
@@ -382,27 +382,27 @@ public class ApiReader {
     }
 
     /**
-     * Gets the value of the preClassifiedType property.
+     * Gets the value of the rssFeedUrl property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getPreClassifiedType() {
-        return preClassifiedType;
+    public String getRssFeedUrl() {
+        return rssFeedUrl;
     }
 
     /**
-     * Sets the value of the preClassifiedType property.
+     * Sets the value of the rssFeedUrl property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setPreClassifiedType(String value) {
-        this.preClassifiedType = value;
+    public void setRssFeedUrl(String value) {
+        this.rssFeedUrl = value;
     }
 
 }

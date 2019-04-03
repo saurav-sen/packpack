@@ -12,12 +12,14 @@ import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.hooks.IApiRequestExecutor;
 import com.squill.og.crawler.hooks.IArticleTextExtractor;
 import com.squill.og.crawler.hooks.IArticleTextSummarizer;
+import com.squill.og.crawler.hooks.IFeedHandler;
 import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.hooks.ITaxonomyResolver;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.model.ApiReader;
 import com.squill.og.crawler.model.ApiRequestExecutor;
 import com.squill.og.crawler.model.ArticleSummarizer;
+import com.squill.og.crawler.model.FeedHandler;
 import com.squill.og.crawler.model.GeoTagResolver;
 import com.squill.og.crawler.model.TaxonomyClassifier;
 import com.squill.og.crawler.model.WebTracker;
@@ -43,13 +45,18 @@ public class WebApiImpl implements IWebApi {
 	private IWebLinkTrackerService historyTracker;
 	
 	private String historyTrackerServiceID;
+	
+	private String feedHandlerServiceID;
+	
+	private IFeedHandler feedHandlerService;
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(WebApiImpl.class);
 
-	public WebApiImpl(ApiReader crawlerDef, WebTracker webTracker) {
+	public WebApiImpl(ApiReader crawlerDef, WebTracker webTracker, FeedHandler feedHandler) {
 		this.crawlerDef = crawlerDef;
 		this.historyTrackerServiceID = webTracker != null ? webTracker.getServiceId() : null;
+		this.feedHandlerServiceID = feedHandler != null ? feedHandler.getHandler() : null;
 	}
 
 	@Override
@@ -296,6 +303,40 @@ public class WebApiImpl implements IWebApi {
 			}
 		}
 		return historyTracker;
+	}
+	
+	@Override
+	public IFeedHandler getFeedHandler() {
+		if (feedHandlerService != null)
+			return feedHandlerService;
+		FeedHandler feedHandler = crawlerDef.getFeedHandler();
+		if (feedHandler != null) {
+			feedHandlerServiceID = feedHandler.getHandler();
+		}
+		if(feedHandlerServiceID == null)
+			return null;
+		String serviceId = feedHandlerServiceID;
+		try {
+			feedHandlerService = AppContext.INSTANCE.findService(serviceId,
+					IFeedHandler.class);
+		} catch (NoSuchBeanDefinitionException e) {
+			LOG.error(e.getMessage(), e);
+		}
+		if (feedHandlerService == null) {
+			try {
+				Object newInstance = Class.forName(serviceId).newInstance();
+				if (newInstance instanceof IFeedHandler) {
+					feedHandlerService = (IFeedHandler) newInstance;
+				}
+			} catch (InstantiationException e) {
+				LOG.error(e.getMessage(), e);
+			} catch (IllegalAccessException e) {
+				LOG.error(e.getMessage(), e);
+			} catch (ClassNotFoundException e) {
+				LOG.error(e.getMessage(), e);
+			}
+		}
+		return feedHandlerService;
 	}
 
 	@Override

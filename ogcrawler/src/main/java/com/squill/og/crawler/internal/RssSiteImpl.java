@@ -1,37 +1,25 @@
 package com.squill.og.crawler.internal;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
-import com.squill.og.crawler.AbstractRobotScope;
 import com.squill.og.crawler.ICrawlSchedule;
-import com.squill.og.crawler.ILink;
-import com.squill.og.crawler.IRobotScope;
+import com.squill.og.crawler.IRssSite;
 import com.squill.og.crawler.IWebSite;
-import com.squill.og.crawler.content.handlers.ExpressionContext;
-import com.squill.og.crawler.content.handlers.ExpressionContext.EvalContext;
 import com.squill.og.crawler.hooks.IArticleTextExtractor;
 import com.squill.og.crawler.hooks.IArticleTextSummarizer;
 import com.squill.og.crawler.hooks.IFeedHandler;
 import com.squill.og.crawler.hooks.IGeoLocationResolver;
-import com.squill.og.crawler.hooks.IHtmlContentHandler;
-import com.squill.og.crawler.hooks.ILinkFilter;
 import com.squill.og.crawler.hooks.ITaxonomyResolver;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
-import com.squill.og.crawler.internal.utils.CoreConstants2;
-import com.squill.og.crawler.linkfilters.DailyFixedSizeLinkFilter;
 import com.squill.og.crawler.model.ArticleSummarizer;
-import com.squill.og.crawler.model.ContentHandler;
 import com.squill.og.crawler.model.FeedHandler;
 import com.squill.og.crawler.model.GeoTagResolver;
-import com.squill.og.crawler.model.LinkFilter;
+import com.squill.og.crawler.model.RssFeedReader;
 import com.squill.og.crawler.model.TaxonomyClassifier;
-import com.squill.og.crawler.model.WebCrawler;
 import com.squill.og.crawler.model.WebTracker;
 
 /**
@@ -39,43 +27,39 @@ import com.squill.og.crawler.model.WebTracker;
  * @author Saurav
  *
  */
-public class WebsiteImpl implements IWebSite {
+public class RssSiteImpl implements IRssSite {
 
-	private WebCrawler crawlerDef;
-
-	private IHtmlContentHandler contentHandler;
+	private RssFeedReader crawlerDef;
 
 	private IGeoLocationResolver geoLocationResolver;
-	
+
 	private boolean isGeoLocationResolverLoadTried = false;
 
 	private ITaxonomyResolver taxonomyResolver;
-	
+
 	private IArticleTextSummarizer articleTextSummarizer;
-	
+
 	private boolean isTaxonomyResolverLoadTried = false;
-	
+
 	private boolean isTextSummarizerResolverLoadTried = false;
 
 	private IWebLinkTrackerService historyTracker;
-	
-	private IRobotScope robotScope;
-	
-	private String historyTrackerServiceID;
-	
-	private String feedHandlerServiceID;
-	
-	private IFeedHandler feedHandlerService;
-	
-	private boolean pageLinkExtractorEnabled = true;
-	
-	private static final Logger LOG = LoggerFactory
-			.getLogger(WebsiteImpl.class);
 
-	public WebsiteImpl(WebCrawler crawlerDef, WebTracker webTracker, FeedHandler feedHandler) {
+	private String historyTrackerServiceID;
+
+	private String feedHandlerServiceID;
+
+	private IFeedHandler feedHandlerService;
+
+	private static final Logger LOG = LoggerFactory.getLogger(WebApiImpl.class);
+
+	public RssSiteImpl(RssFeedReader crawlerDef, WebTracker webTracker,
+			FeedHandler feedHandler) {
 		this.crawlerDef = crawlerDef;
-		this.historyTrackerServiceID = webTracker != null ? webTracker.getServiceId() : null;
-		this.feedHandlerServiceID = feedHandler != null ? feedHandler.getHandler() : null;
+		this.historyTrackerServiceID = webTracker != null ? webTracker
+				.getServiceId() : null;
+		this.feedHandlerServiceID = feedHandler != null ? feedHandler
+				.getHandler() : null;
 	}
 
 	@Override
@@ -83,96 +67,15 @@ public class WebsiteImpl implements IWebSite {
 		String id = crawlerDef.getId();
 		return id.replaceAll(" ", "_");
 	}
-	
+
 	@Override
 	public boolean isUploadIndependently() {
 		return crawlerDef.isUploadIndependently();
 	}
 
 	@Override
-	public String getDomainUrl() {
-		return crawlerDef.getDomainUrl();
-	}
-
-	@Override
-	public IRobotScope getRobotScope() {
-		if (robotScope == null) {
-			robotScope = new RobotScopeImpl(getTrackerService());
-		}
-		return robotScope;
-	}
-	
-	private class RobotScopeImpl extends AbstractRobotScope {
-		
-		private ILinkFilter linkFilterHandler = null;
-		
-		
-		RobotScopeImpl(IWebLinkTrackerService trackerService) {
-			initLinkFilterHandler(trackerService);
-		}
-		
-		@Override
-		public boolean ifScoped(String link) {
-			LinkFilter linkFilter = crawlerDef.getLinkFilter();
-			if (linkFilter == null)
-				return true;
-			if(linkFilterHandler != null) {
-				return linkFilterHandler.isScoped(link);
-			}
-			String expression = linkFilter.getExpression();
-			if(expression == null)
-				return true;
-			EvalContext ctx = new EvalContext(link);
-			ExpressionContext.set(ctx);
-			return new LinkFilterConditionEvaluator().evalExp(expression);
-		}
-		
-		@Override
-		public void incrementLinkCount() {
-			super.incrementLinkCount();
-			if(linkFilterHandler != null) {
-				linkFilterHandler.incrementLinkCount();
-			}
-		}
-		
-		private void initLinkFilterHandler(IWebLinkTrackerService trackerService) {
-			LinkFilter linkFilter = crawlerDef.getLinkFilter();
-			String handler = linkFilter.getHandler();
-			if(handler != null) {
-				try {
-					linkFilterHandler = AppContext.INSTANCE.findService(handler,
-							ILinkFilter.class);
-				} catch (NoSuchBeanDefinitionException e) {
-					LOG.error(e.getMessage(), e);
-				}
-				if(linkFilterHandler == null) {
-					try {
-						Class<?> clazz = Class.forName(handler);
-						linkFilterHandler = (ILinkFilter) clazz.newInstance();
-					} catch (Exception e) {
-						LOG.error(e.getMessage(), e);
-					}
-				}
-				
-				if (linkFilterHandler instanceof DailyFixedSizeLinkFilter) {
-					((DailyFixedSizeLinkFilter) linkFilterHandler)
-							.setTrackerService(trackerService);
-				}
-			}
-		}
-
-		@Override
-		public List<? extends ILink> getIfAnyLeftOverLinks() {
-			return Collections.emptyList();
-		}
-
-		@Override
-		public boolean ifScopedSiteMapUrl(String sitemapUrl) {
-			if(linkFilterHandler != null) {
-				return linkFilterHandler.isScopedSitemapUrl(sitemapUrl);
-			}
-			return true;
-		}
+	public String getRssFeedUrl() {
+		return crawlerDef.getRssFeedUrl();
 	}
 
 	@Override
@@ -205,7 +108,7 @@ public class WebsiteImpl implements IWebSite {
 		}
 		return taxonomyResolver;
 	}
-	
+
 	@Override
 	public IArticleTextSummarizer getArticleTextSummarizer() {
 		if (articleTextSummarizer == null && !isTextSummarizerResolverLoadTried) {
@@ -221,55 +124,10 @@ public class WebsiteImpl implements IWebSite {
 		}
 		return articleTextSummarizer;
 	}
-	
+
 	@Override
 	public IArticleTextExtractor getArticleTextExtractor() {
 		return getArticleTextSummarizer();
-	}
-
-	@Override
-	public IHtmlContentHandler getContentHandler() {
-		if (contentHandler != null) {
-			return contentHandler;
-		}
-		ContentHandler contentHandlerDef = crawlerDef.getContentHandler();
-		contentHandler = loadContentHandler(contentHandlerDef);
-		if (contentHandler != null) {
-			String preClassifiedType = contentHandlerDef.getPreClassifiedType();
-			if (preClassifiedType != null) {
-				contentHandler.addMetaInfo(
-						CoreConstants2.PRE_CLASSIFIED_FEED_TYPE,
-						preClassifiedType);
-			}
-		}
-		return contentHandler;
-	}
-
-	private IHtmlContentHandler loadContentHandler(
-			ContentHandler contentHandlerDef) {
-		IHtmlContentHandler contentHandler = null;
-		String handler = contentHandlerDef.getHandler().trim();
-		try {
-			contentHandler = AppContext.INSTANCE.findService(handler,
-					IHtmlContentHandler.class);
-		} catch (NoSuchBeanDefinitionException e) {
-			LOG.error(e.getMessage(), e);
-		}
-		if (contentHandler == null) {
-			try {
-				Object newInstance = Class.forName(handler).newInstance();
-				if (newInstance instanceof IHtmlContentHandler) {
-					contentHandler = (IHtmlContentHandler) newInstance;
-				}
-			} catch (InstantiationException e) {
-				LOG.error(e.getMessage(), e);
-			} catch (IllegalAccessException e) {
-				LOG.error(e.getMessage(), e);
-			} catch (ClassNotFoundException e) {
-				LOG.error(e.getMessage(), e);
-			}
-		}
-		return contentHandler;
 	}
 
 	private IGeoLocationResolver loadGeoTargetLocationResolver(
@@ -307,7 +165,6 @@ public class WebsiteImpl implements IWebSite {
 			taxonomyResolver = AppContext.INSTANCE.findService(resolver,
 					ITaxonomyResolver.class);
 		} catch (NoSuchBeanDefinitionException e) {
-			// TODO Auto-generated catch block
 			LOG.error(e.getMessage(), e);
 		}
 		if (taxonomyResolver == null) {
@@ -326,7 +183,7 @@ public class WebsiteImpl implements IWebSite {
 		}
 		return taxonomyResolver;
 	}
-	
+
 	private IArticleTextSummarizer loadArticleTextSummarizer(
 			ArticleSummarizer articleSummarizer) {
 		IArticleTextSummarizer articleTextSummarizer = null;
@@ -384,11 +241,6 @@ public class WebsiteImpl implements IWebSite {
 	}
 
 	@Override
-	public boolean shouldCheckRobotRules() {
-		return crawlerDef.isRobotRulesExists();
-	}
-
-	@Override
 	public IWebLinkTrackerService getTrackerService() {
 		if (historyTracker != null)
 			return historyTracker;
@@ -396,7 +248,7 @@ public class WebsiteImpl implements IWebSite {
 		if (webTracker != null) {
 			historyTrackerServiceID = webTracker.getServiceId();
 		}
-		if(historyTrackerServiceID == null)
+		if (historyTrackerServiceID == null)
 			return null;
 		String serviceId = historyTrackerServiceID;
 		try {
@@ -421,7 +273,7 @@ public class WebsiteImpl implements IWebSite {
 		}
 		return historyTracker;
 	}
-	
+
 	@Override
 	public IFeedHandler getFeedHandler() {
 		if (feedHandlerService != null)
@@ -430,7 +282,7 @@ public class WebsiteImpl implements IWebSite {
 		if (feedHandler != null) {
 			feedHandlerServiceID = feedHandler.getHandler();
 		}
-		if(feedHandlerServiceID == null)
+		if (feedHandlerServiceID == null)
 			return null;
 		String serviceId = feedHandlerServiceID;
 		try {
@@ -455,30 +307,15 @@ public class WebsiteImpl implements IWebSite {
 		}
 		return feedHandlerService;
 	}
-	
-	@Override
-	public boolean isPageLinkExtractorEnabled() {
-		return pageLinkExtractorEnabled;
-	}
 
-	@Override
-	public void enablePageLinkExtractor() {
-		pageLinkExtractorEnabled = true;
-	}
-
-	@Override
-	public void disablePageLinkExtractor() {
-		pageLinkExtractorEnabled = false;
-	}
-	
 	@Override
 	public boolean equals(Object obj) {
-		if(obj instanceof IWebSite) {
-			return this.getUniqueId().equals(((IWebSite)obj).getUniqueId());
+		if (obj instanceof IWebSite) {
+			return this.getUniqueId().equals(((IWebSite) obj).getUniqueId());
 		}
 		return false;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return this.getUniqueId().hashCode();

@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.ext.article.comparator.ArticleInfo;
 import com.pack.pack.services.ext.article.comparator.TitleBasedArticleComparator;
 import com.pack.pack.util.RssFeedUtil;
@@ -27,6 +28,7 @@ import com.squill.feed.web.model.JRssFeed;
 import com.squill.feed.web.model.JRssFeeds;
 import com.squill.feed.web.model.TTL;
 import com.squill.og.crawler.IWebCrawlable;
+import com.squill.og.crawler.hooks.IFeedHandler;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
@@ -44,7 +46,7 @@ import com.squill.utils.NotificationUtil;
  */
 @Component("defaultOgFeedUploader")
 @Scope("prototype")
-public class DefaultOgFeedUploader implements IFeedUploader {
+public class DefaultOgFeedUploader implements IFeedUploader, IFeedHandler {
 
 	/*private static final String BASE_URL_CONFIG = "BASE_URL";
 	private static final String URL_PART_CONFIG = "URL_PART";
@@ -309,5 +311,42 @@ public class DefaultOgFeedUploader implements IFeedUploader {
 				}
 			}
 		}
+	}
+	
+	@Override
+	public void handleReceived(Map<String, List<JRssFeed>> feedsMap,
+			ISpiderSession session, IWebCrawlable webCrawlable) throws Exception {
+		if(isExecuteAItaks()) {
+			handleReceivedAITaksExecuted(feedsMap, session, webCrawlable);
+		} else {
+			handleReceivedAITaksNotExecuted(feedsMap, session, webCrawlable);
+		}
+	}
+	
+	protected void handleReceivedAITaksNotExecuted(
+			Map<String, List<JRssFeed>> feedsMap, ISpiderSession session,
+			IWebCrawlable webCrawlable) throws Exception {
+		throw new UnsupportedOperationException(
+				"Non AI mode of execution Not supported @ "
+						+ this.getClass().getName() + "#handleReceived(...)");
+	}
+	
+	protected void handleReceivedAITaksExecuted(Map<String, List<JRssFeed>> feedsMap,
+			ISpiderSession session, IWebCrawlable webCrawlable) throws Exception {
+		Map<String, List<JRssFeed>> map = new HashMap<String, List<JRssFeed>>();
+		
+		List<WebSpiderTracker> list = getAllFeedsToBeUploaded(webCrawlable);
+		if(list == null || list.isEmpty()) {
+			LOG.debug("No feeds found for :: " + webCrawlable.getUniqueId());
+			return;
+		}
+		map.put(webCrawlable.getUniqueId(), readFeeds(list));
+		try {
+			uploadBulk(map, session, webCrawlable);
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+		}
+		
+		session.fireTopNotificationIfAny();
 	}
 }

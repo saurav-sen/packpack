@@ -331,9 +331,16 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 	}
 
 	@Override
-	public Set<String> storeUnprovisionedFedds(List<JRssFeed> feeds, TTL ttl,
-			long batchId, String deviceId) throws PackPackException {
+	public Set<String> storeUnprovisionedFeeds(List<JRssFeed> feeds, TTL ttl,
+			long batchId) throws PackPackException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	@Override
+	public boolean publishUnprovisionedFeed(JRssFeed feed)
+			throws PackPackException {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

@@ -75,7 +75,8 @@ public class WebSpiderService {
 							period, timeUnit);
 					Spider spider = SpiderFactory.INSTANCE.createNewSpiderInstance(
 							crawlable, crawlSchedulePeriodicTimeInMillis,
-							crawlable.getTrackerService(), (SpiderSession) session);
+							crawlable.getTrackerService(), crawlable.getFeedHandler(), 
+							(SpiderSession) session);
 					if(spider == null) {
 						LOG.error("Failed to initialize Spider instance for <" + crawlable.getUniqueId() + ">");
 						continue;

@@ -17,6 +17,7 @@ import com.squill.og.crawler.IRobotScope;
 import com.squill.og.crawler.IWebSite;
 import com.squill.og.crawler.Spider;
 import com.squill.og.crawler.SpiderSession;
+import com.squill.og.crawler.hooks.IFeedHandler;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.IGeoLocationResolver;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
@@ -38,6 +39,7 @@ public class WebSiteSpider implements Spider {
 	
 	private IWebSite webSite;
 	private IWebLinkTrackerService tracker;
+	private IFeedHandler feedHandler;
 	
 	private static Logger $LOG = LoggerFactory.getLogger(WebSiteSpider.class);
 	
@@ -47,10 +49,11 @@ public class WebSiteSpider implements Spider {
 	
 	private SpiderSession session;
 	
-	public WebSiteSpider(IWebSite domain, long crawlSchedulePeriodicTimeInMillis, IWebLinkTrackerService tracker, SpiderSession session) {
+	public WebSiteSpider(IWebSite domain, long crawlSchedulePeriodicTimeInMillis, IWebLinkTrackerService tracker, IFeedHandler feedHandler, SpiderSession session) {
 		this.webSite = domain;
 		this.crawlSchedulePeriodicTimeInMillis = crawlSchedulePeriodicTimeInMillis;
 		this.tracker = tracker;
+		this.feedHandler = feedHandler;
 		this.session = session;
 	}
 	
@@ -62,8 +65,10 @@ public class WebSiteSpider implements Spider {
 		IGeoLocationResolver geoLocationResolver = webSite.getTargetLocationResolver();
 		IFeedUploader feedUploader = session.getFeedUploader();
 		try {
-			session.begin(webSite);
-			feedUploader.beginEach(session, webSite);
+			if (feedHandler == null) {
+				session.begin(webSite);
+				feedUploader.beginEach(session, webSite);
+			}
 			if (links.isEmpty()) {
 				List<? extends ILink> parseCrawlableURLs = WebSpiderUtils.parseCrawlableURLs(webSite);
 				Collections.sort(parseCrawlableURLs, new Comparator<ILink>() {
@@ -84,12 +89,17 @@ public class WebSiteSpider implements Spider {
 			}
 			doCrawl(links, robotScope, contentHandler, geoLocationResolver, session, webSite.isPageLinkExtractorEnabled(), webSite.getUniqueId());
 			Map<String, List<JRssFeed>> collectiveFeeds = contentHandler.getCollectiveFeeds(session);
-			new AllInOneAITaskExecutor(session).executeTasks(collectiveFeeds, webSite);
-			//AllInOneAITaskExecutor allInOneAITaskExecutor = new AllInOneAITaskExecutor(session);
-			//collectiveFeeds = allInOneAITaskExecutor.executeTasks(collectiveFeeds, webSite);
-			//JRssFeeds rssFeeds = uniteAll(collectiveFeeds);
-			//session.addAttr(webSite, ISpiderSession.RSS_FEEDS_KEY, rssFeeds);
-			feedUploader.endEach(session, webSite);
+			if (feedHandler == null) {
+				new AllInOneAITaskExecutor(session).executeTasks(
+						collectiveFeeds, webSite);
+				feedUploader.endEach(session, webSite);
+			} else {
+				if(feedHandler.isExecuteAItaks()) {
+					new AllInOneAITaskExecutor(session).executeTasks(
+							collectiveFeeds, webSite);
+				}
+				feedHandler.handleReceived(collectiveFeeds, session, webSite);
+			}
 		} catch (Throwable e) {
 			$LOG.error(e.getMessage(), e);
 		} finally {
