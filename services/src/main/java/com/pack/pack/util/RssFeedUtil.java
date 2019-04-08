@@ -160,6 +160,8 @@ public class RssFeedUtil {
 			return JRssFeedType.ARTICLE.name() + "_";
 		} else if (RssFeedType.OPINION.name().equalsIgnoreCase(feedType)) {
 			return JRssFeedType.OPINION.name() + "_";
+		} else if (RssFeedType.UNPROVISIONED.name().equalsIgnoreCase(feedType)) {
+			return JRssFeedType.UNPROVISIONED.name() + "_";
 		}
 		return "Feeds_";
 	}

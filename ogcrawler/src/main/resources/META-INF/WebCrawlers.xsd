@@ -109,8 +109,6 @@
 				minOccurs="1" />
 			<element name="webLinkTracker" type="tns:WebTracker"
 				maxOccurs="1" minOccurs="0"></element>
-			<element name="apiRequestExecutor" type="tns:ApiRequestExecutor"
-				maxOccurs="1" minOccurs="1" />
 			<element name="geoTagResolver" type="tns:GeoTagResolver"
 				maxOccurs="1" minOccurs="0" />
 			<element name="taxonomyClassifier" type="tns:TaxonomyClassifier"

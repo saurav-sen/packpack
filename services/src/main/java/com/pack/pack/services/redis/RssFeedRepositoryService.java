@@ -303,6 +303,55 @@ public class RssFeedRepositoryService {
 			return Collections.emptySet();
 		return new HashSet<String>(Arrays.asList(keys.split(";")));
 	}
+	
+	public String uploadUnprovisionedFeed(RSSFeed feed, TTL ttl, boolean updateExisiting) throws PackPackException,
+			NoSuchAlgorithmException {
+		if(ttl == null) {
+			ttl = new TTL();
+			ttl.setTime((short)1);
+			ttl.setUnit(TimeUnit.DAYS);
+		}
+		String feedType = feed.getFeedType().toUpperCase();
+		String LOG_TAG = "[" + feedType + "] ";
+		$_LOG.info(LOG_TAG + "Uploading " + feedType + " Feed @ " + feed.getOgUrl());
+		$_LOG.info(LOG_TAG + "Uploading Feed Titled :: " + feed.getOgTitle());
+		RedisCommands<String, String> sync = getSyncRedisCommands();
+		long ttlSeconds = resolveTTL_InSeconds(ttl);
+		String key = RssFeedUtil.generateUploadKey(feed);
+
+		// Avoid duplicate HashValues here (Only for new entries)
+		if (!updateExisiting) {
+			String tmpKey = key;
+			String tmpJson = null;
+			RSSFeed tmpFeed = null;
+			int i = 0;
+			do {
+				$_LOG.debug("feed.getOgUrl() = " + feed.getOgUrl());
+				tmpJson = sync.get(tmpKey);
+				$_LOG.debug(LOG_TAG + "tmpKey = " + tmpKey);
+				$_LOG.debug(LOG_TAG + "tmpJson = " + tmpJson);
+				if (tmpJson != null) {
+					tmpFeed = JSONUtil
+							.deserialize(tmpJson, RSSFeed.class, true);
+					$_LOG.debug(LOG_TAG + "tmpFeed.getOgUrl() = " + tmpFeed.getOgUrl());
+					tmpKey = new StringBuilder(key).append(i).toString();
+					$_LOG.debug(LOG_TAG + "tmpKey = " + tmpKey);
+					i++;
+				}
+			} while (tmpJson != null && tmpFeed != null
+					&& feed.getOgUrl().equals(tmpFeed.getOgUrl()));
+			key = tmpKey;
+		}
+
+		if (updateExisiting) {
+			ttlSeconds = sync.ttl(key);
+		}
+		feed.setId(key);
+		String json = JSONUtil.serialize(feed);
+		sync.setex(key, ttlSeconds, json);
+		$_LOG.info(LOG_TAG + "Successfully uploaded " + feedType + " Feed");
+		return key;
+	}
 
 	private String uploadNewsFeed(RSSFeed feed, TTL ttl, long batchId,
 			boolean updatePaginationInfo) throws PackPackException,

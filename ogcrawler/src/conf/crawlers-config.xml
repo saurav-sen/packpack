@@ -69,6 +69,13 @@
 	    <scheduler initialDelay="0" periodicDelay="2" timeUnit="HOURS"/>
     </ApiReader>
     
+    <RssFeedReader id="dnaindia.com" uploadIndependently="true" checkDuplicate="false">
+        <name>dnaindia.com</name>
+        <description>DnaIndia News</description>
+	    <feedHandler>unprovisionFeedUploader</feedHandler>
+	    <scheduler initialDelay="0" periodicDelay="1" timeUnit="HOURS"/>
+    </RssFeedReader>
+    
     <webLinkTracker>
         <serviceId>defaultWebLinkTrackerService</serviceId>
     </webLinkTracker>

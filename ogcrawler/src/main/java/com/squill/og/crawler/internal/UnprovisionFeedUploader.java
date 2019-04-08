@@ -43,8 +43,7 @@ public class UnprovisionFeedUploader extends DefaultOgFeedUploader {
 		while (itr.hasNext()) {
 			JRssFeed f = itr.next();
 			JRssFeed existing = service
-					.getFeedById(Constants.UN_PROVISIONED_KEY_PREFIX
-							+ f.getOgUrl());
+					.getFeedById(f.getId());
 			if (existing != null) {
 				$_LOG.info("Found existing Unprovisioned Feeds @ "
 						+ f.getOgUrl() + " hence skipping upload.");
@@ -57,6 +56,6 @@ public class UnprovisionFeedUploader extends DefaultOgFeedUploader {
 		ttl.setTime((short) 1);
 		ttl.setUnit(TimeUnit.DAYS);
 		$_LOG.info("Storing Unprovisioned Feeds size = " + list.size());
-		service.storeUnprovisionedFeeds(list, ttl, System.currentTimeMillis());
+		service.storeUnprovisionedFeeds(list, ttl);
 	}
 }

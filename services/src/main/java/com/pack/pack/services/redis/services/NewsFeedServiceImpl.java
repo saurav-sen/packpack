@@ -3,7 +3,9 @@ package com.pack.pack.services.redis.services;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -13,6 +15,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.pack.pack.model.RSSFeed;
+import com.pack.pack.model.RssFeedType;
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.ShortenUrlInfo;
 import com.pack.pack.model.web.dto.FeedPublish;
@@ -326,21 +329,83 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 	@Override
 	public Pagination<JRssFeed> getUnprovisionUploadFeeds(int pageNo)
 			throws PackPackException {
-		// TODO Auto-generated method stub
-		return null;
+		Pagination<JRssFeed> page = new Pagination<JRssFeed>();
+		page.setResult(Collections.emptyList());
+		page.setNextPageNo(-1);
+		if (pageNo < 0)
+			return page;
+		RssFeedRepositoryService service = ServiceRegistry.INSTANCE
+				.findService(RssFeedRepositoryService.class);
+		Pagination<RSSFeed> p0 = service.getAllFeedsInStore(RssFeedUtil
+				.resolvePrefix(JRssFeedType.UNPROVISIONED.name()));
+		List<RSSFeed> result0 = p0.getResult();
+		if (result0 == null || result0.isEmpty()) {
+			return page;
+		}
+		result0.sort(new Comparator<RSSFeed>() {
+			@Override
+			public int compare(RSSFeed r1, RSSFeed r2) {
+				return (int) (r1.getUploadTime() - r2.getUploadTime());
+			}
+		});
+		int length = result0.size();
+		int pageSize = 20;
+		int startIndex = pageNo * pageSize;
+		if (startIndex >= length)
+			return page;
+		List<JRssFeed> result = new ArrayList<JRssFeed>();
+		int endIndex = startIndex + pageSize;
+		int index = startIndex;
+		for (; index < length && index < endIndex; index++) {
+			RSSFeed rssFeed = result0.get(index);
+			if(!RssFeedType.UNPROVISIONED.name().equals(rssFeed.getFeedType()))
+				continue;
+			JRssFeed feed = ModelConverter.convert(rssFeed);
+			result.add(feed);
+		}
+		endIndex = index;
+		if (endIndex >= length)
+			endIndex = -1;
+		page.setResult(result);
+		page.setNextPageNo(endIndex);
+		return page;
 	}
 
 	@Override
-	public Set<String> storeUnprovisionedFeeds(List<JRssFeed> feeds, TTL ttl,
-			long batchId) throws PackPackException {
-		// TODO Auto-generated method stub
-		return null;
+	public Set<String> storeUnprovisionedFeeds(List<JRssFeed> feeds, TTL ttl)
+			throws PackPackException {
+		Set<String> keys = new HashSet<String>();
+		try {
+			RssFeedRepositoryService service = ServiceRegistry.INSTANCE
+					.findService(RssFeedRepositoryService.class);
+			Iterator<JRssFeed> itr = feeds.iterator();
+			while (itr.hasNext()) {
+				JRssFeed feed = itr.next();
+				feed.setUploadTime(System.currentTimeMillis());
+				RSSFeed f = ModelConverter.convert(feed);
+				String key = service.uploadUnprovisionedFeed(f, ttl, false);
+				keys.add(key);
+			}
+		} catch (NoSuchAlgorithmException e) {
+			throw new PackPackException(ErrorCodes.PACK_ERR_62, e.getMessage(),
+					e);
+		}
+		return keys;
 	}
 	
 	@Override
-	public boolean publishUnprovisionedFeed(JRssFeed feed)
+	public void markAsProvisionedByFeedId(String id, JRssFeedType newType)
 			throws PackPackException {
-		// TODO Auto-generated method stub
-		return false;
+		try {
+			RssFeedRepositoryService service = ServiceRegistry.INSTANCE
+					.findService(RssFeedRepositoryService.class);
+			JRssFeed feed = getFeedById(id);
+			RSSFeed f = ModelConverter.convert(feed);
+			f.setFeedType(newType.name());
+			service.uploadUnprovisionedFeed(f, null, true);
+		} catch (NoSuchAlgorithmException e) {
+			throw new PackPackException(ErrorCodes.PACK_ERR_62, e.getMessage(),
+					e);
+		}
 	}
 }

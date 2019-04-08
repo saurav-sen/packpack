@@ -7,6 +7,7 @@ import com.pack.pack.model.web.Pagination;
 import com.pack.pack.model.web.dto.FeedPublish;
 import com.pack.pack.services.exception.PackPackException;
 import com.squill.feed.web.model.JRssFeed;
+import com.squill.feed.web.model.JRssFeedType;
 import com.squill.feed.web.model.JRssFeeds;
 import com.squill.feed.web.model.TTL;
 
@@ -125,6 +126,14 @@ public interface INewsFeedService {
 	
 	/**
 	 * 
+	 * @param id
+	 * @param newType
+	 * @throws PackPackException
+	 */
+	public void markAsProvisionedByFeedId(String id, JRssFeedType newType) throws PackPackException;
+	
+	/**
+	 * 
 	 * @param pageNo
 	 * @return
 	 * @throws PackPackException
@@ -135,19 +144,10 @@ public interface INewsFeedService {
 	 * 
 	 * @param feeds
 	 * @param ttl
-	 * @param batchId
 	 * @return
 	 * @throws PackPackException
 	 */
-	public Set<String> storeUnprovisionedFeeds(List<JRssFeed> feeds, TTL ttl, long batchId) throws PackPackException;
-	
-	/**
-	 * 
-	 * @param feed
-	 * @return
-	 * @throws PackPackException
-	 */
-	public boolean publishUnprovisionedFeed(JRssFeed feed) throws PackPackException;
+	public Set<String> storeUnprovisionedFeeds(List<JRssFeed> feeds, TTL ttl) throws PackPackException;
 	
 	/*
 	 * 
