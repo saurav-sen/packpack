@@ -372,9 +372,9 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 	}
 
 	@Override
-	public Set<String> storeUnprovisionedFeeds(List<JRssFeed> feeds, TTL ttl)
+	public void storeUnprovisionedFeeds(List<JRssFeed> feeds, TTL ttl)
 			throws PackPackException {
-		Set<String> keys = new HashSet<String>();
+		//Set<String> keys = new HashSet<String>();
 		try {
 			RssFeedRepositoryService service = ServiceRegistry.INSTANCE
 					.findService(RssFeedRepositoryService.class);
@@ -383,14 +383,17 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 				JRssFeed feed = itr.next();
 				feed.setUploadTime(System.currentTimeMillis());
 				RSSFeed f = ModelConverter.convert(feed);
-				String key = service.uploadUnprovisionedFeed(f, ttl, false);
-				keys.add(key);
+				service.uploadUnprovisionedFeed(f, ttl);
+				/*String key = service.uploadUnprovisionedFeed(f, ttl);
+				if(key != null) {
+					keys.add(key);
+				}*/
 			}
 		} catch (NoSuchAlgorithmException e) {
 			throw new PackPackException(ErrorCodes.PACK_ERR_62, e.getMessage(),
 					e);
 		}
-		return keys;
+		//return keys;
 	}
 	
 	@Override
@@ -402,7 +405,7 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 			JRssFeed feed = getFeedById(id);
 			RSSFeed f = ModelConverter.convert(feed);
 			f.setFeedType(newType.name());
-			service.uploadUnprovisionedFeed(f, null, true);
+			service.provisionFeed(f, null);
 		} catch (NoSuchAlgorithmException e) {
 			throw new PackPackException(ErrorCodes.PACK_ERR_62, e.getMessage(),
 					e);

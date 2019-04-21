@@ -144,10 +144,9 @@ public interface INewsFeedService {
 	 * 
 	 * @param feeds
 	 * @param ttl
-	 * @return
 	 * @throws PackPackException
 	 */
-	public Set<String> storeUnprovisionedFeeds(List<JRssFeed> feeds, TTL ttl) throws PackPackException;
+	public void storeUnprovisionedFeeds(List<JRssFeed> feeds, TTL ttl) throws PackPackException;
 	
 	/*
 	 * 

@@ -1,6 +1,7 @@
 package com.pack.pack.util;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -73,10 +74,20 @@ public class RssFeedUtil {
 			LOG.error(e.getErrorCode() + "::" + e.getMessage(), e);
 		}
 	}
+	
+	public static void markAsProvisionedByFeedIds(List<String> ids, JRssFeedType newType) throws PackPackException {
+		if(ids == null || ids.isEmpty())
+			return;
+		INewsFeedService service = ServiceRegistry.INSTANCE
+				.findCompositeService(INewsFeedService.class);
+		for(String id : ids) {
+			service.markAsProvisionedByFeedId(id, newType);
+		}
+	}
 
 	public static Set<String> uploadNewsFeeds(JRssFeeds feeds, TTL ttl, long batchId,
 			boolean sendNotification) {
-		Set<String> f = null;
+		Set<String> f = new HashSet<String>();
 		LOG.info("Classification done. Uploading News feeds to DB");
 		try {
 			int size = 0;

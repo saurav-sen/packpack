@@ -1,11 +1,15 @@
 package com.pack.pack.client.api.test;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import com.pack.pack.client.api.API;
 import com.pack.pack.client.api.APIBuilder;
@@ -98,7 +102,7 @@ public class GetNewsTest extends BaseTest {
 		test(session, COMMAND.GET_ALL_ARTICLES_FEEDS);
 	}
 	
-	public static void main(String[] args) throws Exception {
+	public static void main1(String[] args) throws Exception {
 		GetNewsTest test = new GetNewsTest();
 		TestSession session = new TestSession(0, TestWorkflow.BASE_URL, TestWorkflow.BASE_URL_2);
 		//new SignUpUserTest().signUp(session);
@@ -106,11 +110,55 @@ public class GetNewsTest extends BaseTest {
 		session.setUserName(session.getUserName());
 		JUser user = new UserInfoTest().getUserInfo(session);
 		session.setUserId(user.getId());
-		int total = test.test(session, COMMAND.GET_ALL_REFRESHMENT_FEEDS);
+		int total = test.test(session, COMMAND.GET_ALL_NEWS_FEEDS);
 		/*int total = test.test(session, COMMAND.GET_ALL_NEWS_FEEDS);
 		total = total + test.test(session, COMMAND.GET_ALL_OPINION_FEEDS);
 		total = total + test.test(session, COMMAND.GET_ALL_SCIENCE_AND_TECHNOLOGY_NEWS_FEEDS);
 		total = total + test.test(session, COMMAND.GET_ALL_ARTICLES_FEEDS);*/
 		System.out.println("Grand Total = " + total);
+	}
+	
+	public static void main(String[] args) throws Exception {
+		List<String> lines = Files.readAllLines(Paths.get("D:/Saurav/packpack/out"));
+		Set<Long> set = new TreeSet<Long>(new Comparator<Long>() {
+			@Override
+			public int compare(Long o1, Long o2) {
+				if(o1 > o2)
+					return -1;
+				if(o1 == o2)
+					return 0;
+				return 1;
+			}
+		});
+		for(String line : lines) {
+			if(line.startsWith("SET_NEWS_") && !line.endsWith("SCORE")) {
+				if(line.startsWith("SET_NEWS_SPORTS_") || line.startsWith("SET_NEWS_SCIENCE_TECHNOLOGY_"))
+					continue;
+				long l = Long.parseLong(line.substring("SET_NEWS_".length()));
+				set.add(l);
+			}
+		}
+		long now = -1;
+		long maxDiff = 50 * 60 * 60 * 1000;
+		StringBuilder str = new StringBuilder();
+		for(Long l : set) {
+			boolean f = true;
+			if(now < 0) {
+				now = l;
+			} else {
+				long diff = now - l;
+				if(diff > maxDiff) {
+					f = false;
+				}
+			}
+			if(!f) {
+				str.append("del");
+				str.append(" ");
+				str.append("SET_NEWS_");
+				str.append(l);
+				str.append("\n");
+			}
+		}
+		System.out.println(str);
 	}
 }

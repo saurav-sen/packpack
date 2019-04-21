@@ -69,12 +69,61 @@
 	    <scheduler initialDelay="0" periodicDelay="2" timeUnit="HOURS"/>
     </ApiReader>
     
-    <RssFeedReader id="dnaindia.com" uploadIndependently="true" checkDuplicate="false">
+   <!--  <RssFeedReader id="dnaindia.com" uploadIndependently="true" checkDuplicate="false">
         <name>dnaindia.com</name>
         <description>DnaIndia News</description>
+        <rssFeedUrl>https://www.dnaindia.com/feeds/latest.xml</rssFeedUrl>
 	    <feedHandler>unprovisionFeedUploader</feedHandler>
 	    <scheduler initialDelay="0" periodicDelay="1" timeUnit="HOURS"/>
     </RssFeedReader>
+    
+    <RssFeedReader id="business-standard.com" uploadIndependently="true" checkDuplicate="false">
+        <name>business-standard.com</name>
+        <description>business-standard Current Affairs</description>
+        <rssFeedUrl>https://www.business-standard.com/rss/current-affairs-news-11501.rss</rssFeedUrl>
+	    <feedHandler>unprovisionFeedUploader</feedHandler>
+	    <scheduler initialDelay="0" periodicDelay="1" timeUnit="HOURS"/>
+    </RssFeedReader>
+    
+    <RssFeedReader id="ndtv.com" uploadIndependently="true" checkDuplicate="false">
+        <name>ndtv.com</name>
+        <description>ndtv news</description>
+        <rssFeedUrl>http://feeds.feedburner.com/ndtvnews-india-news</rssFeedUrl>
+	    <feedHandler>unprovisionFeedUploader</feedHandler>
+	    <scheduler initialDelay="0" periodicDelay="1" timeUnit="HOURS"/>
+    </RssFeedReader>
+    
+    <RssFeedReader id="reuters.com" uploadIndependently="true" checkDuplicate="false">
+        <name>reuters.com</name>
+        <description>Reuters news</description>
+        <rssFeedUrl>http://feeds.reuters.com/reuters/INworldNews</rssFeedUrl>
+	    <feedHandler>unprovisionFeedUploader</feedHandler>
+	    <scheduler initialDelay="0" periodicDelay="1" timeUnit="HOURS"/>
+    </RssFeedReader>
+    
+    <RssFeedReader id="rediff.com" uploadIndependently="true" checkDuplicate="false">
+        <name>reuters.com</name>
+        <description>Rediff news</description>
+        <rssFeedUrl>http://www.rediff.com/rss/newsrss.xml</rssFeedUrl>
+	    <feedHandler>unprovisionFeedUploader</feedHandler>
+	    <scheduler initialDelay="0" periodicDelay="1" timeUnit="HOURS"/>
+    </RssFeedReader>
+    
+    <RssFeedReader id="news18.com" uploadIndependently="true" checkDuplicate="false">
+        <name>news18.com</name>
+        <description>news18.com news</description>
+        <rssFeedUrl>https://www.news18.com/rss/india.xml</rssFeedUrl>
+	    <feedHandler>unprovisionFeedUploader</feedHandler>
+	    <scheduler initialDelay="0" periodicDelay="1" timeUnit="HOURS"/>
+    </RssFeedReader>
+    
+     <RssFeedReader id="firstpost.com" uploadIndependently="true" checkDuplicate="false">
+        <name>firstpost.com</name>
+        <description>firstpost.com news</description>
+        <rssFeedUrl>https://www.firstpost.com/rss/world.xml</rssFeedUrl>
+	    <feedHandler>unprovisionFeedUploader</feedHandler>
+	    <scheduler initialDelay="0" periodicDelay="1" timeUnit="HOURS"/>
+    </RssFeedReader> -->
     
     <webLinkTracker>
         <serviceId>defaultWebLinkTrackerService</serviceId>

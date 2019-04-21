@@ -252,9 +252,12 @@ public class FeedPublishResource {
 			ArchiveUtil.storeInArchive(map);
 			JRssFeeds rssFeeds = new JRssFeeds();
 			rssFeeds.getFeeds().add(content);
+			List<String> ids = new ArrayList<String>();
+			ids.add(content.getId());
 			HtmlUtil.generateNewsFeedsHtmlPages(rssFeeds);
 			RssFeedUtil.uploadNewsFeeds(rssFeeds, ttl,
 					System.currentTimeMillis(), true);
+			RssFeedUtil.markAsProvisionedByFeedIds(ids, JRssFeedType.valueOf(content.getFeedType().toUpperCase()));
 			if (uploadRequest.isNotify()) {
 				NotificationUtil.broadcastNewRSSFeedUploadSummary(content
 						.getOgTitle());

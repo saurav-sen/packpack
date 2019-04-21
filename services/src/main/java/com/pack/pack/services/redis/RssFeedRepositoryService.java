@@ -304,50 +304,87 @@ public class RssFeedRepositoryService {
 		return new HashSet<String>(Arrays.asList(keys.split(";")));
 	}
 	
-	public String uploadUnprovisionedFeed(RSSFeed feed, TTL ttl, boolean updateExisiting) throws PackPackException,
+	public String provisionFeed(RSSFeed feed, TTL ttl) throws PackPackException,
+			NoSuchAlgorithmException {
+		if (ttl == null) {
+			ttl = new TTL();
+			ttl.setTime((short) 1);
+			ttl.setUnit(TimeUnit.DAYS);
+		}
+		String feedType = feed.getFeedType().toUpperCase();
+		String LOG_TAG = "[" + feedType + "] ";
+		$_LOG.info(LOG_TAG + " Provisioning " + feedType + " Feed @ "
+				+ feed.getOgUrl());
+		$_LOG.info(LOG_TAG + " Provisioning Feed Titled :: " + feed.getOgTitle());
+		$_LOG.info(LOG_TAG + " Provisioning Feed Link :: " + feed.getOgUrl());
+		RedisCommands<String, String> sync = getSyncRedisCommands();
+		long ttlSeconds = resolveTTL_InSeconds(ttl);
+		//String key = "LL_" + feed.getOgUrl();
+		String key = feed.getId();
+
+		String json = sync.get(key);
+		if (json == null)
+			return null;
+		
+		RSSFeed tmpFeed = JSONUtil.deserialize(json, RSSFeed.class, true);
+		Long ttl2 = sync.ttl(key);
+		tmpFeed.setFeedType(feed.getFeedType());
+		json = JSONUtil.serialize(tmpFeed);
+		sync.setex(key, ttl2, json);
+		
+		json = "";
+
+		// Avoid duplicate HashValues here (Only for new entries)
+		String tmpKey = RssFeedUtil.generateUploadKey(tmpFeed);
+		String tmpJson = null;
+		boolean isAlreadyExists = false;
+		int i = 0;
+		do {
+			$_LOG.debug(LOG_TAG + " feed.getOgUrl() = " + feed.getOgUrl());
+			tmpJson = sync.get(tmpKey);
+			$_LOG.debug(LOG_TAG + " tmpKey = " + tmpKey);
+			$_LOG.debug(LOG_TAG + " tmpJson = " + tmpJson);
+			if (tmpJson != null) {
+				tmpFeed = JSONUtil.deserialize(tmpJson, RSSFeed.class, true);
+				$_LOG.debug(LOG_TAG + " tmpFeed.getOgUrl() = "
+						+ tmpFeed.getOgUrl());
+				tmpKey = new StringBuilder(key).append(i).toString();
+				$_LOG.debug(LOG_TAG + " tmpKey = " + tmpKey);
+				isAlreadyExists = feed.getOgUrl().equals(tmpFeed.getOgUrl());
+				i++;
+			}
+		} while (tmpJson != null && tmpFeed != null && !isAlreadyExists);
+		key = tmpKey;
+		
+		feed.setId(key);
+		json = JSONUtil.serialize(feed);
+		sync.setex(key, ttlSeconds, json);
+		$_LOG.info(LOG_TAG + "Successfully provisioned " + feedType + " Feed");
+		return key;
+	}
+	
+	public String uploadUnprovisionedFeed(RSSFeed feed, TTL ttl) throws PackPackException,
 			NoSuchAlgorithmException {
 		if(ttl == null) {
 			ttl = new TTL();
 			ttl.setTime((short)1);
 			ttl.setUnit(TimeUnit.DAYS);
 		}
+		feed.setFeedType(RssFeedType.UNPROVISIONED.name());
 		String feedType = feed.getFeedType().toUpperCase();
 		String LOG_TAG = "[" + feedType + "] ";
-		$_LOG.info(LOG_TAG + "Uploading " + feedType + " Feed @ " + feed.getOgUrl());
-		$_LOG.info(LOG_TAG + "Uploading Feed Titled :: " + feed.getOgTitle());
+		$_LOG.info(LOG_TAG + " Uploading " + feedType + " Feed @ " + feed.getOgUrl());
+		$_LOG.info(LOG_TAG + " Uploading Feed Titled :: " + feed.getOgTitle());
 		RedisCommands<String, String> sync = getSyncRedisCommands();
 		long ttlSeconds = resolveTTL_InSeconds(ttl);
-		String key = RssFeedUtil.generateUploadKey(feed);
+		String key = "LL_" + feed.getOgUrl();
+		
+		String json = sync.get(key);
+		if(json != null)
+			return key;
 
-		// Avoid duplicate HashValues here (Only for new entries)
-		if (!updateExisiting) {
-			String tmpKey = key;
-			String tmpJson = null;
-			RSSFeed tmpFeed = null;
-			int i = 0;
-			do {
-				$_LOG.debug("feed.getOgUrl() = " + feed.getOgUrl());
-				tmpJson = sync.get(tmpKey);
-				$_LOG.debug(LOG_TAG + "tmpKey = " + tmpKey);
-				$_LOG.debug(LOG_TAG + "tmpJson = " + tmpJson);
-				if (tmpJson != null) {
-					tmpFeed = JSONUtil
-							.deserialize(tmpJson, RSSFeed.class, true);
-					$_LOG.debug(LOG_TAG + "tmpFeed.getOgUrl() = " + tmpFeed.getOgUrl());
-					tmpKey = new StringBuilder(key).append(i).toString();
-					$_LOG.debug(LOG_TAG + "tmpKey = " + tmpKey);
-					i++;
-				}
-			} while (tmpJson != null && tmpFeed != null
-					&& feed.getOgUrl().equals(tmpFeed.getOgUrl()));
-			key = tmpKey;
-		}
-
-		if (updateExisiting) {
-			ttlSeconds = sync.ttl(key);
-		}
 		feed.setId(key);
-		String json = JSONUtil.serialize(feed);
+		json = JSONUtil.serialize(feed);
 		sync.setex(key, ttlSeconds, json);
 		$_LOG.info(LOG_TAG + "Successfully uploaded " + feedType + " Feed");
 		return key;
@@ -506,7 +543,7 @@ public class RssFeedRepositoryService {
 			set.add(Long.parseLong(range.trim()));
 		}
 		long first = -1;
-		long diff = 50 * 60 * 60;// * 1000;
+		long diff = 50 * 60 * 60 * 1000;
 		Iterator<Long> itr = set.iterator();
 		while (itr.hasNext()) {
 			Long v = itr.next();

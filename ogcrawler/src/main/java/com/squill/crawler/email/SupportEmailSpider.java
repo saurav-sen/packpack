@@ -65,7 +65,9 @@ public class SupportEmailSpider implements Spider {
 	
 	private static final String POP3S = "pop3s";
 	
-	private static final String NOTIFY_FLAG = "SQUILL:NOTIFY";
+	private static final String NOTIFY_NOTIFY_FLAG = "SQUILL_NOTIFY";
+	
+	private static final String IGNORE_DUPLICATE_FLAG = "SQUILL_IGNORE_DUPLICATE";
 	
 	private static final String DUPLICATE_MARKER_PREFIX = "TMP_";
 	private static final String FORCED_DUPLICATE_UPLOAD = "FORCED_DUPLICATE_UPLOAD";
@@ -179,10 +181,13 @@ public class SupportEmailSpider implements Spider {
 				ParsedMessage parsedMessage = read(subject, link, smtpMessage);
 				if (parsedMessage == null)
 					continue;
-				if (subject.toUpperCase().trim().contains(NOTIFY_FLAG) || smtpMessage.getContent().contains(NOTIFY_FLAG)) {
+				if (subject.toUpperCase().trim().contains(NOTIFY_NOTIFY_FLAG) || smtpMessage.getContent().contains(NOTIFY_NOTIFY_FLAG)) {
 					String notificationMessage = parsedMessage.getFeed()
 							.getOgTitle();
 					parsedMessage.setNotificationMessage(notificationMessage);
+				}
+				if (subject.toUpperCase().trim().contains(IGNORE_DUPLICATE_FLAG) || smtpMessage.getContent().contains(IGNORE_DUPLICATE_FLAG)) {
+					parsedMessage.setForceUpload(true);
 				}
 				feeds.add(parsedMessage);
 			}
@@ -318,6 +323,7 @@ public class SupportEmailSpider implements Spider {
 		List<SmtpMessage> refreshmentSmtpMessages = new LinkedList<SmtpMessage>();
 		Map<String, SmtpMessage> linkVsSmtpMessage = new HashMap<String, SmtpMessage>();
 		Map<String, String> linkVsNotificationMsg = new HashMap<String, String>();
+		Map<String, Boolean> linkVsForceUpload = new HashMap<String, Boolean>();
 		for (ParsedMessage parsedMessage : parsedMessages) {
 			JRssFeed feed = parsedMessage.getFeed();
 			SmtpMessage smtpMessage = parsedMessage.getSmtpMessage();
@@ -337,6 +343,7 @@ public class SupportEmailSpider implements Spider {
 			if(notificationMsg != null && !notificationMsg.trim().isEmpty()) {
 				linkVsNotificationMsg.put(feed.getOgUrl(), notificationMsg);
 			}
+			linkVsForceUpload.put(feed.getOgUrl(), parsedMessage.isForceUpload());
 		}
 		if (!refrehmentFeeds.getFeeds().isEmpty()) {
 			TTL ttl = new TTL();
@@ -397,7 +404,10 @@ public class SupportEmailSpider implements Spider {
 											+ smtpMessage.getReceipentEmailId()
 											+ "_" + otherFeed.getOgUrl(),
 									String.class);
-					if(!FORCED_DUPLICATE_UPLOAD.equals(forcedDuplicateUpload)) { // Checking if duplicate check is necessary or 
+					boolean isForceUpload = linkVsForceUpload.get(otherFeed.getOgUrl()) != null ? linkVsForceUpload.get(otherFeed.getOgUrl()) : false;
+					if(isForceUpload) {
+						otherFeed.setUploadType(UploadType.MANUAL.name());
+					} else if(!FORCED_DUPLICATE_UPLOAD.equals(forcedDuplicateUpload)) { // Checking if duplicate check is necessary or 
 																				 // if at all it needs to be forced to get uploaded.
 						List<ArticleInfo> probableDuplicates = comparator.checkProbableDuplicates(src, tgtList);
 						if(probableDuplicates != null && !probableDuplicates.isEmpty()) {
@@ -489,6 +499,8 @@ public class SupportEmailSpider implements Spider {
 		
 		private String notificationMessage;
 		
+		private boolean forceUpload = false;
+		
 		private ParsedMessage(JRssFeed feed, SmtpMessage smtpMessage) {
 			this.feed = feed;
 			this.smtpMessage = smtpMessage;
@@ -508,6 +520,14 @@ public class SupportEmailSpider implements Spider {
 		
 		private void setNotificationMessage(String notificationMessage) {
 			this.notificationMessage = notificationMessage;
+		}
+
+		public boolean isForceUpload() {
+			return forceUpload;
+		}
+
+		public void setForceUpload(boolean forceUpload) {
+			this.forceUpload = forceUpload;
 		}
 	}
 }
