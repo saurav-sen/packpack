@@ -131,8 +131,8 @@ public class FeedPublishResource {
 				true);
 		INewsFeedService service = ServiceRegistry.INSTANCE
 				.findCompositeService(INewsFeedService.class);
-		boolean success = service.upload(feedPublish);
-		if (success) {
+		JRssFeed result = service.upload(feedPublish);
+		if (result != null) {
 			status.setInfo("Successfully Published");
 			status.setStatus(StatusType.OK);
 			$_LOG.info("********************************************************************************************");
@@ -141,8 +141,7 @@ public class FeedPublishResource {
 					.serialize(feedPublish)));
 			$_LOG.info("********************************************************************************************");
 			if (feedPublish.isNotify()) {
-				NotificationUtil.broadcastNewRSSFeedUploadSummary(feedPublish
-						.getTitleText());
+				NotificationUtil.broadcastNewRSSFeedUploadSummary(result);
 			}
 		} else {
 			status.setInfo("Failed To Publish");
@@ -259,8 +258,7 @@ public class FeedPublishResource {
 					System.currentTimeMillis(), true);
 			RssFeedUtil.markAsProvisionedByFeedIds(ids, JRssFeedType.valueOf(content.getFeedType().toUpperCase()));
 			if (uploadRequest.isNotify()) {
-				NotificationUtil.broadcastNewRSSFeedUploadSummary(content
-						.getOgTitle());
+				NotificationUtil.broadcastNewRSSFeedUploadSummary(content);
 			}
 			status.setInfo("Thank you for uploading. Successfully uploaded.");
 			status.setStatus(StatusType.OK);

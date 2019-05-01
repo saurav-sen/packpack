@@ -46,7 +46,7 @@ public interface INewsFeedService {
 	 * @return
 	 * @throws PackPackException
 	 */
-	public boolean upload(FeedPublish feedPublish) throws PackPackException;
+	public JRssFeed upload(FeedPublish feedPublish) throws PackPackException;
 
 	/**
 	 * 

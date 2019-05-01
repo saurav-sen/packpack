@@ -259,15 +259,15 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 	}
 
 	@Override
-	public boolean upload(FeedPublish feedPublish) throws PackPackException {
+	public JRssFeed upload(FeedPublish feedPublish) throws PackPackException {
 		RssFeedRepositoryService service = ServiceRegistry.INSTANCE
 				.findService(RssFeedRepositoryService.class);
 		String id = feedPublish.getId();
 		if (id == null || id.trim().isEmpty())
-			return false;
+			return null;
 		RSSFeed rssFeed = service.getFeedByKey(id);
 		if (rssFeed == null)
-			return false;
+			return null;
 		String titleText = feedPublish.getTitleText();
 		if (titleText != null && !titleText.trim().isEmpty()) {
 			rssFeed.setOgTitle(titleText);
@@ -278,7 +278,11 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 			rssFeed.setOgDescription(summaryText);
 		}
 		rssFeed.setOpenDirectLink(feedPublish.isOpenDirectLink());
-		return service.updateFeed(id, rssFeed);
+		boolean success = service.updateFeed(id, rssFeed);
+		if(!success) {
+			return null;
+		}
+		return ModelConverter.convert(rssFeed);
 	}
 
 	@Override

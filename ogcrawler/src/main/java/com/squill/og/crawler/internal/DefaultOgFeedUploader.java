@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.ext.article.comparator.ArticleInfo;
 import com.pack.pack.services.ext.article.comparator.TitleBasedArticleComparator;
 import com.pack.pack.util.RssFeedUtil;
@@ -175,7 +174,7 @@ public class DefaultOgFeedUploader implements IFeedUploader, IFeedHandler {
 		ttl.setTime((short) 1);
 		ttl.setUnit(TimeUnit.DAYS);
 		
-		List<String> notificationMessages = new ArrayList<String>();
+		List<JRssFeed> notifiableFeeds = new ArrayList<JRssFeed>();
 		{
 			// [START] :: Check for duplicates to remove from upload list & also to generate notification.
 			List<JRssFeed> list = rssFeeds.getFeeds();
@@ -206,8 +205,8 @@ public class DefaultOgFeedUploader implements IFeedUploader, IFeedHandler {
 								continue;
 							list.remove(f);
 							tmp.put(i, OBJECT);
-							if(notificationMessages.isEmpty()) {
-								notificationMessages.add("NEWS: " + f.getOgTitle());
+							if(notifiableFeeds.isEmpty()) {
+								notifiableFeeds.add(f);
 							}
 							LOG.info("Duplicate Detected " + f.getOgTitle());
 						}
@@ -278,8 +277,8 @@ public class DefaultOgFeedUploader implements IFeedUploader, IFeedHandler {
 			return;
 		}
 		
-		for (String notificationMessage : notificationMessages) {
-			NotificationUtil.broadcastNewRSSFeedUploadSummary(notificationMessage);
+		for (JRssFeed notifiableFeed : notifiableFeeds) {
+			NotificationUtil.broadcastNewRSSFeedUploadSummary(notifiableFeed);
 			LocalData.INSTANCE.setLastNotifiedTimestamp(System.currentTimeMillis());
 		}
 	}

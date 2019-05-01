@@ -322,7 +322,7 @@ public class SupportEmailSpider implements Spider {
 		JRssFeeds refrehmentFeeds = new JRssFeeds();
 		List<SmtpMessage> refreshmentSmtpMessages = new LinkedList<SmtpMessage>();
 		Map<String, SmtpMessage> linkVsSmtpMessage = new HashMap<String, SmtpMessage>();
-		Map<String, String> linkVsNotificationMsg = new HashMap<String, String>();
+		Map<String, JRssFeed> linkVsNotifiableFeed = new HashMap<String, JRssFeed>();
 		Map<String, Boolean> linkVsForceUpload = new HashMap<String, Boolean>();
 		for (ParsedMessage parsedMessage : parsedMessages) {
 			JRssFeed feed = parsedMessage.getFeed();
@@ -341,7 +341,7 @@ public class SupportEmailSpider implements Spider {
 			}
 			
 			if(notificationMsg != null && !notificationMsg.trim().isEmpty()) {
-				linkVsNotificationMsg.put(feed.getOgUrl(), notificationMsg);
+				linkVsNotifiableFeed.put(feed.getOgUrl(), feed);
 			}
 			linkVsForceUpload.put(feed.getOgUrl(), parsedMessage.isForceUpload());
 		}
@@ -443,7 +443,7 @@ public class SupportEmailSpider implements Spider {
 																						 // if at all it needs to be forced to get uploaded.
 								//linkVsSmtpMessage.remove(otherFeed.getOgUrl());
 							}
-							linkVsNotificationMsg.remove(otherFeed.getOgUrl());
+							linkVsNotifiableFeed.remove(otherFeed.getOgUrl());
 						} else {
 							otherFeed.setUploadType(UploadType.MANUAL.name());
 						}
@@ -472,15 +472,14 @@ public class SupportEmailSpider implements Spider {
 				SmtpTLSMessageService.INSTANCE.sendMessage(smtpMessage);
 			}
 			
-			Iterator<String> notifyItr = linkVsNotificationMsg.values()
+			Iterator<JRssFeed> notifyItr = linkVsNotifiableFeed.values()
 					.iterator();
 			while (notifyItr.hasNext()) {
-				String notificationMessage = notifyItr.next();
+				JRssFeed notifiableFeed = notifyItr.next();
 				try {
-					if (notificationMessage != null
-							&& !notificationMessage.trim().isEmpty()) {
+					if (notifiableFeed != null) {
 						NotificationUtil
-								.broadcastNewRSSFeedUploadSummary(notificationMessage);
+								.broadcastNewRSSFeedUploadSummary(notifiableFeed);
 					}
 				} catch (PackPackException e) {
 					$LOG.error(
