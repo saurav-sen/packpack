@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import opennlp.tools.sentdetect.SentenceDetector;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -232,7 +234,7 @@ public class WebDocumentParser {
 			}
 			
 			if(summerize) {
-				Summarizer summarizer = new Summarizer();
+				Summarizer summarizer = new Summarizer(DefaultSentenceFinder.INSTANCE);
 				String summaryText = summarizer.Summarize(article, 3);
 
 				if(summaryText == null || summaryText.trim().isEmpty()) {
@@ -671,8 +673,24 @@ public class WebDocumentParser {
 		
 		String docOuterHtml = doc.outerHtml();
 
-		WebElement primaryElement = findPrimaryElement(doc, description,
-				keywordsList);
+		WebElement primaryElement = null;
+		
+		String[] sentences = DefaultSentenceFinder.INSTANCE.findSentences(description);
+		if(sentences != null && sentences.length > 0) {
+			int i = 0;
+			int len = sentences.length;
+			while(primaryElement == null && i < len) {
+				primaryElement = findPrimaryElement(doc, sentences[i],
+						keywordsList);
+				i++;
+			}
+		}
+		
+		if(primaryElement == null) {
+			primaryElement = findPrimaryElement(doc, description,
+					keywordsList);
+		}
+		
 		if (primaryElement == null) {
 			$LOG.debug("Failed to get primary element based upon description");
 			//return new WebDocument(title, description, imageUrl, ogUrl, inputUrl, doc, null);

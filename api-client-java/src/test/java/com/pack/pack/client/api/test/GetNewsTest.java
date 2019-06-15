@@ -102,7 +102,7 @@ public class GetNewsTest extends BaseTest {
 		test(session, COMMAND.GET_ALL_ARTICLES_FEEDS);
 	}
 	
-	public static void main1(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 		GetNewsTest test = new GetNewsTest();
 		TestSession session = new TestSession(0, TestWorkflow.BASE_URL, TestWorkflow.BASE_URL_2);
 		//new SignUpUserTest().signUp(session);
@@ -118,7 +118,7 @@ public class GetNewsTest extends BaseTest {
 		System.out.println("Grand Total = " + total);
 	}
 	
-	public static void main(String[] args) throws Exception {
+	public static void main1(String[] args) throws Exception {
 		List<String> lines = Files.readAllLines(Paths.get("D:/Saurav/packpack/out"));
 		Set<Long> set = new TreeSet<Long>(new Comparator<Long>() {
 			@Override

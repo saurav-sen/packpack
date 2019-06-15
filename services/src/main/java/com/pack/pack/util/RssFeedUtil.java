@@ -84,9 +84,14 @@ public class RssFeedUtil {
 			service.markAsProvisionedByFeedId(id, newType);
 		}
 	}
-
+	
 	public static Set<String> uploadNewsFeeds(JRssFeeds feeds, TTL ttl, long batchId,
 			boolean sendNotification) {
+		return uploadNewsFeeds(feeds, ttl, batchId, sendNotification, true, false);
+	}
+
+	public static Set<String> uploadNewsFeeds(JRssFeeds feeds, TTL ttl, long batchId,
+			boolean sendNotification, boolean hasShareableUrl, boolean liveUrl) {
 		Set<String> f = new HashSet<String>();
 		LOG.info("Classification done. Uploading News feeds to DB");
 		try {
@@ -103,7 +108,7 @@ public class RssFeedUtil {
 				ttl.setUnit(TimeUnit.DAYS);
 				INewsFeedService service = ServiceRegistry.INSTANCE
 						.findCompositeService(INewsFeedService.class);
-				f = service.upload(feeds.getFeeds(), ttl, batchId);
+				f = service.upload(feeds.getFeeds(), ttl, batchId, hasShareableUrl, liveUrl);
 				LOG.info("Uploaded News Feed = " + f);
 				if (f != null && !f.isEmpty()) {
 					list.addAll(feeds.getFeeds());
@@ -121,6 +126,11 @@ public class RssFeedUtil {
 	
 	public static Set<String> uploadOpinionFeed(JRssFeed feed, TTL ttl, long batchId,
 			boolean sendNotification) {
+		return uploadOpinionFeed(feed, ttl, batchId, sendNotification, true, false);
+	}
+	
+	public static Set<String> uploadOpinionFeed(JRssFeed feed, TTL ttl, long batchId,
+			boolean sendNotification, boolean hasShareableUrl, boolean liveUrl) {
 		Set<String> f = null;
 		LOG.info("Trying to upload Opinion");
 		try {
@@ -134,7 +144,7 @@ public class RssFeedUtil {
 				list.add(feed);
 				INewsFeedService service = ServiceRegistry.INSTANCE
 						.findCompositeService(INewsFeedService.class);
-				f = service.upload(list, ttl, batchId);
+				f = service.upload(list, ttl, batchId, hasShareableUrl, liveUrl);
 				if (f != null && !f.isEmpty()) {
 					LOG.info("Successfully uploaded Opinion " + feed.getOgTitle());
 				} else {

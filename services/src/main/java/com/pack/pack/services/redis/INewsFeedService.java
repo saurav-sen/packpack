@@ -98,10 +98,11 @@ public interface INewsFeedService {
 	 * @param feeds
 	 * @param ttl
 	 * @param batchId
+	 * @param liveUrl
 	 * @return -- List of keys/ids of the uploaded feeds
 	 * @throws PackPackException
 	 */
-	public Set<String> upload(List<JRssFeed> feeds, TTL ttl, long batchId) throws PackPackException;
+	public Set<String> upload(List<JRssFeed> feeds, TTL ttl, long batchId, boolean hasShareableUrl, boolean liveUrl) throws PackPackException;
 	
 	/**
 	 * 

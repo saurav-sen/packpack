@@ -23,9 +23,9 @@ public class Summarizer {
 	
 	private ISentenceFinder sentenceFinder;
 	
-	public Summarizer() {
+	/*public Summarizer() {
 		this(new DefaultSentenceFinder(SystemPropertyUtil.getOpenNlpConfDir()));
-	}
+	}*/
 	
 	public Summarizer(ISentenceFinder sentenceFinder) {
 		this.sentenceFinder = sentenceFinder;

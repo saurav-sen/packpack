@@ -67,6 +67,20 @@ chmod +x geckodriver
 Add the driver to your PATH so other tools can find it:
 export PATH=$PATH:/path-to-extracted-file/geckodriver
 
+ImageMagic::
+
+https://www.tecmint.com/install-imagemagick-on-debian-ubuntu/
+
+$ sudo apt update 
+$ sudo apt-get install build-essential
+$ wget https://www.imagemagick.org/download/ImageMagick.tar.gz
+$ tar xvzf ImageMagick.tar.gz
+$ cd ImageMagick-7.0.8-26/
+$ ./configure 
+$ make
+$ sudo make install
+$ sudo ldconfig /usr/local/lib
+$ magick -version
 
 KERNEL TUNING::
 

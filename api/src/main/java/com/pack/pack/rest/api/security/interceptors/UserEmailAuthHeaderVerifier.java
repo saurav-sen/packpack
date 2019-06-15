@@ -48,7 +48,8 @@ public class UserEmailAuthHeaderVerifier implements ContainerRequestFilter {
 				&& !path.contains(SIGNUP_CODE_LINK_PATTERN)
 				&& !path.contains(SHARED_URL_TYPE)
 				&& !path.trim().endsWith(OPINIONS_UPLOAD_URL_END_PATTERN)
-				&& !path.trim().endsWith(OPINIONS_UPLOAD_URL_END_PATTERN + "/")) {
+				&& !path.trim().endsWith(OPINIONS_UPLOAD_URL_END_PATTERN + "/")
+				&& !path.trim().contains("electionResult")) {
 			if (isTokenEmpty) {
 				allow = false;
 			} /*else {

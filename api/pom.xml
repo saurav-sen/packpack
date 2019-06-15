@@ -46,6 +46,11 @@
         	<artifactId>markup-gen</artifactId>
          	<version>${packpack.release}</version>          	
         </dependency>
+        <dependency>
+			<groupId>com.pack.pack</groupId>
+			<artifactId>utils</artifactId>
+			<version>${packpack.release}</version>
+		</dependency>
 		<!-- Compile dependencies -->
 		<dependency>
 			<groupId>org.ektorp</groupId>
@@ -236,6 +241,14 @@
 			<artifactId>java-property-utils</artifactId>
 			<version>1.6</version>
 		</dependency--> 
+		
+		<!-- https://mvnrepository.com/artifact/jfree/jfreechart -->
+		<dependency>
+		    <groupId>jfree</groupId>
+		    <artifactId>jfreechart</artifactId>
+		    <version>1.0.13</version>
+		</dependency>
+				
 	</dependencies>
 	<build>
 		<!--plugins>

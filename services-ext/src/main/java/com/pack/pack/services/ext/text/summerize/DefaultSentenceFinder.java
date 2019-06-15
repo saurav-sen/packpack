@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pack.pack.util.LanguageUtil;
+import com.pack.pack.util.SystemPropertyUtil;
 
 /**
  * 
@@ -25,8 +26,10 @@ public class DefaultSentenceFinder implements ISentenceFinder {
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(DefaultSentenceFinder.class);
-
-	public DefaultSentenceFinder(String confDir) {
+	
+	public static ISentenceFinder INSTANCE = new DefaultSentenceFinder(SystemPropertyUtil.getOpenNlpConfDir());
+	
+	private DefaultSentenceFinder(String confDir) {
 		InputStream sentenceModelIn = null;
 		try {
 			/*

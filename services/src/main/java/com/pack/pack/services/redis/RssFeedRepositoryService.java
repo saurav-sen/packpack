@@ -91,9 +91,14 @@ public class RssFeedRepositoryService {
 
 	public boolean checkFeedExists(JRssFeed feed)
 			throws NoSuchAlgorithmException, PackPackException {
+		String key = RssFeedUtil.generateUploadKey(feed);
+		return checkFeedExists0(feed.getOgUrl(), key);
+	}
+	
+	private boolean checkFeedExists0(String ogUrl, String key)
+			throws PackPackException {
 		RedisCommands<String, String> sync = getSyncRedisCommands();
 		// String key = "Feeds_" + String.valueOf(feed.getOgUrl().hashCode());
-		String key = RssFeedUtil.generateUploadKey(feed);
 		List<String> list = sync.keys(key);
 		if (list == null || list.isEmpty())
 			return false;
@@ -107,7 +112,7 @@ public class RssFeedRepositoryService {
 		String tmpOgUrl = tmpFeed.getOgUrl();
 		if (tmpOgUrl == null)
 			return false;
-		return tmpOgUrl.equals(feed.getOgUrl());
+		return tmpOgUrl.equals(ogUrl);
 	}
 
 	public void uploadRefreshmentFeed(RSSFeed feed, TTL ttl)
@@ -224,7 +229,7 @@ public class RssFeedRepositoryService {
 	}
 	
 	public Set<String> uploadNewsFeed(List<RSSFeed> feeds, TTL ttl, long batchId,
-			boolean updatePaginationInfo) throws PackPackException,
+			boolean updatePaginationInfo, boolean isLiveUpdateItem) throws PackPackException,
 			NoSuchAlgorithmException {
 		Set<String> allKeys = new HashSet<String>();
 		StringBuilder newsKeys = new StringBuilder();
@@ -256,6 +261,9 @@ public class RssFeedRepositoryService {
 		}
 		
 		long ttlSeconds = 30 * 60 * 60;// * 1000; // 30 Hours
+		if(isLiveUpdateItem) {
+			ttlSeconds = 1 * 60 * 60; // For Live News items update should be done within 1 hour or else it becomes stale to show to end user.
+		}
 		RedisCommands<String, String> sync = getSyncRedisCommands();
 		String setKey = null;
 		if (!newsKeys.toString().isEmpty()) {
@@ -388,6 +396,38 @@ public class RssFeedRepositoryService {
 		sync.setex(key, ttlSeconds, json);
 		$_LOG.info(LOG_TAG + "Successfully uploaded " + feedType + " Feed");
 		return key;
+	}
+	
+	public Set<String> deleteNewsFeeds(List<RSSFeed> feeds) throws PackPackException,
+			NoSuchAlgorithmException {
+		Set<String> keys = new HashSet<String>();
+		if(feeds == null || feeds.isEmpty())
+			return keys;
+		for(RSSFeed feed : feeds) {
+			String key = deleteNewsFeed(feed);
+			if(key != null) {
+				keys.add(key);
+			}
+		}
+		return keys;
+	}
+	
+	private String deleteNewsFeed(RSSFeed feed) throws PackPackException,
+			NoSuchAlgorithmException {
+		String feedType = feed.getFeedType().toUpperCase();
+		$_LOG.info("Deleting Feed for " + feedType);
+		$_LOG.info("Deleting " + feedType + " Feed @ " + feed.getOgUrl());
+		$_LOG.info("Deleting Feed Titled :: " + feed.getOgTitle());
+		RedisCommands<String, String> sync = getSyncRedisCommands();
+		String key = RssFeedUtil.generateUploadKey(feed);
+		if(checkFeedExists0(feed.getOgUrl(), key)) {
+			sync.del(key);
+			$_LOG.info("Successfully deleted " + feed.getOgUrl() + " Feed");
+			return key;
+		} else {
+			$_LOG.info("No preexiting feed found for " + feed.getOgUrl() + " hence skipping delete.");
+		}
+		return null;
 	}
 
 	private String uploadNewsFeed(RSSFeed feed, TTL ttl, long batchId,

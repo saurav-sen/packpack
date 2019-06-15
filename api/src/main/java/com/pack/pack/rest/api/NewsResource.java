@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.pack.pack.model.web.Pagination;
 import com.pack.pack.rest.api.security.interceptors.CompressWrite;
+import com.pack.pack.rest.web.util.eciresult.ElectionResultUtil;
 import com.pack.pack.services.exception.PackPackException;
 import com.pack.pack.services.redis.INewsFeedService;
 import com.pack.pack.services.registry.ServiceRegistry;
@@ -55,7 +56,14 @@ public class NewsResource {
 				|| JRssFeedType.NEWS.name().equals(source)) {
 			INewsFeedService service = ServiceRegistry.INSTANCE
 					.findCompositeService(INewsFeedService.class);
-			return service.getAllNewsRssFeeds(userId, pageNo);
+			Pagination<JRssFeed> page = service.getAllNewsRssFeeds(userId, pageNo);
+			/*if(pageNo <= 0 && page != null) {
+				JRssFeed electionResultNewsFeed = ElectionResultUtil.getElectionResultNewsFeed();
+				if(electionResultNewsFeed != null) {
+					//page.getResult().add(0, electionResultNewsFeed);
+				}
+			}*/
+			return page;
 		} else if(JRssFeedType.NEWS_SPORTS.name().equals(source)) {
 			INewsFeedService service = ServiceRegistry.INSTANCE
 					.findCompositeService(INewsFeedService.class);

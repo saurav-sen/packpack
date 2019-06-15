@@ -9,10 +9,24 @@ import java.util.Calendar;
  */
 public class DateTimeUtil {
 	
+	private static final String DEFAULT_DATE_SEPARATOR = "/";
+	
 	private DateTimeUtil() {
 	}
-
+	
 	public static String today() {
+		return today(DEFAULT_DATE_SEPARATOR);
+	}
+	
+	public static String yesterday() {
+		return yesterday(DEFAULT_DATE_SEPARATOR);
+	}
+	
+	public static String toDateString(int dd, int mm, int yyyy) {
+		return toDateString(dd, mm, yyyy, DEFAULT_DATE_SEPARATOR);
+	}
+
+	public static String today(String separator) {
 		Calendar c = Calendar.getInstance();
 		int day = c.get(Calendar.DAY_OF_MONTH);
 		int month = c.get(Calendar.MONTH) + 1;
@@ -20,10 +34,10 @@ public class DateTimeUtil {
 		String dd = day < 10 ? "0" + String.valueOf(day) : String.valueOf(day);
 		String mm = month < 10 ? "0" + String.valueOf(month) : String.valueOf(month);
 		String yyyy = String.valueOf(year);
-		return dd + "/" + mm + "/" + yyyy;
+		return dd + separator + mm + separator + yyyy;
 	}
 	
-	public static String yesterday() {
+	public static String yesterday(String separator) {
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.DATE, -1);
 		int day = c.get(Calendar.DAY_OF_MONTH);
@@ -32,21 +46,21 @@ public class DateTimeUtil {
 		String dd = day < 10 ? "0" + String.valueOf(day) : String.valueOf(day);
 		String mm = month < 10 ? "0" + String.valueOf(month) : String.valueOf(month);
 		String yyyy = String.valueOf(year);
-		return dd + "/" + mm + "/" + yyyy;
+		return dd + separator + mm + separator + yyyy;
 	}
 	
-	public static String toDateString(int dd, int mm, int yyyy) {
+	public static String toDateString(int dd, int mm, int yyyy, String separator) {
 		StringBuilder date = new StringBuilder();
 		if(dd < 10) {
 			date.append("0");
 		}
 		date.append(String.valueOf(dd));
-		date.append("/");
+		date.append(separator);
 		if(mm < 10) {
 			date.append("0");
 		}
 		date.append(String.valueOf(mm));
-		date.append("/");
+		date.append(separator);
 		date.append(String.valueOf(yyyy));
 		return date.toString();
 	}

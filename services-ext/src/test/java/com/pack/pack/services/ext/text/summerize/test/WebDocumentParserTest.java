@@ -1,14 +1,11 @@
 package com.pack.pack.services.ext.text.summerize.test;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Date;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.http.client.utils.DateUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -27,7 +24,12 @@ public class WebDocumentParserTest {
 	private static final Logger $LOG = LoggerFactory
 			.getLogger(WebDocumentParserTest.class);
 	
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
+		Date date = DateUtils.parseDate("Fri, 14 Jun 2019 09:52:33 GMT");
+		System.out.println(date.toString());
+	}
+	
+	public static void main1(String[] args) throws Exception {
 		SystemPropertyUtil.setDefaultOpenNlpConfDir("D:\\Saurav\\packpack\\ogcrawler\\src\\conf");
 		
 		final BoilerpipeExtractor extractor = CommonExtractors.ARTICLE_EXTRACTOR;
@@ -53,6 +55,14 @@ public class WebDocumentParserTest {
 				"http://blog.openshift.com/day-18-boilerpipe-article-extraction-for-java-developers/");
 
 		System.out.println(ArticleExtractor.INSTANCE.getText(url));*/
+		
+		json = new WebDocumentParser(
+				"https://t.co/sX1m9jZOEP?amp=1")
+				.parse();
+		$LOG.info(json.getArticleSummaryText());
+		$LOG.info(json.getFullArticleText());
+		$LOG.info(StringEscapeUtils.unescapeJava(JSONUtil.serialize(json)));
+		Assert.assertTrue(json.getFullArticleText() != null);
 		
 		
 		json = new WebDocumentParser(

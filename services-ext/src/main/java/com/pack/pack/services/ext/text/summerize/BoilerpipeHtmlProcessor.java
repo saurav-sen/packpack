@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -67,6 +68,19 @@ public class BoilerpipeHtmlProcessor {
 			return new WebDocument(title, description, imageUrl, ogUrl, inputUrl,
 					doc, htmlWithJsCss.toString()).setSuccess(true);
 		}
+		
+		/*Iterator<Element> itr = elements.iterator();
+		while (itr.hasNext()) {
+			Element element = itr.next();
+			if (element.text().trim().contains("@")
+					|| element.text().trim().equalsIgnoreCase("twitter")
+					|| element.text().trim().equalsIgnoreCase("facebook")
+					|| element.text().trim().equalsIgnoreCase("pintrest")) {
+				element.removeClass(HTMLHighlighter.BOILERPIPE_MARK_CSS_CLASS_NAME);
+				element.remove();
+			}
+		}*/
+		
 		Iterator<Element> itr = elements.iterator();
 		int size = 0;
 		int sumLength = 0;
@@ -89,12 +103,35 @@ public class BoilerpipeHtmlProcessor {
 		SD = Math.sqrt(SD);
 		itr = elements.iterator();
 		SD = SD * 0.9f;
+		StringBuilder prevText = new StringBuilder();
 		while (itr.hasNext()) {
 			Element element = itr.next();
-			int length = element.text().length();
+			String elText = element.text().trim();
+			int length = elText.length();
+			String prevTextStr = prevText.toString();
 			if (length < SD) {
-				element.removeClass(HTMLHighlighter.BOILERPIPE_MARK_CSS_CLASS_NAME);
-				element.remove();
+				if (!prevTextStr.endsWith(".")
+						&& !prevTextStr.endsWith("?")
+						&& !prevTextStr.endsWith("!")
+						&& (elText.endsWith(".") || elText.endsWith("?")
+								|| elText.endsWith("!") || LanguageUtil.getWords(elText).size() > 2)) {
+					prevText.append(" ");
+					prevText.append(elText);
+				} else {
+					element.removeClass(HTMLHighlighter.BOILERPIPE_MARK_CSS_CLASS_NAME);
+					element.remove();
+				}
+				if(prevTextStr.isEmpty()) {
+					prevText.append(elText);
+				}
+			} else {
+				prevText.append(elText);
+			}
+			
+			prevTextStr = prevText.toString().trim();
+			if(itr.hasNext() && (prevTextStr.endsWith(".")|| prevTextStr.endsWith("?")
+						|| prevTextStr.endsWith("!"))) {
+				prevText.append(" ");
 			}
 		}
 

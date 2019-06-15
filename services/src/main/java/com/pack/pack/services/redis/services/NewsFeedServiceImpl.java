@@ -209,7 +209,7 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 	}
 
 	@Override
-	public Set<String> upload(List<JRssFeed> feeds, TTL ttl, long batchId)
+	public Set<String> upload(List<JRssFeed> feeds, TTL ttl, long batchId, boolean hasShareableUrl, boolean liveUrl)
 			throws PackPackException {
 		if (feeds == null || feeds.isEmpty())
 			return Collections.emptySet();
@@ -219,8 +219,9 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 					.findService(RssFeedRepositoryService.class);
 			List<RSSFeed> toAdd = new ArrayList<RSSFeed>();
 			List<RSSFeed> toUpdate = new ArrayList<RSSFeed>();
+			List<RSSFeed> toDelete = new ArrayList<RSSFeed>();
 			for (JRssFeed feed : feeds) {
-				if (feed.getShareableUrl() == null) {
+				if (feed.getShareableUrl() == null && hasShareableUrl) {
 					boolean storeSharedFeed = false;
 					ShortenUrlInfo shortenUrlInfo = UrlShortener
 							.calculateShortenShareableUrl(feed,
@@ -230,17 +231,23 @@ public class NewsFeedServiceImpl implements INewsFeedService {
 					feed.setShareableUrl(shortenUrlInfo.getUrl());
 				}
 				RSSFeed rssFeed = ModelConverter.convert(feed);
-				if (!service.checkFeedExists(feed)) {
+				if (!service.checkFeedExists(feed) && !liveUrl) {
 					toAdd.add(rssFeed);
-				} else {
+				} else if(liveUrl) {
+					//toAdd.add(rssFeed);
+					toDelete.add(rssFeed);
+				} else if(!liveUrl) {
 					toUpdate.add(rssFeed);
 				}
 			}
-			Set<String> ids = service.uploadNewsFeed(toAdd, ttl, batchId, true);
+			if(!toDelete.isEmpty()) {
+				service.deleteNewsFeeds(toDelete);
+			}
+			Set<String> ids = service.uploadNewsFeed(toAdd, ttl, batchId, true, liveUrl);
 			if (ids != null && !ids.isEmpty()) {
 				allIds.addAll(ids);
 			}
-			ids = service.uploadNewsFeed(toUpdate, ttl, batchId, false);
+			ids = service.uploadNewsFeed(toUpdate, ttl, batchId, false, liveUrl);
 			if (ids != null && !ids.isEmpty()) {
 				allIds.addAll(ids);
 			}

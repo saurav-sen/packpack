@@ -37,6 +37,7 @@ import com.squill.utils.ArchiveUtil;
 import com.squill.utils.HtmlUtil;
 import com.squill.utils.JSONUtil;
 import com.squill.utils.NotificationUtil;
+import com.squill.utils.OgImageUtil;
 
 /**
  * 
@@ -164,6 +165,15 @@ public class DefaultOgFeedUploader implements IFeedUploader, IFeedHandler {
 		if(LOG.isDebugEnabled()) {
 			JRssFeeds rssFeeds = adapt(map);
 			LOG.debug("Total feeds to be uploaded without backlog = " + rssFeeds.getFeeds().size());
+		}
+		Iterator<List<JRssFeed>> itrerator = map.values().iterator();
+		while(itrerator.hasNext()) {
+			List<JRssFeed> list = itrerator.next();
+			if(list == null || list.isEmpty())
+				continue;
+			for(JRssFeed l : list) {
+				l.setOgImage(OgImageUtil.downloadImage(l.getOgImage()));
+			}
 		}
 		dataCleanUp(map);
 		ArchiveUtil.storeInArchive(map);

@@ -72,7 +72,7 @@ public class HtmlUtil {
 		if (metaOgTitle != null) {
 			title = metaOgTitle.attr("content");
 		}
-
+		
 		String pageTile = null;
 		Elements docTile = doc.select("title");
 		if (docTile != null) {
