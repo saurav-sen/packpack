@@ -76,8 +76,7 @@ public class DefaultArticleTextSummarizer implements IArticleTextSummarizer {
 			String openNlpConfDir = SystemPropertyUtil.getOpenNlpConfDir();
 			if ((text == null || text.trim().isEmpty())
 					&& openNlpConfDir != null) {
-				String[] sentences = new DefaultSentenceFinder(openNlpConfDir)
-						.findSentences(text);
+				String[] sentences = DefaultSentenceFinder.INSTANCE.findSentences(text);//Enew DefaultSentenceFinder(openNlpConfDir).findSentences(text);
 				if (sentences != null && sentences.length > 0) {
 					text = sentences[0];
 				} else {

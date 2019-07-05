@@ -18,6 +18,7 @@ import com.squill.og.crawler.ILink;
 import com.squill.og.crawler.hooks.IHtmlContentHandler;
 import com.squill.og.crawler.hooks.ISpiderSession;
 import com.squill.og.crawler.internal.utils.CoreConstants2;
+import com.squill.utils.HtmlUtil;
 
 /**
  * 
@@ -104,9 +105,9 @@ public class DefaultOgHtmlContentHandler implements IHtmlContentHandler {
 		feed.setUploadTime(System.currentTimeMillis());
 		feed.setOgTitle(title);
 		feed.setOgDescription(description);
-		feed.setOgImage(imageUrl);
-		feed.setOgUrl(hrefUrl);
-		feed.setHrefSource(hrefUrl);
+		feed.setOgImage(HtmlUtil.resolveAbsoluteOgUrl(link.getUrl(), imageUrl));
+		feed.setOgUrl(HtmlUtil.resolveAbsoluteOgUrl(link.getUrl(), hrefUrl));
+		feed.setHrefSource(HtmlUtil.resolveAbsoluteOgUrl(link.getUrl(), hrefUrl));
 		//feed.setOgType(type);
 		
 		String preClassifiedFeedType = (String) getMetaInfo(CoreConstants2.PRE_CLASSIFIED_FEED_TYPE);

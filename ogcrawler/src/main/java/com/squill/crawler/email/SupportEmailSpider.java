@@ -48,6 +48,7 @@ import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
 import com.squill.utils.ArchiveUtil;
 import com.squill.utils.HtmlUtil;
 import com.squill.utils.NotificationUtil;
+import com.squill.utils.OgImageUtil;
 
 /**
  * 
@@ -334,6 +335,9 @@ public class SupportEmailSpider implements Spider {
 					refreshmentSmtpMessages.add(smtpMessage);
 				}
 			} else {
+				if(feed.getOgImage() != null && !feed.getOgImage().isEmpty()) {
+					feed.setOgImage(OgImageUtil.downloadImage(feed.getOgImage()));
+				}
 				otherFeeds.getFeeds().add(feed);
 				if(smtpMessage != null && feed.getOgUrl() != null && !feed.getOgUrl().trim().isEmpty()) {
 					linkVsSmtpMessage.put(feed.getOgUrl(), smtpMessage);

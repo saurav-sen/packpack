@@ -237,7 +237,6 @@ public class DefaultOgFeedUploader implements IFeedUploader, IFeedHandler {
 		HtmlUtil.generateNewsFeedsHtmlPages(rssFeeds);
 		
 		//RssFeedUtil.uploadNewsFeeds(rssFeeds, ttl, batchId, true);
-		
 		Set<String> recentFeedIds = RssFeedUtil.uploadNewsFeeds(rssFeeds, ttl, System.currentTimeMillis(), true);
 		RssFeedUtil.storeRecentFeedIds(recentFeedIds);
 		

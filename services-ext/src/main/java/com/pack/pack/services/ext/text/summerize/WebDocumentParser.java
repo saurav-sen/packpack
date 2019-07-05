@@ -1,12 +1,8 @@
 package com.pack.pack.services.ext.text.summerize;
 
 import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
@@ -14,8 +10,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import opennlp.tools.sentdetect.SentenceDetector;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -37,7 +31,6 @@ import com.kohlschutter.boilerpipe.BoilerpipeProcessingException;
 import com.pack.pack.services.ext.HttpRequestExecutor;
 import com.pack.pack.util.LanguageUtil;
 import com.squill.feed.web.model.JRssFeed;
-import com.pack.pack.services.ext.text.summerize.STOP_WORDS;
 
 /**
  * 
@@ -470,6 +463,11 @@ public class WebDocumentParser {
 									childReference = new HashSet<Element>();
 									childReference.add(el1);
 									identityMap2.put(_LCA, childReference);
+									
+									// TODO -- Review:: Here we need to add all the children of similar type else they might get removed below in the subsequent filtering logic.
+									/*Elements elementsByTag = _LCA.getElementsByTag(el1.tagName());
+									List<Element> subList = elementsByTag.subList(0, elementsByTag.size()-1);
+									childReference.addAll(subList);*/
 								}
 								childReference.add(el2);
 								/*minLCADepth = d;
@@ -498,6 +496,10 @@ public class WebDocumentParser {
 							while(el.parent() != finalLCA && el.parent() != doc.body()) {
 								prevEl = el;
 								el = el.parent();
+							}
+							// Check which case made a break from loop.
+							if(el.parent() == finalLCA) {
+								prevEl = el;
 							}
 							prevEl.attr("x-mark-retain-attr", "x-mark-retain-value");
 						}
@@ -593,8 +595,8 @@ public class WebDocumentParser {
 		//$LOG.debug(doc.body().text());
 		String title = WebDocumentUtil.readOgTilte(doc);
 		String tmpDescription = WebDocumentUtil.readOgDescription(doc);
-		String imageUrl = WebDocumentUtil.readOgImage(doc);
-		String ogUrl = WebDocumentUtil.readOgUrl(doc);
+		String imageUrl = WebDocumentUtil.readOgImage(doc, url);
+		String ogUrl = WebDocumentUtil.readOgUrl(doc, url);
 		String inputUrl = ogUrl;
 		/*if(title == null && tmpDescription == null && imageUrl == null && ogUrl == null) {
 			return new WebDocument(title, tmpDescription, imageUrl, ogUrl, inputUrl, doc, null).setCompatible(false);
@@ -615,7 +617,7 @@ public class WebDocumentParser {
 						Document doc1 = Jsoup.parse(html2);
 						String title1 = WebDocumentUtil.readOgTilte(doc1);
 						String description1 = WebDocumentUtil.readOgDescription(doc1);
-						String imageUrl1 = WebDocumentUtil.readOgImage(doc1);
+						String imageUrl1 = WebDocumentUtil.readOgImage(doc1, url);
 						if(title1 != null && !title1.trim().isEmpty()) {
 							title = title1;
 						}
@@ -786,7 +788,7 @@ public class WebDocumentParser {
 		$LOG.debug("Removing footers");
 		WebDocumentUtil.removeFooters(doc);
 
-		html = "<html><head><script async src=\"https://cdn.ampproject.org/v0.js\"></script></head><body>" + _LCA.html() + "</body></html>";
+		html = "<html><head><meta charset=\"UTF-8\"><script async src=\"https://cdn.ampproject.org/v0.js\"></script></head><body>" + _LCA.html() + "</body></html>";
 		$LOG.trace("Final HTML to parse = ");
 		Document document = Jsoup.parse(html);
 		$LOG.trace(document.text());

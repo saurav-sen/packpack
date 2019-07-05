@@ -35,6 +35,11 @@
 	      <artifactId>boilerpipe</artifactId>
 	      <version>${packpack.release}</version>
 	    </dependency>
+	    <dependency>
+			<groupId>com.pack.pack</groupId>
+			<artifactId>utils</artifactId>
+			<version>${packpack.release}</version>
+		</dependency>
 		<dependency>		  
 		  <groupId>org.jsoup</groupId>
 		  <artifactId>jsoup</artifactId>

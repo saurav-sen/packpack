@@ -23,6 +23,7 @@ import com.squill.og.crawler.hooks.IFeedHandler;
 import com.squill.og.crawler.hooks.IFeedUploader;
 import com.squill.og.crawler.hooks.IWebLinkTrackerService;
 import com.squill.og.crawler.internal.utils.HttpRequestExecutor;
+import com.squill.utils.HtmlUtil;
 
 /**
  * 
@@ -190,9 +191,9 @@ public class WebFeedSpider implements Spider {
 		feed.setUploadTime(System.currentTimeMillis());
 		feed.setOgTitle(title);
 		feed.setOgDescription(description);
-		feed.setOgImage(imageUrl);
-		feed.setOgUrl(hrefUrl != null ? hrefUrl : link);
-		feed.setHrefSource(hrefUrl != null ? hrefUrl : link);
+		feed.setOgImage(HtmlUtil.resolveAbsoluteOgUrl(link, imageUrl));
+		feed.setOgUrl(HtmlUtil.resolveAbsoluteOgUrl(link, (hrefUrl != null ? hrefUrl : link)));
+		feed.setHrefSource(HtmlUtil.resolveAbsoluteOgUrl(link, (hrefUrl != null ? hrefUrl : link)));
 		
 		return feed;
 	}

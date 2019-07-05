@@ -3,6 +3,8 @@ package com.squill.utils;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,6 +44,49 @@ public class HtmlUtil {
 	private HtmlUtil() {
 	}
 
+	private static boolean isAbsoluteUrl(String link) {
+		try {
+			final URI uri = new URI(link);
+			if (uri.isAbsolute()) {
+				return true;
+			}
+			return false;
+		} catch (URISyntaxException e) {
+			return false;
+		}
+	}
+
+	public static String resolveAbsoluteOgUrl(String mainPageLink,
+			String urlToResolve) {
+		if (mainPageLink == null || mainPageLink.trim().isEmpty()) {
+			return urlToResolve;
+		}
+		if (urlToResolve == null || urlToResolve.trim().isEmpty()) {
+			return urlToResolve;
+		}
+		if (!isAbsoluteUrl(mainPageLink)) {
+			return urlToResolve;
+		}
+		if (isAbsoluteUrl(urlToResolve)) {
+			return urlToResolve;
+		}
+		try {
+			URL url = new URL(mainPageLink);
+			String HOST = url.getHost();
+			String PROTOCOL = url.getProtocol();
+			StringBuilder absoluteUrl = new StringBuilder();
+			absoluteUrl.append(PROTOCOL).append("://").append(HOST);
+			if (!urlToResolve.trim().startsWith("/")) {
+				absoluteUrl.append("/");
+			}
+			absoluteUrl.append(urlToResolve);
+			return absoluteUrl.toString();
+		} catch (MalformedURLException e) {
+			$_LOG.debug(e.getMessage(), e);
+			return urlToResolve;
+		}
+	}
+
 	public static String cleanIllegalCharacters4mUrl(String url) {
 		if (url == null) {
 			return url;
@@ -55,14 +100,17 @@ public class HtmlUtil {
 		if (text == null) {
 			return text;
 		}
-		//return LanguageUtil.foldToASCII(text);
+		// return LanguageUtil.foldToASCII(text);
 		return LanguageUtil.foldToASCII(text.replaceAll("[^\\x00-\\x7F]", ""));
 	}
-	
-	/*public static void main(String[] args) {
-		System.out.println("লোকাল নেটওয়ার্কে চ্যাটিং পপম্যাসেঞ্জার দিয়ে");
-		System.out.println(cleanUTFCharacters("লোকাল নেটওয়ার্কে চ্যাটিং পপম্যাসেঞ্জার দিয়ে."));
-	}*/
+
+	/*
+	 * public static void main(String[] args) {
+	 * System.out.println("লোকাল নেটওয়ার্কে চ্যাটিং পপম্যাসেঞ্জার দিয়ে");
+	 * System.
+	 * out.println(cleanUTFCharacters("লোকাল নেটওয়ার্কে চ্যাটিং পপম্যাসেঞ্জার দিয়ে."
+	 * )); }
+	 */
 
 	public static JRssFeed parse4mHtml(String htmlContent) {
 		Document doc = Jsoup.parse(htmlContent);
@@ -72,7 +120,7 @@ public class HtmlUtil {
 		if (metaOgTitle != null) {
 			title = metaOgTitle.attr("content");
 		}
-		
+
 		String pageTile = null;
 		Elements docTile = doc.select("title");
 		if (docTile != null) {
@@ -103,11 +151,11 @@ public class HtmlUtil {
 			description = pageDescription;
 		}
 
-		/*String type = null;
-		Elements metaOgType = doc.select("meta[property=og:type]");
-		if (metaOgType != null) {
-			type = metaOgType.attr("content");
-		}*/
+		/*
+		 * String type = null; Elements metaOgType =
+		 * doc.select("meta[property=og:type]"); if (metaOgType != null) { type
+		 * = metaOgType.attr("content"); }
+		 */
 
 		String imageUrl = null;
 		Elements metaOgImage = doc.select("meta[property=og:image]");
@@ -127,11 +175,12 @@ public class HtmlUtil {
 		feed.setOgImage(imageUrl);
 		feed.setOgUrl(hrefUrl);
 		feed.setHrefSource(hrefUrl);
-		//feed.setOgType(type);
-		
+		// feed.setOgType(type);
+
 		try {
 			URL url = new URL(hrefUrl);
-			if(url.getHost().contains("youtube.") || url.getHost().contains("youtu.be")) {
+			if (url.getHost().contains("youtube.")
+					|| url.getHost().contains("youtu.be")) {
 				feed.setVideoUrl(hrefUrl);
 			}
 		} catch (MalformedURLException e) {
@@ -247,7 +296,8 @@ public class HtmlUtil {
 				htmlFolder = htmlFolder + File.separator;
 			}
 			while (Files.exists(Paths.get(htmlFolder + id))) {
-				$_LOG.debug("ID Conflict for page generation. Resolving ... id = " + id);
+				$_LOG.debug("ID Conflict for page generation. Resolving ... id = "
+						+ id);
 				int decode = Base62.getDecoder().decode(id)
 						+ new Random().nextInt();
 				id = Base62.getEncoder().encode(decode);
@@ -303,7 +353,8 @@ public class HtmlUtil {
 				htmlFolder = htmlFolder + File.separator;
 			}
 			while (Files.exists(Paths.get(htmlFolder + id))) {
-				$_LOG.debug("ID Conflict for page generation. Resolving ... id = " + id);
+				$_LOG.debug("ID Conflict for page generation. Resolving ... id = "
+						+ id);
 				int decode = Base62.getDecoder().decode(id)
 						+ new Random().nextInt();
 				id = Base62.getEncoder().encode(decode);
@@ -432,7 +483,7 @@ public class HtmlUtil {
 			throw new PackPackException(ErrorCodes.PACK_ERR_61,
 					"Failed Generating Proxy Page for Shared Link", e);
 		} finally {
-			if(resetImageToNULL) {
+			if (resetImageToNULL) {
 				feed.setOgImage(null);
 			}
 		}

@@ -1,18 +1,17 @@
 package com.squill.utils;
 
 import java.awt.Point;
-import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.UUID;
-
-import javax.imageio.ImageIO;
 
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -33,12 +32,12 @@ public final class OgImageUtil {
 	private OgImageUtil() {
 	}
 
-	/*public static void main(String[] args) {
+	public static void main(String[] args) {
 		System.out
 				.println(downloadImage(
-						"https://static.toiimg.com/thumb/msid-69801727,width-1070,height-580,imgsize-150719,resizemode-6,overlay-toi_sw,pt-32,y_pad-40/photo.jpg",
-						"http://www.squill.in/api/", "F:/image-magic-POC"));
-	}*/
+						"https://static.toiimg.com/thumb/msid-69999953,width-1070,height-580,imgsize-475928,resizemode-6,overlay-toi_sw,pt-32,y_pad-40/photo.jpg",
+						"http://www.squill.in/sh/", "F:/image-magic-POC"));
+	}
 
 	public static String downloadImage(String ogImageUrl) {
 		return downloadImage(ogImageUrl,
@@ -97,12 +96,27 @@ public final class OgImageUtil {
 			if (imageWriter != null) {
 				imageWriter.close();
 			}
-			BufferedImage bitmap = ImageIO.read(new File(filePath));
-			ImageDimension dimension = calculateResizeDimensions(bitmap);
-			if (!resizeImage(filePath, dimension)) {
+			/*BufferedImage bitmap = ImageIO.read(new File(filePath));
+			ImageDimension dimension = calculateResizeDimensions(bitmap);*/
+			ImageDimension dimension = readOriginalImageDimension(filePath);
+			if(dimension == null) {
+				$LOG.error("Failed reading original image dimension @ " + filePath + " for ogImage @ " + ogImageUrl);
 				newOgImageUrl = ogImageUrl;
+				return newOgImageUrl;
+			}
+			dimension = calculateResizeDimensions(dimension.newHeight, dimension.newWidth);
+			if(dimension == null) {
+				$LOG.error("Failed calculating new image dimension @ " + filePath + " for ogImage @ " + ogImageUrl);
+				newOgImageUrl = ogImageUrl;
+				return newOgImageUrl;
+			}
+			if (!resizeImage(filePath, dimension)) {
+				$LOG.error("Failed to resize" + newOgImageUrl);
+				newOgImageUrl = ogImageUrl;
+				return newOgImageUrl;
 			}
 		} catch (Exception e) {
+			$LOG.error("Input ogImageUrl = " + ogImageUrl);
 			$LOG.error(e.getMessage(), e);
 			newOgImageUrl = ogImageUrl;
 		}
@@ -122,6 +136,8 @@ public final class OgImageUtil {
 
 	private static boolean resizeImage(String filePath, ImageDimension dimension)
 			throws IOException, InterruptedException {
+		if(dimension == null)
+			return false;
 		StringBuilder cmd = new StringBuilder();
 		cmd.append("magick convert ");
 		cmd.append(filePath);
@@ -138,11 +154,56 @@ public final class OgImageUtil {
 		return p.waitFor() == 0;
 	}
 
-	private static ImageDimension calculateResizeDimensions(BufferedImage bitmap) {
+	/*private static ImageDimension calculateResizeDimensions(BufferedImage bitmap) {
 		int height = bitmap.getHeight();
 		int width = bitmap.getWidth();
 		return calculateResizeDimensions(height, width);
+	}*/
+	
+	
+	private static ImageDimension readOriginalImageDimension(String imageFilePath) {
+		try {
+			StringBuilder cmd = new StringBuilder();
+			cmd.append("magick identify -ping -format %w:%h ");
+			cmd.append(imageFilePath);
+			$LOG.debug("Identify original image dimension COmmand = " + cmd.toString());
+			Process p = Runtime.getRuntime().exec(cmd.toString());
+			String line = null;
+			StringBuilder output = new StringBuilder();
+			BufferedReader input = new BufferedReader(new InputStreamReader(
+					p.getInputStream()));
+			while ((line = input.readLine()) != null) {
+				output.append(line);
+			}
+			input.close();
+			String[] splits = output.toString().trim().split(":");
+			if(splits.length != 2) {
+				$LOG.error("Identify original image dimension COmmand Output = " + output.toString());
+				return null;
+			}
+			int width = Integer.parseInt(splits[0].trim());
+			int height = Integer.parseInt(splits[1].trim());
+			return new ImageDimension(height, width);
+		} catch (Exception e) {
+			return null;
+		}
 	}
+	
+	/*private static ImageDimension calculateResizeDimensions(String imageFilePath) {
+		StringBuilder cmd = new StringBuilder();
+		cmd.append("magick identify -ping -format '%w %h' ");
+		cmd.append(imageFilePath);
+		$LOG.debug("Identify original image dimension COmmand = " + cmd.toString());
+		Process p = Runtime.getRuntime().exec(cmd.toString());
+		String line;
+		BufferedReader input = new BufferedReader(new InputStreamReader(
+				p.getInputStream()));
+		while ((line = input.readLine()) != null) {
+			System.out.println(line);
+		}
+		input.close();
+		return calculateResizeDimensions(height, width);
+	}*/
 
 	private static ImageDimension calculateResizeDimensions(int bitmapHeight,
 			int bitmapWidth) {
