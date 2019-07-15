@@ -3,6 +3,11 @@ package com.squill.og.crawler.newsapi.reader;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 
+ * @author Saurav
+ *
+ */
 public class NewsSource {
 
 	private String id;

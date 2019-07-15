@@ -6,6 +6,7 @@ import java.util.Map;
 import com.pack.pack.client.api.API;
 import com.pack.pack.client.api.APIBuilder;
 import com.pack.pack.client.api.COMMAND;
+import com.pack.pack.oauth1.client.internal.Base64;
 
 /**
  * 
@@ -61,9 +62,6 @@ public class APIBuilderImpl extends APIBuilder {
 				|| action == COMMAND.ISSUE_SIGNUP_VERIFIER) {
 			api = new APIWrapper(new UserManagementApi(baseUrl));
 			api.getInvoker().setConfiguration(config);
-		} else if (action == COMMAND.GET_PROFILE_PICTURE) {
-			api = new APIWrapper(new AttachmentsApi(baseUrl));
-			api.getInvoker().setConfiguration(config);
 		} else if (action == COMMAND.LOAD_RESOURCE
 				|| action == COMMAND.LOAD_EXTERNAL_RESOURCE) {
 			api = new APIWrapper(new ResourceLoaderApi(baseUrl));
@@ -117,7 +115,11 @@ public class APIBuilderImpl extends APIBuilder {
 
 		@Override
 		public String getUserName() {
-			return userName;
+			try {
+				return new String(Base64.encode(userName.getBytes()));
+			} catch (Exception e) {
+				return userName;
+			}
 		}
 
 		@Override

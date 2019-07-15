@@ -94,7 +94,7 @@ public class RedisCacheService {
 		sync.set(key, json);
 		//sync.close();
 	}
-
+	
 	public void addToCache(String key, Object value, long ttlSeconds)
 			throws PackPackException {
 		if (value == null)

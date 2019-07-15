@@ -20,8 +20,7 @@ public enum COMMAND {
 			APIConstants.User.NAME_SEARCH_PATTERN), UPLOAD_USER_PROFILE_PICTURE(
 			APIConstants.User.ID, APIConstants.User.PROFILE_PICTURE), UPDATE_USER_SETTINGS(
 			APIConstants.User.ID, APIConstants.User.Settings.KEY,
-			APIConstants.User.Settings.VALUE), GET_PROFILE_PICTURE(
-			APIConstants.User.ID, APIConstants.Attachment.FILE_NAME), LOAD_RESOURCE(
+			APIConstants.User.Settings.VALUE), LOAD_RESOURCE(
 			APIConstants.ProtectedResource.RESOURCE_URL,
 			APIConstants.Image.WIDTH, APIConstants.Image.HEIGHT), LOAD_EXTERNAL_RESOURCE(
 			APIConstants.ExternalResource.RESOURCE_URL), GET_ALL_REFRESHMENT_FEEDS(

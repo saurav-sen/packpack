@@ -2,13 +2,9 @@ package com.pack.pack.client.internal;
 
 import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
 
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
@@ -35,15 +31,13 @@ public class NewsFeedsApi extends BaseAPI {
 	@SuppressWarnings("unchecked")
 	private Pagination<JRssFeed> getAllFeeds(String userId, int pageNo,
 			String userName, String source) throws Exception {
-		DefaultHttpClient client = new DefaultHttpClient();
-		String url = getBaseUrl() + "news/usr/" + userId + "/page/" + String.valueOf(pageNo)
-				+ "?source=" + source;
-		HttpGet GET = new HttpGet(url);
-		GET.addHeader(AUTHORIZATION_HEADER, userName);
-		HttpResponse response = client.execute(GET);
-		Pagination<JRssFeed> page = JSONUtil
-				.deserialize(EntityUtils.toString(GZipUtil.decompress(response
-						.getEntity())), Pagination.class);
+		String url = getBaseUrl() + "news/usr/" + userId + "/page/"
+				+ String.valueOf(pageNo) + "?source=" + source;
+		Map<String, String> headers = new HashMap<String, String>();
+		headers.put(AUTHORIZATION_HEADER, userName);
+		Pagination<JRssFeed> page = JSONUtil.deserialize(
+				new HttpRequestExecutor().GET(url, headers, true),
+				Pagination.class);
 		if (page == null)
 			return page;
 		List<JRssFeed> feeds = page.getResult();
@@ -53,7 +47,7 @@ public class NewsFeedsApi extends BaseAPI {
 		page.setResult(feeds);
 		return page;
 	}
-	
+
 	private class Invoker implements ApiInvoker {
 
 		private COMMAND action;

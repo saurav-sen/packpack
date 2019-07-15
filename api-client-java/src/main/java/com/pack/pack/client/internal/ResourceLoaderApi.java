@@ -2,17 +2,9 @@ package com.pack.pack.client.internal;
 
 import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
 
-import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
@@ -32,10 +24,7 @@ class ResourceLoaderApi extends BaseAPI {
 	}
 
 	private InputStream loadResource(String url, int width, int height,
-			String userName) throws ClientProtocolException, IOException {
-		HttpParams httpParams = new BasicHttpParams();
-		HttpConnectionParams.setConnectionTimeout(httpParams, 30000);
-		DefaultHttpClient client = new DefaultHttpClient(httpParams);
+			String userName) throws Exception {
 		if (url.contains("?")) {
 			url = url + "&" + APIConstants.Image.WIDTH + "=" + width + "&"
 					+ APIConstants.Image.HEIGHT + "=" + height;
@@ -43,23 +32,20 @@ class ResourceLoaderApi extends BaseAPI {
 			url = url + "?" + APIConstants.Image.WIDTH + "=" + width + "&"
 					+ APIConstants.Image.HEIGHT + "=" + height;
 		}
-		HttpGet GET = new HttpGet(url);
-		GET.addHeader(AUTHORIZATION_HEADER, userName);
-		HttpResponse response = client.execute(GET);
-		return GZipUtil.decompress(response.getEntity()).getContent();
+		Map<String, String> headers = new HashMap<String, String>();
+		headers.put(AUTHORIZATION_HEADER, userName);
+		return new HttpRequestExecutor()
+				.GET_Resource(url, headers, true, 30000);
 	}
 
-	private InputStream loadExternalResource(String url, String userName, boolean isIncludeOauthToken)
-			throws ClientProtocolException, IOException {
-		HttpParams httpParams = new BasicHttpParams();
-		HttpConnectionParams.setConnectionTimeout(httpParams, 30000);
-		DefaultHttpClient client = new DefaultHttpClient(httpParams);
-		HttpGet GET = new HttpGet(url);
+	private InputStream loadExternalResource(String url, String userName,
+			boolean isIncludeOauthToken) throws Exception {
+		Map<String, String> headers = new HashMap<String, String>();
 		if (isIncludeOauthToken) {
-			GET.addHeader(AUTHORIZATION_HEADER, userName);
+			headers.put(AUTHORIZATION_HEADER, userName);
 		}
-		HttpResponse response = client.execute(GET);
-		return GZipUtil.decompress(response.getEntity()).getContent();
+		return new HttpRequestExecutor()
+				.GET_Resource(url, headers, true, 30000);
 	}
 
 	private class Invoker implements ApiInvoker {

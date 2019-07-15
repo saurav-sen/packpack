@@ -64,6 +64,8 @@ public class JRssFeed {
 	
 	private String id;
 	
+	private boolean isNotified;
+	
 	public String getOgTitle() {
 		return ogTitle;
 	}
@@ -296,5 +298,13 @@ public class JRssFeed {
 
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	public boolean isNotified() {
+		return isNotified;
+	}
+
+	public void setNotified(boolean isNotified) {
+		this.isNotified = isNotified;
 	}
 }

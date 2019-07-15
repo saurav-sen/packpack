@@ -2,11 +2,6 @@ package com.pack.pack.client.internal;
 
 import java.util.Map;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
-
 import com.pack.pack.client.api.APIConstants;
 import com.pack.pack.client.api.COMMAND;
 import com.pack.pack.client.api.MultipartRequestProgressListener;
@@ -33,31 +28,23 @@ public class PublicApi extends BaseAPI {
 	}
 
 	private Long getServerTimeInMilliseconds() throws Exception {
-		DefaultHttpClient client = new DefaultHttpClient();
 		String url = getBaseUrl() + "sys.info/ntp";
-		HttpGet GET = new HttpGet(url);
-		HttpResponse response = client.execute(GET);
 		Timestamp timestamp = JSONUtil.deserialize(
-				EntityUtils.toString(response.getEntity()), Timestamp.class);
+				new HttpRequestExecutor().GET(url, null, false),
+				Timestamp.class);
 		return timestamp.getValue();
 	}
 
 	private JStatus validateUserName(String userName) throws Exception {
-		DefaultHttpClient client = new DefaultHttpClient();
 		String url = getBaseUrl() + "sys.info/user/" + userName;
-		HttpGet GET = new HttpGet(url);
-		HttpResponse response = client.execute(GET);
 		JStatus status = JSONUtil.deserialize(
-				EntityUtils.toString(response.getEntity()), JStatus.class);
+				new HttpRequestExecutor().GET(url, null, false), JStatus.class);
 		return status;
 	}
 	
 	private String getAndroidApkUrl() throws Exception {
-		DefaultHttpClient client = new DefaultHttpClient();
 		String url = getBaseUrl() + "sys.info/android/apk.url";
-		HttpGet GET = new HttpGet(url);
-		HttpResponse response = client.execute(GET);
-		return EntityUtils.toString(response.getEntity());
+		return new HttpRequestExecutor().GET(url, null, false);
 	}
 
 	private class Invoker implements ApiInvoker {

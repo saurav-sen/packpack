@@ -20,6 +20,8 @@ public class ExtFeedEntry {
     private String pubDate;
     
     private String category;
+    
+    private long dateTime;
 
     public String getTitle() {
         return title;
@@ -118,4 +120,12 @@ public class ExtFeedEntry {
 		toString.append("}");
         return toString.toString();
     }
+
+	public long getDateTime() {
+		return dateTime;
+	}
+
+	public void setDateTime(long dateTime) {
+		this.dateTime = dateTime;
+	}
 }

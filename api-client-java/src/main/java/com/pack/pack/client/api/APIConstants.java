@@ -14,6 +14,15 @@ public interface APIConstants {
 	public static final String APPLICATION_JSON = "application/json";
 	public static final String TEXT_PLAIN = "text/plain";
 	
+	public static final String ACCEPT_ENCODING = "Accept-Encoding";
+	public static final String USER_AGENT = "User-Agent";
+	public static final String COOKIE = "Cookie";
+	public static final String LOCATION = "Location";
+	public static final String SET_COOKIE = "Set-Cookie";
+	
+	public static final String SQUILL_CLIENT_USER_AGENT = "SQUILL Client (Java)";
+	public static final String GZIP = "gzip";
+	
 	public static final String CACHE_STORAGE = "CACHE_STORAGE";
 	
 	public static interface Login {

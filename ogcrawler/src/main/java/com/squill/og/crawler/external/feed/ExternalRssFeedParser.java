@@ -146,6 +146,7 @@ public class ExternalRssFeedParser {
 				}
 			}
 		} catch (XMLStreamException e) {
+			$_LOG.error(url.toString());
 			throw new RuntimeException(e);
 		}
 		return feed;

@@ -224,6 +224,7 @@ public class AllInOneAITaskExecutor {
 			URL url = new URL(linkUrl);
 			return url.getProtocol() + "://" + url.getHost();
 		} catch (MalformedURLException e) {
+			$LOG.error(linkUrl);
 			$LOG.error(e.getMessage(), e);
 			return null;
 		}
@@ -309,6 +310,10 @@ public class AllInOneAITaskExecutor {
 						domainUrl = ((IWebSite)webCrawlable).getDomainUrl();
 					} else {
 						domainUrl = resolveDomainUrl(feed.getOgUrl());
+					}
+					
+					if(domainUrl == null) {
+						continue;
 					}
 					
 					feed.setOgTitle(feed.getOgTitle().replace("Times of India", ""));					

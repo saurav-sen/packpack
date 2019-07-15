@@ -90,11 +90,33 @@ public class FeedPublishResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public JStatus publish(@PathParam("type") String type, String json)
 			throws PackPackException {
-		int typeInt = Integer.parseInt(type.trim());
+		int typeInt = -1;
+		$_LOG.debug("Type = " + type);
+		if(JRssFeedType.NEWS.name().equalsIgnoreCase(type)) {
+			typeInt = 2;
+		} else if(JRssFeedType.NEWS_SCIENCE_TECHNOLOGY.name().equalsIgnoreCase(type)) {
+			typeInt = 3;
+		} else {
+			typeInt = Integer.parseInt(type.trim());
+		}
+		$_LOG.debug("typeInt = " + typeInt);
 		if (typeInt == 0) {
 			return processPublishResource_auto(json);
 		} else if (typeInt == 1) {
 			return processPublishResource_manual(json);
+		} else if (typeInt == 2 || typeInt == 3) {
+			JRssFeed feed = JSONUtil.deserialize(json, JRssFeed.class);
+			JRssFeedUploadRequest uploadRequest = new JRssFeedUploadRequest();
+			uploadRequest.setCheckDuplicate(false);
+			uploadRequest.setContent(feed);
+			if(typeInt == 2) {
+				uploadRequest.setFeedType(JRssFeedType.NEWS.name());
+			} else {
+				uploadRequest.setFeedType(JRssFeedType.NEWS_SCIENCE_TECHNOLOGY.name());
+			}
+			uploadRequest.setNotify(feed.isNotified());
+			uploadRequest.setOpenDirectLink(feed.isOpenDirectLink());
+			return processPublishResource_manual(uploadRequest, true);
 		}
 		throw new PackPackException(ErrorCodes.PACK_ERR_71, "Invalid Type = "
 				+ type);
@@ -154,16 +176,21 @@ public class FeedPublishResource {
 		}
 		return status;
 	}
-
+	
 	private JStatus processPublishResource_manual(String json)
+			throws PackPackException {
+		JRssFeedUploadRequest uploadRequest = JSONUtil.deserialize(json,
+				JRssFeedUploadRequest.class, true);
+		return processPublishResource_manual(uploadRequest, false);
+	}
+
+	private JStatus processPublishResource_manual(JRssFeedUploadRequest uploadRequest, boolean ignoreProvisionDetails)
 			throws PackPackException {
 		JStatus status = new JStatus();
 		try {
 			TTL ttl = new TTL();
 			ttl.setTime((short) 1);
 			ttl.setUnit(TimeUnit.DAYS);
-			JRssFeedUploadRequest uploadRequest = JSONUtil.deserialize(json,
-					JRssFeedUploadRequest.class, true);
 			JRssFeed content = uploadRequest.getContent();
 			content.setUploadType(UploadType.MANUAL.name());
 			content.setUploadTime(System.currentTimeMillis());
@@ -252,11 +279,15 @@ public class FeedPublishResource {
 			JRssFeeds rssFeeds = new JRssFeeds();
 			rssFeeds.getFeeds().add(content);
 			List<String> ids = new ArrayList<String>();
-			ids.add(content.getId());
+			if(!ignoreProvisionDetails) {
+				ids.add(content.getId());
+			}
 			HtmlUtil.generateNewsFeedsHtmlPages(rssFeeds);
 			RssFeedUtil.uploadNewsFeeds(rssFeeds, ttl,
 					System.currentTimeMillis(), true);
-			RssFeedUtil.markAsProvisionedByFeedIds(ids, JRssFeedType.valueOf(content.getFeedType().toUpperCase()));
+			if(!ignoreProvisionDetails) {
+				RssFeedUtil.markAsProvisionedByFeedIds(ids, JRssFeedType.valueOf(content.getFeedType().toUpperCase()));
+			}
 			if (uploadRequest.isNotify()) {
 				NotificationUtil.broadcastNewRSSFeedUploadSummary(content);
 			}

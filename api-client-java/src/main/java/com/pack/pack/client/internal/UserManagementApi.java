@@ -4,7 +4,6 @@ import static com.pack.pack.client.api.APIConstants.APPLICATION_JSON;
 import static com.pack.pack.client.api.APIConstants.AUTHORIZATION_HEADER;
 import static com.pack.pack.client.api.APIConstants.CONTENT_TYPE_HEADER;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -22,10 +21,8 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ByteArrayBody;
-import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
 import com.pack.pack.client.api.APIConstants;
@@ -50,10 +47,6 @@ class UserManagementApi extends BaseAPI {
 		super(baseUrl);
 	}
 
-	/*private static final String OAUTH_REQUEST_TOKEN_PATH = "oauth/request_token"; //$NON-NLS-1$
-	private static final String OAUTH_ACCESS_TOKEN_PATH = "oauth/access_token"; //$NON-NLS-1$
-	private static final String OAUTH_AUTHORIZATION_PATH = "oauth/authorize"; //$NON-NLS-1$
-*/	
 	private Invoker invoker = new Invoker();
 
 	@Override
@@ -124,15 +117,7 @@ class UserManagementApi extends BaseAPI {
 				String userName = (String) params
 						.get(APIConstants.User.USERNAME);
 				result = issuePasswordResetVerifier(userName);
-			} /*else if (action == COMMAND.RESET_USER_PASSWD) {
-				String userName = (String) params
-						.get(APIConstants.User.USERNAME);
-				String verifier = (String) params
-						.get(APIConstants.User.PasswordReset.VERIFIER_CODE);
-				String password = (String) params
-						.get(APIConstants.User.PasswordReset.NEW_PASSWORD);
-				result = resetUserPassword(userName, verifier, password);
-			}*/ else if(action == COMMAND.ISSUE_SIGNUP_VERIFIER) {
+			} else if(action == COMMAND.ISSUE_SIGNUP_VERIFIER) {
 				String email = (String) params
 						.get(APIConstants.User.Register.EMAIL);
 				String name = (String) params
@@ -271,25 +256,13 @@ class UserManagementApi extends BaseAPI {
 		HttpPost POST = new HttpPost(url);
 		if(attachment != null) {
 			MultipartEntity multipartEntity = new MultipartEntity();
-			//MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 			Iterator<String> itr = params.keySet().iterator();
 			while (itr.hasNext()) {
 				String key = itr.next();
-				if (APIConstants.User.PROFILE_PICTURE.equals(key)) {
-					File file = (File) params.get(key);
-					FileBody fileBody = new FileBody(file, file.getName(),
-							HTTP.OCTET_STREAM_TYPE, null);
-					multipartEntity.addPart(key, fileBody);
-					//builder.addBinaryBody(key, file, HTTP.OCTET_STREAM_TYPE, file.getName());
-				} else {
-					String text = (String) params.get(key);
-					//builder.addTextBody(key, text);
-					StringBody contentBody = new StringBody(text);
-					multipartEntity.addPart(key, contentBody);
-				}
+				String text = (String) params.get(key);
+				StringBody contentBody = new StringBody(text);
+				multipartEntity.addPart(key, contentBody);
 			}
-			//HttpEntity entity = builder.build();
-			//POST.setEntity(entity);
 			POST.setEntity(GZipUtil.compress(multipartEntity));
 			POST.addHeader(CONTENT_ENCODING_HEADER, GZIP_CONTENT_ENCODING);
 		} else {
@@ -297,7 +270,6 @@ class UserManagementApi extends BaseAPI {
 			SignupDTO dto = new SignupDTO();
 			String name = (String) params.get(APIConstants.User.Register.NAME);
 			String email = (String) params.get(APIConstants.User.Register.EMAIL);
-			//String password = (String) params.get(APIConstants.User.Register.PASSWORD);
 			String verificationCode = (String) params.get(APIConstants.User.Register.VERIFIER);
 			double longitude = (double) params.get(APIConstants.User.Register.LONGITUDE);
 			double latitude = (double) params.get(APIConstants.User.Register.LATITUDE);
@@ -349,123 +321,4 @@ class UserManagementApi extends BaseAPI {
 		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
 				JStatus.class);
 	}
-
-	/*private JStatus resetUserPassword(String userName, String verifier,
-			String password) throws Exception {
-		String url = getBaseUrl() + "user/passwd/reset/usr/" + userName;
-		DefaultHttpClient client = new DefaultHttpClient();
-		HttpPost POST = new HttpPost(url);
-		PasswordResetDTO dto = new PasswordResetDTO(userName, verifier,
-				password);
-		String json = JSONUtil.serialize(dto);
-		POST.addHeader(CONTENT_TYPE_HEADER, APPLICATION_JSON);
-		POST.setEntity(new StringEntity(json, UTF_8));
-		HttpResponse response = client.execute(POST);
-		return JSONUtil.deserialize(EntityUtils.toString(response.getEntity()),
-				JStatus.class);
-	}*/
-
-	/*private AccessToken signIn(Map<String, Object> params)
-			throws ClientProtocolException, IOException {
-		String clientKey = (String) params.get(APIConstants.Login.CLIENT_KEY);
-		String clientSecret = (String) params
-				.get(APIConstants.Login.CLIENT_SECRET);
-		String username = (String) params.get(APIConstants.Login.USERNAME);
-		String password = (String) params.get(APIConstants.Login.PASSWORD);
-		if (username != null && !username.trim().isEmpty() && password != null
-				&& !password.trim().isEmpty()) {
-			return doSignIn(clientKey, clientSecret,
-					username, password);
-		}
-		String oldAccessToken = (String) params.get(APIConstants.Login.OLD_ACCESS_TOKEN);
-		String oldAccessTokenSecret = (String) params.get(APIConstants.Login.OLD_ACCESS_TOKEN_SECRET);
-		if (oldAccessToken != null && !oldAccessToken.trim().isEmpty() && oldAccessTokenSecret != null
-				&& !oldAccessTokenSecret.trim().isEmpty()) {
-			return reSignIn(clientKey, clientSecret,
-					oldAccessToken, oldAccessTokenSecret);
-		}
-		return null;
-	}*/
-	
-	/*private AccessToken doSignIn(String clientKey, String clientSecret,
-			String username, String password) throws ClientProtocolException,
-			IOException {
-		OAuth1ClientCredentials consumerCredentials = new OAuth1ClientCredentials(
-				clientKey, clientSecret);
-		OAuth1RequestFlow authFlow = OAuth1Support.builder(consumerCredentials,
-				getBaseUrl()).build();
-		String authorizationUri = authFlow.start();
-
-		String query = URI.create(authorizationUri).getQuery();
-		int index = query.indexOf("oauth_token=");
-		String requestToken = query.substring(index + "oauth_token=".length());
-
-		String verifier = authFlow.authorizeUser(requestToken, username, password);
-
-		return authFlow.finish(requestToken, verifier);
-	}
-	
-	private AccessToken reSignIn(String clientKey, String clientSecret,
-			String accessToken, String accessTokenSecret) throws ClientProtocolException,
-			IOException {
-		OAuth1ClientCredentials consumerCredentials = new OAuth1ClientCredentials(
-				clientKey, clientSecret);
-		OAuth1RequestFlow authFlow = OAuth1Support.builder(consumerCredentials,
-				getBaseUrl()).build();
-		String authorizationUri = authFlow.start();
-
-		String query = URI.create(authorizationUri).getQuery();
-		int index = query.indexOf("oauth_token=");
-		String requestToken = query.substring(index + "oauth_token=".length());
-
-		String verifier = authFlow.authorizeToken(requestToken, accessToken, accessTokenSecret);
-
-		return authFlow.finish(requestToken, verifier);
-	}*/
-
-	/*private AccessToken doSignIn(String clientKey, String clientSecret,
-			String username, String password) throws ClientProtocolException,
-			IOException {
-		ConsumerCredentials consumerCredentials = new ConsumerCredentials(
-				clientKey, clientSecret);
-		OAuth1AuthorizationFlow authFlow = OAuth1ClientSupport
-				.builder(consumerCredentials)
-				.authorizationFlow(BASE_URL + OAUTH_REQUEST_TOKEN_PATH,
-						BASE_URL + OAUTH_ACCESS_TOKEN_PATH,
-						BASE_URL + OAUTH_AUTHORIZATION_PATH).build();
-		String authorizationUri = authFlow.start();
-
-		String query = URI.create(authorizationUri).getQuery();
-		int index = query.indexOf("oauth_token=");
-		String requestToken = query.substring(index + "oauth_token=".length());
-
-		HttpClient client = new DefaultHttpClient();
-		HttpPost POST = new HttpPost(
-				"http://192.168.35.12:8080/packpack/oauth/authorize");
-		POST.addHeader("Authorization", requestToken);
-		POST.addHeader("Content-Type", "application/json");
-		String json = "{\"username\": \"" + username + "\", \"password\": \""
-				+ password + "\"}";
-		HttpEntity body = new StringEntity(json, ContentType.APPLICATION_JSON);
-		POST.setEntity(body);
-		HttpResponse response = client.execute(POST);
-		String verifier = EntityUtils.toString(response.getEntity());
-
-		AccessToken accessToken = authFlow.finish(verifier);
-		return accessToken;
-	}*/
-	
-	/*private String fetchRequestToken(String clientKey, String clientSecret)
-			throws ClientProtocolException, IOException {
-		OAuth1ClientCredentials consumerCredentials = new OAuth1ClientCredentials(
-				clientKey, clientSecret);
-		OAuth1RequestFlow authFlow = OAuth1Support.builder(consumerCredentials,
-				BASE_URL).build();
-		String authorizationUri = authFlow.start();
-
-		String query = URI.create(authorizationUri).getQuery();
-		int index = query.indexOf("oauth_token=");
-		String requestToken = query.substring(index + "oauth_token=".length());
-		return requestToken;
-	}*/
 }

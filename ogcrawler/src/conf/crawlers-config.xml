@@ -54,6 +54,9 @@
     <ApiReader id="newsapi.org" uploadIndependently="true" checkDuplicate="false">
         <name>NewsApi.Org</name>
         <description>News API Org</description>
+        <!-- <apiRequestExecutor>
+	        <executor>rssFeedApiRequestExecutor</executor>
+	    </apiRequestExecutor> -->
 	    <apiRequestExecutor>
 	        <executor>newsApiRequestExecutor</executor>
 	    </apiRequestExecutor>
@@ -66,7 +69,7 @@
 	    <articleSummarizer>
 	        <resolver>defaultArticleTextSummarizer</resolver>
 	    </articleSummarizer>
-	    <scheduler initialDelay="0" periodicDelay="2" timeUnit="HOURS"/>
+	    <scheduler initialDelay="0" periodicDelay="1" timeUnit="HOURS"/>
     </ApiReader>
     
    <!--  <RssFeedReader id="dnaindia.com" uploadIndependently="true" checkDuplicate="false">

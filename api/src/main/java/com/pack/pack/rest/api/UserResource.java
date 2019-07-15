@@ -329,10 +329,19 @@ public class UserResource {
 	public JStatus issueOTP(String email, String nameOfUser, String mailSubject, String keyPrefix)
 			throws PackPackException {
 		try {
-			// Generate OTP
-			String OTP = UUID.randomUUID().toString();
-			OTP = EncryptionUtil.generateSH1HashKey(OTP, true, true);
-			OTP = String.valueOf(Math.abs(OTP.hashCode()) % 1000000);
+			String OTP = null;
+
+			String key = keyPrefix + email;
+			RedisCacheService service = ServiceRegistry.INSTANCE
+					.findService(RedisCacheService.class);
+			OTP = service.getFromCache(key, String.class);
+			
+			if(OTP == null || OTP.trim().isEmpty()) {
+				// Generate OTP
+				OTP = UUID.randomUUID().toString();
+				OTP = EncryptionUtil.generateSH1HashKey(OTP, true, true);
+				OTP = String.valueOf(Math.abs(OTP.hashCode()) % 1000000);
+			}
 
 			String html = null;
 			// Prepare HTML email content containing OTP info
@@ -349,8 +358,6 @@ public class UserResource {
 			
 			// Store the OTP info for verification purpose (TTL=900 seconds/15
 			// minutes)
-			RedisCacheService service = ServiceRegistry.INSTANCE
-					.findService(RedisCacheService.class);
 			service.addToCache(keyPrefix + email, OTP, 900); // 15
 																// minutes
 																// TTL

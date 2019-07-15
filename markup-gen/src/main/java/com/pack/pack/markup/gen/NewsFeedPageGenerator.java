@@ -1,6 +1,8 @@
 package com.pack.pack.markup.gen;
 
 import java.io.StringWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +26,18 @@ public class NewsFeedPageGenerator implements IMarkupGenerator {
 		JRssFeed feed = (JRssFeed) object;
 		generateFullPage(feed, markup);
 	}
+	
+	private static boolean isAbsoluteUrl(String link) {
+		try {
+			final URI uri = new URI(link);
+			if (uri.isAbsolute()) {
+				return true;
+			}
+			return false;
+		} catch (URISyntaxException e) {
+			return false;
+		}
+	}
 
 	private void generateFullPage(JRssFeed feed, IMarkup markup)
 			throws Exception {
@@ -36,6 +50,9 @@ public class NewsFeedPageGenerator implements IMarkupGenerator {
 		dataModel.put("ogImage", feed.getOgImage());
 		dataModel.put("ogUrl", feed.getOgUrl());
 		dataModel.put("fullText", feed.getFullArticleText());
+		if(!isAbsoluteUrl(feed.getOgUrl())) {
+			return;
+		}
 		URL url = new URL(feed.getOgUrl());
 		String logo = LogoMap.get(url.getHost());
 		dataModel.put("logo", logo);
