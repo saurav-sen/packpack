@@ -43,6 +43,7 @@ import com.squill.feed.web.model.UploadType;
 import com.squill.utils.ArchiveUtil;
 import com.squill.utils.HtmlUtil;
 import com.squill.utils.NotificationUtil;
+import com.squill.utils.OgImageUtil;
 
 /**
  * 
@@ -107,7 +108,7 @@ public class FeedPublishResource {
 		} else if (typeInt == 2 || typeInt == 3) {
 			JRssFeed feed = JSONUtil.deserialize(json, JRssFeed.class);
 			JRssFeedUploadRequest uploadRequest = new JRssFeedUploadRequest();
-			uploadRequest.setCheckDuplicate(false);
+			uploadRequest.setCheckDuplicate(true);
 			uploadRequest.setContent(feed);
 			if(typeInt == 2) {
 				uploadRequest.setFeedType(JRssFeedType.NEWS.name());
@@ -273,6 +274,7 @@ public class FeedPublishResource {
 
 			Map<String, List<JRssFeed>> map = new HashMap<String, List<JRssFeed>>();
 			List<JRssFeed> feeds = new LinkedList<JRssFeed>();
+			content.setOgImage(OgImageUtil.downloadImage(content.getOgImage()));
 			feeds.add(content);
 			map.put(ArchiveUtil.DEFAULT_ID, feeds);
 			ArchiveUtil.storeInArchive(map);
