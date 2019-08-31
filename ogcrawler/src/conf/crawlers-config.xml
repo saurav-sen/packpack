@@ -54,12 +54,12 @@
     <ApiReader id="newsapi.org" uploadIndependently="true" checkDuplicate="false">
         <name>NewsApi.Org</name>
         <description>News API Org</description>
-        <!-- <apiRequestExecutor>
+       <apiRequestExecutor>
 	        <executor>rssFeedApiRequestExecutor</executor>
-	    </apiRequestExecutor> -->
-	    <apiRequestExecutor>
-	        <executor>newsApiRequestExecutor</executor>
 	    </apiRequestExecutor>
+	   <!--  <apiRequestExecutor>
+	        <executor>newsApiRequestExecutor</executor>
+	    </apiRequestExecutor> -->
 	    <geoTagResolver>
 	        <resolver>defaultGeoLocationResolver</resolver>
 	    </geoTagResolver>
